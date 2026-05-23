@@ -1,2 +1,10 @@
 BEATs/upstream/
 FireRedASR-AED/upstream/
+Canary-1B/upstream/
+Canary-1B/.venv-cpu/
+Canary-1B/test_data/
+Canary-1B/weights/
+Canary-1B/cpu_validation.log
+Canary-1B/__pycache__/
+Canary-1B/hfmirror_download.log
+Canary-1B/cpu_validation_hfmirror.log

@@ -2,59 +2,132 @@
 license: apache-2.0
 hardware: NPU
 ---
-# 引言
+# Canary-1B NPU 推理适配
 
-本案例给出NeMo系列的语音识别模型Canary-1B在NPU环境部署，并基于torch_npu执行推理任务的迁移实践。
+本目录提供 NVIDIA NeMo Canary-1B 在昇腾 NPU 上的推理适配脚本和验证说明。当前适配基于 NeMo `main` 分支 commit `44cb1c7ac5cbe6fc38ecc6184a174a02e7abadbe`。
 
-**使用约束**
-|依赖软件|版本|
-| ----------- | ----------- |
-|昇腾NPU驱动|>=25.0.RC1.1商发版本|
-|昇腾NPU固件|>=25.0.RC1.1商发版本|
-|CANN Toolkit|>=8.2.RC1商发版本|
-|CANN Kernel|>=8.2.RC1商发版本|
-|CANN NNAL|>=8.2.RC1商发版本|
+## 1. 适配结论
 
- **硬件设备**
-|设备型号|NPU配置|
-|---|---|
-|Atlas 800I A2 910B|	1卡| 
+- 上游仓库：<https://github.com/NVIDIA-NeMo/NeMo.git>
+- 模型权重：<https://huggingface.co/nvidia/canary-1b>
+- 本次不修改 NeMo 上游已有文件，因此没有 `.patch`。
+- `infer.py` 是当前适配新增脚本，默认 `--device npu`，CPU 验证使用 `--device cpu`。
+- 不写死 `npu:0` / `cuda:0`；实际卡号由 `ASCEND_RT_VISIBLE_DEVICES` 控制。
 
-# 一、环境准备
-安装依赖包：
-pip install -r requirements.txt
+## 2. 环境准备
 
-# 二、下载官方代码和权重
+### CPU 验证环境
 
+当前环境使用 `uv` 创建 Python 3.12 虚拟环境：
 
-## 2.1 下载开源代码
-git clone https://github.com/NVIDIA-NeMo/NeMo
-
-## 2.2 下载开源模型权重
-https://huggingface.co/nvidia/canary-1b
-
-
-# 三、运行指导
-
-## 3.1 把infer.py移动到NeMo官方代码仓
-mv infer.py  \<your-path-to-NeMo\>
-
-## 3.2 修改模型路径
-对infer.py中模型路径进行修改，修改为自己的路径
-```
-os.system("ln -s models--nvidia--canary-1b     ~/.cache/huggingface/hub/models--nvidia--canary-1b")
+```bash
+uv venv Canary-1B/.venv-cpu --python 3.12
+uv pip install --python Canary-1B/.venv-cpu/bin/python \
+  --index-url https://mirrors.aliyun.com/pypi/simple/ \
+  --trusted-host mirrors.aliyun.com \
+  "torch==2.9.1" "torchaudio==2.9.1" "nemo-toolkit[asr]" \
+  librosa soundfile sentencepiece huggingface_hub
 ```
 
-## 3.3 指定任务进行修改
-在infer.py中以此执行了三个任务，包括默认语音（英语）的ASR推理、指定语言的ASR推理和指定语言的语音到文本的翻译。
+> 说明：当前 `requirements.txt` 为历史完整环境导出，包含大量非推理最小依赖；CPU/NPU 部署建议按上面的最小依赖方式安装，并按 CANN 版本替换匹配的 `torch/torch-npu`。
 
-可以选择执行其中的任务，并删除不要的任务，同时需要对音频路径进行修改，例如：
-```
-# Transcribe
-transcript = canary_model.transcribe(audio=["2902-9008-0000_01.wav"])
+### NPU 推理环境
+
+请先安装与 CANN 匹配的 PyTorch 和 torch-npu，然后安装 NeMo ASR 依赖：
+
+```bash
+pip install torch torch-npu
+pip install "nemo_toolkit[asr] @ git+https://github.com/NVIDIA-NeMo/NeMo.git@44cb1c7ac5cbe6fc38ecc6184a174a02e7abadbe"
+pip install soundfile librosa sentencepiece huggingface_hub
 ```
 
-## 3.4 执行推理
+## 3. 权重下载
+
+推荐从 HF 镜像下载到本地目录：
+
+```bash
+./Canary-1B/scripts/download_weights.sh Canary-1B/weights/canary-1b
 ```
-python infer.py
+
+下载脚本默认使用 `https://hf-mirror.com/nvidia/canary-1b/resolve/main/canary-1b.nemo`，并校验 SHA256。当前环境已成功下载：
+
+```text
+Canary-1B/weights/canary-1b-hfmirror/canary-1b.nemo
+SHA256: b0284183a9a1e039a2fff39427e2991fa4df0b9612a3447fc33ff82b20fdfb5a
 ```
+
+如果要改用其它镜像：
+
+```bash
+CANARY_WEIGHT_URL=<mirror-url> ./Canary-1B/scripts/download_weights.sh Canary-1B/weights/canary-1b
+```
+
+本次在 ModelScope 以 `canary-1b` / `nvidia/canary-1b` 检索未找到同名公开模型。
+
+## 4. 测试数据准备
+
+生成一个 1 秒 16 kHz 单声道 wav，用于 smoke test：
+
+```bash
+./Canary-1B/scripts/download_test_data.sh Canary-1B/test_data
+```
+
+生成文件：
+
+```text
+Canary-1B/test_data/dummy_1s_16k.wav
+```
+
+该文件不是 ASR 准确率样本，只用于验证模型加载、音频读取、设备迁移和推理调用链路。
+
+## 5. CPU 验证
+
+```bash
+Canary-1B/.venv-cpu/bin/python Canary-1B/infer.py \
+  --model Canary-1B/weights/canary-1b-hfmirror/canary-1b.nemo \
+  --audio Canary-1B/test_data/dummy_1s_16k.wav \
+  --device cpu \
+  --task asr \
+  --source_lang en \
+  --target_lang en \
+  --batch_size 1
+```
+
+当前机器已使用 HF 镜像权重完成 CPU 验证，输出示例：`[0]  I'm a part of that.` 详见 `NPU_VALIDATION.md`。
+
+## 6. NPU 推理
+
+```bash
+cd Canary-1B
+ASCEND_RT_VISIBLE_DEVICES=0 python infer.py \
+  --model Canary-1B/weights/canary-1b-hfmirror/canary-1b.nemo \
+  --audio Canary-1B/test_data/dummy_1s_16k.wav \
+  --device npu \
+  --task asr \
+  --source_lang en \
+  --target_lang en \
+  --pnc yes
+```
+
+## 7. 语音翻译 AST
+
+```bash
+ASCEND_RT_VISIBLE_DEVICES=0 python infer.py \
+  --model Canary-1B/weights/canary-1b-hfmirror/canary-1b.nemo \
+  --audio /path/to/en.wav \
+  --device npu \
+  --task ast \
+  --source_lang en \
+  --target_lang de \
+  --pnc yes
+```
+
+## 8. 交付文件
+
+- `infer.py`：CPU/NPU 融合推理脚本。
+- `scripts/download_weights.sh`：权重下载脚本。
+- `scripts/download_test_data.sh`：测试 wav 生成脚本。
+- `ANALYSIS.md`：上游版本、代码节点和风险分析。
+- `NPU_ADAPTATION.md`：适配和运行说明。
+- `NPU_VALIDATION.md`：验证命令与结果记录。
+- `patches/README.md`：说明本次无上游源码 patch。
