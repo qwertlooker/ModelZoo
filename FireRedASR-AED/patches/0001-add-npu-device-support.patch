@@ -1,0 +1,77 @@
+diff --git a/fireredasr/models/fireredasr.py b/fireredasr/models/fireredasr.py
+index 9cb4e33..988ff43 100644
+--- a/fireredasr/models/fireredasr.py
++++ b/fireredasr/models/fireredasr.py
+@@ -2,6 +2,7 @@ import os
+ import time
+ 
+ import torch
++import torch_npu
+ 
+ from fireredasr.data.asr_feat import ASRFeatExtractor
+ from fireredasr.models.fireredasr_aed import FireRedAsrAed
+@@ -39,15 +40,26 @@ class FireRedAsr:
+         self.model = model
+         self.tokenizer = tokenizer
+ 
++    @staticmethod
++    def _resolve_device(args):
++        device = args.get("device")
++        if device:
++            return torch.device(str(device))
++        if args.get("use_gpu", False):
++            if hasattr(torch, "npu") and torch.npu.is_available():
++                return torch.device("npu")
++            if torch.cuda.is_available():
++                return torch.device("cuda")
++            raise RuntimeError("use_gpu is set, but neither NPU nor CUDA is available")
++        return torch.device("cpu")
++
+     @torch.no_grad()
+     def transcribe(self, batch_uttid, batch_wav_path, args={}):
+         feats, lengths, durs = self.feat_extractor(batch_wav_path)
+         total_dur = sum(durs)
+-        if args.get("use_gpu", False):
+-            feats, lengths = feats.cuda(), lengths.cuda()
+-            self.model.cuda()
+-        else:
+-            self.model.cpu()
++        device = self._resolve_device(args)
++        feats, lengths = feats.to(device), lengths.to(device)
++        self.model.to(device)
+ 
+         if self.asr_type == "aed":
+             start_time = time.time()
+@@ -79,9 +91,8 @@ class FireRedAsr:
+                 LlmTokenizerWrapper.preprocess_texts(
+                     origin_texts=[""]*feats.size(0), tokenizer=self.tokenizer,
+                     max_len=128, decode=True)
+-            if args.get("use_gpu", False):
+-                input_ids = input_ids.cuda()
+-                attention_mask = attention_mask.cuda()
++            input_ids = input_ids.to(device)
++            attention_mask = attention_mask.to(device)
+             start_time = time.time()
+ 
+             generated_ids = self.model.transcribe(
+diff --git a/fireredasr/speech2text.py b/fireredasr/speech2text.py
+index 21f645b..cebdda4 100755
+--- a/fireredasr/speech2text.py
++++ b/fireredasr/speech2text.py
+@@ -21,6 +21,8 @@ parser.add_argument("--output", type=str)
+ 
+ # Decode Options
+ parser.add_argument('--use_gpu', type=int, default=1)
++parser.add_argument('--device', type=str, default=None,
++                    help='Explicit torch device, e.g. cpu, cuda, or npu. Visible devices are controlled by environment variables.')
+ parser.add_argument("--batch_size", type=int, default=1)
+ parser.add_argument("--beam_size", type=int, default=1)
+ parser.add_argument("--decode_max_len", type=int, default=0)
+@@ -56,6 +58,7 @@ def main(args):
+             batch_wav_path,
+             {
+             "use_gpu": args.use_gpu,
++            "device": args.device,
+             "beam_size": args.beam_size,
+             "nbest": args.nbest,
+             "decode_max_len": args.decode_max_len,
