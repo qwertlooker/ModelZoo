@@ -147,4 +147,6 @@ ASCEND_RT_VISIBLE_DEVICES=0 python infer.py \
 - `NPU_ADAPTATION.md`：适配和运行说明。
 - `NPU_VALIDATION.md`：验证命令与结果记录。
 - `ACCEPTANCE_PLAN.md`：参考原始模型功能/性能/精度的完整验收方案，包含数据集选择、分层验收、通过条件和报告模板。
+- `EVAL_FLEURS_LIBRISPEECH.md`：LibriSpeech test-clean ASR 与 FLEURS AST 子集/全量验证方案和运行命令。
+- `scripts/eval_canary.py`：下载/准备 LibriSpeech、FLEURS 子集，运行 ASR/AST 推理并输出 WER/BLEU 指标的统一评测脚本。
 - `patches/README.md`：说明本次无上游源码 patch。
