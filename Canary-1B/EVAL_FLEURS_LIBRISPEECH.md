@@ -19,6 +19,8 @@ pip install datasets soundfile librosa tqdm jiwer sacrebleu openai-whisper
 
 ## 2. 准备数据
 
+> 注意：FLEURS 准备脚本默认不会通过 `load_dataset("google/fleurs", ..., split="test")` 走完整 builder；而是直接读取 `parquet-data/<lang>/test-00000-of-00001.parquet`，避免下载 `train-00000-of-00001.parquet`。日志中应看到 `loading FLEURS split-only parquet: .../test-00000-of-00001.parquet`。
+
 ### 2.1 最小验收数据：LibriSpeech 30 分钟 + FLEURS 每方向 50 条
 
 ```bash

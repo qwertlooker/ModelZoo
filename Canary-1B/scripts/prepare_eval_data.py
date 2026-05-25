@@ -8,6 +8,7 @@ load the model or run inference.
 from __future__ import annotations
 
 import argparse
+import io
 import json
 import math
 import re
@@ -66,9 +67,23 @@ def safe_name(text: str) -> str:
 
 
 def write_wav(audio: dict[str, Any], path: Path) -> float:
+    """Write a datasets Audio value to 16 kHz wav.
+
+    HF dataset builders usually return {array, sampling_rate}; direct parquet
+    loading may return {bytes, path}. Support both so FLEURS can be loaded from
+    its test parquet only, without downloading train parquet files.
+    """
     path.parent.mkdir(parents=True, exist_ok=True)
-    array = audio["array"]
-    sr = int(audio["sampling_rate"])
+    if "array" in audio and audio["array"] is not None:
+        array = audio["array"]
+        sr = int(audio["sampling_rate"])
+    elif "bytes" in audio and audio["bytes"] is not None:
+        array, sr = sf.read(io.BytesIO(audio["bytes"]))
+    elif "path" in audio and audio["path"]:
+        array, sr = sf.read(audio["path"])
+    else:
+        raise ValueError(f"Unsupported audio field: {audio.keys()}")
+
     if sr != 16000:
         import librosa
 
@@ -164,6 +179,14 @@ def load_fleurs(dataset_name: str, split: str, lang: str) -> Any:
 
     config = FLEURS_CONFIG[lang]
     print(f"loading FLEURS dataset={dataset_name} config={config} split={split}")
+    if dataset_name == "google/fleurs":
+        # Important: load the requested split parquet directly.
+        # load_dataset("google/fleurs", config, split="test") may still fetch
+        # train/validation parquet files while preparing the builder cache.
+        # This path restricts network/cache access to test-*.parquet only.
+        data_file = f"hf://datasets/google/fleurs/parquet-data/{config}/{split}-00000-of-00001.parquet"
+        print(f"loading FLEURS split-only parquet: {data_file}")
+        return load_dataset("parquet", data_files={split: data_file}, split=split, streaming=True)
     return load_dataset(dataset_name, config, split=split)
 
 
