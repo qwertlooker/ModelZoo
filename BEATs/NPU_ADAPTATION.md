@@ -1,53 +1,87 @@
 # BEATs NPU 适配指导
 
-## 1. 基准
+## 1. 基准信息
 
 - 上游：<https://github.com/microsoft/unilm.git>
 - 子目录：`beats/`
-- commit：`833df7e7832e5064a281131ee64a481afa8e5b95`
+- 分支：`master`
+- 本地基准 commit：`833df7e7832e5064a281131ee64a481afa8e5b95`
+- 本次复核日期：2026-05-25
 
-## 2. 应用 patch
+> 远端最新 commit 需要在可联网环境执行 `git -C BEATs/upstream ls-remote origin master` 复核；当前适配仍基于上述本地 upstream。
+
+## 2. 环境搭建
+
+```bash
+python3 -m venv BEATs/.venv
+source BEATs/.venv/bin/activate
+pip install --upgrade pip
+pip install torch torchaudio
+# NPU 环境按 CANN 版本安装匹配 torch-npu
+pip install torch-npu
+```
+
+`requirements.txt` 为历史整环境导出，不建议作为最小依赖。
+
+## 3. 权重下载
+
+官方权重在 <https://github.com/microsoft/unilm/tree/master/beats> 列出的 OneDrive 链接中。下载 fine-tuned checkpoint 到：
+
+```text
+BEATs/weights/model.pt
+```
+
+脚本：
+
+```bash
+./BEATs/scripts/download_weights.sh BEATs/weights
+BEATS_WEIGHT_URL=<direct-url> ./BEATs/scripts/download_weights.sh BEATs/weights BEATs/weights/model.pt
+```
+
+离线环境可直接拷贝 `.pt`，推理时用 `--checkpoint` 指定。
+
+## 4. 测试数据
+
+```bash
+./BEATs/scripts/download_test_data.sh BEATs/test_data
+```
+
+输出：`BEATs/test_data/dummy_1s_16k.wav`。该 dummy wav 只验证链路。
+
+## 5. 应用 patch
 
 ```bash
 cd BEATs/upstream
 git apply ../patches/0001-add-npu-fbank-device-support.patch
+cp ../infer.py beats/infer.py
 ```
 
-patch 内容：
+patch 内容：`beats/BEATs.py::preprocess()` 中 fbank CPU 回退，完成后把特征搬回输入设备。
 
-- 修改 `beats/BEATs.py::preprocess()`，使 `ta_kaldi.fbank()` 在 CPU 上执行，再把 fbank 搬回原设备。
-- `infer.py` 不属于上游原项目文件，不进入 patch；直接放在当前 `BEATs/` 目录作为适配脚本维护。
+## 6. infer.py 参数
 
-## 3. 环境依赖
+- `--checkpoint`：BEATs fine-tuned checkpoint。
+- `--wav`：16 kHz 或可被 torchaudio 重采样的 wav。
+- `--device`：`npu`、`cpu` 或 `cuda`，默认 `npu`。
+- `--warmup` / `--repeat`：性能测试循环。
+- `--topk`：输出 top-k 标签。
 
-建议最小依赖：
+## 7. CPU 推理
 
 ```bash
-pip install torch==2.5.1 torchaudio==2.5.1 torch-npu==2.5.1.post4
+cd BEATs/upstream/beats
+python infer.py --checkpoint ../../weights/model.pt --wav ../../test_data/dummy_1s_16k.wav --device cpu --warmup 0 --repeat 1
 ```
 
-并确保已安装匹配版本的 Ascend Driver、Firmware、CANN Toolkit/Kernel。实际版本需以目标机器上的 torch-npu 发布矩阵为准。
-
-## 4. NPU 推理
+## 8. NPU 推理
 
 ```bash
-cd BEATs/upstream
-git apply ../patches/0001-add-npu-fbank-device-support.patch
-cd beats
-python infer.py   --checkpoint /path/to/BEATs_finetuned.pt   --wav /path/to/audio.wav   --device npu   --warmup 5   --repeat 20
+cd BEATs/upstream/beats
+ASCEND_RT_VISIBLE_DEVICES=0 python infer.py --checkpoint ../../weights/model.pt --wav ../../test_data/dummy_1s_16k.wav --device npu --warmup 5 --repeat 20
 ```
 
-## 5. 适配原则
+## 9. 常见问题
 
-- 不使用全局 monkey patch 替换 CUDA API。
-- 不修改 BEATs 模型结构。
-- 仅处理 NPU 不支持的 fbank 前处理节点。
-- 保持 CPU/CUDA 路径可用。
-
-## 上游更新处理原则
-
-正式适配或提交前必须重新检查远端默认分支最新 commit。若远端 commit 与本文档记录的基准 commit 不一致，不要直接套用旧 patch；应先在新 upstream 上执行 `git apply --check`，再审视相关源码节点是否发生语义变化，必要时重新生成 patch。
-
-## 设备选择说明
-
-代码中只指定设备类型，例如 `--device npu`、`--device cuda` 或 `--device cpu`，不在代码里绑定 0 号卡或多卡列表。实际使用哪张卡、可见哪些卡由环境变量控制，例如 `ASCEND_RT_VISIBLE_DEVICES` 或 `CUDA_VISIBLE_DEVICES`。
+- `ModuleNotFoundError: torch_npu`：CPU 验证不需要导入 torch_npu；确认使用的是新版 `infer.py`，且未传 `--device npu`。
+- fbank 设备错误：确认 patch 已应用到 `BEATs/upstream/beats/BEATs.py`。
+- 输出 label 为空：checkpoint 可能不是 fine-tuned 分类权重，或缺少 `label_dict`。

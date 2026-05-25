@@ -1,5 +1,11 @@
 BEATs/upstream/
+BEATs/test_data/
+BEATs/weights/
+BEATs/__pycache__/
 FireRedASR-AED/upstream/
+FireRedASR-AED/test_data/
+FireRedASR-AED/weights/
+FireRedASR-AED/__pycache__/
 Canary-1B/upstream/
 Canary-1B/.venv-cpu/
 Canary-1B/test_data/

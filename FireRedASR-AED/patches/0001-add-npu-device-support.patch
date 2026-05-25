@@ -1,16 +1,8 @@
 diff --git a/fireredasr/models/fireredasr.py b/fireredasr/models/fireredasr.py
-index 9cb4e33..988ff43 100644
+index 9cb4e33..401d6ac 100644
 --- a/fireredasr/models/fireredasr.py
 +++ b/fireredasr/models/fireredasr.py
-@@ -2,6 +2,7 @@ import os
- import time
- 
- import torch
-+import torch_npu
- 
- from fireredasr.data.asr_feat import ASRFeatExtractor
- from fireredasr.models.fireredasr_aed import FireRedAsrAed
-@@ -39,15 +40,26 @@ class FireRedAsr:
+@@ -39,15 +39,33 @@ class FireRedAsr:
          self.model = model
          self.tokenizer = tokenizer
  
@@ -18,8 +10,15 @@ index 9cb4e33..988ff43 100644
 +    def _resolve_device(args):
 +        device = args.get("device")
 +        if device:
-+            return torch.device(str(device))
++            device = str(device)
++            if device == "npu":
++                import torch_npu  # noqa: F401 - registers the NPU backend
++            return torch.device(device)
 +        if args.get("use_gpu", False):
++            try:
++                import torch_npu  # noqa: F401 - registers the NPU backend
++            except ImportError:
++                pass
 +            if hasattr(torch, "npu") and torch.npu.is_available():
 +                return torch.device("npu")
 +            if torch.cuda.is_available():
@@ -42,7 +41,7 @@ index 9cb4e33..988ff43 100644
  
          if self.asr_type == "aed":
              start_time = time.time()
-@@ -79,9 +91,8 @@ class FireRedAsr:
+@@ -79,9 +97,8 @@ class FireRedAsr:
                  LlmTokenizerWrapper.preprocess_texts(
                      origin_texts=[""]*feats.size(0), tokenizer=self.tokenizer,
                      max_len=128, decode=True)

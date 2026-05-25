@@ -12,9 +12,15 @@ import time
 import torch
 import torchaudio
 
-import torch_npu
-
 from BEATs import BEATs, BEATsConfig
+
+
+def resolve_device(device_name: str) -> torch.device:
+    if device_name == "npu":
+        import torch_npu  # noqa: F401 - registers the NPU backend
+    if device_name not in {"cpu", "cuda", "npu"}:
+        raise ValueError("--device must be one of: cpu, cuda, npu")
+    return torch.device(device_name)
 
 
 def synchronize(device: torch.device) -> None:
@@ -34,7 +40,7 @@ def main() -> None:
     parser.add_argument("--topk", type=int, default=5)
     args = parser.parse_args()
 
-    device = torch.device(args.device)
+    device = resolve_device(args.device)
     print(f"Using device: {device}")
 
     checkpoint = torch.load(args.checkpoint, map_location="cpu")

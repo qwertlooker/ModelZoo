@@ -7,9 +7,15 @@ from this directory after setting PYTHONPATH to the upstream checkout.
 
 import argparse
 
-import torch_npu
-
 from fireredasr.models.fireredasr import FireRedAsr
+
+
+def resolve_device(device_name: str) -> str:
+    if device_name == "npu":
+        import torch_npu  # noqa: F401 - registers the NPU backend
+    if device_name not in {"cpu", "cuda", "npu"}:
+        raise ValueError("--device must be one of: cpu, cuda, npu")
+    return device_name
 
 
 def main() -> None:
@@ -25,13 +31,14 @@ def main() -> None:
     parser.add_argument("--aed_length_penalty", type=float, default=0.6)
     parser.add_argument("--eos_penalty", type=float, default=1.0)
     args = parser.parse_args()
+    device = resolve_device(args.device)
 
     model = FireRedAsr.from_pretrained("aed", args.model_dir)
     results = model.transcribe(
         [args.uttid],
         [args.wav_path],
         {
-            "device": args.device,
+            "device": device,
             "beam_size": args.beam_size,
             "nbest": args.nbest,
             "decode_max_len": args.decode_max_len,
