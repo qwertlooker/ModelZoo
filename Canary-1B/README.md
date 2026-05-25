@@ -43,23 +43,37 @@ pip install soundfile librosa sentencepiece huggingface_hub
 
 ## 3. 权重下载
 
-推荐从 HF 镜像下载到本地目录：
+推荐通过 `huggingface_hub` 使用 Gitee HF endpoint 下载到本地目录：
 
 ```bash
 ./Canary-1B/scripts/download_weights.sh Canary-1B/weights/canary-1b
 ```
 
-下载脚本默认使用 `https://hf-mirror.com/nvidia/canary-1b/resolve/main/canary-1b.nemo`，并校验 SHA256。当前环境已成功下载：
+下载脚本默认设置：
+
+```bash
+HF_HOME=~/.cache/gitee-ai
+HF_ENDPOINT=https://hf-api.gitee.com
+```
+
+并等价执行：
+
+```python
+from huggingface_hub import snapshot_download
+snapshot_download("nvidia/canary-1b", allow_patterns=["canary-1b.nemo"], local_dir="Canary-1B/weights/canary-1b")
+```
+
+下载完成后会校验 SHA256。当前环境已成功下载：
 
 ```text
 Canary-1B/weights/canary-1b-hfmirror/canary-1b.nemo
 SHA256: b0284183a9a1e039a2fff39427e2991fa4df0b9612a3447fc33ff82b20fdfb5a
 ```
 
-如果要改用其它镜像：
+如果要改用直接 URL / 旧 `curl` 下载方式：
 
 ```bash
-CANARY_WEIGHT_URL=<mirror-url> ./Canary-1B/scripts/download_weights.sh Canary-1B/weights/canary-1b
+CANARY_DOWNLOAD_METHOD=curl CANARY_WEIGHT_URL=<mirror-url> ./Canary-1B/scripts/download_weights.sh Canary-1B/weights/canary-1b
 ```
 
 本次在 ModelScope 以 `canary-1b` / `nvidia/canary-1b` 检索未找到同名公开模型。

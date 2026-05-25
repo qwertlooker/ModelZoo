@@ -62,15 +62,26 @@ pip install soundfile librosa sentencepiece huggingface_hub
 
 官方权重：<https://huggingface.co/nvidia/canary-1b>
 
-当前验证使用 HF 镜像：<https://hf-mirror.com/nvidia/canary-1b>
+当前脚本默认使用 Gitee HF endpoint：<https://hf-api.gitee.com>
 
 下载脚本：
 
 ```bash
-./Canary-1B/scripts/download_weights.sh Canary-1B/weights/canary-1b-hfmirror
+./Canary-1B/scripts/download_weights.sh Canary-1B/weights/canary-1b
 ```
 
-脚本默认通过 `curl` 从 HF 镜像下载 `canary-1b.nemo`，并校验 SHA256：
+脚本默认通过 `huggingface_hub.snapshot_download` 下载 `canary-1b.nemo`：
+
+```python
+import os
+os.environ["HF_HOME"] = "~/.cache/gitee-ai"
+os.environ["HF_ENDPOINT"] = "https://hf-api.gitee.com"
+
+from huggingface_hub import snapshot_download
+snapshot_download("nvidia/canary-1b", allow_patterns=["canary-1b.nemo"], local_dir="nvidia/canary-1b")
+```
+
+下载后校验 SHA256：
 
 ```text
 b0284183a9a1e039a2fff39427e2991fa4df0b9612a3447fc33ff82b20fdfb5a
