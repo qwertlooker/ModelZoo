@@ -43,6 +43,26 @@ python3 -m py_compile FireRedASR-AED/infer.py
 
 测试数据脚本已执行成功。
 
+权重 URL 轻量检查已执行（不下载 4.36 GiB 权重，只检查 repo metadata 和每个必需文件的 HEAD）：
+
+```bash
+PATH=Canary-1B/.venv-cpu/bin:$PATH FIRERED_CHECK_ONLY=1 \
+  ./FireRedASR-AED/scripts/download_weights.sh FireRedASR-AED/upstream/pretrained_models/FireRedASR-AED-L
+```
+
+结果：
+
+```text
+Verified repo metadata: fireredteam/FireRedASR-AED-L @ e57f5960d03cff1071ff7acbb409314d1e70ed3d
+Verified file URL: cmvn.ark status=200 size=1311
+Verified file URL: config.yaml status=200 size=0
+Verified file URL: dict.txt status=200 size=71448
+Verified file URL: model.pth.tar status=200 size=4678597714
+Verified file URL: train_bpe1000.model status=200 size=251707
+```
+
+说明：Gitee HF endpoint 文件 URL 可访问，`model.pth.tar` 未实际下载以避免拉取 4.36 GiB 大文件。
+
 ## 5. 当前环境 CPU 验证
 
 当前系统 `python3` 缺少 `torch`；使用已有 `Canary-1B/.venv-cpu/bin/python` 继续检查，阻塞于 FireRedASR 额外依赖：
@@ -61,6 +81,21 @@ ModuleNotFoundError: No module named 'kaldiio'
 ```
 
 结论：当前环境 CPU 完整推理未完成；阻塞原因是缺少 `kaldiio/kaldi_native_fbank/cn2an` 等 FireRedASR CPU 依赖，且权重尚未下载。安装依赖并下载权重后补验。
+
+额外检查：
+
+```bash
+./FireRedASR-AED/scripts/download_test_data.sh /tmp/firered_test_data
+python3 - <<'PY'
+import wave
+with wave.open('/tmp/firered_test_data/BAC009S0764W0121.wav') as f:
+    print(f.getnchannels(), f.getframerate(), f.getnframes())
+PY
+# 输出：1 16000 67263
+
+PYTHONPATH=FireRedASR-AED/upstream python FireRedASR-AED/infer.py --help
+# 结果：通过；infer.py 参数解析不再因缺少 kaldiio 提前失败。
+```
 
 ## 6. NPU 验证命令
 

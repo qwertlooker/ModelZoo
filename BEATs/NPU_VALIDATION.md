@@ -43,6 +43,23 @@ python3 -m py_compile BEATs/infer.py
 
 测试数据脚本已执行成功。
 
+权重 URL 轻量检查已执行：
+
+```bash
+BEATS_CHECK_ONLY=1 ./BEATs/scripts/download_weights.sh BEATs/weights
+```
+
+结果：
+
+```text
+Found 19 official OneDrive links in upstream README
+Checked OneDrive link: error=URLError: ... url=https://1drv.ms/u/s!AqeByhGUtINrgcpmY7IHhgc9q0pT7Q?e=uQuisJ
+Checked OneDrive link: error=URLError: ... url=https://1drv.ms/u/s!AqeByhGUtINrgcpuRfRZmco2XulmFw?e=f2INHa
+Checked OneDrive link: error=URLError: ... url=https://1drv.ms/u/s!AqeByhGUtINrgcpyMlTmnRh0Wp_Qgg?e=sgzv8H
+```
+
+说明：上游 README 中确实存在官方 OneDrive 权重链接；当前环境对 OneDrive 非浏览器直连不稳定，`curl`/`urllib` 检查出现 TLS/重定向失败。因此 BEATs 脚本不默认伪造直接下载 URL，建议浏览器下载官方 checkpoint，或在有稳定直链时通过 `BEATS_WEIGHT_URL=<direct-url>` 下载。
+
 ## 5. 当前环境 CPU 验证
 
 当前系统 `python3` 缺少 `torch`，因此使用已有 `Canary-1B/.venv-cpu/bin/python` 做依赖可达性检查：
@@ -61,6 +78,18 @@ FileNotFoundError: BEATs/weights/model.pt
 ```
 
 结论：当前环境 CPU 完整推理未完成；阻塞原因是 BEATs 官方 checkpoint 未下载。下载权重后按同一命令补验。
+
+额外检查：
+
+```bash
+./BEATs/scripts/download_test_data.sh /tmp/beats_test_data
+python3 - <<'PY'
+import wave
+with wave.open('/tmp/beats_test_data/dummy_1s_16k.wav') as f:
+    print(f.getnchannels(), f.getframerate(), f.getnframes())
+PY
+# 输出：1 16000 16000
+```
 
 ## 6. NPU 验证命令
 

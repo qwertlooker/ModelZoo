@@ -52,6 +52,14 @@ cp ../infer.py beats/infer.py
 BEATS_WEIGHT_URL=<direct-url> ./BEATs/scripts/download_weights.sh BEATs/weights BEATs/weights/model.pt
 ```
 
+只检查上游 README 中的官方 OneDrive 链接：
+
+```bash
+BEATS_CHECK_ONLY=1 ./BEATs/scripts/download_weights.sh BEATs/weights
+```
+
+注意：当前环境验证发现 OneDrive 非浏览器直连不稳定；如直接下载失败，请使用浏览器下载官方 checkpoint 或提供稳定直链给 `BEATS_WEIGHT_URL`。
+
 离线部署时，把下载好的 `.pt` 放入 `BEATs/weights/`，推理时通过 `--checkpoint` 指定。
 
 ## 5. 测试数据下载/生成

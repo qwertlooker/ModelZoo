@@ -55,6 +55,13 @@ export PYTHONPATH=$PWD:$PYTHONPATH
   FireRedASR-AED/upstream/pretrained_models/FireRedASR-AED-L
 ```
 
+只检查仓库和文件 URL、但不下载大权重：
+
+```bash
+FIRERED_CHECK_ONLY=1 ./FireRedASR-AED/scripts/download_weights.sh \
+  FireRedASR-AED/upstream/pretrained_models/FireRedASR-AED-L
+```
+
 也可离线下载后放到：
 
 ```text

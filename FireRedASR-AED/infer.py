@@ -7,8 +7,6 @@ from this directory after setting PYTHONPATH to the upstream checkout.
 
 import argparse
 
-from fireredasr.models.fireredasr import FireRedAsr
-
 
 def resolve_device(device_name: str) -> str:
     if device_name == "npu":
@@ -32,6 +30,8 @@ def main() -> None:
     parser.add_argument("--eos_penalty", type=float, default=1.0)
     args = parser.parse_args()
     device = resolve_device(args.device)
+
+    from fireredasr.models.fireredasr import FireRedAsr
 
     model = FireRedAsr.from_pretrained("aed", args.model_dir)
     results = model.transcribe(
