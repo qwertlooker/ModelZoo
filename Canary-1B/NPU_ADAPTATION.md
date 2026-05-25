@@ -62,6 +62,8 @@ pip install soundfile librosa sentencepiece huggingface_hub
 
 官方权重：<https://huggingface.co/nvidia/canary-1b>
 
+当前适配版本明确为原始 `nvidia/canary-1b` 的 `canary-1b.nemo` 权重；不是 `nvidia/canary-1b-flash`，也不是 `nvidia/canary-1b-v2`。本地验证权重 SHA256：`b0284183a9a1e039a2fff39427e2991fa4df0b9612a3447fc33ff82b20fdfb5a`。
+
 当前脚本默认使用 Gitee HF endpoint：<https://hf-api.gitee.com>
 
 下载脚本：

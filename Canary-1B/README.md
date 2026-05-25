@@ -6,6 +6,8 @@ hardware: NPU
 
 本目录提供 NVIDIA NeMo Canary-1B 在昇腾 NPU 上的推理适配脚本和验证说明。当前适配基于 NeMo `main` 分支 commit `44cb1c7ac5cbe6fc38ecc6184a174a02e7abadbe`。
 
+> 版本说明：当前适配对象是 Hugging Face `nvidia/canary-1b` 仓库中的原始 Canary-1B 权重文件 `canary-1b.nemo`，不是 `nvidia/canary-1b-flash`，也不是 `nvidia/canary-1b-v2`。本地已验证权重 SHA256 为 `b0284183a9a1e039a2fff39427e2991fa4df0b9612a3447fc33ff82b20fdfb5a`，`.nemo` 内部 `model_config.yaml` 记录的 `nemo_version` 为 `1.23.0`。
+
 ## 1. 适配结论
 
 - 上游仓库：<https://github.com/NVIDIA-NeMo/NeMo.git>

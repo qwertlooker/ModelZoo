@@ -8,6 +8,7 @@
 - commit 信息：`ci: remove build-docs and build-test-publish-wheel workflows (#15685)`
 - 检查日期：2026-05-23
 - 模型权重：<https://huggingface.co/nvidia/canary-1b>
+- 版本边界：当前适配的是原始 `nvidia/canary-1b` / `canary-1b.nemo`；不包含 `nvidia/canary-1b-flash` 或 `nvidia/canary-1b-v2`。已验证权重 SHA256：`b0284183a9a1e039a2fff39427e2991fa4df0b9612a3447fc33ff82b20fdfb5a`。
 - 本地上游副本：`Canary-1B/upstream/`（已通过 `git clone --depth 1` 获取）
 
 ## 2. 当前目录状态
