@@ -45,6 +45,54 @@ done
 
 当前系统缺少 `python3-pip` / `ensurepip`，已使用 `uv` 创建 CPU 验证虚拟环境：
 
+### 4.1 依赖文件关系说明
+
+NeMo `requirements/` 目录下的文件不是互相全部包含的关系。特别注意：
+
+- `requirements_asr.txt` **不包含** `requirements_lightning.txt`。
+- 只执行 `pip install -r requirements_lightning.txt` 只能解决 `lightning`、`hydra-core`、`omegaconf` 等训练/框架依赖，不能解决 ASR 依赖，例如 `lhotse`。
+- 只执行 `pip install -r requirements_asr.txt` 只能解决 ASR 领域依赖，例如 `lhotse`、`librosa`、`soundfile`、`jiwer`、`sacrebleu` 等，不能解决 `lightning`。
+- `pip install -e "NeMo[asr]"` 或 `pip install "nemo-toolkit[asr]"` 才会通过 NeMo 的 `setup.py` 组合安装基础依赖、`requirements_common.txt`、`requirements_lightning.txt` 和 `requirements_asr.txt`。
+
+NeMo 源码中 `setup.py` 的组合关系如下：
+
+| 安装项/文件 | 作用 | 是否包含其他 requirements |
+|---|---|---|
+| `requirements.txt` | NeMo 基础依赖，如 `torch`、`numpy`、`huggingface_hub` 等 | 基础安装依赖 |
+| `requirements_lightning.txt` | NeMo core/lightning 依赖，如 `lightning`、`hydra-core`、`omegaconf`、`torchmetrics`、`transformers` | 不包含 ASR |
+| `requirements_common.txt` | 通用数据/文本依赖，如 `datasets`、`sentencepiece`、`pandas` | 不包含 lightning/ASR |
+| `requirements_asr.txt` | ASR 依赖，如 `lhotse`、`librosa`、`soundfile`、`jiwer`、`sacrebleu` | 不包含 lightning/common/base |
+| `requirements_audio.txt` | 通用音频处理/评估依赖，如 `lhotse`、`librosa`、`pesq`、`pystoi` | 不等同于 ASR 完整依赖 |
+| `requirements_tts.txt` | TTS 依赖 | NeMo extra `tts` 会叠加 ASR/common |
+| `requirements_slu.txt` | SLU 依赖 | NeMo extra `slu` 会叠加 ASR |
+| `requirements_test.txt` | 测试/格式化依赖 | 仅测试开发使用 |
+| `requirements_docs.txt` | 文档构建依赖 | 仅文档使用 |
+| `requirements_cu12.txt` / `requirements_cu13.txt` | NVIDIA CUDA 附加依赖 | NPU 环境通常不使用 |
+| `requirements_run.txt` | `nemo_run` 相关依赖 | 与 Canary 推理无直接关系 |
+| `requirements_speechlm2.txt` | SpeechLM2 相关依赖 | 与 Canary-1B ASR smoke test 无直接关系 |
+
+因此，Canary-1B ASR 推理建议使用以下二选一方式安装依赖。
+
+**方式 A：从 NeMo 源码安装 ASR extra（推荐）**
+
+```bash
+cd /home/Canary-1B-Adapt/NeMo
+python -m pip install -e ".[asr]"
+```
+
+**方式 B：手工按文件安装（适合不能 editable install 的环境）**
+
+```bash
+python -m pip install -r /home/Canary-1B-Adapt/NeMo/requirements/requirements.txt
+python -m pip install -r /home/Canary-1B-Adapt/NeMo/requirements/requirements_common.txt
+python -m pip install -r /home/Canary-1B-Adapt/NeMo/requirements/requirements_lightning.txt
+python -m pip install -r /home/Canary-1B-Adapt/NeMo/requirements/requirements_asr.txt
+```
+
+如果使用 NPU，还必须额外安装与当前 CANN/驱动匹配的 `torch` / `torch-npu`，不要让上述命令覆盖已验证可用的 NPU 版 PyTorch。
+
+### 4.2 CPU 依赖安装记录
+
 ```bash
 uv venv Canary-1B/.venv-cpu --python 3.12
 uv pip install --python Canary-1B/.venv-cpu/bin/python \
@@ -59,6 +107,7 @@ uv pip install --python Canary-1B/.venv-cpu/bin/python \
 ```bash
 Canary-1B/.venv-cpu/bin/python - <<'PY'
 import torch, torchaudio, nemo, soundfile, librosa, huggingface_hub
+import lightning.pytorch, lhotse
 print(torch.__version__, torchaudio.__version__)
 PY
 ```
@@ -68,7 +117,7 @@ PY
 ```text
 torch 2.9.1+cu128
 torchaudio 2.9.1+cu128
-nemo / soundfile / librosa / huggingface_hub 均可导入
+nemo / lightning / lhotse / soundfile / librosa / huggingface_hub 均可导入
 ```
 
 ## 5. 权重下载验证

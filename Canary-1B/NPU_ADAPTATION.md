@@ -58,6 +58,29 @@ pip install "nemo_toolkit[asr] @ git+https://github.com/NVIDIA-NeMo/NeMo.git@44c
 pip install soundfile librosa sentencepiece huggingface_hub
 ```
 
+如果使用本地 NeMo 源码 `/home/Canary-1B-Adapt/NeMo`，推荐安装 ASR extra，而不是只安装某一个 requirements 文件：
+
+```bash
+cd /home/Canary-1B-Adapt/NeMo
+python -m pip install -e ".[asr]"
+```
+
+依赖关系说明：
+
+- `requirements_asr.txt` 不包含 `requirements_lightning.txt`。
+- `requirements_lightning.txt` 解决 `lightning.pytorch`、Hydra、OmegaConf 等 NeMo core/lightning 依赖。
+- `requirements_asr.txt` 解决 ASR 领域依赖，例如 `lhotse`、`librosa`、`soundfile`、`jiwer`、`sacrebleu`。
+- 如果手工按 requirements 安装，Canary-1B ASR 推理至少需要基础依赖、common、lightning、asr 四组：
+
+```bash
+python -m pip install -r /home/Canary-1B-Adapt/NeMo/requirements/requirements.txt
+python -m pip install -r /home/Canary-1B-Adapt/NeMo/requirements/requirements_common.txt
+python -m pip install -r /home/Canary-1B-Adapt/NeMo/requirements/requirements_lightning.txt
+python -m pip install -r /home/Canary-1B-Adapt/NeMo/requirements/requirements_asr.txt
+```
+
+NPU 环境需要特别注意 `torch` / `torch-npu` 版本与 CANN 匹配；如已安装可用的 NPU 版 PyTorch，安装 NeMo 依赖时避免被 pip 自动升级或替换。
+
 ## 4. 权重下载
 
 官方权重：<https://huggingface.co/nvidia/canary-1b>

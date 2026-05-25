@@ -223,6 +223,100 @@ pip install -r requirements.txt
 
 如果无法拆分 `requirements_cpu.txt` / `requirements.txt`，必须在文档中写明最小依赖建议。
 
+#### 6.1 多 requirements / extras 的依赖闭环必须说明
+
+如果上游项目提供多组 requirements 或 pip extras，适配文档必须说明目标任务所需的完整依赖闭环，不能只写触发当前报错的单个包。
+
+必须记录：
+
+- 每个 requirements 文件或 extra 大致对应的功能域；
+- 目标任务需要安装哪些 requirements / extras；
+- 某个 requirements 是否包含另一个 requirements；
+- 推荐的一步到位安装命令；
+- 如果 NPU 环境中的 `torch` / `torch-npu` 已经按 CANN 配好，如何避免被 pip 覆盖。
+
+以 NeMo / Canary-1B 为例：
+
+- Canary-1B 的 ASR、AST、PnC 都走 `nemo.collections.asr.models.EncDecMultiTaskModel`；
+- ASR / AST / PnC 统一使用 NeMo 的 ASR extra；
+- `requirements_asr.txt` 不包含 `requirements_lightning.txt`；
+- `requirements_lightning.txt` 只解决 `lightning.pytorch`、Hydra、OmegaConf 等 NeMo core/lightning 依赖；
+- `requirements_asr.txt` 解决 `lhotse`、`librosa`、`soundfile`、`jiwer`、`sacrebleu` 等 ASR/AST/PnC 依赖；
+- 一步到位推荐命令：
+
+```bash
+cd /path/to/NeMo
+python -m pip install -e ".[asr]"
+```
+
+如果不能使用 editable extra，则手工安装至少应覆盖：
+
+```bash
+python -m pip install -r requirements/requirements.txt
+python -m pip install -r requirements/requirements_common.txt
+python -m pip install -r requirements/requirements_lightning.txt
+python -m pip install -r requirements/requirements_asr.txt
+```
+
+NPU 环境还必须额外验证 `torch_npu`：
+
+```bash
+python - <<'PY'
+import torch
+import torch_npu
+print("torch:", torch.__version__)
+print("torch_npu ok")
+print(torch.randn(1).to("npu").device)
+PY
+```
+
+如已安装匹配 CANN 的 `torch` / `torch-npu`，安装模型依赖时应避免 pip 自动升级或替换 PyTorch。必要时可使用 `--no-deps` 安装源码包，再手工安装除 torch 外的依赖。
+
+#### 6.2 依赖文件含义记录模板
+
+模型适配文档中建议加入如下表格：
+
+| 文件/extra | 功能域 | 目标模型是否需要 | 说明 |
+|---|---|---:|---|
+| `requirements.txt` | 基础依赖 | 是 | 框架基础包，如 `torch`、`numpy`、`huggingface_hub` 等 |
+| `requirements_common.txt` | 通用数据/文本依赖 | 视模型而定 | 如 `datasets`、`sentencepiece`、`pandas` |
+| `requirements_lightning.txt` | Lightning/Core 依赖 | NeMo 类模型通常需要 | 如 `lightning`、`hydra-core`、`omegaconf` |
+| `requirements_asr.txt` | ASR/AST/PnC 依赖 | 语音识别/翻译类需要 | 如 `lhotse`、`librosa`、`soundfile`、`jiwer`、`sacrebleu` |
+| `requirements_audio.txt` | 通用音频处理/评估 | 视模型而定 | 不一定等同于完整 ASR 依赖 |
+| `requirements_tts.txt` | TTS | TTS 模型需要 | ASR 模型通常不需要 |
+| `requirements_test.txt` | 测试开发 | 非推理必需 | 单元测试、格式化、CI |
+| `requirements_docs.txt` | 文档构建 | 非推理必需 | Sphinx 等 |
+| `requirements_cu*.txt` | CUDA 附加依赖 | NPU 通常不需要 | NPU 环境不要误装 CUDA 专用 extra |
+
+#### 6.3 依赖验收必须包含导入测试
+
+依赖安装完成后，必须在 `NPU_VALIDATION.md` 中给出最小导入测试。不要只写“安装完成”。
+
+以 Canary-1B 为例：
+
+```bash
+python - <<'PY'
+import torch
+import torch_npu
+import lightning.pytorch
+import lhotse
+import librosa
+import soundfile
+from nemo.collections.asr.models import EncDecMultiTaskModel
+
+print("torch:", torch.__version__)
+print("NPU:", torch.randn(1).to("npu").device)
+print("Canary ASR/AST/PnC deps ok")
+PY
+```
+
+该导入测试至少应覆盖：
+
+- 上游模型入口类；
+- 任务域关键依赖；
+- NPU 后端注册；
+- 一个最小 NPU tensor 迁移。
+
 ---
 
 ### Step 7：权重下载必须补全
