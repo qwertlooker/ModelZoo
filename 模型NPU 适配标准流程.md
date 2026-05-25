@@ -585,7 +585,8 @@ ASCEND_RT_VISIBLE_DEVICES=0 python <model_dir>/infer.py --device npu <model_args
 
 - 未执行命令；
 - 未执行原因；
-- 需要用户提供什么；
+- 已执行的替代轻量验证，例如 URL HEAD、metadata、`--help`、测试数据可读性；
+- 需要用户提供什么，例如授权 token、浏览器下载文件、NPU 机器；
 - 后续如何补验。
 
 ---
