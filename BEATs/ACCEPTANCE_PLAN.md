@@ -46,6 +46,18 @@ BEATs 论文/官方说明的代表性公开结果：
 | AudioSet eval | 约 2 万条 10 秒 clip；YouTube 可用性波动，下载偏难 | 多标签音频事件分类 | L2/L3 原始主指标 | 可先用本地缓存子集，完整复现难度较高 |
 | AudioSet-2M | 约 200 万条；下载和授权成本高 | 训练/大规模复现 | L3 研究级复现 | 不作为 NPU 适配最低验收要求 |
 
+### 2.1 数据准备与评测解耦要求
+
+吸取 Canary-1B/FLEURS 数据准备经验，BEATs 正式验收必须先生成本地固定 manifest，再运行评测：
+
+| 阶段 | 要求 | 验收产物 |
+|---|---|---|
+| 准备 ESC-50 | 明确 split/fold；下载或解压后生成 `audio_filepath,label,duration,sample_id,split` manifest | `esc50_*.csv/jsonl` + `*.meta.json` |
+| 准备 AudioSet 子集 | 明确 eval/balanced/unbalanced 与 shard/YouTube 列表；若抽样仍需完整 shard，记录原因和大小 | `audioset_*.csv/jsonl` + `*.meta.json` |
+| 评测 | 只读取 manifest，复用 BEATs forward/infer 机制，不再触发下载 | `metrics.json`、逐样本预测 |
+
+metadata 至少记录 dataset、split/fold、样本数、总时长、抽样 seed、下载源、文件大小和标签映射版本。正式 CPU/CUDA/NPU 对比必须使用同一份 manifest。
+
 ## 3. 分层验收
 
 | 层级 | 数据量 | 必测内容 | 结论用途 |

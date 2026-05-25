@@ -419,6 +419,34 @@ python infer.py \
 
 验证命令和输出必须写入 `NPU_VALIDATION.md`。
 
+#### 8.2 评测数据准备必须与评测脚本解耦
+
+Canary-1B/FLEURS 适配暴露出几个常见坑：`--task all` 会先触发不相关数据集下载；`datasets.load_dataset(..., split="test")` 也可能在构建缓存时下载同 config 的 train/validation 文件；streaming/parquet/range request 会产生大量底层 HTTP 日志；只看命令行参数而不检查实际下载文件，容易误判是否真的只用了 test split。后续模型必须按以下规则处理 L1/L2/L3 数据。
+
+1. **准备数据和评测分开**
+   - 数据准备脚本只做下载、抽样、转码、manifest/metadata 生成，不加载模型、不计算指标。
+   - 评测脚本只读取已准备的 manifest/索引，复用模型已有推理入口或官方 eval 机制，避免重复下载和重新抽样。
+   - CPU/CUDA/NPU 对比必须使用同一份 manifest 和同一批本地文件。
+
+2. **显式记录 split/config/limit**
+   - 所有数据准备输出旁边必须生成 metadata，例如 `*.meta.json`，记录 dataset id、config、split、subset limit、抽样 seed、样本数、总时长、下载日期。
+   - 文档命令必须显式写 `--split test` / `--config xxx` / `--limit N`，不要只依赖默认值。
+   - 输出日志应打印实际加载的数据文件或 URL，例如 `.../test-00000-of-00001.parquet`。
+
+3. **验证“只下载需要的 split”**
+   - 使用 HF `datasets` 前，先用 `HfApi.list_repo_files()` 或等价方式检查数据仓库文件布局。
+   - 对 parquet/webdataset/tar 格式，优先直接指定 `data_files` 到目标 split 文件；不要默认调用可能准备全量 builder cache 的 `load_dataset(dataset, config, split=...)`。
+   - 提交前用 `--limit 1` 或 mock/fake `load_dataset` 做轻量测试，断言 data_files 不包含 `train`、`validation`，并记录测试结果。
+   - 如果数据格式决定了即使抽 50 条也必须下载完整 shard/tar/parquet，必须在文档中明确说明预计下载大小和原因。
+
+4. **降低下载日志噪声，保留关键可审计日志**
+   - 建议文档给出：`HF_HUB_VERBOSITY=error`、`DATASETS_VERBOSITY=error`、`HF_HUB_DISABLE_PROGRESS_BARS=1`。
+   - 不能把底层带签名 URL 的长日志作为正常输出；如出现反复同一 range request，要提示可能是网络重试。
+
+5. **避免混合任务互相阻塞**
+   - `--task all` 只适合数据源都已验证后使用；文档必须给出单独准备 ASR/AST/分类等子任务数据的命令。
+   - 当某个数据源失败时，不应阻塞其他任务数据准备；必要时用多个脚本或多个命令分开执行。
+
 ---
 
 ### Step 9：patch 生成原则

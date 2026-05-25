@@ -54,6 +54,18 @@
 | LibriSpeech test-clean/test-other | 每个约 5 小时，获取容易 | 英文 WER | L2 推荐 | 英文正式验收优先 |
 | 内部业务集 | 视场景而定 | 真实场景鲁棒性 | 上线验收 | 需固定版本和标注规范 |
 
+### 2.1 数据准备与评测解耦要求
+
+吸取 Canary-1B/FLEURS 数据准备经验，FireRedASR-AED 正式验收必须先生成本地固定 `wav.scp`/manifest，再运行解码和指标计算：
+
+| 阶段 | 要求 | 验收产物 |
+|---|---|---|
+| 准备 AISHELL | 明确 `test` split；生成 `uttid,audio_filepath,text,duration,language,split` manifest 或上游兼容 `wav.scp/text` | manifest + `*.meta.json` |
+| 准备 LibriSpeech | 明确 `test-clean` / `test-other`；不要因 dataset builder 默认行为下载 train/validation；必要时直接指定目标 split 文件或使用 OpenSLR 原始 tar | manifest + `*.meta.json` |
+| 评测 | 只读取本地 manifest，复用当前 `infer.py`/上游 decode，固定 CER/WER normalizer | `metrics.json`、逐样本预测 |
+
+metadata 至少记录 dataset、config/split、语言、样本数、总时长、抽样 seed、下载源和文件大小。中文、英文、方言数据建议独立准备和独立评测，避免一个数据源失败阻塞其他验收项。
+
 ## 3. 分层验收
 
 | 层级 | 数据量 | 必测内容 | 结论用途 |

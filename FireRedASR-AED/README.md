@@ -78,6 +78,25 @@ FireRedASR-AED/upstream/pretrained_models/FireRedASR-AED-L/
 
 脚本会复制上游 `examples/wav/` 下的官方样例 wav、`wav.scp` 和 `text`。
 
+### 5.1 正式评测数据准备建议
+
+参考 Canary-1B 数据准备问题，FireRedASR-AED 的 AISHELL/LibriSpeech 等正式评测必须把“准备数据”和“评测”分开：
+
+- L0 官方 wav 只验证链路，不能作为 CER/WER 结论。
+- AISHELL-1、LibriSpeech 等数据准备命令必须显式指定 split，例如 `test` / `test-clean`，不要只依赖默认值。
+- 准备脚本输出固定 `wav.scp` + `text` 或统一 JSONL manifest，字段建议包含 `uttid`、`audio_filepath`、`text`、`duration`、`language`、`split`。
+- manifest 旁边生成 `*.meta.json`，记录 dataset/config/split、样本数、总时长、抽样 seed、下载源和文件大小。
+- 评测脚本只读取本地 `wav.scp`/manifest，复用当前 `infer.py` 或上游解码机制，再用固定 normalizer 计算 CER/WER；CPU/CUDA/NPU 使用同一份 manifest 对比。
+- 中英文数据建议分开准备、分开评测；不要用一个 `--task all` 让 LibriSpeech 下载失败阻塞 AISHELL，或反过来阻塞英文评测。
+
+建议下载日志降噪：
+
+```bash
+export HF_HUB_VERBOSITY=error
+export DATASETS_VERBOSITY=error
+export HF_HUB_DISABLE_PROGRESS_BARS=1
+```
+
 ## 6. CPU 验证
 
 ```bash
