@@ -110,3 +110,16 @@ ASCEND_RT_VISIBLE_DEVICES=0 python infer.py \
 
 - dummy wav 不用于准确率评估。
 - fbank 前处理在 CPU 执行，会有数据搬运开销。
+
+## 8. 完整验收方案
+
+当前 `dummy_1s_16k.wav` 仅用于 smoke test，不能证明 BEATs 的 representation / AudioSet 分类功能、性能或精度。完整验收请执行 `ACCEPTANCE_PLAN.md`，至少覆盖：
+
+- 固定一个官方 checkpoint，并记录名称、来源和 SHA256；
+- pre-trained representation 或 AudioSet fine-tuned top-k 分类功能；
+- batch=1/4/8 或记录最大可用 batch；
+- ESC-50 accuracy 或 AudioSet mAP；
+- NPU 与 CPU/CUDA 的 top-k / accuracy / mAP 差异；
+- 端到端吞吐、RTF/RTFx、峰值内存/HBM 和连续运行稳定性。
+
+正式验收报告建议保存到 `BEATs/validation_reports/`，模板见 `ACCEPTANCE_PLAN.md`。

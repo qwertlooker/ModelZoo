@@ -85,3 +85,7 @@ ASCEND_RT_VISIBLE_DEVICES=0 python infer.py --checkpoint ../../weights/model.pt 
 - `ModuleNotFoundError: torch_npu`：CPU 验证不需要导入 torch_npu；确认使用的是新版 `infer.py`，且未传 `--device npu`。
 - fbank 设备错误：确认 patch 已应用到 `BEATs/upstream/beats/BEATs.py`。
 - 输出 label 为空：checkpoint 可能不是 fine-tuned 分类权重，或缺少 `label_dict`。
+
+## 10. 完整验收
+
+`dummy_1s_16k.wav` 只用于链路 smoke test。正式验收需固定官方 checkpoint，并按 `ACCEPTANCE_PLAN.md` 覆盖 representation / AudioSet 分类、ESC-50 或 AudioSet 精度、batch、RTF/RTFx、峰值 HBM 和稳定性。

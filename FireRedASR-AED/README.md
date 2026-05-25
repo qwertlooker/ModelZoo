@@ -109,3 +109,4 @@ ASCEND_RT_VISIBLE_DEVICES=0 python ../infer.py \
 - `scripts/download_weights.sh`：权重下载脚本。
 - `scripts/download_test_data.sh`：测试数据准备脚本。
 - `ANALYSIS.md` / `NPU_ADAPTATION.md` / `NPU_VALIDATION.md`：分析、适配和验证记录。
+- `ACCEPTANCE_PLAN.md`：参考原始 FireRedASR-AED 功能/性能/精度的完整验收方案，包含数据集选择、CER/WER 验收、性能稳定性和报告模板。

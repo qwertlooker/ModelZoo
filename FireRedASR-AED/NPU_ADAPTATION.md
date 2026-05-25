@@ -94,3 +94,7 @@ ASCEND_RT_VISIBLE_DEVICES=0 python ../infer.py --model_dir pretrained_models/Fir
 - `ModuleNotFoundError: torch_npu`：CPU 验证不需要 torch_npu；确认没有传 `--device npu`。
 - 找不到 `model.pth.tar`：权重目录未放在 `pretrained_models/FireRedASR-AED-L/` 或 `--model_dir` 指错。
 - 长音频异常：上游说明 AED 建议输入不超过 60 秒。
+
+## 10. 完整验收
+
+官方样例只用于链路 smoke test。正式验收需按 `ACCEPTANCE_PLAN.md` 覆盖中文普通话、英文和有条件时方言 ASR，计算 CER/WER，并记录 batch、RTF/RTFx、峰值 HBM 和稳定性。

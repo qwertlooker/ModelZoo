@@ -2,7 +2,7 @@
 
 ## 一句话指令
 
-> 先克隆 upstream，确认远端最新 commit，并明确“当前适配的精确版本边界”：源码 repo/分支/commit、模型权重 repo/文件/commit 或校验值、辅助模型版本，以及明确排除同系列其他变体。区分上游源码改动和当前适配脚本。上游已有文件的修改必须生成 patch；新增 `infer.py` 不放进 patch，直接放当前模型目录。`infer.py` 只保留一个，默认 `--device npu`，CPU 验证用 `--device cpu`，不要使用 `auto/use_gpu`，不要写死 `npu:0/cuda:0`，实际设备由环境变量控制。必须补全环境搭建、权重下载、测试数据下载、CPU 当前环境验证、NPU 验证说明。最后生成 `ANALYSIS.md`、`NPU_ADAPTATION.md`、`NPU_VALIDATION.md`，并验证 `git apply --check`、`py_compile`、下载 URL/脚本可用性、测试数据可用性、当前环境 CPU 推理；不能只补文档不做验证。
+> 先克隆 upstream，确认远端最新 commit，并明确“当前适配的精确版本边界”：源码 repo/分支/commit、模型权重 repo/文件/commit 或校验值、辅助模型版本，以及明确排除同系列其他变体。区分上游源码改动和当前适配脚本。上游已有文件的修改必须生成 patch；新增 `infer.py` 不放进 patch，直接放当前模型目录。`infer.py` 只保留一个，默认 `--device npu`，CPU 验证用 `--device cpu`，不要使用 `auto/use_gpu`，不要写死 `npu:0/cuda:0`，实际设备由环境变量控制。必须补全环境搭建、权重下载、测试数据下载、CPU 当前环境验证、NPU 验证说明。还必须参考原始模型的功能、性能、精度和公开评测，生成 `ACCEPTANCE_PLAN.md`，按数据集大小、获取难度、验证难度设计 L0/L1/L2/L3 分层验收、通过条件和报告模板。最后生成 `ANALYSIS.md`、`NPU_ADAPTATION.md`、`NPU_VALIDATION.md`、`ACCEPTANCE_PLAN.md`，并验证 `git apply --check`、`py_compile`、下载 URL/脚本可用性、测试数据可用性、当前环境 CPU 推理；不能只补文档不做验证，不能只用 dummy smoke test 代替完整验收方案。
 
 ---
 
@@ -478,6 +478,37 @@ python <model_dir>/infer.py --device cpu <model_args> <input_args>
 
 ---
 
+### Step 12.5：完整验收方案（必须补充）
+
+每个模型必须新增 `ACCEPTANCE_PLAN.md`。该文件不是当前环境验证日志，而是正式交付/上线验收设计，必须参考原始模型的公开功能、性能和精度。不能只写 “smoke test 通过”。
+
+`ACCEPTANCE_PLAN.md` 至少包含：
+
+- **验收目标与版本边界**：明确当前适配的是哪个模型/权重/变体，排除哪些同系列变体；
+- **原始模型能力**：列出原始模型支持的任务、语言、输入输出、batch、解码参数或其他关键功能；
+- **公开参考指标**：记录模型卡、论文、README 或官方 benchmark 的关键指标，例如 WER/CER/BLEU/mAP/Accuracy/RTF 等，并说明是否可直接复现；
+- **数据集选择**：按数据集大小、获取难度、授权/登录要求、验证难度和覆盖能力进行分级；
+- **分层验收**：
+  - L0 smoke：极小样本，只验证链路；
+  - L1 功能回归：小样本覆盖所有关键功能开关；
+  - L2 推荐正式验收：可获取公开数据或内部固定集，计算主要精度和性能指标；
+  - L3 完整复现：尽量对齐原始公开 benchmark 全量数据和官方评测配置；
+- **功能矩阵**：覆盖所有核心任务、语言/模态、batch、长输入、异常输入；
+- **精度验收**：指标、normalizer/后处理、CPU/CUDA vs NPU 对齐阈值、对公开指标的允许差异；
+- **性能验收**：加载时间、延迟、吞吐、RTF/RTFx、最大 batch、峰值 HBM/RSS、稳定性；
+- **最低正式验收清单**：资源受限时也必须执行的最小集合；
+- **报告模板**：环境、功能、精度、性能、稳定性、结论。
+
+`NPU_VALIDATION.md` 中必须说明现有 smoke test 的局限，并引用 `ACCEPTANCE_PLAN.md` 作为后续完整验收入口。`README.md` 的文件说明中也必须列出 `ACCEPTANCE_PLAN.md`。
+
+示例判定原则：
+
+- NPU 适配本身优先要求同 checkpoint、同数据、同脚本下相对 CPU/CUDA 不退化；
+- 只有使用原始公开数据全量、官方或等价评测脚本、匹配解码/后处理配置时，才可宣称复现原始公开指标；
+- dummy / 随机输入只能作为 L0 链路验证，不得作为精度或性能验收结论。
+
+---
+
 ### Step 13：文档必须包含
 
 每个模型至少生成，并同步维护根目录 `参考原始仓库.md`：
@@ -486,6 +517,7 @@ python <model_dir>/infer.py --device cpu <model_args> <input_args>
 ANALYSIS.md
 NPU_ADAPTATION.md
 NPU_VALIDATION.md
+ACCEPTANCE_PLAN.md
 README.md
 参考原始仓库.md
 ```
@@ -526,7 +558,16 @@ README.md
 - 权重路径；
 - 测试数据路径；
 - 输出摘要；
-- 已知限制。
+- 已知限制；
+- 已说明现有 smoke test 的局限，并引用 `ACCEPTANCE_PLAN.md`。
+
+#### ACCEPTANCE_PLAN.md 必须包含
+
+- 原始模型功能/性能/精度参考；
+- 数据集大小、获取难度、验证难度分析；
+- L0/L1/L2/L3 分层验收；
+- 功能矩阵、精度指标、性能指标、稳定性场景；
+- 最低正式验收清单和报告模板。
 
 #### README.md 必须包含
 
@@ -538,7 +579,8 @@ README.md
 - 测试数据下载；
 - CPU 验证；
 - NPU 推理；
-- 文件说明。
+- 文件说明；
+- `ACCEPTANCE_PLAN.md` 链接/说明。
 
 ---
 
@@ -579,6 +621,10 @@ python <model_dir>/infer.py --device cpu <model_args> <input_args>
 
 # 8. NPU 验证，有 NPU 环境时执行
 ASCEND_RT_VISIBLE_DEVICES=0 python <model_dir>/infer.py --device npu <model_args> <input_args>
+
+# 9. 完整验收方案检查
+test -f <model_dir>/ACCEPTANCE_PLAN.md
+grep -E "L0|L1|L2|L3|精度|性能|数据集" <model_dir>/ACCEPTANCE_PLAN.md
 ```
 
 如果某一步无法执行，不能删除该步骤，必须在 `NPU_VALIDATION.md` 中记录：
@@ -600,4 +646,5 @@ ASCEND_RT_VISIBLE_DEVICES=0 python <model_dir>/infer.py --device npu <model_args
 - [ ] 已记录本地实际验证权重 SHA256；如未下载，已记录 metadata 检查结果和原因；
 - [ ] 已记录 tokenizer / codec / vocoder / embedding / segmentation 等辅助模型版本；
 - [ ] 已明确排除同系列其他变体；
-- [ ] `README.md`、`ANALYSIS.md`、`NPU_ADAPTATION.md`、`NPU_VALIDATION.md` 中的版本边界一致。
+- [ ] `README.md`、`ANALYSIS.md`、`NPU_ADAPTATION.md`、`NPU_VALIDATION.md`、`ACCEPTANCE_PLAN.md` 中的版本边界一致；
+- [ ] `ACCEPTANCE_PLAN.md` 已参考原始模型功能/性能/精度，列出数据集大小、获取难度、验证难度和分层验收标准。

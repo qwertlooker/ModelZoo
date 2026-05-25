@@ -99,3 +99,4 @@ ASCEND_RT_VISIBLE_DEVICES=0 python infer.py \
 - `scripts/download_weights.sh`：权重下载/放置说明脚本。
 - `scripts/download_test_data.sh`：生成最小 wav 测试样例。
 - `ANALYSIS.md` / `NPU_ADAPTATION.md` / `NPU_VALIDATION.md`：分析、适配和验证记录。
+- `ACCEPTANCE_PLAN.md`：参考原始 BEATs 功能/性能/精度的完整验收方案，包含 checkpoint 固定、数据集选择、分层验收、通过条件和报告模板。

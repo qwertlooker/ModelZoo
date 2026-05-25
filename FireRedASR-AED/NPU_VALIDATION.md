@@ -120,3 +120,17 @@ python fireredasr/speech2text.py --asr_type aed --model_dir pretrained_models/Fi
 python fireredasr/utils/wer.py --print_sentence_wer 1 --do_tn 0 --rm_special 0 \
   --ref ../test_data/text --hyp out/aed-npu.txt
 ```
+
+## 8. 完整验收方案
+
+当前官方样例只用于 smoke test，不能证明 FireRedASR-AED 的中文/英文/方言 ASR 精度或性能。完整验收请执行 `ACCEPTANCE_PLAN.md`，至少覆盖：
+
+- 中文普通话、英文和有条件时中文方言样例；
+- 单条 `--wav_path` 与批量 `--wav_scp`；
+- batch=1/2/4 或记录最大可用 batch；
+- AISHELL-1 或等价普通话数据 CER；
+- LibriSpeech 或等价英文数据 WER；
+- NPU 与 CPU/CUDA 的 CER/WER 差异；
+- RTF/RTFx、加载时间、峰值内存/HBM 和连续运行稳定性。
+
+正式验收报告建议保存到 `FireRedASR-AED/validation_reports/`，模板见 `ACCEPTANCE_PLAN.md`。

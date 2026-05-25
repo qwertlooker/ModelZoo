@@ -186,3 +186,16 @@ ASCEND_RT_VISIBLE_DEVICES=0 python Canary-1B/infer.py \
 - 当前环境没有 NPU，未执行 NPU 端到端验证。
 - 已通过 HF 镜像下载权重并完成 CPU smoke test；若切换网络或镜像，需重新校验 SHA256。
 - Canary-1B 约 1B 参数，CPU 推理即使权重下载完成也可能较慢；建议使用短音频进行 smoke test。
+
+## 11. 完整验收方案
+
+当前 `dummy_1s_16k.wav` 仅用于 smoke test，不能证明 Canary-1B 的功能完整性、性能或精度。完整验收请执行 `ACCEPTANCE_PLAN.md`，至少覆盖：
+
+- ASR：英语、德语、西班牙语、法语；
+- AST：英语 ↔ 德语/西班牙语/法语 6 个方向；
+- PnC：`yes/no`；
+- batch：`1/4/8` 或记录最大可用 batch；
+- 精度：ASR WER、AST BLEU；
+- 性能：RTF/RTFx、加载时间、峰值内存/HBM、连续运行稳定性。
+
+正式验收报告建议保存到 `Canary-1B/validation_reports/`，模板见 `ACCEPTANCE_PLAN.md`。
