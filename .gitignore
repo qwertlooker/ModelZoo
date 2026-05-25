@@ -14,3 +14,8 @@ Canary-1B/cpu_validation.log
 Canary-1B/__pycache__/
 Canary-1B/hfmirror_download.log
 Canary-1B/cpu_validation_hfmirror.log
+
+# Ignore downloaded/model archives; do not commit Git LFS tarball pointers
+*.tar
+*.tar.gz
+*.tgz
