@@ -27,12 +27,13 @@ python Canary-1B/scripts/prepare_eval_data.py \
   --data_dir Canary-1B/eval_data \
   --librispeech_minutes 30 \
   --asr_pnc no \
+  --fleurs_split test \
   --fleurs_limit 50 \
   --ast_directions en-de,en-es,en-fr,de-en,es-en,fr-en \
   --ast_pnc yes
 ```
 
-生成 manifest：
+生成 manifest；同时生成同名 `.meta.json`，其中 `split` 应为 `test`：
 
 ```text
 Canary-1B/eval_data/librispeech_test_clean/manifest_asr_en.jsonl
@@ -60,6 +61,7 @@ python Canary-1B/scripts/prepare_eval_data.py \
 python Canary-1B/scripts/prepare_eval_data.py \
   --task ast \
   --data_dir Canary-1B/eval_data \
+  --fleurs_split test \
   --fleurs_limit 0 \
   --ast_directions en-de,en-es,en-fr,de-en,es-en,fr-en \
   --ast_pnc yes
@@ -173,3 +175,4 @@ FLEURS 公开参考：
 - `<tag>.metrics.json`：单个 manifest 指标。
 - `summary.metrics.json`：汇总指标。
 - `run_env.json`：Python、torch、NeMo、设备和命令行参数记录。
+- `*.jsonl.meta.json`：数据准备元信息，包含 dataset/config/split/limit，便于确认 FLEURS 使用的是 `test` split。

@@ -88,6 +88,13 @@ def write_manifest(path: Path, items: Iterable[ManifestItem]) -> None:
     print(f"wrote {count} items: {path}")
 
 
+def write_metadata(path: Path, metadata: dict[str, Any]) -> None:
+    meta_path = path.with_suffix(path.suffix + ".meta.json")
+    with meta_path.open("w", encoding="utf-8") as f:
+        json.dump(metadata, f, ensure_ascii=False, indent=2)
+    print(f"wrote metadata: {meta_path}")
+
+
 def maybe_shuffle(ds: Any, shuffle: bool, seed: int) -> Any:
     return ds.shuffle(seed=seed) if shuffle else ds
 
@@ -95,6 +102,10 @@ def maybe_shuffle(ds: Any, shuffle: bool, seed: int) -> Any:
 def prepare_librispeech(args: argparse.Namespace) -> Path:
     from datasets import load_dataset
 
+    print(
+        f"loading LibriSpeech dataset={args.librispeech_dataset} "
+        f"config={args.librispeech_config} split={args.librispeech_split}"
+    )
     ds = load_dataset(args.librispeech_dataset, args.librispeech_config, split=args.librispeech_split)
     ds = maybe_shuffle(ds, args.shuffle, args.seed)
     out_dir = Path(args.data_dir) / "librispeech_test_clean"
@@ -126,6 +137,19 @@ def prepare_librispeech(args: argparse.Namespace) -> Path:
 
     manifest = out_dir / "manifest_asr_en.jsonl"
     write_manifest(manifest, items)
+    write_metadata(
+        manifest,
+        {
+            "task": "asr",
+            "dataset": args.librispeech_dataset,
+            "config": args.librispeech_config,
+            "split": args.librispeech_split,
+            "minutes_limit": args.librispeech_minutes,
+            "item_limit": args.librispeech_limit,
+            "num_items": len(items),
+            "total_audio_seconds": sum(item.duration for item in items),
+        },
+    )
     return manifest
 
 
@@ -138,7 +162,9 @@ def fleurs_text(row: dict[str, Any], pnc: str) -> str:
 def load_fleurs(dataset_name: str, split: str, lang: str) -> Any:
     from datasets import load_dataset
 
-    return load_dataset(dataset_name, FLEURS_CONFIG[lang], split=split)
+    config = FLEURS_CONFIG[lang]
+    print(f"loading FLEURS dataset={dataset_name} config={config} split={split}")
+    return load_dataset(dataset_name, config, split=split)
 
 
 def prepare_fleurs_direction(args: argparse.Namespace, src: str, tgt: str) -> Path:
@@ -171,6 +197,20 @@ def prepare_fleurs_direction(args: argparse.Namespace, src: str, tgt: str) -> Pa
 
     manifest = out_dir / f"manifest_ast_{src}_{tgt}.jsonl"
     write_manifest(manifest, items)
+    write_metadata(
+        manifest,
+        {
+            "task": "ast",
+            "dataset": args.fleurs_dataset,
+            "source_config": FLEURS_CONFIG[src],
+            "target_config": FLEURS_CONFIG[tgt],
+            "split": args.fleurs_split,
+            "direction": f"{src}-{tgt}",
+            "item_limit": args.fleurs_limit,
+            "num_items": len(items),
+            "total_audio_seconds": sum(item.duration for item in items),
+        },
+    )
     return manifest
 
 
