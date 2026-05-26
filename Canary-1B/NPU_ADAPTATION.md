@@ -155,16 +155,17 @@ Canary-1B/test_data/dummy_1s_16k.wav
 Canary-1B/test_data/dummy_1s_16k.wav.meta.json
 ```
 
-该样例仅用于链路验证，不用于准确率评估。若要验证识别质量，请使用下面的 MLS / FLEURS manifest 流程。
+该样例仅用于链路验证，不用于准确率评估。若要验证识别质量，请使用下面的 MLS / LibriSpeech / FLEURS manifest 流程。
 
-### 6.1 MLS / FLEURS 评测数据准备
+### 6.1 MLS / LibriSpeech / FLEURS 评测数据准备
 
 `scripts/prepare_eval_data.py` 已按在线/离线混合要求实现：
 
 - `--asr_parquet_dir Canary-1B/eval_data/mls_parquet`：复用或下载 `facebook/multilingual_librispeech` 的 `german/spanish/french` test parquet。
+- `--librispeech_dir Canary-1B/eval_data/librispeech_raw`：保留并复用/下载 OpenSLR LibriSpeech `test-clean`，用于性能测试。
 - `--fleurs_parquet_dir Canary-1B/eval_data/fleurs_parquet`：复用或下载 FLEURS 各语言 `test-00000-of-00001.parquet`。
 - `--offline`：禁止联网，缺失文件立即报具体路径。
-- MLS/FLEURS 使用 `Audio(decode=False)` + `soundfile`，不依赖 `torchcodec`。
+- MLS/LibriSpeech/FLEURS 使用 `Audio(decode=False)` + `soundfile`，不依赖 `torchcodec`。
 
 推荐最小验收数据：
 
@@ -174,6 +175,7 @@ python Canary-1B/scripts/prepare_eval_data.py \
   --data_dir Canary-1B/eval_data \
   --asr_parquet_dir Canary-1B/eval_data/mls_parquet \
   --asr_configs german,spanish,french \
+  --librispeech_dir Canary-1B/eval_data/librispeech_raw \
   --fleurs_parquet_dir Canary-1B/eval_data/fleurs_parquet \
   --asr_minutes 30 \
   --fleurs_split test \
@@ -189,6 +191,7 @@ python Canary-1B/scripts/prepare_eval_data.py \
   --data_dir Canary-1B/eval_data \
   --asr_parquet_dir Canary-1B/eval_data/mls_parquet \
   --asr_configs german,spanish,french \
+  --librispeech_dir Canary-1B/eval_data/librispeech_raw \
   --fleurs_parquet_dir Canary-1B/eval_data/fleurs_parquet \
   --offline \
   --asr_minutes 30 \

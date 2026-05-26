@@ -156,9 +156,9 @@ Canary-1B/test_data/dummy_1s_16k.wav.meta.json
 
 该文件不是 ASR 准确率样本，只用于验证模型加载、音频读取、设备迁移和推理调用链路。
 
-### 5.1 MLS / FLEURS 评测数据在线/离线混合准备
+### 5.1 MLS / LibriSpeech / FLEURS 评测数据在线/离线混合准备
 
-正式 ASR/AST 验收使用 `scripts/prepare_eval_data.py`。脚本支持指定本地目录，存在即复用，缺失才下载，`--offline` 下禁止联网：
+正式 ASR/AST 验收使用 `scripts/prepare_eval_data.py`；MLS 用于对齐 Canary 官方多语种 ASR 精度，LibriSpeech `test-clean` 保留用于 Hugging Face Open ASR Leaderboard 口径的性能测试。脚本支持指定本地目录，存在即复用，缺失才下载，`--offline` 下禁止联网：
 
 ```bash
 # 在线：下载到指定目录，并生成 manifest/meta
@@ -167,18 +167,20 @@ python Canary-1B/scripts/prepare_eval_data.py \
   --data_dir Canary-1B/eval_data \
   --asr_parquet_dir Canary-1B/eval_data/mls_parquet \
   --asr_configs german,spanish,french \
+  --librispeech_dir Canary-1B/eval_data/librispeech_raw \
   --fleurs_parquet_dir Canary-1B/eval_data/fleurs_parquet \
   --asr_minutes 30 \
   --fleurs_split test \
   --fleurs_limit 50 \
   --ast_directions en-de,en-es,en-fr,de-en,es-en,fr-en
 
-# 离线：要求本地已有 MLS/FLEURS parquet
+# 离线：要求本地已有 MLS/LibriSpeech/FLEURS parquet 和 LibriSpeech test-clean
 python Canary-1B/scripts/prepare_eval_data.py \
   --task all \
   --data_dir Canary-1B/eval_data \
   --asr_parquet_dir Canary-1B/eval_data/mls_parquet \
   --asr_configs german,spanish,french \
+  --librispeech_dir Canary-1B/eval_data/librispeech_raw \
   --fleurs_parquet_dir Canary-1B/eval_data/fleurs_parquet \
   --offline \
   --asr_minutes 30 \
@@ -193,13 +195,15 @@ python Canary-1B/scripts/prepare_eval_data.py \
 Canary-1B/eval_data/mls_parquet/german/test-00000-of-00001.parquet
 Canary-1B/eval_data/mls_parquet/spanish/test-00000-of-00001.parquet
 Canary-1B/eval_data/mls_parquet/french/test-00000-of-00001.parquet
+Canary-1B/eval_data/librispeech_raw/test-clean.tar.gz
+Canary-1B/eval_data/librispeech_raw/LibriSpeech/test-clean/
 Canary-1B/eval_data/fleurs_parquet/en_us/test-00000-of-00001.parquet
 Canary-1B/eval_data/fleurs_parquet/de_de/test-00000-of-00001.parquet
 Canary-1B/eval_data/fleurs_parquet/es_419/test-00000-of-00001.parquet
 Canary-1B/eval_data/fleurs_parquet/fr_fr/test-00000-of-00001.parquet
 ```
 
-MLS/FLEURS 音频列使用 `Audio(decode=False)`，再由 `soundfile` 解码，避免 NPU 环境依赖 `torchcodec`。完整命令和手动下载命令见 `EVAL_FLEURS_MLS.md`。
+MLS/LibriSpeech/FLEURS 音频列使用 `Audio(decode=False)`，再由 `soundfile` 解码，避免 NPU 环境依赖 `torchcodec`。完整命令和手动下载命令见 `EVAL_FLEURS_MLS.md`。
 
 ### 5.2 评测参数建议
 

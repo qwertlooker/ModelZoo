@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Prepare MLS/FLEURS manifests for Canary-1B evaluation.
+"""Prepare MLS/LibriSpeech/FLEURS manifests for Canary-1B evaluation.
 
 This script only downloads/converts data and writes JSONL manifests. It does not
 load the model or run inference.
@@ -11,7 +11,9 @@ import argparse
 import io
 import json
 import math
+import random
 import re
+import tarfile
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any, Iterable
@@ -41,7 +43,7 @@ class ManifestItem:
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Prepare Canary-1B MLS/FLEURS eval data")
+    parser = argparse.ArgumentParser(description="Prepare Canary-1B MLS/LibriSpeech/FLEURS eval data")
     parser.add_argument("--task", default="all", choices=["asr", "ast", "all"])
     parser.add_argument("--data_dir", default="Canary-1B/eval_data")
     parser.add_argument("--seed", type=int, default=0)
@@ -61,6 +63,32 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--asr_minutes", type=float, default=30.0, help="0 means full split/no minute cap")
     parser.add_argument("--asr_limit", type=int, default=0, help="0 means no item-count cap")
     parser.add_argument("--asr_pnc", default="no", choices=["yes", "no"])
+    parser.add_argument(
+        "--include_librispeech_test_clean",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="Also prepare OpenSLR LibriSpeech test-clean for Open ASR Leaderboard-style performance tests.",
+    )
+    parser.add_argument("--librispeech_dataset", default="openslr/librispeech_asr")
+    parser.add_argument("--librispeech_config", default="clean")
+    parser.add_argument("--librispeech_split", default="test")
+    parser.add_argument("--librispeech_dir", default="", help=(
+        "Optional local/download directory for OpenSLR LibriSpeech archives. "
+        "For test-clean, the script reuses <dir>/LibriSpeech/test-clean if present, "
+        "otherwise downloads <dir>/test-clean.tar.gz and extracts it."
+    ))
+    parser.add_argument(
+        "--librispeech_minutes",
+        type=float,
+        default=None,
+        help="LibriSpeech minute cap. Defaults to --asr_minutes; 0 means full split/no cap.",
+    )
+    parser.add_argument(
+        "--librispeech_limit",
+        type=int,
+        default=None,
+        help="LibriSpeech item cap. Defaults to --asr_limit; 0 means no item-count cap.",
+    )
 
     parser.add_argument("--fleurs_dataset", default="google/fleurs")
     parser.add_argument("--fleurs_split", default="test")
@@ -179,6 +207,170 @@ def source_lang_for_mls_config(config: str) -> str:
             f"Known configs: {', '.join(sorted(MLS_LANG))}."
         )
     return MLS_LANG[key]
+
+
+def librispeech_openslr_subset(config: str, split: str) -> str:
+    config = config.lower().replace("_", "-")
+    split = split.lower().replace("_", "-")
+    if split in {"test-clean", "test-other", "dev-clean", "dev-other", "train-clean-100", "train-clean-360", "train-other-500"}:
+        return split
+    if split == "validation":
+        split = "dev"
+    if split in {"test", "dev"} and config in {"clean", "other"}:
+        return f"{split}-{config}"
+    if split == "train" and config == "clean":
+        return "train-clean-100"
+    if split == "train" and config == "other":
+        return "train-other-500"
+    raise ValueError(
+        f"Unsupported local LibriSpeech config/split: config={config!r}, split={split!r}. "
+        "Use --librispeech_split test-clean/dev-clean/test-other/... or a supported config+split pair."
+    )
+
+
+def librispeech_subset_dir(librispeech_dir: str | Path, subset: str) -> Path:
+    return Path(librispeech_dir) / "LibriSpeech" / subset
+
+
+def safe_extract_tar(archive: Path, dest_dir: Path) -> None:
+    dest_dir = dest_dir.resolve()
+    with tarfile.open(archive, "r:gz") as tar:
+        for member in tar.getmembers():
+            target = (dest_dir / member.name).resolve()
+            if not str(target).startswith(str(dest_dir)):
+                raise ValueError(f"Refusing to extract path outside destination: {member.name}")
+        tar.extractall(dest_dir)
+
+
+def download_librispeech_subset(config: str, split: str, librispeech_dir: str | Path, offline: bool = False) -> Path:
+    subset = librispeech_openslr_subset(config, split)
+    root = Path(librispeech_dir)
+    subset_dir = librispeech_subset_dir(root, subset)
+    if subset_dir.exists():
+        print(f"using existing LibriSpeech directory: {subset_dir}")
+        return subset_dir
+
+    archive = root / f"{subset}.tar.gz"
+    if not archive.exists():
+        if offline:
+            raise FileNotFoundError(
+                f"Offline mode enabled and LibriSpeech data is missing: {subset_dir} or {archive}"
+            )
+        from urllib.request import urlretrieve
+
+        root.mkdir(parents=True, exist_ok=True)
+        tmp_archive = archive.with_suffix(archive.suffix + ".tmp")
+        url = f"https://www.openslr.org/resources/12/{subset}.tar.gz"
+        print(f"downloading LibriSpeech {subset} to {archive}: {url}")
+        urlretrieve(url, tmp_archive)
+        tmp_archive.replace(archive)
+    else:
+        print(f"using existing LibriSpeech archive: {archive}")
+
+    print(f"extracting LibriSpeech archive: {archive}")
+    safe_extract_tar(archive, root)
+    if not subset_dir.exists():
+        raise FileNotFoundError(f"Expected extracted LibriSpeech directory not found: {subset_dir}")
+    return subset_dir
+
+
+def iter_librispeech_local_rows(subset_dir: Path) -> Iterable[dict[str, Any]]:
+    for transcript in sorted(subset_dir.glob("*/*/*.trans.txt")):
+        with transcript.open("r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                sample_id, text = line.split(" ", 1)
+                audio_path = transcript.parent / f"{sample_id}.flac"
+                if not audio_path.exists():
+                    raise FileNotFoundError(f"Missing LibriSpeech audio file: {audio_path}")
+                yield {"id": sample_id, "audio": {"path": str(audio_path)}, "text": text}
+
+
+def librispeech_minutes(args: argparse.Namespace) -> float:
+    return args.asr_minutes if args.librispeech_minutes is None else args.librispeech_minutes
+
+
+def librispeech_limit(args: argparse.Namespace) -> int:
+    return args.asr_limit if args.librispeech_limit is None else args.librispeech_limit
+
+
+def write_librispeech_manifest(args: argparse.Namespace, rows: Iterable[dict[str, Any]], dataset: str, config: str) -> Path:
+    out_dir = Path(args.data_dir) / "librispeech_test_clean"
+    minutes = librispeech_minutes(args)
+    limit = librispeech_limit(args)
+    max_seconds = minutes * 60.0 if minutes > 0 else math.inf
+    total_seconds = 0.0
+    items: list[ManifestItem] = []
+
+    for row in tqdm(rows, desc="prepare LibriSpeech"):
+        if limit and len(items) >= limit:
+            break
+        if total_seconds >= max_seconds:
+            break
+        sid = str(row.get("id") or row.get("file") or len(items))
+        wav_path = out_dir / "wav" / f"{safe_name(sid)}.wav"
+        duration = write_wav(row["audio"], wav_path)
+        total_seconds += duration
+        items.append(
+            ManifestItem(
+                audio_filepath=str(wav_path),
+                duration=duration,
+                answer=str(row.get("text") or row.get("transcript") or row.get("transcription") or ""),
+                taskname="asr",
+                source_lang="en",
+                target_lang="en",
+                pnc=args.asr_pnc,
+                sample_id=sid,
+            )
+        )
+
+    manifest = out_dir / "manifest_asr_en.jsonl"
+    write_manifest(manifest, items)
+    write_metadata(
+        manifest,
+        {
+            "task": "asr",
+            "dataset": dataset,
+            "config": config,
+            "split": args.librispeech_split,
+            "minutes_limit": minutes,
+            "item_limit": limit,
+            "librispeech_dir": args.librispeech_dir,
+            "offline": args.offline,
+            "purpose": "performance / Open ASR Leaderboard-style LibriSpeech test-clean",
+            "num_items": len(items),
+            "total_audio_seconds": sum(item.duration for item in items),
+        },
+    )
+    return manifest
+
+
+def prepare_librispeech_local(args: argparse.Namespace) -> Path:
+    subset_dir = download_librispeech_subset(
+        args.librispeech_config, args.librispeech_split, args.librispeech_dir, args.offline
+    )
+    rows = list(iter_librispeech_local_rows(subset_dir))
+    if args.shuffle:
+        random.Random(args.seed).shuffle(rows)
+    return write_librispeech_manifest(args, rows, dataset=str(subset_dir), config=args.librispeech_config)
+
+
+def prepare_librispeech(args: argparse.Namespace) -> Path:
+    if args.librispeech_dir:
+        return prepare_librispeech_local(args)
+
+    from datasets import load_dataset
+
+    print(
+        f"loading LibriSpeech dataset={args.librispeech_dataset} "
+        f"config={args.librispeech_config} split={args.librispeech_split}"
+    )
+    ds = load_dataset(args.librispeech_dataset, args.librispeech_config, split=args.librispeech_split)
+    ds = disable_audio_decode(ds)
+    ds = maybe_shuffle(ds, args.shuffle, args.seed)
+    return write_librispeech_manifest(args, ds, dataset=args.librispeech_dataset, config=args.librispeech_config)
 
 
 
@@ -314,7 +506,11 @@ def prepare_asr_config(args: argparse.Namespace, config: str) -> Path:
 
 
 def prepare_asr(args: argparse.Namespace) -> list[Path]:
-    return [prepare_asr_config(args, config) for config in split_csv(args.asr_configs)]
+    manifests = [prepare_asr_config(args, config) for config in split_csv(args.asr_configs)]
+    if args.include_librispeech_test_clean:
+        manifests.append(prepare_librispeech(args))
+    return manifests
+
 
 def fleurs_text(row: dict[str, Any], pnc: str) -> str:
     if pnc == "yes":
