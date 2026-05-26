@@ -204,6 +204,18 @@ def fleurs_text(row: dict[str, Any], pnc: str) -> str:
     return str(row.get("transcription") or row.get("raw_transcription") or "")
 
 
+def download_fleurs_parquet(config: str, split: str) -> Path:
+    from huggingface_hub import hf_hub_download
+
+    return Path(
+        hf_hub_download(
+            repo_id="google/fleurs",
+            repo_type="dataset",
+            filename=f"parquet-data/{config}/{split}-00000-of-00001.parquet",
+        )
+    )
+
+
 def load_fleurs(dataset_name: str, split: str, lang: str) -> Any:
     from datasets import load_dataset
 
@@ -222,7 +234,17 @@ def load_fleurs(dataset_name: str, split: str, lang: str) -> Any:
             f"parquet-data/{config}/{split}-00000-of-00001.parquet"
         )
         print(f"loading FLEURS split-only parquet: {data_file}")
-        ds = load_dataset("parquet", data_files={split: data_file}, split=split, streaming=True)
+        try:
+            ds = load_dataset("parquet", data_files={split: data_file}, split=split, streaming=True)
+        except FileNotFoundError as exc:
+            # Some datasets/httpx/fsspec combinations on Windows fail URL
+            # pattern resolution for Hugging Face HTTPS files even though the
+            # same URL is reachable in a browser. Download exactly this split
+            # file through huggingface_hub, then load the local parquet.
+            print(f"direct HTTPS parquet load failed: {exc}")
+            local_file = download_fleurs_parquet(config, split)
+            print(f"loading local FLEURS parquet: {local_file}")
+            ds = load_dataset("parquet", data_files={split: str(local_file)}, split=split, streaming=True)
     else:
         ds = load_dataset(dataset_name, config, split=split)
     return disable_audio_decode(ds)
