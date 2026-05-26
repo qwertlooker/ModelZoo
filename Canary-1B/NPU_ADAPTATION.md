@@ -155,16 +155,16 @@ Canary-1B/test_data/dummy_1s_16k.wav
 Canary-1B/test_data/dummy_1s_16k.wav.meta.json
 ```
 
-该样例仅用于链路验证，不用于准确率评估。若要验证识别质量，请使用下面的 LibriSpeech / FLEURS manifest 流程。
+该样例仅用于链路验证，不用于准确率评估。若要验证识别质量，请使用下面的 MLS / FLEURS manifest 流程。
 
-### 6.1 LibriSpeech / FLEURS 评测数据准备
+### 6.1 MLS / FLEURS 评测数据准备
 
 `scripts/prepare_eval_data.py` 已按在线/离线混合要求实现：
 
-- `--librispeech_dir Canary-1B/eval_data/librispeech_raw`：复用或下载 OpenSLR `test-clean.tar.gz`，并解压为 `LibriSpeech/test-clean/`。
+- `--asr_parquet_dir Canary-1B/eval_data/mls_parquet`：复用或下载 `facebook/multilingual_librispeech` 的 `german/spanish/french` test parquet。
 - `--fleurs_parquet_dir Canary-1B/eval_data/fleurs_parquet`：复用或下载 FLEURS 各语言 `test-00000-of-00001.parquet`。
 - `--offline`：禁止联网，缺失文件立即报具体路径。
-- FLEURS 使用 `Audio(decode=False)` + `soundfile`，不依赖 `torchcodec`。
+- MLS/FLEURS 使用 `Audio(decode=False)` + `soundfile`，不依赖 `torchcodec`。
 
 推荐最小验收数据：
 
@@ -172,9 +172,10 @@ Canary-1B/test_data/dummy_1s_16k.wav.meta.json
 python Canary-1B/scripts/prepare_eval_data.py \
   --task all \
   --data_dir Canary-1B/eval_data \
-  --librispeech_dir Canary-1B/eval_data/librispeech_raw \
+  --asr_parquet_dir Canary-1B/eval_data/mls_parquet \
+  --asr_configs german,spanish,french \
   --fleurs_parquet_dir Canary-1B/eval_data/fleurs_parquet \
-  --librispeech_minutes 30 \
+  --asr_minutes 30 \
   --fleurs_split test \
   --fleurs_limit 50 \
   --ast_directions en-de,en-es,en-fr,de-en,es-en,fr-en
@@ -186,16 +187,17 @@ python Canary-1B/scripts/prepare_eval_data.py \
 python Canary-1B/scripts/prepare_eval_data.py \
   --task all \
   --data_dir Canary-1B/eval_data \
-  --librispeech_dir Canary-1B/eval_data/librispeech_raw \
+  --asr_parquet_dir Canary-1B/eval_data/mls_parquet \
+  --asr_configs german,spanish,french \
   --fleurs_parquet_dir Canary-1B/eval_data/fleurs_parquet \
   --offline \
-  --librispeech_minutes 30 \
+  --asr_minutes 30 \
   --fleurs_split test \
   --fleurs_limit 50 \
   --ast_directions en-de,en-es,en-fr,de-en,es-en,fr-en
 ```
 
-输出 manifest 和 metadata；CPU/NPU 评测必须复用同一份 manifest。详细手动下载命令见 `EVAL_FLEURS_LIBRISPEECH.md`。
+输出 manifest 和 metadata；CPU/NPU 评测必须复用同一份 manifest。详细手动下载命令见 `EVAL_FLEURS_MLS.md`。
 
 ## 7. 推理脚本用法
 

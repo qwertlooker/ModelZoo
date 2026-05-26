@@ -100,7 +100,7 @@
 |---|---|---|---|---|
 | 本地 dummy wav | 设备链路 | 1 秒，已生成，极易 | L0 smoke | 必跑，但不能作为精度依据 |
 | 自制小样本集 | ASR/AST/PnC/batch | 20~40 条、5~15 分钟；需要准备参考文本 | L1 功能回归 | 必跑；放在内网对象存储或 `test_data/eval_smoke/` |
-| LibriSpeech `test-clean` / `test-other` | 英文 ASR | 每个测试集约 5 小时，获取容易 | L2/L3 英文精度 | 优先跑 `test-clean` 子集，再跑全量 |
+| MLS `test`（german/spanish/french） | 多语种 ASR | 每语种约 10~14 小时，parquet 获取较大 | L2/L3 多语种精度 | 优先每语种抽样 30~60 分钟，再跑全量 |
 | Mozilla Common Voice / MCV test | 多语种 ASR | 多语种，下载和版本管理中等 | L2/L3 多语种 ASR | 用固定版本；记录 locale 与版本 |
 | MLS test | 多语种 ASR | 多语种，体量较大，获取中等 | L2/L3 多语种 ASR | 可先抽样 30~60 分钟/语种 |
 | FLEURS | ASR/AST，多语种 | 每语种测试集数百条，获取相对容易 | L2 AST 推荐 | 优先用于 6 个 AST 方向 |
@@ -208,7 +208,7 @@ ASCEND_RT_VISIBLE_DEVICES=0 python Canary-1B/infer.py \
 
 | 数据 | 语言 | 最小规模 | 推荐规模 | 通过条件 |
 |---|---|---:|---:|---|
-| LibriSpeech test-clean 子集 | en | 30 分钟 | 全量约 5 小时 | NPU WER 相对 CPU/CUDA 不劣化；若对公开值，WER ≤ 公开值 + 10% 相对或 +0.5 绝对二者取宽 |
+| MLS test 子集 | en | 30 分钟 | 全量约 5 小时 | NPU WER 相对 CPU/CUDA 不劣化；若对公开值，WER ≤ 公开值 + 10% 相对或 +0.5 绝对二者取宽 |
 | MCV 或 MLS 子集 | de/es/fr | 每语种 30 分钟 | 每语种 1~2 小时或全量 test | 同上 |
 
 **AST**
@@ -351,7 +351,7 @@ ASCEND_RT_VISIBLE_DEVICES=0 python Canary-1B/infer.py \
 - NVIDIA NeMo 仓库：<https://github.com/NVIDIA/NeMo>
 - Hugging Face Open ASR Leaderboard：<https://huggingface.co/spaces/hf-audio/open_asr_leaderboard>
 - Common Voice：<https://commonvoice.mozilla.org/>
-- LibriSpeech：<https://www.openslr.org/12>；Canary-1B 使用 `scripts/prepare_eval_data.py --librispeech_dir <dir>` 下载/复用 `<dir>/test-clean.tar.gz` 或 `<dir>/LibriSpeech/test-clean/`。
+- MLS：<https://huggingface.co/datasets/facebook/multilingual_librispeech>；Canary-1B 使用 `scripts/prepare_eval_data.py --asr_parquet_dir <dir>` 下载/复用 `<dir>/{german,spanish,french}/test-00000-of-00001.parquet`。
 - MLS：<https://www.openslr.org/94>
 - FLEURS：<https://huggingface.co/datasets/google/fleurs>；Canary-1B 使用 `scripts/prepare_eval_data.py --fleurs_parquet_dir <dir>` 下载/复用 `<dir>/<config>/test-00000-of-00001.parquet`，并用 `--offline` 禁止联网。
 - CoVoST-v2：<https://github.com/facebookresearch/covost>

@@ -1,4 +1,4 @@
-# Canary-1B LibriSpeech / FLEURS 验证测试方案
+# Canary-1B MLS / FLEURS 验证测试方案
 
 按要求将流程拆成两步：
 
@@ -60,45 +60,50 @@ pip install datasets soundfile librosa tqdm jiwer sacrebleu openai-whisper
 
 ## 2. 准备数据
 
-> 当前 `prepare_eval_data.py` 已支持在线/离线混合模式：FLEURS 使用 `--fleurs_parquet_dir` 指定 parquet 保存目录，LibriSpeech 使用 `--librispeech_dir` 指定 OpenSLR tar/解压目录；目标文件已存在时直接复用，缺失时在线下载到该目录，`--offline` 下缺失则直接报具体路径且不联网。
+> 当前 `prepare_eval_data.py` 已支持在线/离线混合模式：ASR 使用 `--asr_parquet_dir` 指定 `facebook/multilingual_librispeech` parquet 保存目录，FLEURS 使用 `--fleurs_parquet_dir` 指定 parquet 保存目录；目标文件已存在时直接复用，缺失时在线下载到该目录，`--offline` 下缺失则直接报具体路径且不联网。
 >
-> FLEURS 不再依赖 `torchcodec` 自动解码：脚本将 HF `Audio` 列 cast 为 `decode=False`，再用 `soundfile` 读取 bytes/path 写 16 kHz wav。
+> MLS/FLEURS 都不再依赖 `torchcodec` 自动解码：脚本将 HF `Audio` 列 cast 为 `decode=False`，再用 `soundfile` 读取 bytes/path 写 16 kHz wav。
 
 ### 2.0 推荐目录结构
 
 ```text
+Canary-1B/eval_data/mls_parquet/
+  german/test-00000-of-00001.parquet
+  spanish/test-00000-of-00001.parquet
+  french/test-00000-of-00001.parquet
 Canary-1B/eval_data/fleurs_parquet/
   en_us/test-00000-of-00001.parquet
   de_de/test-00000-of-00001.parquet
   es_419/test-00000-of-00001.parquet
   fr_fr/test-00000-of-00001.parquet
-Canary-1B/eval_data/librispeech_raw/
-  test-clean.tar.gz
-  LibriSpeech/test-clean/
 ```
 
-FLEURS 日志应看到 `loading local FLEURS parquet: ...` 或 `downloading FLEURS parquet to ...`。LibriSpeech 日志应看到 `using existing LibriSpeech directory/archive`、`downloading LibriSpeech test-clean to ...` 或 `extracting LibriSpeech archive ...`。
+MLS 日志应看到 `loading local MLS parquet: ...` 或 `downloading MLS parquet to ...`；FLEURS 日志应看到 `loading local FLEURS parquet: ...` 或 `downloading FLEURS parquet to ...`。
 
-### 2.1 最小验收数据：LibriSpeech 30 分钟 + FLEURS 每方向 50 条
+### 2.1 最小验收数据：MLS 30 分钟 + FLEURS 每方向 50 条
 
 ```bash
 python Canary-1B/scripts/prepare_eval_data.py \
   --task all \
   --data_dir Canary-1B/eval_data \
-  --librispeech_dir Canary-1B/eval_data/librispeech_raw \
-  --fleurs_parquet_dir Canary-1B/eval_data/fleurs_parquet \
-  --librispeech_minutes 30 \
+  --asr_parquet_dir Canary-1B/eval_data/mls_parquet \
+  --asr_configs german,spanish,french \
+  --asr_split test \
+  --asr_minutes 30 \
   --asr_pnc no \
+  --fleurs_parquet_dir Canary-1B/eval_data/fleurs_parquet \
   --fleurs_split test \
   --fleurs_limit 50 \
   --ast_directions en-de,en-es,en-fr,de-en,es-en,fr-en \
   --ast_pnc yes
 ```
 
-生成 manifest；同时生成同名 `.meta.json`，其中 `split` 应为 `test`：
+生成 manifest；同时生成同名 `.meta.json`，其中 `dataset` 应为 `facebook/multilingual_librispeech`，`split` 应为 `test`：
 
 ```text
-Canary-1B/eval_data/librispeech_test_clean/manifest_asr_en.jsonl
+Canary-1B/eval_data/mls_test_german/manifest_asr_de.jsonl
+Canary-1B/eval_data/mls_test_spanish/manifest_asr_es.jsonl
+Canary-1B/eval_data/mls_test_french/manifest_asr_fr.jsonl
 Canary-1B/eval_data/fleurs/en-de/manifest_ast_en_de.jsonl
 Canary-1B/eval_data/fleurs/en-es/manifest_ast_en_es.jsonl
 Canary-1B/eval_data/fleurs/en-fr/manifest_ast_en_fr.jsonl
@@ -107,14 +112,16 @@ Canary-1B/eval_data/fleurs/es-en/manifest_ast_es_en.jsonl
 Canary-1B/eval_data/fleurs/fr-en/manifest_ast_fr_en.jsonl
 ```
 
-### 2.2 只准备 ASR LibriSpeech test-clean 全量
+### 2.2 只准备 ASR MLS test 全量
 
 ```bash
 python Canary-1B/scripts/prepare_eval_data.py \
   --task asr \
   --data_dir Canary-1B/eval_data \
-  --librispeech_dir Canary-1B/eval_data/librispeech_raw \
-  --librispeech_minutes 0 \
+  --asr_parquet_dir Canary-1B/eval_data/mls_parquet \
+  --asr_configs german,spanish,french \
+  --asr_split test \
+  --asr_minutes 0 \
   --asr_pnc no
 ```
 
@@ -139,23 +146,37 @@ python Canary-1B/scripts/prepare_eval_data.py \
 python Canary-1B/scripts/prepare_eval_data.py \
   --task all \
   --data_dir Canary-1B/eval_data \
-  --librispeech_dir Canary-1B/eval_data/librispeech_raw \
+  --asr_parquet_dir Canary-1B/eval_data/mls_parquet \
   --fleurs_parquet_dir Canary-1B/eval_data/fleurs_parquet \
   --offline \
-  --librispeech_minutes 30 \
+  --asr_configs german,spanish,french \
+  --asr_minutes 30 \
   --fleurs_split test \
   --fleurs_limit 50 \
   --ast_directions en-de,en-es,en-fr,de-en,es-en,fr-en
 ```
 
-离线模式不会访问 Hugging Face/OpenSLR；缺失文件会直接报类似：
+离线模式不会访问 Hugging Face；缺失文件会直接报类似：
 
 ```text
+Offline mode enabled and MLS parquet is missing: .../german/test-00000-of-00001.parquet
 Offline mode enabled and FLEURS parquet is missing: .../en_us/test-00000-of-00001.parquet
-Offline mode enabled and LibriSpeech data is missing: .../LibriSpeech/test-clean or .../test-clean.tar.gz
 ```
 
 ### 2.5 手动命令行下载到脚本指定目录
+
+MLS ASR 三种语言 test parquet：
+
+```bash
+mkdir -p Canary-1B/eval_data/mls_parquet/{german,spanish,french}
+
+curl -L -o Canary-1B/eval_data/mls_parquet/german/test-00000-of-00001.parquet \
+  https://huggingface.co/datasets/facebook/multilingual_librispeech/resolve/main/german/test-00000-of-00001.parquet
+curl -L -o Canary-1B/eval_data/mls_parquet/spanish/test-00000-of-00001.parquet \
+  https://huggingface.co/datasets/facebook/multilingual_librispeech/resolve/main/spanish/test-00000-of-00001.parquet
+curl -L -o Canary-1B/eval_data/mls_parquet/french/test-00000-of-00001.parquet \
+  https://huggingface.co/datasets/facebook/multilingual_librispeech/resolve/main/french/test-00000-of-00001.parquet
+```
 
 FLEURS 四种语言 test parquet：
 
@@ -170,16 +191,6 @@ curl -L -o Canary-1B/eval_data/fleurs_parquet/es_419/test-00000-of-00001.parquet
   https://huggingface.co/datasets/google/fleurs/resolve/main/parquet-data/es_419/test-00000-of-00001.parquet
 curl -L -o Canary-1B/eval_data/fleurs_parquet/fr_fr/test-00000-of-00001.parquet \
   https://huggingface.co/datasets/google/fleurs/resolve/main/parquet-data/fr_fr/test-00000-of-00001.parquet
-```
-
-LibriSpeech test-clean：
-
-```bash
-mkdir -p Canary-1B/eval_data/librispeech_raw
-curl -L -o Canary-1B/eval_data/librispeech_raw/test-clean.tar.gz \
-  https://www.openslr.org/resources/12/test-clean.tar.gz
-tar -xzf Canary-1B/eval_data/librispeech_raw/test-clean.tar.gz \
-  -C Canary-1B/eval_data/librispeech_raw
 ```
 
 手动下载后再运行第 2.4 节 `--offline` 命令，脚本会直接复用本地文件，不重复下载。
@@ -236,10 +247,13 @@ ASCEND_RT_VISIBLE_DEVICES=0 python Canary-1B/scripts/eval_canary.py \
 ASCEND_RT_VISIBLE_DEVICES=0 python Canary-1B/scripts/eval_canary.py \
   --model Canary-1B/weights/canary-1b.nemo \
   --device npu \
-  --manifest Canary-1B/eval_data/librispeech_test_clean/manifest_asr_en.jsonl \
+  --manifest \
+    Canary-1B/eval_data/mls_test_german/manifest_asr_de.jsonl \
+    Canary-1B/eval_data/mls_test_spanish/manifest_asr_es.jsonl \
+    Canary-1B/eval_data/mls_test_french/manifest_asr_fr.jsonl \
   --batch_size 16 \
   --beam_size 5 \
-  --output_dir Canary-1B/eval_results/npu_asr_librispeech_bs16_beam5
+  --output_dir Canary-1B/eval_results/npu_asr_mls_bs16_beam5
 ```
 
 ### 3.5 只评测 FLEURS AST 六个方向
@@ -298,7 +312,7 @@ ASCEND_RT_VISIBLE_DEVICES=0 python Canary-1B/scripts/eval_canary.py \
 
 ## 5. 通过条件
 
-### ASR：LibriSpeech test-clean
+### ASR：MLS test
 
 - 最小规模：30 分钟。
 - 推荐规模：全量约 5 小时。

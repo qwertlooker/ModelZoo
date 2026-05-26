@@ -20,7 +20,9 @@ from pathlib import Path
 from typing import Any
 
 DEFAULT_MANIFESTS = [
-    "Canary-1B/eval_data/librispeech_test_clean/manifest_asr_en.jsonl",
+    "Canary-1B/eval_data/mls_test_german/manifest_asr_de.jsonl",
+    "Canary-1B/eval_data/mls_test_spanish/manifest_asr_es.jsonl",
+    "Canary-1B/eval_data/mls_test_french/manifest_asr_fr.jsonl",
     "Canary-1B/eval_data/fleurs/en-de/manifest_ast_en_de.jsonl",
     "Canary-1B/eval_data/fleurs/en-es/manifest_ast_en_es.jsonl",
     "Canary-1B/eval_data/fleurs/en-fr/manifest_ast_en_fr.jsonl",

@@ -165,19 +165,22 @@ Canary-1B/test_data/dummy_1s_16k.wav.meta.json
 
 说明：该文件为 1 秒 16 kHz 单声道正弦波，仅用于 smoke test，不用于识别准确率评估。
 
-### 6.1 LibriSpeech / FLEURS 评测数据准备脚本验证
+### 6.1 MLS / FLEURS 评测数据准备脚本验证
 
 当前脚本已补齐在线/离线混合参数：
 
 ```bash
 Canary-1B/.venv-cpu/bin/python -m py_compile Canary-1B/scripts/prepare_eval_data.py
 
-# 离线缺失检查示例：应报出缺失的本地 parquet/tar 路径，不访问远端
+# 离线缺失检查示例：应报出缺失的本地 MLS/FLEURS parquet 路径，不访问远端
 python Canary-1B/scripts/prepare_eval_data.py \
-  --task ast \
+  --task all \
   --data_dir /tmp/canary_eval_data \
+  --asr_parquet_dir /tmp/canary_eval_data/mls_parquet \
+  --asr_configs german \
   --fleurs_parquet_dir /tmp/canary_eval_data/fleurs_parquet \
   --offline \
+  --asr_limit 1 \
   --fleurs_limit 1 \
   --ast_directions en-de
 ```
@@ -185,11 +188,11 @@ python Canary-1B/scripts/prepare_eval_data.py \
 要求：
 
 - FLEURS 文件固定在 `<fleurs_parquet_dir>/<config>/<split>-00000-of-00001.parquet`，已有则复用。
-- LibriSpeech 文件固定在 `<librispeech_dir>/test-clean.tar.gz` 或 `<librispeech_dir>/LibriSpeech/test-clean/`，已有则复用。
-- metadata 记录 `librispeech_dir` / `fleurs_parquet_dir` 和 `offline`。
-- FLEURS 禁用 HF `Audio` 自动解码，避免 `torchcodec` 依赖。
+- MLS 文件固定在 `<asr_parquet_dir>/{german,spanish,french}/test-00000-of-00001.parquet`，已有则复用。
+- metadata 记录 `asr_parquet_dir` / `fleurs_parquet_dir` 和 `offline`。
+- MLS/FLEURS 禁用 HF `Audio` 自动解码，避免 `torchcodec` 依赖。
 
-完整在线/离线/手动下载命令见 `EVAL_FLEURS_LIBRISPEECH.md`。
+完整在线/离线/手动下载命令见 `EVAL_FLEURS_MLS.md`。
 
 ## 7. 当前环境 CPU 推理验证
 
