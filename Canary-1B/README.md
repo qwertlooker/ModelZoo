@@ -236,6 +236,8 @@ ASCEND_RT_VISIBLE_DEVICES=0 python Canary-1B/scripts/eval_canary.py \
 
 `--performance_mode` 会按音频时长降序排序、先 warmup、用 audio filepath list 调 NeMo `transcribe()`、NPU/CUDA 默认转 `bfloat16`，并输出 `RTFx=audio_seconds/elapsed_seconds`。
 
+性能模式下 `--beam_size 1` 默认切到 NeMo AED `greedy_batch` 解码以减少 beam decoder 开销；如果需要强制 beam decoder，可加 `--decoding_strategy beam`。
+
 ## 6. CPU 验证
 
 ```bash

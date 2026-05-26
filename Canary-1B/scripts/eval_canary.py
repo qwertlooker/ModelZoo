@@ -49,6 +49,16 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--batch_size", type=int, default=1)
     parser.add_argument("--beam_size", type=int, default=5)
     parser.add_argument(
+        "--decoding_strategy",
+        default="auto",
+        choices=["auto", "beam", "greedy", "greedy_batch"],
+        help=(
+            "NeMo AED decoding strategy. auto keeps the checkpoint strategy except that "
+            "--performance_mode with --beam_size 1 uses greedy_batch for faster throughput. "
+            "Use --decoding_strategy beam to force exact beam decoder behavior."
+        ),
+    )
+    parser.add_argument(
         "--performance_mode",
         action="store_true",
         help=(
@@ -132,6 +142,10 @@ def load_model(args: argparse.Namespace):
         model.to(compute_dtype)
     decode_cfg = model.cfg.decoding
     decode_cfg.beam.beam_size = args.beam_size
+    if args.decoding_strategy != "auto":
+        decode_cfg.strategy = args.decoding_strategy
+    elif args.performance_mode and args.beam_size == 1:
+        decode_cfg.strategy = "greedy_batch"
     model.change_decoding_strategy(decode_cfg)
     return model
 
@@ -186,6 +200,7 @@ def env_report(args: argparse.Namespace) -> dict[str, Any]:
         "device": args.device,
         "batch_size": args.batch_size,
         "beam_size": args.beam_size,
+        "decoding_strategy": args.decoding_strategy,
         "performance_mode": args.performance_mode,
         "compute_dtype": args.compute_dtype,
         "warmup_batches": args.warmup_batches,

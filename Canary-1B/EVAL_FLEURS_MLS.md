@@ -289,6 +289,8 @@ ASCEND_RT_VISIBLE_DEVICES=0 python Canary-1B/scripts/eval_canary.py \
 
 `--performance_mode` 是专门的性能计时路径，用于尽量贴近 Hugging Face Open ASR Leaderboard 的 NeMo 评测方式：按音频时长降序排序，先 warmup `--warmup_batches` 个 batch，正式计时只统计完整音频列表转写，默认在 NPU/CUDA 上使用 `bfloat16`，并向 Canary audio-list `transcribe()` 传入 `pnc=nopnc`、`num_workers=1`。该模式会额外输出 `rtfx = audio_seconds / elapsed_seconds`。如需强制精度类型，可显式传 `--compute_dtype float32|float16|bfloat16`。
 
+性能模式下 `--beam_size 1` 默认使用 NeMo AED `greedy_batch` 解码策略，避免仍走 beam decoder 的额外开销。如需强制使用 beam decoder 做完全可比实验，可加 `--decoding_strategy beam`。
+
 ### 3.4 只评测 ASR
 
 ```bash
