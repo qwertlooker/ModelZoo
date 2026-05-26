@@ -214,7 +214,13 @@ def load_fleurs(dataset_name: str, split: str, lang: str) -> Any:
         # load_dataset("google/fleurs", config, split="test") may still fetch
         # train/validation parquet files while preparing the builder cache.
         # This path restricts network/cache access to test-*.parquet only.
-        data_file = f"hf://datasets/google/fleurs/parquet-data/{config}/{split}-00000-of-00001.parquet"
+        # Use an HTTPS URL instead of hf://. Some environments (notably newer
+        # Python/httpx stacks on Windows) pass hf:// through to httpx, which then
+        # raises "Request URL is missing an 'http://' or 'https://' protocol.".
+        data_file = (
+            "https://huggingface.co/datasets/google/fleurs/resolve/main/"
+            f"parquet-data/{config}/{split}-00000-of-00001.parquet"
+        )
         print(f"loading FLEURS split-only parquet: {data_file}")
         ds = load_dataset("parquet", data_files={split: data_file}, split=split, streaming=True)
     else:
