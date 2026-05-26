@@ -339,7 +339,7 @@ ASCEND_RT_VISIBLE_DEVICES=0 python Canary-1B/infer.py \
 - NVIDIA NeMo 仓库：<https://github.com/NVIDIA/NeMo>
 - Hugging Face Open ASR Leaderboard：<https://huggingface.co/spaces/hf-audio/open_asr_leaderboard>
 - Common Voice：<https://commonvoice.mozilla.org/>
-- LibriSpeech：<https://www.openslr.org/12>
+- LibriSpeech：<https://www.openslr.org/12>；Canary-1B 使用 `scripts/prepare_eval_data.py --librispeech_dir <dir>` 下载/复用 `<dir>/test-clean.tar.gz` 或 `<dir>/LibriSpeech/test-clean/`。
 - MLS：<https://www.openslr.org/94>
-- FLEURS：<https://huggingface.co/datasets/google/fleurs>
+- FLEURS：<https://huggingface.co/datasets/google/fleurs>；Canary-1B 使用 `scripts/prepare_eval_data.py --fleurs_parquet_dir <dir>` 下载/复用 `<dir>/<config>/test-00000-of-00001.parquet`，并用 `--offline` 禁止联网。
 - CoVoST-v2：<https://github.com/facebookresearch/covost>

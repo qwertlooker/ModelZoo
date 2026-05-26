@@ -132,9 +132,50 @@ b0284183a9a1e039a2fff39427e2991fa4df0b9612a3447fc33ff82b20fdfb5a
 
 ```text
 Canary-1B/test_data/dummy_1s_16k.wav
+Canary-1B/test_data/dummy_1s_16k.wav.meta.json
 ```
 
-该样例仅用于链路验证，不用于准确率评估。若要验证识别质量，请替换为真实英文/德文/西班牙文/法文语音。
+该样例仅用于链路验证，不用于准确率评估。若要验证识别质量，请使用下面的 LibriSpeech / FLEURS manifest 流程。
+
+### 5.1 LibriSpeech / FLEURS 评测数据准备
+
+`scripts/prepare_eval_data.py` 已按在线/离线混合要求实现：
+
+- `--librispeech_dir Canary-1B/eval_data/librispeech_raw`：复用或下载 OpenSLR `test-clean.tar.gz`，并解压为 `LibriSpeech/test-clean/`。
+- `--fleurs_parquet_dir Canary-1B/eval_data/fleurs_parquet`：复用或下载 FLEURS 各语言 `test-00000-of-00001.parquet`。
+- `--offline`：禁止联网，缺失文件立即报具体路径。
+- FLEURS 使用 `Audio(decode=False)` + `soundfile`，不依赖 `torchcodec`。
+
+推荐最小验收数据：
+
+```bash
+python Canary-1B/scripts/prepare_eval_data.py \
+  --task all \
+  --data_dir Canary-1B/eval_data \
+  --librispeech_dir Canary-1B/eval_data/librispeech_raw \
+  --fleurs_parquet_dir Canary-1B/eval_data/fleurs_parquet \
+  --librispeech_minutes 30 \
+  --fleurs_split test \
+  --fleurs_limit 50 \
+  --ast_directions en-de,en-es,en-fr,de-en,es-en,fr-en
+```
+
+离线复用同一批文件：
+
+```bash
+python Canary-1B/scripts/prepare_eval_data.py \
+  --task all \
+  --data_dir Canary-1B/eval_data \
+  --librispeech_dir Canary-1B/eval_data/librispeech_raw \
+  --fleurs_parquet_dir Canary-1B/eval_data/fleurs_parquet \
+  --offline \
+  --librispeech_minutes 30 \
+  --fleurs_split test \
+  --fleurs_limit 50 \
+  --ast_directions en-de,en-es,en-fr,de-en,es-en,fr-en
+```
+
+输出 manifest 和 metadata；CPU/NPU 评测必须复用同一份 manifest。详细手动下载命令见 `EVAL_FLEURS_LIBRISPEECH.md`。
 
 ## 6. 推理脚本用法
 

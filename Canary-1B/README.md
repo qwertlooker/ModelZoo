@@ -92,9 +92,52 @@ CANARY_DOWNLOAD_METHOD=curl CANARY_WEIGHT_URL=<mirror-url> ./Canary-1B/scripts/d
 
 ```text
 Canary-1B/test_data/dummy_1s_16k.wav
+Canary-1B/test_data/dummy_1s_16k.wav.meta.json
 ```
 
 该文件不是 ASR 准确率样本，只用于验证模型加载、音频读取、设备迁移和推理调用链路。
+
+### 4.1 LibriSpeech / FLEURS 评测数据在线/离线混合准备
+
+正式 ASR/AST 验收使用 `scripts/prepare_eval_data.py`。脚本支持指定本地目录，存在即复用，缺失才下载，`--offline` 下禁止联网：
+
+```bash
+# 在线：下载到指定目录，并生成 manifest/meta
+python Canary-1B/scripts/prepare_eval_data.py \
+  --task all \
+  --data_dir Canary-1B/eval_data \
+  --librispeech_dir Canary-1B/eval_data/librispeech_raw \
+  --fleurs_parquet_dir Canary-1B/eval_data/fleurs_parquet \
+  --librispeech_minutes 30 \
+  --fleurs_split test \
+  --fleurs_limit 50 \
+  --ast_directions en-de,en-es,en-fr,de-en,es-en,fr-en
+
+# 离线：要求本地已有 OpenSLR tar/解压目录和 FLEURS parquet
+python Canary-1B/scripts/prepare_eval_data.py \
+  --task all \
+  --data_dir Canary-1B/eval_data \
+  --librispeech_dir Canary-1B/eval_data/librispeech_raw \
+  --fleurs_parquet_dir Canary-1B/eval_data/fleurs_parquet \
+  --offline \
+  --librispeech_minutes 30 \
+  --fleurs_split test \
+  --fleurs_limit 50 \
+  --ast_directions en-de,en-es,en-fr,de-en,es-en,fr-en
+```
+
+本地数据结构：
+
+```text
+Canary-1B/eval_data/librispeech_raw/test-clean.tar.gz
+Canary-1B/eval_data/librispeech_raw/LibriSpeech/test-clean/
+Canary-1B/eval_data/fleurs_parquet/en_us/test-00000-of-00001.parquet
+Canary-1B/eval_data/fleurs_parquet/de_de/test-00000-of-00001.parquet
+Canary-1B/eval_data/fleurs_parquet/es_419/test-00000-of-00001.parquet
+Canary-1B/eval_data/fleurs_parquet/fr_fr/test-00000-of-00001.parquet
+```
+
+FLEURS 音频列使用 `Audio(decode=False)`，再由 `soundfile` 解码，避免 NPU 环境依赖 `torchcodec`。完整命令和手动下载命令见 `EVAL_FLEURS_LIBRISPEECH.md`。
 
 ## 5. CPU 验证
 
