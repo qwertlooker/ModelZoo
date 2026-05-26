@@ -55,8 +55,16 @@ pip install datasets soundfile librosa tqdm jiwer sacrebleu openai-whisper
 ```
 
 - 数据准备需要：`datasets soundfile librosa tqdm`。
-- 评测需要：`jiwer sacrebleu openai-whisper`。ASR WER 固定走官方 Whisper `EnglishTextNormalizer` 路径（`from whisper.normalizers import EnglishTextNormalizer`）；依赖缺失或导入失败时会在 ASR 推理前直接报错。仅安装 `whisper_normalizer` 不视为满足官方路径，且不使用本地 fallback normalizer。
+- 评测需要：`jiwer sacrebleu openai-whisper`。ASR WER 固定走官方 Whisper `EnglishTextNormalizer` 路径（`from whisper.normalizers import EnglishTextNormalizer`）；依赖缺失或导入失败时会在脚本启动导入阶段直接报错。仅安装 `whisper_normalizer` 不视为满足官方路径，且不使用本地 fallback normalizer。
 - 如 Hugging Face 访问慢，可设置 `HF_ENDPOINT` / `HF_HOME`；但评测数据推荐使用下面的显式本地目录参数，便于离线迁移。
+
+### 1.1 评测脚本 import / 依赖规范
+
+`Canary-1B/scripts/eval_canary.py` 必须遵守以下流程规范：
+
+1. 除设备后端探测类 import（例如仅 `--device npu` 才需要的 `torch_npu`）外，评测依赖统一放在文件顶部导入，禁止在 metric 计算阶段临时 import 后再 fallback。
+2. ASR WER 只能使用官方路径 `from whisper.normalizers import EnglishTextNormalizer`；不得改用 `whisper_normalizer` 包、regex/basic normalizer 或其他静默替代实现。
+3. 任一必需依赖缺失时脚本应直接失败并暴露错误；不要吞掉异常、不要继续推理后再给出不可对齐官方口径的指标。
 
 ## 2. 准备数据
 

@@ -18,6 +18,22 @@ import time
 from pathlib import Path
 from typing import Any
 
+try:
+    from whisper.normalizers import EnglishTextNormalizer
+except Exception as exc:
+    raise RuntimeError(
+        "ASR WER requires official Whisper normalizer import "
+        "`from whisper.normalizers import EnglishTextNormalizer`. "
+        "Install `openai-whisper`; installing only `whisper_normalizer` "
+        "is intentionally not accepted for the official Canary path."
+    ) from exc
+
+import nemo
+import torch
+from jiwer import wer
+from nemo.collections.asr.models import EncDecMultiTaskModel
+from sacrebleu import corpus_bleu
+
 DEFAULT_MANIFESTS = [
     "Canary-1B/eval_data/librispeech_test_clean/manifest_asr_en.jsonl",
     "Canary-1B/eval_data/mls_test_german/manifest_asr_de.jsonl",
@@ -67,16 +83,12 @@ def tag_from_manifest(path: Path, items: list[dict[str, Any]]) -> str:
 
 
 def resolve_device(device_name: str):
-    import torch
-
     if device_name == "npu":
         import torch_npu  # noqa: F401
     return torch.device(device_name)
 
 
 def load_model(args: argparse.Namespace):
-    from nemo.collections.asr.models import EncDecMultiTaskModel
-
     device = resolve_device(args.device)
     model_path = Path(args.model).expanduser()
     if model_path.is_file() and model_path.suffix == ".nemo":
@@ -102,57 +114,20 @@ def extract_text(item: Any) -> str:
     return str(item)
 
 
-_WER_NORMALIZER = None
-
-
-def get_wer_normalizer():
-    """Return the official Whisper EnglishTextNormalizer, or fail loudly.
-
-    Canary-1B's published ASR WER path normalizes both references and
-    hypotheses with Whisper's EnglishTextNormalizer. Do not silently substitute
-    a local regex/basic normalizer or the separate ``whisper_normalizer``
-    package: if the official ``whisper.normalizers`` dependency is missing or
-    broken, fail before running ASR inference.
-    """
-    global _WER_NORMALIZER
-    if _WER_NORMALIZER is None:
-        try:
-            from whisper.normalizers import EnglishTextNormalizer
-        except Exception as exc:
-            raise RuntimeError(
-                "ASR WER requires official Whisper normalizer import "
-                "`from whisper.normalizers import EnglishTextNormalizer`. "
-                "Install `openai-whisper`; installing only `whisper_normalizer` "
-                "is intentionally not accepted for the official Canary path."
-            ) from exc
-
-        _WER_NORMALIZER = EnglishTextNormalizer()
-    return _WER_NORMALIZER
+_WER_NORMALIZER = EnglishTextNormalizer()
 
 
 def normalize_for_wer(text: str) -> str:
-    return get_wer_normalizer()(text)
-
-
-def validate_metric_dependencies(manifests: list[Path]) -> None:
-    """Fail early if ASR manifests require unavailable metric dependencies."""
-    for manifest in manifests:
-        items = read_manifest(manifest)
-        if str(items[0].get("taskname", "asr")) == "asr":
-            get_wer_normalizer()
-            return
+    """Normalize ASR text with the official Whisper EnglishTextNormalizer."""
+    return _WER_NORMALIZER(text)
 
 
 def compute_metrics(taskname: str, references: list[str], hypotheses: list[str]) -> dict[str, float]:
     if taskname == "asr":
-        from jiwer import wer
-
         refs = [normalize_for_wer(x) for x in references]
         hyps = [normalize_for_wer(x) for x in hypotheses]
         value = float(wer(refs, hyps))
         return {"wer": value, "wer_percent": value * 100.0}
-    from sacrebleu import corpus_bleu
-
     return {"bleu": float(corpus_bleu(hypotheses, [references]).score)}
 
 
@@ -167,18 +142,8 @@ def env_report(args: argparse.Namespace) -> dict[str, Any]:
         "beam_size": args.beam_size,
         "ascend_rt_visible_devices": os.environ.get("ASCEND_RT_VISIBLE_DEVICES"),
     }
-    try:
-        import torch
-
-        report["torch"] = torch.__version__
-    except Exception as exc:
-        report["torch_error"] = str(exc)
-    try:
-        import nemo
-
-        report["nemo"] = getattr(nemo, "__version__", None)
-    except Exception as exc:
-        report["nemo_error"] = str(exc)
+    report["torch"] = torch.__version__
+    report["nemo"] = getattr(nemo, "__version__", None)
     return report
 
 
@@ -236,7 +201,6 @@ def main() -> None:
 
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
-    validate_metric_dependencies(manifests)
 
     with (output_dir / "run_env.json").open("w", encoding="utf-8") as f:
         json.dump(env_report(args), f, ensure_ascii=False, indent=2)
