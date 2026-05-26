@@ -114,6 +114,35 @@ def maybe_shuffle(ds: Any, shuffle: bool, seed: int) -> Any:
     return ds.shuffle(seed=seed) if shuffle else ds
 
 
+def dataset_has_column(ds: Any, column: str) -> bool:
+    """Return whether a map-style or iterable HF dataset exposes a column."""
+    column_names = getattr(ds, "column_names", None)
+    if column_names is not None:
+        return column in column_names
+    features = getattr(ds, "features", None)
+    return bool(features is not None and column in features)
+
+
+def disable_audio_decode(ds: Any, column: str = "audio") -> Any:
+    """Keep HF datasets Audio values encoded so torchcodec is not required.
+
+    Recent versions of ``datasets`` decode Audio columns through torchcodec when
+    rows are iterated. On Ascend/NPU environments torchcodec is often not
+    available or not usable. This script writes audio with soundfile anyway, so
+    keep the original bytes/path and decode locally in ``write_wav`` instead.
+    """
+    if not dataset_has_column(ds, column):
+        return ds
+    from datasets import Audio
+
+    return ds.cast_column(column, Audio(decode=False))
+
+
+def remove_existing_columns(ds: Any, columns: Iterable[str]) -> Any:
+    existing = [column for column in columns if dataset_has_column(ds, column)]
+    return ds.remove_columns(existing) if existing else ds
+
+
 def prepare_librispeech(args: argparse.Namespace) -> Path:
     from datasets import load_dataset
 
@@ -122,6 +151,7 @@ def prepare_librispeech(args: argparse.Namespace) -> Path:
         f"config={args.librispeech_config} split={args.librispeech_split}"
     )
     ds = load_dataset(args.librispeech_dataset, args.librispeech_config, split=args.librispeech_split)
+    ds = disable_audio_decode(ds)
     ds = maybe_shuffle(ds, args.shuffle, args.seed)
     out_dir = Path(args.data_dir) / "librispeech_test_clean"
     max_seconds = args.librispeech_minutes * 60.0 if args.librispeech_minutes > 0 else math.inf
@@ -186,13 +216,18 @@ def load_fleurs(dataset_name: str, split: str, lang: str) -> Any:
         # This path restricts network/cache access to test-*.parquet only.
         data_file = f"hf://datasets/google/fleurs/parquet-data/{config}/{split}-00000-of-00001.parquet"
         print(f"loading FLEURS split-only parquet: {data_file}")
-        return load_dataset("parquet", data_files={split: data_file}, split=split, streaming=True)
-    return load_dataset(dataset_name, config, split=split)
+        ds = load_dataset("parquet", data_files={split: data_file}, split=split, streaming=True)
+    else:
+        ds = load_dataset(dataset_name, config, split=split)
+    return disable_audio_decode(ds)
 
 
 def prepare_fleurs_direction(args: argparse.Namespace, src: str, tgt: str) -> Path:
     src_ds = maybe_shuffle(load_fleurs(args.fleurs_dataset, args.fleurs_split, src), args.shuffle, args.seed)
     tgt_ds = load_fleurs(args.fleurs_dataset, args.fleurs_split, tgt)
+    # Target side only supplies text. Drop encoded audio bytes before building
+    # the lookup table to avoid unnecessary memory use and any audio decoding.
+    tgt_ds = remove_existing_columns(tgt_ds, ["audio"])
     tgt_by_id = {str(row["id"]): row for row in tgt_ds}
     out_dir = Path(args.data_dir) / "fleurs" / f"{src}-{tgt}"
     items: list[ManifestItem] = []
