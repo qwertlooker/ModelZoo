@@ -202,7 +202,7 @@ ASCEND_RT_VISIBLE_DEVICES=0 python Canary-1B/infer.py \
 | AST | BLEU | 保留原始标点和大小写；tokenization 固定 | `sacrebleu` 或 NeMo/Lightning BLEU |
 | 回归一致性 | 文本完全一致率、WER/BLEU 差异 | 同模型同数据 CPU/CUDA vs NPU | 自定义脚本 |
 
-评测脚本规范：除按设备条件加载的后端模块（如 `torch_npu`）外，`eval_canary.py` / `infer.py` 的必需依赖必须统一前置 import；`whisper.normalizers.EnglishTextNormalizer`、`jiwer`、`sacrebleu`、NeMo/Torch 任一缺失均应在启动阶段暴露原始错误。禁止使用 `whisper_normalizer`、regex/basic normalizer 或其他 fallback 替代官方 ASR WER 路径；禁止为 NeMo 版本字段、解码配置等官方预期字段添加 `try/except`、`hasattr/getattr` 静默兼容，字段缺失应作为环境/版本不匹配直接失败。
+项目级脚本规范见根目录《模型NPU 适配标准流程.md》的“项目级脚本严格失败原则”。Canary 的 `eval_canary.py` / `infer.py` 必须按该项目级规范执行：除按设备条件加载的后端模块（如 `torch_npu`）外，必需依赖统一前置 import；`whisper.normalizers.EnglishTextNormalizer`、`jiwer`、`sacrebleu`、NeMo/Torch 任一缺失均应在启动阶段暴露原始错误。禁止使用 `whisper_normalizer`、regex/basic normalizer 或其他 fallback 替代官方 ASR WER 路径；禁止为 NeMo 版本字段、解码配置等官方预期字段添加 `try/except`、`hasattr/getattr` 静默兼容，字段缺失应作为环境/版本不匹配直接失败。
 
 ### 5.2 推荐 L2 精度验收
 

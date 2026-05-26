@@ -2,7 +2,7 @@
 
 ## 一句话指令
 
-> 先克隆 upstream，确认远端最新 commit，并明确“当前适配的精确版本边界”：源码 repo/分支/commit、模型权重 repo/文件/commit 或校验值、辅助模型版本，以及明确排除同系列其他变体。区分上游源码改动和当前适配脚本。上游已有文件的修改必须生成 patch；新增 `infer.py` 不放进 patch，直接放当前模型目录。`infer.py` 只保留一个，默认 `--device npu`，CPU 验证用 `--device cpu`，不要使用 `auto/use_gpu`，不要写死 `npu:0/cuda:0`，实际设备由环境变量控制。必须补全环境搭建、权重下载、测试数据下载、CPU 当前环境验证、NPU 验证说明。还必须参考原始模型的功能、性能、精度和公开评测，生成 `ACCEPTANCE_PLAN.md`，按数据集大小、获取难度、验证难度设计 L0/L1/L2/L3 分层验收、通过条件和报告模板。最后生成 `ANALYSIS.md`、`NPU_ADAPTATION.md`、`NPU_VALIDATION.md`、`ACCEPTANCE_PLAN.md`，并验证 `git apply --check`、`py_compile`、下载 URL/脚本可用性、测试数据可用性、当前环境 CPU 推理；不能只补文档不做验证，不能只用 dummy smoke test 代替完整验收方案。
+> 先克隆 upstream，确认远端最新 commit，并明确“当前适配的精确版本边界”：源码 repo/分支/commit、模型权重 repo/文件/commit 或校验值、辅助模型版本，以及明确排除同系列其他变体。区分上游源码改动和当前适配脚本。上游已有文件的修改必须生成 patch；新增 `infer.py` 不放进 patch，直接放当前模型目录。`infer.py` 只保留一个，默认 `--device npu`，CPU 验证用 `--device cpu`，不要使用 `auto/use_gpu`，不要写死 `npu:0/cuda:0`，实际设备由环境变量控制。适配/评测脚本必须按项目级“严格失败”原则实现：必需依赖统一前置 import，缺依赖、缺官方预期字段或版本不匹配时直接暴露原始错误，不添加不必要的 `try/except`、`hasattr/getattr`、regex/basic 替代、CPU/远端 fallback 等静默兼容。必须补全环境搭建、权重下载、测试数据下载、CPU 当前环境验证、NPU 验证说明。还必须参考原始模型的功能、性能、精度和公开评测，生成 `ACCEPTANCE_PLAN.md`，按数据集大小、获取难度、验证难度设计 L0/L1/L2/L3 分层验收、通过条件和报告模板。最后生成 `ANALYSIS.md`、`NPU_ADAPTATION.md`、`NPU_VALIDATION.md`、`ACCEPTANCE_PLAN.md`，并验证 `git apply --check`、`py_compile`、下载 URL/脚本可用性、测试数据可用性、当前环境 CPU 推理；不能只补文档不做验证，不能只用 dummy smoke test 代替完整验收方案。
 
 ---
 
@@ -147,6 +147,22 @@ map_location="cuda"
 ---
 
 ### Step 5：设备适配原则
+
+#### 5.0 项目级脚本严格失败原则
+
+该原则适用于整个 ModelZoo 的所有适配脚本、评测脚本和数据准备脚本，不是某个模型目录的局部要求。除非本标准流程在具体步骤中明确允许，否则不要为了“跑通”而添加静默兼容层。
+
+必须遵守：
+
+- **必需依赖统一前置 import**：模型入口类、评测库、官方 normalizer / tokenizer / processor 等必需依赖应放在文件顶部导入；缺依赖时脚本启动阶段直接报原始 `ImportError` / `ModuleNotFoundError`。
+- **设备后端可条件导入**：仅按设备选择才需要的后端注册模块可以条件导入，例如只有 `--device npu` 时导入 `torch_npu`，只有 `--device cuda` 时触发 CUDA 专用依赖。
+- **官方评测路径不可替代**：公开指标要求的 normalizer、tokenizer、decode 参数、metric 实现必须使用官方或明确等价路径；不得用 regex/basic normalizer、其他同名包、简化 metric、CPU fallback 或远端自动 fallback 生成看似可用但不可对齐官方口径的结果。
+- **官方预期字段直接访问**：对模型配置、解码配置、版本字段、推理输出结构等官方预期字段，直接访问并让缺字段报错；不要用 `hasattr/getattr`、宽泛 `try/except`、dict/string 兜底来掩盖环境或上游版本不匹配。
+- **禁止吞错继续**：不要捕获宽泛 `Exception` 后继续执行；如必须捕获异常用于补充上下文，必须重新抛出，且不得切换到非官方替代实现。
+- **兼容处理必须有依据**：如果确实需要兼容多个官方版本或多个公开权重变体，必须在文档中列出版本边界、触发条件、验证命令和指标影响；不能把未验证的兼容逻辑混入默认路径。
+
+提交前应检查新增/修改脚本中是否存在不必要的 `try/except`、`hasattr/getattr`、`pass`、`fallback`、`auto`、`use_gpu`、硬编码设备、静默下载远端替代等模式；发现后要么删除，要么在文档中说明其必要性和验证结果。
+
 
 推荐：
 
@@ -314,8 +330,11 @@ PY
 
 - 上游模型入口类；
 - 任务域关键依赖；
+- 官方评测/后处理依赖（如 normalizer、metric、tokenizer）；
 - NPU 后端注册；
 - 一个最小 NPU tensor 迁移。
+
+导入测试不得用宽泛 `try/except` 吞错；缺依赖、缺字段或版本不匹配必须在验证记录中体现为失败并说明修复方式。
 
 ---
 
@@ -550,8 +569,9 @@ git -C <model_dir>/upstream apply --check ../patches/0001-xxx.patch
 - 不指定 `npu:0` / `cuda:0`；
 - 所有路径参数化：模型权重、输入数据、输出目录；
 - 支持打印可验证结果，例如识别文本、top-k、输出 shape、保存文件路径；
-- `torch_npu` 必须条件导入，避免 CPU-only 环境无法 import 脚本；
-- 重依赖模型库也应尽量延迟导入到 `main()` 或实际推理路径，保证 `python infer.py --help` 在缺少权重/部分推理依赖时仍可输出参数说明；
+- `torch_npu` 必须条件导入，避免 CPU-only 环境因 NPU 后端缺失而无法运行 CPU 路径；
+- 除 `torch_npu` 这类设备后端注册模块外，模型入口类和推理必需依赖应前置 import；缺依赖应及时报错，不为了 `--help` 延迟暴露依赖问题；
+- 对官方预期的模型输出字段、decode 配置字段、版本字段直接访问；字段缺失表示环境/版本不匹配，应立即失败，不添加静默兼容兜底；
 - 脚本必须通过：
   ```bash
   python3 -m py_compile <model_dir>/infer.py

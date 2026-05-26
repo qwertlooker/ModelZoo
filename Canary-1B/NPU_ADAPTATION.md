@@ -134,7 +134,7 @@ b0284183a9a1e039a2fff39427e2991fa4df0b9612a3447fc33ff82b20fdfb5a
 
 - NVIDIA model card 的 ASR/AST 精度结果使用 `beam width=5`、`length penalty=1.0`。
 - ASR 使用 WER，并用官方 `openai-whisper` 的 `whisper.normalizers.EnglishTextNormalizer` 处理参考文本和预测文本；仅安装 `whisper_normalizer` 不算满足官方路径。
-- 适配/评测脚本不添加不必要兼容层：必需依赖统一前置 import，缺依赖或 NeMo 官方预期字段缺失时直接报错，不使用宽泛 `try/except`、`hasattr/getattr` 静默降级。
+- 适配/评测脚本遵守根目录《模型NPU 适配标准流程.md》的项目级脚本严格失败原则：必需依赖统一前置 import，缺依赖或 NeMo 官方预期字段缺失时直接报错，不使用宽泛 `try/except`、`hasattr/getattr` 静默降级。
 - AST 使用 BLEU，并使用数据集原始标点和大小写。
 - 原始 `nvidia/canary-1b` model card 未发布单独的硬件延迟/吞吐表；公开速度参考使用 Open ASR Leaderboard 的 RTFx。
 - Open ASR Leaderboard 中 `nvidia/canary-1b` 的公开参考：Average WER `6.50`，RTFx `235.34`。该榜单评测硬件为 NVIDIA A100-SXM4-80GB GPU；该值只作为公开 GPU 量级参考，不作为 NPU 通过线。

@@ -60,7 +60,7 @@ pip install datasets soundfile librosa tqdm jiwer sacrebleu openai-whisper
 
 ### 1.1 评测脚本 import / 依赖规范
 
-`Canary-1B/scripts/eval_canary.py` 必须遵守以下流程规范：
+项目级流程规范详见根目录《模型NPU 适配标准流程.md》的“项目级脚本严格失败原则”。`Canary-1B/scripts/eval_canary.py` 作为本模型评测入口必须遵守该项目级规范：
 
 1. 除设备后端探测类 import（例如仅 `--device npu` 才需要的 `torch_npu`）外，评测依赖统一放在文件顶部导入，禁止在 metric 计算阶段临时 import 后再 fallback。
 2. ASR WER 只能使用官方路径 `from whisper.normalizers import EnglishTextNormalizer`；不得改用 `whisper_normalizer` 包、regex/basic normalizer 或其他静默替代实现。
