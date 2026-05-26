@@ -257,7 +257,7 @@ curl -L -o Canary-1B/eval_data/fleurs_parquet/fr_fr/test-00000-of-00001.parquet 
 | 场景 | 推荐参数 | 说明 |
 |---|---|---|
 | 精度对齐公开指标 | `--beam_size 5 --batch_size 16` | OOM 时将 batch 依次降到 `8/4/2/1` |
-| NPU/CUDA 吞吐测试 | `--beam_size 1 --batch_size 16` | 对齐普通推理示例，优先看 RTF/RTFx |
+| NPU/CUDA 吞吐测试 | `--performance_mode --beam_size 1 --batch_size 64/128` | 对齐 Open ASR Leaderboard 计时口径：duration 降序、warmup、audio list、bf16 |
 | CPU 小子集基线 | `--beam_size 5 --batch_size 1` | 仅用于精度口径一致；全量会很慢 |
 | 快速 smoke test | `--beam_size 1 --batch_size 1` | 只验证链路是否跑通 |
 
@@ -280,10 +280,14 @@ ASCEND_RT_VISIBLE_DEVICES=0 python Canary-1B/scripts/eval_canary.py \
 ASCEND_RT_VISIBLE_DEVICES=0 python Canary-1B/scripts/eval_canary.py \
   --model Canary-1B/weights/canary-1b.nemo \
   --device npu \
-  --batch_size 16 \
+  --manifest Canary-1B/eval_data/librispeech_test_clean/manifest_asr_en.jsonl \
+  --performance_mode \
+  --batch_size 64 \
   --beam_size 1 \
-  --output_dir Canary-1B/eval_results/npu_all_bs16_beam1
+  --output_dir Canary-1B/eval_results/npu_librispeech_test_clean_perf_bs64_beam1
 ```
+
+`--performance_mode` 是专门的性能计时路径，用于尽量贴近 Hugging Face Open ASR Leaderboard 的 NeMo 评测方式：按音频时长降序排序，先 warmup `--warmup_batches` 个 batch，正式计时只统计完整音频列表转写，默认在 NPU/CUDA 上使用 `bfloat16`，并向 Canary audio-list `transcribe()` 传入 `pnc=nopnc`、`num_workers=1`。该模式会额外输出 `rtfx = audio_seconds / elapsed_seconds`。如需强制精度类型，可显式传 `--compute_dtype float32|float16|bfloat16`。
 
 ### 3.4 只评测 ASR
 

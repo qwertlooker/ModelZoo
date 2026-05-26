@@ -48,6 +48,42 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--output_dir", default="Canary-1B/eval_results")
     parser.add_argument("--batch_size", type=int, default=1)
     parser.add_argument("--beam_size", type=int, default=5)
+    parser.add_argument(
+        "--performance_mode",
+        action="store_true",
+        help=(
+            "Run a Hugging Face Open ASR Leaderboard-style timed path: sort samples by duration, "
+            "warm up before timing, transcribe an audio filepath list instead of timing manifest setup, "
+            "and report RTFx. Intended for ASR throughput comparisons."
+        ),
+    )
+    parser.add_argument(
+        "--compute_dtype",
+        default="auto",
+        choices=["auto", "float32", "float16", "bfloat16"],
+        help="Model compute dtype. auto uses bfloat16 in performance_mode on NPU/CUDA, otherwise keeps float32.",
+    )
+    parser.add_argument(
+        "--warmup_batches",
+        type=int,
+        default=4,
+        help="Number of initial batches to run before timed inference when --performance_mode is set.",
+    )
+    parser.add_argument(
+        "--num_workers",
+        type=int,
+        default=1,
+        help="DataLoader workers passed to NeMo transcribe in --performance_mode.",
+    )
+    parser.add_argument(
+        "--pnc",
+        default="nopnc",
+        choices=["pnc", "nopnc", "yes", "no"],
+        help="Canary prompt PnC value used by the audio-list performance path.",
+    )
+    parser.add_argument("--source_lang", default="en", choices=["en", "de", "es", "fr"])
+    parser.add_argument("--target_lang", default="en", choices=["en", "de", "es", "fr"])
+    parser.add_argument("--task", default="asr", choices=["asr", "ast", "s2t_translation"])
     return parser.parse_args()
 
 
@@ -91,10 +127,32 @@ def load_model(args: argparse.Namespace):
         model = EncDecMultiTaskModel.from_pretrained(args.model, map_location=device)
     model.eval()
     model.to(device)
+    compute_dtype = resolve_compute_dtype(args, device)
+    if compute_dtype is not None:
+        model.to(compute_dtype)
     decode_cfg = model.cfg.decoding
     decode_cfg.beam.beam_size = args.beam_size
     model.change_decoding_strategy(decode_cfg)
     return model
+
+
+def resolve_compute_dtype(args: argparse.Namespace, device: torch.device):
+    if args.compute_dtype == "float32":
+        return torch.float32
+    if args.compute_dtype == "float16":
+        return torch.float16
+    if args.compute_dtype == "bfloat16":
+        return torch.bfloat16
+    if args.performance_mode and device.type in {"npu", "cuda"}:
+        return torch.bfloat16
+    return None
+
+
+def synchronize_device(device_name: str) -> None:
+    if device_name == "cuda":
+        torch.cuda.synchronize()
+    elif device_name == "npu":
+        torch.npu.synchronize()
 
 
 def extract_text(item: Any) -> str:
@@ -128,11 +186,101 @@ def env_report(args: argparse.Namespace) -> dict[str, Any]:
         "device": args.device,
         "batch_size": args.batch_size,
         "beam_size": args.beam_size,
+        "performance_mode": args.performance_mode,
+        "compute_dtype": args.compute_dtype,
+        "warmup_batches": args.warmup_batches,
+        "num_workers": args.num_workers,
+        "pnc": args.pnc,
+        "source_lang": args.source_lang,
+        "target_lang": args.target_lang,
+        "task": args.task,
         "ascend_rt_visible_devices": os.environ.get("ASCEND_RT_VISIBLE_DEVICES"),
     }
     report["torch"] = torch.__version__
     report["nemo"] = nemo.__version__
     return report
+
+
+def transcribe_audio_list(model: Any, audio_paths: list[str], args: argparse.Namespace) -> list[Any]:
+    with torch.inference_mode(), torch.no_grad():
+        outputs = model.transcribe(
+            audio_paths,
+            batch_size=args.batch_size,
+            verbose=False,
+            pnc=args.pnc,
+            source_lang=args.source_lang,
+            target_lang=args.target_lang,
+            taskname=args.task,
+            num_workers=args.num_workers,
+        )
+    if isinstance(outputs, tuple) and len(outputs) == 2:
+        outputs = outputs[0]
+    return list(outputs)
+
+
+def evaluate_manifest_performance(model: Any, manifest: Path, args: argparse.Namespace) -> dict[str, Any]:
+    items = read_manifest(manifest)
+    tag = tag_from_manifest(manifest, items) + "_perf"
+    sorted_items = sorted(items, key=lambda x: float(x.get("duration", 0.0)), reverse=True)
+    audio_paths = [str(x["audio_filepath"]) for x in sorted_items]
+    references = [str(x.get("answer", "")) for x in sorted_items]
+    taskname = str(sorted_items[0].get("taskname", "asr"))
+
+    warmup_samples = min(len(audio_paths), args.batch_size * args.warmup_batches)
+    warmup_elapsed = 0.0
+    if warmup_samples > 0:
+        synchronize_device(args.device)
+        warmup_started = time.time()
+        transcribe_audio_list(model, audio_paths[:warmup_samples], args)
+        synchronize_device(args.device)
+        warmup_elapsed = time.time() - warmup_started
+
+    synchronize_device(args.device)
+    started = time.time()
+    outputs = transcribe_audio_list(model, audio_paths, args)
+    synchronize_device(args.device)
+    elapsed = time.time() - started
+
+    hypotheses = [extract_text(x) for x in outputs]
+    metrics: dict[str, Any] = compute_metrics(taskname, references, hypotheses)
+    total_audio = sum(float(x.get("duration", 0.0)) for x in sorted_items)
+    metrics.update(
+        {
+            "tag": tag,
+            "manifest": str(manifest),
+            "mode": "performance",
+            "num_samples": len(sorted_items),
+            "audio_seconds": total_audio,
+            "elapsed_seconds": elapsed,
+            "rtf": elapsed / total_audio if total_audio > 0 else None,
+            "rtfx": total_audio / elapsed if elapsed > 0 else None,
+            "warmup_samples": warmup_samples,
+            "warmup_elapsed_seconds": warmup_elapsed,
+            "sorted_by_duration": "descending",
+            "timed_input": "audio_filepath_list",
+        }
+    )
+
+    output_dir = Path(args.output_dir)
+    pred_path = output_dir / f"{tag}.tsv"
+    with pred_path.open("w", encoding="utf-8", newline="") as f:
+        writer = csv.writer(f, delimiter="\t")
+        writer.writerow(["sample_id", "audio_path", "duration", "reference", "hypothesis"])
+        for item, hyp in zip(sorted_items, hypotheses):
+            writer.writerow(
+                [
+                    item.get("sample_id", ""),
+                    item.get("audio_filepath", ""),
+                    item.get("duration", ""),
+                    item.get("answer", ""),
+                    hyp,
+                ]
+            )
+
+    with (output_dir / f"{tag}.metrics.json").open("w", encoding="utf-8") as f:
+        json.dump(metrics, f, ensure_ascii=False, indent=2)
+    print(json.dumps(metrics, ensure_ascii=False, indent=2))
+    return metrics
 
 
 def evaluate_manifest(model: Any, manifest: Path, args: argparse.Namespace) -> dict[str, Any]:
@@ -155,6 +303,7 @@ def evaluate_manifest(model: Any, manifest: Path, args: argparse.Namespace) -> d
             "audio_seconds": total_audio,
             "elapsed_seconds": elapsed,
             "rtf": elapsed / total_audio if total_audio > 0 else None,
+            "rtfx": total_audio / elapsed if elapsed > 0 else None,
         }
     )
 
@@ -194,7 +343,8 @@ def main() -> None:
         json.dump(env_report(args), f, ensure_ascii=False, indent=2)
 
     model = load_model(args)
-    all_metrics = [evaluate_manifest(model, manifest, args) for manifest in manifests]
+    evaluate_fn = evaluate_manifest_performance if args.performance_mode else evaluate_manifest
+    all_metrics = [evaluate_fn(model, manifest, args) for manifest in manifests]
     with (output_dir / "summary.metrics.json").open("w", encoding="utf-8") as f:
         json.dump(all_metrics, f, ensure_ascii=False, indent=2)
 

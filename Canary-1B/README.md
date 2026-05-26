@@ -223,14 +223,18 @@ ASCEND_RT_VISIBLE_DEVICES=0 python Canary-1B/scripts/eval_canary.py \
   --beam_size 5 \
   --output_dir Canary-1B/eval_results/npu_all_bs16_beam5
 
-# NPU 吞吐模式：用于速度/RTF 评测。
+# NPU 吞吐模式：尽量对齐 Hugging Face Open ASR Leaderboard 的 NeMo 计时口径。
 ASCEND_RT_VISIBLE_DEVICES=0 python Canary-1B/scripts/eval_canary.py \
   --model Canary-1B/weights/canary-1b.nemo \
   --device npu \
-  --batch_size 16 \
+  --manifest Canary-1B/eval_data/librispeech_test_clean/manifest_asr_en.jsonl \
+  --performance_mode \
+  --batch_size 64 \
   --beam_size 1 \
-  --output_dir Canary-1B/eval_results/npu_all_bs16_beam1
+  --output_dir Canary-1B/eval_results/npu_librispeech_test_clean_perf_bs64_beam1
 ```
+
+`--performance_mode` 会按音频时长降序排序、先 warmup、用 audio filepath list 调 NeMo `transcribe()`、NPU/CUDA 默认转 `bfloat16`，并输出 `RTFx=audio_seconds/elapsed_seconds`。
 
 ## 6. CPU 验证
 
