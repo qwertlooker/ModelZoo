@@ -39,9 +39,11 @@
 | batch | 模型卡示例 batch size 16；适配脚本支持 `--batch_size` | NPU/CUDA 优先验证 `batch_size=16`，OOM 时降到 `8/4/2/1` 并记录最大可用 batch；CPU 只建议小子集 |
 | 解码 | 模型卡精度使用 beam size 5、length penalty 1.0；普通示例可用 greedy | 精度验收使用 `--beam_size 5`；吞吐/速度模式使用 `--beam_size 1`；性能同时记录 greedy/beam5 |
 
-### 1.2 公开精度参考
+### 1.2 官方精度评测数据
 
-> 注意：公开指标通常在 NVIDIA GPU、特定 NeMo 版本、特定 normalizer 和 decode 配置下得到。NPU 适配验收不要求逐项完全复现，但要求同数据、同脚本下 NPU 相对 CPU/CUDA 不出现明显退化。
+来源：NVIDIA Hugging Face model card <https://huggingface.co/nvidia/canary-1b>。公开 ASR/AST 结果使用 `beam width=5`、`length penalty=1.0`。
+
+> 注意：公开指标通常在 NVIDIA GPU、特定 NeMo 版本、特定 normalizer 和 decode 配置下得到。NPU 适配验收不要求逐项完全复现，但要求同数据、同脚本下 NPU 相对 CPU/CUDA 不出现明显退化。只有完整对齐数据集、normalizer、解码参数和评测脚本时，才可宣称复现官方指标。
 
 **ASR WER（不带 PnC、使用 whisper-normalizer）**
 
@@ -67,11 +69,17 @@
 | mExpresso | En→Es | 35.74 |
 | mExpresso | En→Fr | 28.29 |
 
-**Open ASR Leaderboard 参考**
+### 1.3 官方/公开性能评测数据
+
+来源：`nvidia/canary-1b` model card 链接的 Hugging Face Open ASR Leaderboard <https://hf-audio-open-asr-leaderboard.hf.space/>，以及 Open ASR Leaderboard 代码/说明 <https://github.com/huggingface/open_asr_leaderboard>。
+
+原始 `nvidia/canary-1b` model card 没有发布单独的硬件延迟/吞吐表。当前可作为公开性能参考的是 Open ASR Leaderboard 的 RTFx；该榜单说明开源模型评测在 NVIDIA A100-SXM4-80GB GPU、CUDA 12.6、PyTorch 2.4.0 下运行，batch size 尽量使用 64，显存不足时自适应降低。RTFx 是跨模型相同条件下的公开 GPU 参考，不是 NPU 验收通过线。
+
+截至 2026-05-26，公开参考如下：
 
 | 指标 | 公开值 |
 |---|---:|
-| Mean WER | 6.50 |
+| Average WER | 6.50 |
 | RTFx | 235.34 |
 | AMI WER | 13.90 |
 | Earnings22 WER | 12.19 |
@@ -79,6 +87,10 @@
 | LibriSpeech clean WER | 1.48 |
 | LibriSpeech other WER | 2.93 |
 | SPGISpeech WER | 2.06 |
+| Tedlium WER | 3.56 |
+| VoxPopuli WER | 5.79 |
+
+本适配性能验收必须另行记录 NPU 本机数据：`elapsed_seconds`、`rtf`、`RTFx=audio_seconds/elapsed_seconds`、最大可用 `batch_size`、`beam_size`、峰值 HBM/RSS、首次编译/加载耗时和稳定推理耗时。NPU 结论以同 checkpoint、同数据、同脚本、同 decode 参数下相对 CPU/CUDA 不退化为主；Open ASR Leaderboard 只用于公开 GPU 量级参考。
 
 ## 2. 数据集选择：规模、获取难度与建议用途
 

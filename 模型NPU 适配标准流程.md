@@ -672,7 +672,8 @@ python <model_dir>/infer.py --device cpu <model_args> <input_args>
 
 - **验收目标与版本边界**：明确当前适配的是哪个模型/权重/变体，排除哪些同系列变体；
 - **原始模型能力**：列出原始模型支持的任务、语言、输入输出、batch、解码参数或其他关键功能；
-- **公开参考指标**：记录模型卡、论文、README 或官方 benchmark 的关键指标，例如 WER/CER/BLEU/mAP/Accuracy/RTF 等，并说明是否可直接复现；
+- **官方/公开精度评测数据**：记录模型卡、论文、README 或官方 benchmark 的关键精度指标，例如 WER/CER/BLEU/mAP/Accuracy，并记录数据集、split、normalizer/后处理、decode 参数、checkpoint/版本和来源链接；
+- **官方/公开性能评测数据**：记录模型卡、论文、README 或官方 benchmark 的速度/资源指标，例如 latency、throughput、RTF/RTFx、tokens/s、最大 batch、显存/内存、测试硬件、驱动/框架版本、batch 策略和来源链接；如果官方没有发布数值，必须明确写“官方未发布硬件性能数值”，并记录可替代参考（例如官方示例 batch、Leaderboard RTFx、论文训练/推理硬件）和不可直接对齐的原因；
 - **数据集选择**：按数据集大小、获取难度、授权/登录要求、验证难度和覆盖能力进行分级；
 - **分层验收**：
   - L0 smoke：极小样本，只验证链路；
@@ -680,8 +681,8 @@ python <model_dir>/infer.py --device cpu <model_args> <input_args>
   - L2 推荐正式验收：可获取公开数据或内部固定集，计算主要精度和性能指标；
   - L3 完整复现：尽量对齐原始公开 benchmark 全量数据和官方评测配置；
 - **功能矩阵**：覆盖所有核心任务、语言/模态、batch、长输入、异常输入；
-- **精度验收**：指标、normalizer/后处理、CPU/CUDA vs NPU 对齐阈值、对公开指标的允许差异；
-- **性能验收**：加载时间、延迟、吞吐、RTF/RTFx、最大 batch、峰值 HBM/RSS、稳定性；
+- **精度验收**：指标、normalizer/后处理、CPU/CUDA vs NPU 对齐阈值、对官方/公开精度指标的允许差异；
+- **性能验收**：加载时间、延迟、吞吐、RTF/RTFx、最大 batch、峰值 HBM/RSS、稳定性，并说明与官方/公开性能指标是否可比；
 - **最低正式验收清单**：资源受限时也必须执行的最小集合；
 - **报告模板**：环境、功能、精度、性能、稳定性、结论。
 
@@ -691,6 +692,7 @@ python <model_dir>/infer.py --device cpu <model_args> <input_args>
 
 - NPU 适配本身优先要求同 checkpoint、同数据、同脚本下相对 CPU/CUDA 不退化；
 - 只有使用原始公开数据全量、官方或等价评测脚本、匹配解码/后处理配置时，才可宣称复现原始公开指标；
+- 官方精度指标和官方/公开性能指标必须分开记录；如果性能指标来自第三方 Leaderboard 或与官方 model card 测试硬件不同，必须标明“仅作参考，不作为 NPU 通过线”；
 - dummy / 随机输入只能作为 L0 链路验证，不得作为精度或性能验收结论。
 
 ---

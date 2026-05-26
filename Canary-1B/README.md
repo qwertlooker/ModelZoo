@@ -80,7 +80,66 @@ CANARY_DOWNLOAD_METHOD=curl CANARY_WEIGHT_URL=<mirror-url> ./Canary-1B/scripts/d
 
 本次在 ModelScope 以 `canary-1b` / `nvidia/canary-1b` 检索未找到同名公开模型。
 
-## 4. 测试数据准备
+## 4. 官方参考指标
+
+以下指标作为适配验收和性能对齐的重要参考。注意：只有在数据集、normalizer、decode 参数和评测脚本都对齐时，才能宣称复现公开指标；NPU 适配更重要的是同 checkpoint、同数据、同脚本下相对 CPU/CUDA 不退化。
+
+来源：
+
+- NVIDIA Hugging Face model card：<https://huggingface.co/nvidia/canary-1b>
+- Hugging Face Open ASR Leaderboard：<https://hf-audio-open-asr-leaderboard.hf.space/>
+- Open ASR Leaderboard 代码/说明：<https://github.com/huggingface/open_asr_leaderboard>
+
+### 4.1 官方精度评测数据
+
+NVIDIA model card 说明 ASR/AST 公开结果使用 `beam width=5`、`length penalty=1.0`。ASR 指标为 WER，参考文本和预测文本使用 whisper-normalizer；AST 指标为 BLEU，使用带原始标点和大小写的标注。
+
+**ASR WER（w/o PnC）**
+
+| 数据集 | En | De | Es | Fr |
+|---|---:|---:|---:|---:|
+| MCV-16.1 test | 7.97 | 4.61 | 3.99 | 6.53 |
+| MLS test | 3.06 | 4.19 | 3.15 | 4.12 |
+
+**AST BLEU**
+
+| 数据集 | 方向 | BLEU |
+|---|---|---:|
+| FLEURS test | En→De | 32.15 |
+| FLEURS test | En→Es | 22.66 |
+| FLEURS test | En→Fr | 40.76 |
+| FLEURS test | De→En | 33.98 |
+| FLEURS test | Es→En | 21.80 |
+| FLEURS test | Fr→En | 30.95 |
+| CoVoST-v2 test | De→En | 37.67 |
+| CoVoST-v2 test | Es→En | 40.70 |
+| CoVoST-v2 test | Fr→En | 40.42 |
+| mExpresso test | En→De | 23.84 |
+| mExpresso test | En→Es | 35.74 |
+| mExpresso test | En→Fr | 28.29 |
+
+### 4.2 官方/公开性能评测数据
+
+原始 `nvidia/canary-1b` model card 没有给出独立的硬件延迟/吞吐表；可引用的公开性能参考主要来自 Hugging Face Open ASR Leaderboard。该榜单报告 Average WER 和 RTFx，其中 RTFx 越高表示处理音频越快。榜单说明其开源模型评测在 NVIDIA A100-SXM4-80GB GPU、CUDA 12.6、PyTorch 2.4.0 下运行，batch size 尽量使用 64，显存不足时自适应降低。
+
+截至 2026-05-26，`nvidia/canary-1b` 在 Open ASR Leaderboard 上的公开参考如下：
+
+| 指标 | 值 |
+|---|---:|
+| Average WER | 6.50 |
+| RTFx | 235.34 |
+| AMI WER | 13.90 |
+| Earnings22 WER | 12.19 |
+| GigaSpeech WER | 10.12 |
+| LibriSpeech clean WER | 1.48 |
+| LibriSpeech other WER | 2.93 |
+| SPGISpeech WER | 2.06 |
+| Tedlium WER | 3.56 |
+| VoxPopuli WER | 5.79 |
+
+本仓库 NPU 性能验收应同时报告 `elapsed_seconds`、`rtf`、`RTFx=audio_seconds/elapsed_seconds`、最大可用 `batch_size`、`beam_size`、峰值 HBM/RSS。不要把 Open ASR Leaderboard 的 A100 RTFx 直接当作 NPU 通过线；它只作为公开 GPU 参考和量级对照。
+
+## 5. 测试数据准备
 
 生成一个 1 秒 16 kHz 单声道 wav，用于 smoke test：
 
@@ -97,7 +156,7 @@ Canary-1B/test_data/dummy_1s_16k.wav.meta.json
 
 该文件不是 ASR 准确率样本，只用于验证模型加载、音频读取、设备迁移和推理调用链路。
 
-### 4.1 LibriSpeech / FLEURS 评测数据在线/离线混合准备
+### 5.1 LibriSpeech / FLEURS 评测数据在线/离线混合准备
 
 正式 ASR/AST 验收使用 `scripts/prepare_eval_data.py`。脚本支持指定本地目录，存在即复用，缺失才下载，`--offline` 下禁止联网：
 
@@ -139,7 +198,7 @@ Canary-1B/eval_data/fleurs_parquet/fr_fr/test-00000-of-00001.parquet
 
 FLEURS 音频列使用 `Audio(decode=False)`，再由 `soundfile` 解码，避免 NPU 环境依赖 `torchcodec`。完整命令和手动下载命令见 `EVAL_FLEURS_LIBRISPEECH.md`。
 
-### 4.2 评测参数建议
+### 5.2 评测参数建议
 
 - `beam_size` 是解码搜索宽度，不是 batch 大小。`beam_size=1` 为 greedy decode，最快；`beam_size=5` 为 beam search，通常精度更好但更慢、更占显存。
 - NVIDIA Canary-1B 公开 ASR/AST 精度表使用 `beam width=5`、`length penalty=1.0`，所以正式精度验收建议使用 `--beam_size 5`。
@@ -166,7 +225,7 @@ ASCEND_RT_VISIBLE_DEVICES=0 python Canary-1B/scripts/eval_canary.py \
   --output_dir Canary-1B/eval_results/npu_all_bs16_beam1
 ```
 
-## 5. CPU 验证
+## 6. CPU 验证
 
 ```bash
 Canary-1B/.venv-cpu/bin/python Canary-1B/infer.py \
@@ -181,7 +240,7 @@ Canary-1B/.venv-cpu/bin/python Canary-1B/infer.py \
 
 当前机器已使用 HF 镜像权重完成 CPU 验证，输出示例：`[0]  I'm a part of that.` 详见 `NPU_VALIDATION.md`。
 
-## 6. NPU 推理
+## 7. NPU 推理
 
 ```bash
 cd Canary-1B
@@ -195,7 +254,7 @@ ASCEND_RT_VISIBLE_DEVICES=0 python infer.py \
   --pnc yes
 ```
 
-## 7. 语音翻译 AST
+## 8. 语音翻译 AST
 
 ```bash
 ASCEND_RT_VISIBLE_DEVICES=0 python infer.py \
@@ -208,7 +267,7 @@ ASCEND_RT_VISIBLE_DEVICES=0 python infer.py \
   --pnc yes
 ```
 
-## 8. 交付文件
+## 9. 交付文件
 
 - `infer.py`：CPU/NPU 融合推理脚本。
 - `scripts/download_weights.sh`：权重下载脚本。

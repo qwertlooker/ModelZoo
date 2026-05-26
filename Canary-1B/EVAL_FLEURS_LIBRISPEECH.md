@@ -7,6 +7,47 @@
 
 这样 CPU/CUDA/NPU 评测可以复用同一份 wav 和 manifest，避免每次评测重复下载或抽样不一致。
 
+## 0. 官方参考指标
+
+来源：
+
+- NVIDIA Canary-1B model card：<https://huggingface.co/nvidia/canary-1b>
+- Hugging Face Open ASR Leaderboard：<https://hf-audio-open-asr-leaderboard.hf.space/>
+- Open ASR Leaderboard 代码/说明：<https://github.com/huggingface/open_asr_leaderboard>
+
+### 0.1 官方精度数据
+
+NVIDIA model card 说明 ASR/AST 公开结果使用 `beam width=5`、`length penalty=1.0`。ASR 使用 WER，并用 whisper-normalizer 归一化参考和预测文本；AST 使用 BLEU，并保留数据集原始标点和大小写。
+
+| 任务 | 数据集 | 指标 | 官方参考 |
+|---|---|---|---|
+| ASR | MCV-16.1 test | WER | En 7.97 / De 4.61 / Es 3.99 / Fr 6.53 |
+| ASR | MLS test | WER | En 3.06 / De 4.19 / Es 3.15 / Fr 4.12 |
+| AST | FLEURS test | BLEU | En→De 32.15 / En→Es 22.66 / En→Fr 40.76 / De→En 33.98 / Es→En 21.80 / Fr→En 30.95 |
+| AST | CoVoST-v2 test | BLEU | De→En 37.67 / Es→En 40.70 / Fr→En 40.42 |
+| AST | mExpresso test | BLEU | En→De 23.84 / En→Es 35.74 / En→Fr 28.29 |
+
+### 0.2 公开性能数据
+
+原始 `nvidia/canary-1b` model card 没有单独发布硬件延迟/吞吐表。当前可引用的公开性能参考是 Hugging Face Open ASR Leaderboard 的 RTFx。该榜单说明开源模型评测在 NVIDIA A100-SXM4-80GB GPU、CUDA 12.6、PyTorch 2.4.0 下运行，batch size 尽量使用 64，显存不足时自适应降低。
+
+截至 2026-05-26，`nvidia/canary-1b` 公开参考为：
+
+| 指标 | 值 |
+|---|---:|
+| Average WER | 6.50 |
+| RTFx | 235.34 |
+| AMI WER | 13.90 |
+| Earnings22 WER | 12.19 |
+| GigaSpeech WER | 10.12 |
+| LibriSpeech clean WER | 1.48 |
+| LibriSpeech other WER | 2.93 |
+| SPGISpeech WER | 2.06 |
+| Tedlium WER | 3.56 |
+| VoxPopuli WER | 5.79 |
+
+上述 RTFx 只作为公开 GPU 量级参考，不是 NPU 通过线。本仓库评测输出的 `elapsed_seconds`、`rtf` 可换算 `RTFx = audio_seconds / elapsed_seconds`，并应和 `beam_size`、`batch_size`、设备、峰值内存一起记录。
+
 ## 1. 前置依赖
 
 ```bash

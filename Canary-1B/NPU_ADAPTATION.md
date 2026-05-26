@@ -120,7 +120,27 @@ b0284183a9a1e039a2fff39427e2991fa4df0b9612a3447fc33ff82b20fdfb5a
 
 本次在 ModelScope 以 `canary-1b` / `nvidia/canary-1b` 检索未找到同名公开模型。
 
-## 5. 测试数据准备
+## 5. 官方参考指标与评测口径
+
+官方/公开指标是 NPU 适配的重要参考，但不是简单的单值通过线。适配报告必须同时记录：来源链接、数据集、split、normalizer/后处理、decode 参数、测试硬件和 batch 策略。
+
+来源：
+
+- NVIDIA Canary-1B model card：<https://huggingface.co/nvidia/canary-1b>
+- Hugging Face Open ASR Leaderboard：<https://hf-audio-open-asr-leaderboard.hf.space/>
+- Open ASR Leaderboard 代码/说明：<https://github.com/huggingface/open_asr_leaderboard>
+
+关键口径：
+
+- NVIDIA model card 的 ASR/AST 精度结果使用 `beam width=5`、`length penalty=1.0`。
+- ASR 使用 WER，并用 whisper-normalizer 处理参考文本和预测文本。
+- AST 使用 BLEU，并使用数据集原始标点和大小写。
+- 原始 `nvidia/canary-1b` model card 未发布单独的硬件延迟/吞吐表；公开速度参考使用 Open ASR Leaderboard 的 RTFx。
+- Open ASR Leaderboard 中 `nvidia/canary-1b` 的公开参考：Average WER `6.50`，RTFx `235.34`。该榜单评测硬件为 NVIDIA A100-SXM4-80GB GPU；该值只作为公开 GPU 量级参考，不作为 NPU 通过线。
+
+完整官方精度表和性能参考表见 `README.md` 与 `ACCEPTANCE_PLAN.md`。NPU 验收应另外记录本机 `elapsed_seconds`、`rtf`、`RTFx=audio_seconds/elapsed_seconds`、最大可用 `batch_size`、`beam_size`、峰值 HBM/RSS，并优先判断同 checkpoint、同数据、同脚本下 NPU 相对 CPU/CUDA 是否退化。
+
+## 6. 测试数据准备
 
 生成最小 smoke-test wav：
 
@@ -137,7 +157,7 @@ Canary-1B/test_data/dummy_1s_16k.wav.meta.json
 
 该样例仅用于链路验证，不用于准确率评估。若要验证识别质量，请使用下面的 LibriSpeech / FLEURS manifest 流程。
 
-### 5.1 LibriSpeech / FLEURS 评测数据准备
+### 6.1 LibriSpeech / FLEURS 评测数据准备
 
 `scripts/prepare_eval_data.py` 已按在线/离线混合要求实现：
 
@@ -177,7 +197,7 @@ python Canary-1B/scripts/prepare_eval_data.py \
 
 输出 manifest 和 metadata；CPU/NPU 评测必须复用同一份 manifest。详细手动下载命令见 `EVAL_FLEURS_LIBRISPEECH.md`。
 
-## 6. 推理脚本用法
+## 7. 推理脚本用法
 
 ### CPU ASR 验证
 
@@ -218,7 +238,7 @@ ASCEND_RT_VISIBLE_DEVICES=0 python Canary-1B/infer.py \
   --pnc yes
 ```
 
-## 7. 上游更新处理
+## 8. 上游更新处理
 
 上游更新时必须重新执行：
 
