@@ -11,9 +11,11 @@ import argparse
 import io
 import json
 import math
+import os
 import random
 import re
 import tarfile
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any, Iterable
@@ -100,6 +102,20 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--fleurs_limit", type=int, default=50, help="Samples per AST direction; 0 means full split")
     parser.add_argument("--ast_directions", default=",".join(DEFAULT_AST_DIRECTIONS))
     parser.add_argument("--ast_pnc", default="yes", choices=["yes", "no"])
+    parser.add_argument(
+        "--audio_workers",
+        type=int,
+        default=min(8, max(1, os.cpu_count() or 1)),
+        help=(
+            "Parallel workers for decoding/writing wav files. Set to 1 for serial behavior. "
+            "Defaults to min(8, CPU count)."
+        ),
+    )
+    parser.add_argument(
+        "--force_rewrite_audio",
+        action="store_true",
+        help="Rewrite wav files even when they already exist. By default existing wav files are reused.",
+    )
     return parser.parse_args()
 
 
@@ -107,14 +123,24 @@ def safe_name(text: str) -> str:
     return re.sub(r"[^A-Za-z0-9_.-]+", "_", str(text)).strip("_") or "sample"
 
 
-def write_wav(audio: dict[str, Any], path: Path) -> float:
-    """Write a datasets Audio value to 16 kHz wav.
+def wav_duration(path: Path) -> float:
+    info = sf.info(path)
+    return float(info.frames) / float(info.samplerate)
+
+
+def write_wav(audio: dict[str, Any], path: Path, force: bool = False) -> float:
+    """Write a datasets Audio value to 16 kHz wav and return duration.
 
     HF dataset builders usually return {array, sampling_rate}; direct parquet
     loading may return {bytes, path}. Support both so FLEURS can be loaded from
-    its test parquet only, without downloading train parquet files.
+    its test parquet only, without downloading train parquet files. Existing wav
+    files are reused by default, which makes repeated manifest preparation much
+    faster.
     """
     path.parent.mkdir(parents=True, exist_ok=True)
+    if path.exists() and not force:
+        return wav_duration(path)
+
     if "array" in audio and audio["array"] is not None:
         array = audio["array"]
         sr = int(audio["sampling_rate"])
@@ -132,6 +158,13 @@ def write_wav(audio: dict[str, Any], path: Path) -> float:
         sr = 16000
     sf.write(path, array, sr)
     return float(len(array)) / float(sr)
+
+
+def map_audio_jobs(jobs: list[tuple[dict[str, Any], Path]], workers: int, force: bool) -> list[float]:
+    if workers <= 1 or len(jobs) <= 1:
+        return [write_wav(audio, path, force=force) for audio, path in jobs]
+    with ThreadPoolExecutor(max_workers=workers) as executor:
+        return list(executor.map(lambda job: write_wav(job[0], job[1], force=force), jobs))
 
 
 def write_manifest(path: Path, items: Iterable[ManifestItem]) -> None:
@@ -304,27 +337,41 @@ def write_librispeech_manifest(args: argparse.Namespace, rows: Iterable[dict[str
     total_seconds = 0.0
     items: list[ManifestItem] = []
 
-    for row in tqdm(rows, desc="prepare LibriSpeech"):
-        if limit and len(items) >= limit:
-            break
-        if total_seconds >= max_seconds:
-            break
-        sid = str(row.get("id") or row.get("file") or len(items))
-        wav_path = out_dir / "wav" / f"{safe_name(sid)}.wav"
-        duration = write_wav(row["audio"], wav_path)
-        total_seconds += duration
-        items.append(
-            ManifestItem(
-                audio_filepath=str(wav_path),
-                duration=duration,
-                answer=str(row.get("text") or row.get("transcript") or row.get("transcription") or ""),
-                taskname="asr",
-                source_lang="en",
-                target_lang="en",
-                pnc=args.asr_pnc,
-                sample_id=sid,
-            )
-        )
+    row_iter = iter(rows)
+    chunk_size = max(1, args.audio_workers * 4)
+    with tqdm(desc="prepare LibriSpeech") as pbar:
+        while (not limit or len(items) < limit) and total_seconds < max_seconds:
+            jobs: list[tuple[dict[str, Any], Path]] = []
+            metas: list[tuple[dict[str, Any], str, Path]] = []
+            for row in row_iter:
+                if limit and len(items) + len(jobs) >= limit:
+                    break
+                sid = str(row.get("id") or row.get("file") or len(items) + len(jobs))
+                wav_path = out_dir / "wav" / f"{safe_name(sid)}.wav"
+                jobs.append((row["audio"], wav_path))
+                metas.append((row, sid, wav_path))
+                if len(jobs) >= chunk_size:
+                    break
+            if not jobs:
+                break
+            durations = map_audio_jobs(jobs, args.audio_workers, args.force_rewrite_audio)
+            for (row, sid, wav_path), duration in zip(metas, durations):
+                if total_seconds >= max_seconds:
+                    break
+                total_seconds += duration
+                items.append(
+                    ManifestItem(
+                        audio_filepath=str(wav_path),
+                        duration=duration,
+                        answer=str(row.get("text") or row.get("transcript") or row.get("transcription") or ""),
+                        taskname="asr",
+                        source_lang="en",
+                        target_lang="en",
+                        pnc=args.asr_pnc,
+                        sample_id=sid,
+                    )
+                )
+                pbar.update(1)
 
     manifest = out_dir / "manifest_asr_en.jsonl"
     write_manifest(manifest, items)
@@ -426,27 +473,41 @@ def write_asr_manifest(
     total_seconds = 0.0
     items: list[ManifestItem] = []
 
-    for row in tqdm(rows, desc=f"prepare ASR {config}/{split}"):
-        if args.asr_limit and len(items) >= args.asr_limit:
-            break
-        if total_seconds >= max_seconds:
-            break
-        sid = str(row.get("id") or row.get("file") or len(items))
-        wav_path = out_dir / "wav" / f"{safe_name(sid)}.wav"
-        duration = write_wav(row["audio"], wav_path)
-        total_seconds += duration
-        items.append(
-            ManifestItem(
-                audio_filepath=str(wav_path),
-                duration=duration,
-                answer=str(row.get("text") or row.get("transcript") or row.get("transcription") or ""),
-                taskname="asr",
-                source_lang=lang,
-                target_lang=lang,
-                pnc=args.asr_pnc,
-                sample_id=sid,
-            )
-        )
+    row_iter = iter(rows)
+    chunk_size = max(1, args.audio_workers * 4)
+    with tqdm(desc=f"prepare ASR {config}/{split}") as pbar:
+        while (not args.asr_limit or len(items) < args.asr_limit) and total_seconds < max_seconds:
+            jobs: list[tuple[dict[str, Any], Path]] = []
+            metas: list[tuple[dict[str, Any], str, Path]] = []
+            for row in row_iter:
+                if args.asr_limit and len(items) + len(jobs) >= args.asr_limit:
+                    break
+                sid = str(row.get("id") or row.get("file") or len(items) + len(jobs))
+                wav_path = out_dir / "wav" / f"{safe_name(sid)}.wav"
+                jobs.append((row["audio"], wav_path))
+                metas.append((row, sid, wav_path))
+                if len(jobs) >= chunk_size:
+                    break
+            if not jobs:
+                break
+            durations = map_audio_jobs(jobs, args.audio_workers, args.force_rewrite_audio)
+            for (row, sid, wav_path), duration in zip(metas, durations):
+                if total_seconds >= max_seconds:
+                    break
+                total_seconds += duration
+                items.append(
+                    ManifestItem(
+                        audio_filepath=str(wav_path),
+                        duration=duration,
+                        answer=str(row.get("text") or row.get("transcript") or row.get("transcription") or ""),
+                        taskname="asr",
+                        source_lang=lang,
+                        target_lang=lang,
+                        pnc=args.asr_pnc,
+                        sample_id=sid,
+                    )
+                )
+                pbar.update(1)
 
     manifest = out_dir / f"manifest_asr_{lang}.jsonl"
     write_manifest(manifest, items)
@@ -610,26 +671,40 @@ def prepare_fleurs_direction(args: argparse.Namespace, src: str, tgt: str) -> Pa
     out_dir = Path(args.data_dir) / "fleurs" / f"{src}-{tgt}"
     items: list[ManifestItem] = []
 
-    for row in tqdm(src_ds, desc=f"prepare FLEURS {src}->{tgt}"):
-        if args.fleurs_limit and len(items) >= args.fleurs_limit:
-            break
-        sid = str(row["id"])
-        if sid not in tgt_by_id:
-            continue
-        wav_path = out_dir / "wav" / f"{safe_name(sid)}.wav"
-        duration = write_wav(row["audio"], wav_path)
-        items.append(
-            ManifestItem(
-                audio_filepath=str(wav_path),
-                duration=duration,
-                answer=fleurs_text(tgt_by_id[sid], args.ast_pnc),
-                taskname="ast",
-                source_lang=src,
-                target_lang=tgt,
-                pnc=args.ast_pnc,
-                sample_id=sid,
-            )
-        )
+    row_iter = iter(src_ds)
+    chunk_size = max(1, args.audio_workers * 4)
+    with tqdm(desc=f"prepare FLEURS {src}->{tgt}") as pbar:
+        while not args.fleurs_limit or len(items) < args.fleurs_limit:
+            jobs: list[tuple[dict[str, Any], Path]] = []
+            metas: list[tuple[str, Path]] = []
+            for row in row_iter:
+                if args.fleurs_limit and len(items) + len(jobs) >= args.fleurs_limit:
+                    break
+                sid = str(row["id"])
+                if sid not in tgt_by_id:
+                    continue
+                wav_path = out_dir / "wav" / f"{safe_name(sid)}.wav"
+                jobs.append((row["audio"], wav_path))
+                metas.append((sid, wav_path))
+                if len(jobs) >= chunk_size:
+                    break
+            if not jobs:
+                break
+            durations = map_audio_jobs(jobs, args.audio_workers, args.force_rewrite_audio)
+            for (sid, wav_path), duration in zip(metas, durations):
+                items.append(
+                    ManifestItem(
+                        audio_filepath=str(wav_path),
+                        duration=duration,
+                        answer=fleurs_text(tgt_by_id[sid], args.ast_pnc),
+                        taskname="ast",
+                        source_lang=src,
+                        target_lang=tgt,
+                        pnc=args.ast_pnc,
+                        sample_id=sid,
+                    )
+                )
+                pbar.update(1)
 
     manifest = out_dir / f"manifest_ast_{src}_{tgt}.jsonl"
     write_manifest(manifest, items)
