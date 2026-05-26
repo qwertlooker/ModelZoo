@@ -15,6 +15,7 @@ from pathlib import Path
 from typing import Any
 
 import torch
+from nemo.collections.asr.models import EncDecMultiTaskModel
 
 
 def _resolve_device(device_name: str) -> torch.device:
@@ -28,12 +29,8 @@ def _resolve_device(device_name: str) -> torch.device:
 
 
 def _extract_text(item: Any) -> str:
-    """Normalize NeMo transcription outputs for concise printing."""
-    if hasattr(item, "text"):
-        return str(item.text)
-    if isinstance(item, dict) and "text" in item:
-        return str(item["text"])
-    return str(item)
+    """Return the expected NeMo transcription text field."""
+    return str(item.text)
 
 
 def _build_manifest(args: argparse.Namespace) -> str:
@@ -63,13 +60,11 @@ def main() -> None:
     parser.add_argument("--source_lang", default="en", choices=["en", "de", "es", "fr"])
     parser.add_argument("--target_lang", default="en", choices=["en", "de", "es", "fr"])
     parser.add_argument("--pnc", default="yes", choices=["yes", "no"])
-    parser.add_argument("--duration", type=float, default=100000.0, help="Manifest duration fallback")
+    parser.add_argument("--duration", type=float, default=100000.0, help="Manifest duration value")
     parser.add_argument("--beam_size", type=int, default=1)
     args = parser.parse_args()
 
     device = _resolve_device(args.device)
-
-    from nemo.collections.asr.models import EncDecMultiTaskModel
 
     model_path = Path(args.model).expanduser()
     if model_path.is_file() and model_path.suffix == ".nemo":
@@ -82,9 +77,8 @@ def main() -> None:
     model.to(device)
 
     decode_cfg = model.cfg.decoding
-    if hasattr(decode_cfg, "beam") and hasattr(decode_cfg.beam, "beam_size"):
-        decode_cfg.beam.beam_size = args.beam_size
-        model.change_decoding_strategy(decode_cfg)
+    decode_cfg.beam.beam_size = args.beam_size
+    model.change_decoding_strategy(decode_cfg)
 
     manifest_path = _build_manifest(args)
     outputs = model.transcribe(audio=manifest_path, batch_size=args.batch_size)

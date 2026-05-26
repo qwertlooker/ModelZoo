@@ -18,15 +18,7 @@ import time
 from pathlib import Path
 from typing import Any
 
-try:
-    from whisper.normalizers import EnglishTextNormalizer
-except Exception as exc:
-    raise RuntimeError(
-        "ASR WER requires official Whisper normalizer import "
-        "`from whisper.normalizers import EnglishTextNormalizer`. "
-        "Install `openai-whisper`; installing only `whisper_normalizer` "
-        "is intentionally not accepted for the official Canary path."
-    ) from exc
+from whisper.normalizers import EnglishTextNormalizer
 
 import nemo
 import torch
@@ -100,18 +92,14 @@ def load_model(args: argparse.Namespace):
     model.eval()
     model.to(device)
     decode_cfg = model.cfg.decoding
-    if hasattr(decode_cfg, "beam") and hasattr(decode_cfg.beam, "beam_size"):
-        decode_cfg.beam.beam_size = args.beam_size
-        model.change_decoding_strategy(decode_cfg)
+    decode_cfg.beam.beam_size = args.beam_size
+    model.change_decoding_strategy(decode_cfg)
     return model
 
 
 def extract_text(item: Any) -> str:
-    if hasattr(item, "text"):
-        return str(item.text)
-    if isinstance(item, dict) and "text" in item:
-        return str(item["text"])
-    return str(item)
+    """Return the expected NeMo transcription text field."""
+    return str(item.text)
 
 
 _WER_NORMALIZER = EnglishTextNormalizer()
@@ -143,7 +131,7 @@ def env_report(args: argparse.Namespace) -> dict[str, Any]:
         "ascend_rt_visible_devices": os.environ.get("ASCEND_RT_VISIBLE_DEVICES"),
     }
     report["torch"] = torch.__version__
-    report["nemo"] = getattr(nemo, "__version__", None)
+    report["nemo"] = nemo.__version__
     return report
 
 
