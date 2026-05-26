@@ -105,20 +105,42 @@ def extract_text(item: Any) -> str:
 _WER_NORMALIZER = None
 
 
-def normalize_for_wer(text: str) -> str:
-    """Normalize ASR text with the official Whisper EnglishTextNormalizer.
+def get_wer_normalizer():
+    """Return the official Whisper EnglishTextNormalizer, or fail loudly.
 
     Canary-1B's published ASR WER path normalizes both references and
-    hypotheses with whisper-normalizer. Do not silently substitute a local
-    regex/basic normalizer: if the dependency is missing or broken, let the
-    import/initialization error fail the evaluation.
+    hypotheses with Whisper's EnglishTextNormalizer. Do not silently substitute
+    a local regex/basic normalizer or the separate ``whisper_normalizer``
+    package: if the official ``whisper.normalizers`` dependency is missing or
+    broken, fail before running ASR inference.
     """
     global _WER_NORMALIZER
     if _WER_NORMALIZER is None:
-        from whisper.normalizers import EnglishTextNormalizer
+        try:
+            from whisper.normalizers import EnglishTextNormalizer
+        except Exception as exc:
+            raise RuntimeError(
+                "ASR WER requires official Whisper normalizer import "
+                "`from whisper.normalizers import EnglishTextNormalizer`. "
+                "Install `openai-whisper`; installing only `whisper_normalizer` "
+                "is intentionally not accepted for the official Canary path."
+            ) from exc
 
         _WER_NORMALIZER = EnglishTextNormalizer()
-    return _WER_NORMALIZER(text)
+    return _WER_NORMALIZER
+
+
+def normalize_for_wer(text: str) -> str:
+    return get_wer_normalizer()(text)
+
+
+def validate_metric_dependencies(manifests: list[Path]) -> None:
+    """Fail early if ASR manifests require unavailable metric dependencies."""
+    for manifest in manifests:
+        items = read_manifest(manifest)
+        if str(items[0].get("taskname", "asr")) == "asr":
+            get_wer_normalizer()
+            return
 
 
 def compute_metrics(taskname: str, references: list[str], hypotheses: list[str]) -> dict[str, float]:
@@ -214,6 +236,8 @@ def main() -> None:
 
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
+    validate_metric_dependencies(manifests)
+
     with (output_dir / "run_env.json").open("w", encoding="utf-8") as f:
         json.dump(env_report(args), f, ensure_ascii=False, indent=2)
 
