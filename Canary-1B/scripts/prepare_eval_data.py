@@ -56,6 +56,11 @@ def parse_args() -> argparse.Namespace:
 
     parser.add_argument("--fleurs_dataset", default="google/fleurs")
     parser.add_argument("--fleurs_split", default="test")
+    parser.add_argument("--fleurs_parquet_dir", default="", help=(
+        "Optional local/download directory for google/fleurs split parquet files. "
+        "Files are stored as <dir>/<config>/<split>-00000-of-00001.parquet and reused if present."
+    ))
+    parser.add_argument("--offline", action="store_true", help="Do not download missing local FLEURS parquet files")
     parser.add_argument("--fleurs_limit", type=int, default=50, help="Samples per AST direction; 0 means full split")
     parser.add_argument("--ast_directions", default=",".join(DEFAULT_AST_DIRECTIONS))
     parser.add_argument("--ast_pnc", default="yes", choices=["yes", "no"])
@@ -204,7 +209,36 @@ def fleurs_text(row: dict[str, Any], pnc: str) -> str:
     return str(row.get("transcription") or row.get("raw_transcription") or "")
 
 
-def download_fleurs_parquet(config: str, split: str) -> Path:
+def fleurs_parquet_url(config: str, split: str) -> str:
+    return (
+        "https://huggingface.co/datasets/google/fleurs/resolve/main/"
+        f"parquet-data/{config}/{split}-00000-of-00001.parquet"
+    )
+
+
+def fleurs_parquet_path(parquet_dir: str | Path, config: str, split: str) -> Path:
+    return Path(parquet_dir) / config / f"{split}-00000-of-00001.parquet"
+
+
+def download_fleurs_parquet(config: str, split: str, parquet_dir: str | Path = "", offline: bool = False) -> Path:
+    if parquet_dir:
+        local_file = fleurs_parquet_path(parquet_dir, config, split)
+        if local_file.exists():
+            print(f"using existing FLEURS parquet: {local_file}")
+            return local_file
+        if offline:
+            raise FileNotFoundError(f"Offline mode enabled and FLEURS parquet is missing: {local_file}")
+
+        from urllib.request import urlretrieve
+
+        local_file.parent.mkdir(parents=True, exist_ok=True)
+        tmp_file = local_file.with_suffix(local_file.suffix + ".tmp")
+        url = fleurs_parquet_url(config, split)
+        print(f"downloading FLEURS parquet to {local_file}: {url}")
+        urlretrieve(url, tmp_file)
+        tmp_file.replace(local_file)
+        return local_file
+
     from huggingface_hub import hf_hub_download
 
     return Path(
@@ -212,11 +246,12 @@ def download_fleurs_parquet(config: str, split: str) -> Path:
             repo_id="google/fleurs",
             repo_type="dataset",
             filename=f"parquet-data/{config}/{split}-00000-of-00001.parquet",
+            local_files_only=offline,
         )
     )
 
 
-def load_fleurs(dataset_name: str, split: str, lang: str) -> Any:
+def load_fleurs(dataset_name: str, split: str, lang: str, fleurs_parquet_dir: str = "", offline: bool = False) -> Any:
     from datasets import load_dataset
 
     config = FLEURS_CONFIG[lang]
@@ -229,30 +264,36 @@ def load_fleurs(dataset_name: str, split: str, lang: str) -> Any:
         # Use an HTTPS URL instead of hf://. Some environments (notably newer
         # Python/httpx stacks on Windows) pass hf:// through to httpx, which then
         # raises "Request URL is missing an 'http://' or 'https://' protocol.".
-        data_file = (
-            "https://huggingface.co/datasets/google/fleurs/resolve/main/"
-            f"parquet-data/{config}/{split}-00000-of-00001.parquet"
-        )
-        print(f"loading FLEURS split-only parquet: {data_file}")
-        try:
-            ds = load_dataset("parquet", data_files={split: data_file}, split=split, streaming=True)
-        except FileNotFoundError as exc:
-            # Some datasets/httpx/fsspec combinations on Windows fail URL
-            # pattern resolution for Hugging Face HTTPS files even though the
-            # same URL is reachable in a browser. Download exactly this split
-            # file through huggingface_hub, then load the local parquet.
-            print(f"direct HTTPS parquet load failed: {exc}")
-            local_file = download_fleurs_parquet(config, split)
+        if fleurs_parquet_dir:
+            local_file = download_fleurs_parquet(config, split, fleurs_parquet_dir, offline)
             print(f"loading local FLEURS parquet: {local_file}")
             ds = load_dataset("parquet", data_files={split: str(local_file)}, split=split, streaming=True)
+        else:
+            data_file = fleurs_parquet_url(config, split)
+            print(f"loading FLEURS split-only parquet: {data_file}")
+            try:
+                ds = load_dataset("parquet", data_files={split: data_file}, split=split, streaming=True)
+            except FileNotFoundError as exc:
+                # Some datasets/httpx/fsspec combinations on Windows fail URL
+                # pattern resolution for Hugging Face HTTPS files even though the
+                # same URL is reachable in a browser. Download exactly this split
+                # file through huggingface_hub, then load the local parquet.
+                print(f"direct HTTPS parquet load failed: {exc}")
+                local_file = download_fleurs_parquet(config, split, offline=offline)
+                print(f"loading local FLEURS parquet: {local_file}")
+                ds = load_dataset("parquet", data_files={split: str(local_file)}, split=split, streaming=True)
     else:
         ds = load_dataset(dataset_name, config, split=split)
     return disable_audio_decode(ds)
 
 
 def prepare_fleurs_direction(args: argparse.Namespace, src: str, tgt: str) -> Path:
-    src_ds = maybe_shuffle(load_fleurs(args.fleurs_dataset, args.fleurs_split, src), args.shuffle, args.seed)
-    tgt_ds = load_fleurs(args.fleurs_dataset, args.fleurs_split, tgt)
+    src_ds = maybe_shuffle(
+        load_fleurs(args.fleurs_dataset, args.fleurs_split, src, args.fleurs_parquet_dir, args.offline),
+        args.shuffle,
+        args.seed,
+    )
+    tgt_ds = load_fleurs(args.fleurs_dataset, args.fleurs_split, tgt, args.fleurs_parquet_dir, args.offline)
     # Target side only supplies text. Drop encoded audio bytes before building
     # the lookup table to avoid unnecessary memory use and any audio decoding.
     tgt_ds = remove_existing_columns(tgt_ds, ["audio"])
