@@ -139,6 +139,33 @@ Canary-1B/eval_data/fleurs_parquet/fr_fr/test-00000-of-00001.parquet
 
 FLEURS 音频列使用 `Audio(decode=False)`，再由 `soundfile` 解码，避免 NPU 环境依赖 `torchcodec`。完整命令和手动下载命令见 `EVAL_FLEURS_LIBRISPEECH.md`。
 
+### 4.2 评测参数建议
+
+- `beam_size` 是解码搜索宽度，不是 batch 大小。`beam_size=1` 为 greedy decode，最快；`beam_size=5` 为 beam search，通常精度更好但更慢、更占显存。
+- NVIDIA Canary-1B 公开 ASR/AST 精度表使用 `beam width=5`、`length penalty=1.0`，所以正式精度验收建议使用 `--beam_size 5`。
+- NVIDIA 普通 transcribe 示例使用 `batch_size=16`。NPU/CUDA 完整评测建议先试 `--batch_size 16`，OOM 再降到 `8/4/2/1`。
+- `batch_size=1 + beam_size=5` 只建议用于 CPU 小子集基线或保守精度对齐；全量 CPU 会很慢。
+
+常用组合：
+
+```bash
+# NPU 精度模式：对齐公开精度口径，OOM 时下调 batch_size。
+ASCEND_RT_VISIBLE_DEVICES=0 python Canary-1B/scripts/eval_canary.py \
+  --model Canary-1B/weights/canary-1b.nemo \
+  --device npu \
+  --batch_size 16 \
+  --beam_size 5 \
+  --output_dir Canary-1B/eval_results/npu_all_bs16_beam5
+
+# NPU 吞吐模式：用于速度/RTF 评测。
+ASCEND_RT_VISIBLE_DEVICES=0 python Canary-1B/scripts/eval_canary.py \
+  --model Canary-1B/weights/canary-1b.nemo \
+  --device npu \
+  --batch_size 16 \
+  --beam_size 1 \
+  --output_dir Canary-1B/eval_results/npu_all_bs16_beam1
+```
+
 ## 5. CPU 验证
 
 ```bash

@@ -36,8 +36,8 @@
 | AST | `en -> de/es/fr` 与 `de/es/fr -> en` | 6 个方向各至少 1 个样本；正式验收跑 FLEURS 或 CoVoST-v2 子集 |
 | PnC | `yes/no` 两种输出 | 至少在英文 ASR 和 1 个 AST 方向验证 `--pnc yes/no` 均可运行 |
 | 输入方式 | 音频路径列表或 JSONL manifest | 验证 manifest；可选验证音频路径列表兼容性 |
-| batch | 模型卡示例 batch size 16；适配脚本支持 `--batch_size` | 验证 `batch_size=1/4/8`，显存不足时记录最大可用 batch |
-| 解码 | 模型卡精度使用 beam size 5、length penalty 1.0 | 精度验收使用 `--beam_size 5`；性能可同时记录 greedy/beam5 |
+| batch | 模型卡示例 batch size 16；适配脚本支持 `--batch_size` | NPU/CUDA 优先验证 `batch_size=16`，OOM 时降到 `8/4/2/1` 并记录最大可用 batch；CPU 只建议小子集 |
+| 解码 | 模型卡精度使用 beam size 5、length penalty 1.0；普通示例可用 greedy | 精度验收使用 `--beam_size 5`；吞吐/速度模式使用 `--beam_size 1`；性能同时记录 greedy/beam5 |
 
 ### 1.2 公开精度参考
 
@@ -252,8 +252,8 @@ ASCEND_RT_VISIBLE_DEVICES=0 python Canary-1B/infer.py \
 |---|---|
 | `beam_size=1, batch_size=1` | 低延迟基线 |
 | `beam_size=1, batch_size=4/8/16` | 吞吐基线 |
-| `beam_size=5, batch_size=1/4` | 精度模式性能 |
-| CPU 同参数 | NPU 加速比基线 |
+| `beam_size=5, batch_size=16` | 推荐精度模式性能；OOM 时降到 `8/4/2/1` |
+| CPU 同参数 | 小子集精度基线；全量 CPU 很慢，不作为吞吐路径 |
 | CUDA 同参数（如有） | 与原始 GPU 路径对齐 |
 
 ### 6.3 通过条件

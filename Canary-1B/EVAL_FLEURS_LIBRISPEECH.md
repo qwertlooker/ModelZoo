@@ -147,30 +147,61 @@ tar -xzf Canary-1B/eval_data/librispeech_raw/test-clean.tar.gz \
 
 评测脚本默认读取第 2.1 节的标准 manifest 列表；也可以用 `--manifest` 显式指定一个或多个 manifest。
 
-### 3.1 一次评测全部已准备任务
+### 3.1 `beam_size` / `batch_size` 选择
+
+- `beam_size` 是 Transformer decoder 的 beam search 宽度，不是 batch 大小：
+  - `beam_size=1` 等价于 greedy decode，只保留 1 条候选，速度最快，适合 smoke test、吞吐测试和日常调试。
+  - `beam_size=5` 每步保留 5 条候选，通常精度更好，但 decoder 计算量和显存占用都会增加。
+- NVIDIA Canary-1B model card 的公开 ASR/AST 精度表使用 `beam width=5`、`length penalty=1.0`；因此正式精度对齐建议使用 `--beam_size 5`。
+- NVIDIA model card 的普通 transcribe 示例使用 `batch_size=16`；本地 NPU/CUDA 性能评测应优先尝试 `--batch_size 16`，如显存不足再降到 `8/4/2/1`。
+- `batch_size=1 + beam_size=5` 是最保守但很慢的组合，适合小规模 CPU/NPU 精度对齐，不适合完整吞吐评测。CPU 全量评测尤其慢，建议只做 smoke test 或小子集基线。
+
+推荐参数：
+
+| 场景 | 推荐参数 | 说明 |
+|---|---|---|
+| 精度对齐公开指标 | `--beam_size 5 --batch_size 16` | OOM 时将 batch 依次降到 `8/4/2/1` |
+| NPU/CUDA 吞吐测试 | `--beam_size 1 --batch_size 16` | 对齐普通推理示例，优先看 RTF/RTFx |
+| CPU 小子集基线 | `--beam_size 5 --batch_size 1` | 仅用于精度口径一致；全量会很慢 |
+| 快速 smoke test | `--beam_size 1 --batch_size 1` | 只验证链路是否跑通 |
+
+### 3.2 一次评测全部已准备任务（推荐：NPU 精度模式）
 
 ```bash
 ASCEND_RT_VISIBLE_DEVICES=0 python Canary-1B/scripts/eval_canary.py \
   --model Canary-1B/weights/canary-1b.nemo \
   --device npu \
-  --batch_size 1 \
+  --batch_size 16 \
   --beam_size 5 \
-  --output_dir Canary-1B/eval_results/npu_all
+  --output_dir Canary-1B/eval_results/npu_all_bs16_beam5
 ```
 
-### 3.2 只评测 ASR
+如出现 OOM，保持 `--beam_size 5` 不变，优先下调 `--batch_size 8/4/2/1`。
+
+### 3.3 NPU 吞吐/速度模式
+
+```bash
+ASCEND_RT_VISIBLE_DEVICES=0 python Canary-1B/scripts/eval_canary.py \
+  --model Canary-1B/weights/canary-1b.nemo \
+  --device npu \
+  --batch_size 16 \
+  --beam_size 1 \
+  --output_dir Canary-1B/eval_results/npu_all_bs16_beam1
+```
+
+### 3.4 只评测 ASR
 
 ```bash
 ASCEND_RT_VISIBLE_DEVICES=0 python Canary-1B/scripts/eval_canary.py \
   --model Canary-1B/weights/canary-1b.nemo \
   --device npu \
   --manifest Canary-1B/eval_data/librispeech_test_clean/manifest_asr_en.jsonl \
-  --batch_size 1 \
+  --batch_size 16 \
   --beam_size 5 \
-  --output_dir Canary-1B/eval_results/npu_asr_librispeech
+  --output_dir Canary-1B/eval_results/npu_asr_librispeech_bs16_beam5
 ```
 
-### 3.3 只评测 FLEURS AST 六个方向
+### 3.5 只评测 FLEURS AST 六个方向
 
 ```bash
 ASCEND_RT_VISIBLE_DEVICES=0 python Canary-1B/scripts/eval_canary.py \
@@ -183,17 +214,17 @@ ASCEND_RT_VISIBLE_DEVICES=0 python Canary-1B/scripts/eval_canary.py \
     Canary-1B/eval_data/fleurs/de-en/manifest_ast_de_en.jsonl \
     Canary-1B/eval_data/fleurs/es-en/manifest_ast_es_en.jsonl \
     Canary-1B/eval_data/fleurs/fr-en/manifest_ast_fr_en.jsonl \
-  --batch_size 1 \
+  --batch_size 16 \
   --beam_size 5 \
-  --output_dir Canary-1B/eval_results/npu_ast_fleurs
+  --output_dir Canary-1B/eval_results/npu_ast_fleurs_bs16_beam5
 ```
 
 ## 4. CPU/CUDA/NPU 对比
 
-准备数据只跑一次。之后三种设备分别运行评测脚本，保持同一批 manifest：
+准备数据只跑一次。之后三种设备分别运行评测脚本，保持同一批 manifest 和同一解码参数。精度对齐时固定 `--beam_size 5`；性能对比时可另外跑 `--beam_size 1`。
 
 ```bash
-# CPU 基线
+# CPU 小子集/保守基线。全量会很慢，不建议作为吞吐路径。
 python Canary-1B/scripts/eval_canary.py \
   --model Canary-1B/weights/canary-1b.nemo \
   --device cpu \
@@ -201,13 +232,21 @@ python Canary-1B/scripts/eval_canary.py \
   --beam_size 5 \
   --output_dir Canary-1B/eval_results/cpu_all
 
-# NPU
+# NPU 精度模式。OOM 时只下调 batch_size，保持 beam_size=5。
 ASCEND_RT_VISIBLE_DEVICES=0 python Canary-1B/scripts/eval_canary.py \
   --model Canary-1B/weights/canary-1b.nemo \
   --device npu \
-  --batch_size 1 \
+  --batch_size 16 \
   --beam_size 5 \
-  --output_dir Canary-1B/eval_results/npu_all
+  --output_dir Canary-1B/eval_results/npu_all_bs16_beam5
+
+# NPU 吞吐模式。
+ASCEND_RT_VISIBLE_DEVICES=0 python Canary-1B/scripts/eval_canary.py \
+  --model Canary-1B/weights/canary-1b.nemo \
+  --device npu \
+  --batch_size 16 \
+  --beam_size 1 \
+  --output_dir Canary-1B/eval_results/npu_all_bs16_beam1
 ```
 
 对比：
