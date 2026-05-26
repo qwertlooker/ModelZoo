@@ -447,6 +447,70 @@ Canary-1B/FLEURS 适配暴露出几个常见坑：`--task all` 会先触发不�
    - `--task all` 只适合数据源都已验证后使用；文档必须给出单独准备 ASR/AST/分类等子任务数据的命令。
    - 当某个数据源失败时，不应阻塞其他任务数据准备；必要时用多个脚本或多个命令分开执行。
 
+#### 8.3 数据集在线/离线混合准备要求
+
+Canary-1B 的 FLEURS 与 LibriSpeech 数据准备进一步明确了一个通用要求：**评测数据脚本不应只依赖 Hugging Face cache 或用户浏览器下载；必须支持“指定项目目录、在线自动下载、离线复用本地文件”的混合模式**。后续模型的数据准备脚本优先按以下规范设计。
+
+1. **显式本地数据目录参数**
+   - 为每个外部数据源提供独立路径参数，例如 `--fleurs_parquet_dir`、`--librispeech_dir`、`--dataset_dir`、`--manifest_dir`。
+   - 目录语义必须清楚：脚本下载/解压/复用都发生在该目录下，不依赖 `~/.cache/huggingface`、系统临时目录或用户浏览器默认下载目录。
+   - 文档必须列出该目录下的目标结构，例如：
+
+     ```text
+     <data_dir>/fleurs_parquet/en_us/test-00000-of-00001.parquet
+     <data_dir>/fleurs_parquet/de_de/test-00000-of-00001.parquet
+     <data_dir>/librispeech_raw/test-clean.tar.gz
+     <data_dir>/librispeech_raw/LibriSpeech/test-clean/
+     ```
+
+2. **存在即复用，缺失才下载**
+   - 脚本启动时先检查目标文件/解压目录是否已存在；存在则打印 `using existing ...` 并直接使用。
+   - 如果压缩包已存在但解压目录不存在，允许自动解压；如果文件和目录都不存在，在线模式才下载。
+   - 下载到临时文件，例如 `*.tmp`，完成后原子 rename 到目标路径，避免中断后留下半文件被误复用。
+
+3. **离线模式必须严格禁止联网**
+   - 提供统一 `--offline` 或等价参数。
+   - `--offline` 下缺文件必须立即报出具体缺失路径，不得 fallback 到 HF hub、OpenSLR、HTTP URL 或其他远端。
+   - 离线命令应写入 README / NPU_VALIDATION，例如：
+
+     ```bash
+     python prepare_eval_data.py --task ast \
+       --data_dir Canary-1B/eval_data \
+       --fleurs_parquet_dir Canary-1B/eval_data/fleurs_parquet \
+       --offline
+
+     python prepare_eval_data.py --task asr \
+       --data_dir Canary-1B/eval_data \
+       --librispeech_dir Canary-1B/eval_data/librispeech_raw \
+       --offline
+     ```
+
+4. **在线模式下载到指定目录，不把 cache 当交付路径**
+   - 在线命令必须能把数据下载到项目指定目录，便于打包迁移到 NPU 离线环境。
+   - 可以使用 `urllib` / `wget` / `curl` / 官方 SDK 下载，但最终产物必须落到脚本参数指定目录。
+   - 如果因某些库版本问题导致远程 URL 可用但 `datasets.load_dataset(data_files=...)` 解析失败，应提供本地文件 fallback：先下载到指定目录，再从本地文件加载。
+
+5. **手动下载与脚本下载必须等价**
+   - 文档必须给出命令行手动下载方式，并保证下载到同一目标结构后脚本不会重复下载。
+   - 对普通 URL 推荐给出 `curl -L -o ...` 或 `wget -O ...`；对压缩包给出解压目标目录；对 HF 单文件数据给出最终文件名。
+   - 手动下载示例：
+
+     ```bash
+     mkdir -p Canary-1B/eval_data/fleurs_parquet/en_us
+     curl -L -o Canary-1B/eval_data/fleurs_parquet/en_us/test-00000-of-00001.parquet \
+       https://huggingface.co/datasets/google/fleurs/resolve/main/parquet-data/en_us/test-00000-of-00001.parquet
+
+     mkdir -p Canary-1B/eval_data/librispeech_raw
+     curl -L -o Canary-1B/eval_data/librispeech_raw/test-clean.tar.gz \
+       https://www.openslr.org/resources/12/test-clean.tar.gz
+     tar -xzf Canary-1B/eval_data/librispeech_raw/test-clean.tar.gz \
+       -C Canary-1B/eval_data/librispeech_raw
+     ```
+
+6. **记录数据来源与实际本地路径**
+   - metadata 必须记录远端 URL / repo id、config、split、目标本地文件、是否复用已有文件、是否离线、样本数和总时长。
+   - `NPU_VALIDATION.md` 必须记录实际使用的本地数据目录和一次可读性检查结果。
+
 ---
 
 ### Step 9：patch 生成原则
