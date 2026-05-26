@@ -76,11 +76,26 @@ FireRedASR-AED/upstream/pretrained_models/FireRedASR-AED-L/
 ./FireRedASR-AED/scripts/download_test_data.sh FireRedASR-AED/test_data
 ```
 
-脚本会复制上游 `examples/wav/` 下的官方样例 wav、`wav.scp` 和 `text`。
+脚本会复制/复用上游 `examples/wav/` 下的官方样例 wav、`wav.scp` 和 `text`，并生成 `sample_data.meta.json`。如上游样例缺失，默认生成 dummy wav；离线环境可设置 `OFFLINE=1 ALLOW_DUMMY=0` 强制缺样例时报错。
 
 ### 5.1 正式评测数据准备建议
 
-参考 Canary-1B 数据准备问题，FireRedASR-AED 的 AISHELL/LibriSpeech 等正式评测必须把“准备数据”和“评测”分开：
+参考 Canary-1B 数据准备问题，FireRedASR-AED 的 AISHELL/LibriSpeech 等正式评测必须把“准备数据”和“评测”分开，并支持“指定目录、存在即复用、缺失才下载、离线严格不联网”。LibriSpeech `test-clean` 示例：
+
+```bash
+# 在线：下载/解压到指定目录，并生成 wav.scp/text
+./FireRedASR-AED/scripts/prepare_librispeech_test_clean.sh \
+  FireRedASR-AED/eval_data/librispeech_raw \
+  FireRedASR-AED/eval_data/librispeech_test-clean
+
+# 离线：要求 test-clean.tar.gz 或 LibriSpeech/test-clean 已存在
+OFFLINE=1 ./FireRedASR-AED/scripts/prepare_librispeech_test_clean.sh \
+  FireRedASR-AED/eval_data/librispeech_raw \
+  FireRedASR-AED/eval_data/librispeech_test-clean
+```
+
+输出 `wav.scp`、`text` 和 `manifest.meta.json`。
+
 
 - L0 官方 wav 只验证链路，不能作为 CER/WER 结论。
 - AISHELL-1、LibriSpeech 等数据准备命令必须显式指定 split，例如 `test` / `test-clean`，不要只依赖默认值。
@@ -126,6 +141,7 @@ ASCEND_RT_VISIBLE_DEVICES=0 python ../infer.py \
 - `infer.py`：当前适配新增推理入口，默认 `--device npu`，CPU 验证用 `--device cpu`。
 - `patches/0001-add-npu-device-support.patch`：上游设备显式化 patch。
 - `scripts/download_weights.sh`：权重下载脚本。
-- `scripts/download_test_data.sh`：测试数据准备脚本。
+- `scripts/download_test_data.sh`：L0 样例数据准备脚本，复用/复制官方 wav 并写 metadata。
+- `scripts/prepare_librispeech_test_clean.sh`：按指定目录下载/复用/离线检查 LibriSpeech test-clean，并生成 `wav.scp`/`text`。
 - `ANALYSIS.md` / `NPU_ADAPTATION.md` / `NPU_VALIDATION.md`：分析、适配和验证记录。
 - `ACCEPTANCE_PLAN.md`：参考原始 FireRedASR-AED 功能/性能/精度的完整验收方案，包含数据集选择、CER/WER 验收、性能稳定性和报告模板。

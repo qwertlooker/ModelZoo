@@ -45,7 +45,20 @@ HF_ENDPOINT=https://hf-api.gitee.com
 ./FireRedASR-AED/scripts/download_test_data.sh FireRedASR-AED/test_data
 ```
 
-输出官方样例 wav，例如 `FireRedASR-AED/test_data/BAC009S0764W0121.wav`。
+输出官方样例 wav，例如 `FireRedASR-AED/test_data/BAC009S0764W0121.wav`，以及 `sample_data.meta.json`。已有 `wav.scp`/`text` 会复用；离线环境可设置 `OFFLINE=1 ALLOW_DUMMY=0` 强制缺官方样例时报错。
+
+正式 LibriSpeech `test-clean` 评测数据按指定目录准备：
+
+```bash
+./FireRedASR-AED/scripts/prepare_librispeech_test_clean.sh \
+  FireRedASR-AED/eval_data/librispeech_raw \
+  FireRedASR-AED/eval_data/librispeech_test-clean
+OFFLINE=1 ./FireRedASR-AED/scripts/prepare_librispeech_test_clean.sh \
+  FireRedASR-AED/eval_data/librispeech_raw \
+  FireRedASR-AED/eval_data/librispeech_test-clean
+```
+
+离线模式要求 `test-clean.tar.gz` 或 `LibriSpeech/test-clean/` 已存在；输出 `wav.scp`、`text` 和 metadata，CPU/NPU 对比复用同一份清单。
 
 ## 5. 应用 patch
 

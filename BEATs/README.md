@@ -72,7 +72,18 @@ BEATS_CHECK_ONLY=1 ./BEATs/scripts/download_weights.sh BEATs/weights
 
 ### 5.1 正式评测数据准备建议
 
-参考 Canary-1B 数据准备问题，BEATs 的正式评测数据也必须把“准备数据”和“评测”分开：
+参考 Canary-1B 数据准备问题，BEATs 的正式评测数据也必须把“准备数据”和“评测”分开，并按“指定目录、存在即复用、缺失才下载、离线严格不联网”的混合模式准备。ESC-50 示例：
+
+```bash
+# 在线：下载到指定目录，后续重复运行直接复用
+./BEATs/scripts/prepare_esc50_data.sh BEATs/eval_data/esc50
+
+# 离线：要求 BEATs/eval_data/esc50/ESC-50-master 或 ESC-50-master.zip 已存在
+OFFLINE=1 ./BEATs/scripts/prepare_esc50_data.sh BEATs/eval_data/esc50
+```
+
+输出 `BEATs/eval_data/esc50/esc50_manifest.csv` 和 `esc50_manifest.csv.meta.json`。
+
 
 - L0 dummy 只用于链路验证，不能作为 accuracy/mAP 结论。
 - ESC-50 / AudioSet 子集准备脚本应只下载目标 split 或目标清单中的文件，不要因 `--task all` 或 dataset builder 缓存触发无关 split 下载。
@@ -116,6 +127,7 @@ ASCEND_RT_VISIBLE_DEVICES=0 python infer.py \
 - `infer.py`：当前适配新增推理入口，默认 `--device npu`，CPU 验证用 `--device cpu`。
 - `patches/0001-add-npu-fbank-device-support.patch`：上游 `beats/BEATs.py` 的 NPU patch。
 - `scripts/download_weights.sh`：权重下载/放置说明脚本。
-- `scripts/download_test_data.sh`：生成最小 wav 测试样例。
+- `scripts/download_test_data.sh`：生成/复用最小 wav 测试样例，并写 metadata。
+- `scripts/prepare_esc50_data.sh`：按指定目录下载/复用/离线检查 ESC-50，并生成 manifest。
 - `ANALYSIS.md` / `NPU_ADAPTATION.md` / `NPU_VALIDATION.md`：分析、适配和验证记录。
 - `ACCEPTANCE_PLAN.md`：参考原始 BEATs 功能/性能/精度的完整验收方案，包含 checkpoint 固定、数据集选择、分层验收、通过条件和报告模板。

@@ -41,7 +41,7 @@ python3 -m py_compile BEATs/infer.py
 ./BEATs/scripts/download_test_data.sh BEATs/test_data
 ```
 
-测试数据脚本已执行成功。
+测试数据脚本已执行成功；脚本会复用已有 wav 并生成 metadata。正式 ESC-50 数据准备已补充 `scripts/prepare_esc50_data.sh`，支持指定目录、在线下载到该目录、`OFFLINE=1` 离线复用/缺失报错。
 
 权重 URL 轻量检查已执行：
 
@@ -123,3 +123,10 @@ ASCEND_RT_VISIBLE_DEVICES=0 python infer.py \
 - 端到端吞吐、RTF/RTFx、峰值内存/HBM 和连续运行稳定性。
 
 正式验收报告建议保存到 `BEATs/validation_reports/`，模板见 `ACCEPTANCE_PLAN.md`。
+
+
+### 8. 数据集在线/离线混合准备补充检查
+
+- L0：`scripts/download_test_data.sh <dir>` 只生成/复用本地 synthetic wav，不联网，并输出 `*.meta.json`。
+- L2：`scripts/prepare_esc50_data.sh <dir>` 使用 `<dir>/ESC-50-master.zip` 和 `<dir>/ESC-50-master/` 作为固定交付路径；存在即复用，缺失才下载。
+- 离线：`OFFLINE=1 scripts/prepare_esc50_data.sh <dir>` 在缺失 zip/解压目录时直接报具体路径，不访问远端。

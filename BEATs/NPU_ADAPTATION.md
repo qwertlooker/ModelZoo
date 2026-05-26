@@ -46,7 +46,16 @@ BEATS_WEIGHT_URL=<direct-url> ./BEATs/scripts/download_weights.sh BEATs/weights 
 ./BEATs/scripts/download_test_data.sh BEATs/test_data
 ```
 
-输出：`BEATs/test_data/dummy_1s_16k.wav`。该 dummy wav 只验证链路。
+输出：`BEATs/test_data/dummy_1s_16k.wav` 和 `dummy_1s_16k.wav.meta.json`。该 dummy wav 只验证链路。脚本不会联网，已有文件会直接复用。
+
+正式 ESC-50 评测数据按指定目录准备：
+
+```bash
+./BEATs/scripts/prepare_esc50_data.sh BEATs/eval_data/esc50
+OFFLINE=1 ./BEATs/scripts/prepare_esc50_data.sh BEATs/eval_data/esc50
+```
+
+离线模式要求 `BEATs/eval_data/esc50/ESC-50-master/` 或 `ESC-50-master.zip` 已存在；输出固定 manifest 和 metadata，CPU/NPU 对比复用同一份 manifest。
 
 ## 5. 应用 patch
 

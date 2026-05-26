@@ -61,7 +61,7 @@
 | 阶段 | 要求 | 验收产物 |
 |---|---|---|
 | 准备 AISHELL | 明确 `test` split；生成 `uttid,audio_filepath,text,duration,language,split` manifest 或上游兼容 `wav.scp/text` | manifest + `*.meta.json` |
-| 准备 LibriSpeech | 明确 `test-clean` / `test-other`；不要因 dataset builder 默认行为下载 train/validation；必要时直接指定目标 split 文件或使用 OpenSLR 原始 tar | manifest + `*.meta.json` |
+| 准备 LibriSpeech | 使用 `scripts/prepare_librispeech_test_clean.sh <raw_dir> <out_dir>`；明确 `test-clean`；在线下载到指定目录，离线 `OFFLINE=1` 复用 `<raw_dir>/test-clean.tar.gz` 或 `<raw_dir>/LibriSpeech/test-clean/`；不通过 dataset builder 触发无关 split | `wav.scp` + `text` + `manifest.meta.json` |
 | 评测 | 只读取本地 manifest，复用当前 `infer.py`/上游 decode，固定 CER/WER normalizer | `metrics.json`、逐样本预测 |
 
 metadata 至少记录 dataset、config/split、语言、样本数、总时长、抽样 seed、下载源和文件大小。中文、英文、方言数据建议独立准备和独立评测，避免一个数据源失败阻塞其他验收项。

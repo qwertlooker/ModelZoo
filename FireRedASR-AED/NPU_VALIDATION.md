@@ -41,7 +41,7 @@ python3 -m py_compile FireRedASR-AED/infer.py
 ./FireRedASR-AED/scripts/download_test_data.sh FireRedASR-AED/test_data
 ```
 
-测试数据脚本已执行成功。
+测试数据脚本已执行成功；脚本会复用已有 `wav.scp`/`text` 并生成 metadata。正式 LibriSpeech test-clean 数据准备已补充 `scripts/prepare_librispeech_test_clean.sh`，支持指定目录、在线下载到该目录、`OFFLINE=1` 离线复用/缺失报错。
 
 权重 URL 轻量检查已执行（不下载 4.36 GiB 权重，只检查 repo metadata 和每个必需文件的 HEAD）：
 
@@ -134,3 +134,10 @@ python fireredasr/utils/wer.py --print_sentence_wer 1 --do_tn 0 --rm_special 0 \
 - RTF/RTFx、加载时间、峰值内存/HBM 和连续运行稳定性。
 
 正式验收报告建议保存到 `FireRedASR-AED/validation_reports/`，模板见 `ACCEPTANCE_PLAN.md`。
+
+
+### 8. 数据集在线/离线混合准备补充检查
+
+- L0：`scripts/download_test_data.sh <dir>` 复制/复用上游官方 examples，并输出 `sample_data.meta.json`。
+- L2 英文：`scripts/prepare_librispeech_test_clean.sh <raw_dir> <out_dir>` 使用 `<raw_dir>/test-clean.tar.gz` 和 `<raw_dir>/LibriSpeech/test-clean/` 作为固定交付路径；存在即复用，缺失才下载。
+- 离线：`OFFLINE=1 scripts/prepare_librispeech_test_clean.sh <raw_dir> <out_dir>` 在缺失 tar/解压目录时直接报具体路径，不访问远端。

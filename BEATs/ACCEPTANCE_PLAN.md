@@ -52,7 +52,7 @@ BEATs 论文/官方说明的代表性公开结果：
 
 | 阶段 | 要求 | 验收产物 |
 |---|---|---|
-| 准备 ESC-50 | 明确 split/fold；下载或解压后生成 `audio_filepath,label,duration,sample_id,split` manifest | `esc50_*.csv/jsonl` + `*.meta.json` |
+| 准备 ESC-50 | 使用 `scripts/prepare_esc50_data.sh <dir>`；在线下载到指定目录，离线 `OFFLINE=1` 复用 `<dir>/ESC-50-master.zip` 或 `<dir>/ESC-50-master/`；生成 `audio_filepath,label,duration,sample_id,split` manifest | `esc50_manifest.csv` + `esc50_manifest.csv.meta.json` |
 | 准备 AudioSet 子集 | 明确 eval/balanced/unbalanced 与 shard/YouTube 列表；若抽样仍需完整 shard，记录原因和大小 | `audioset_*.csv/jsonl` + `*.meta.json` |
 | 评测 | 只读取 manifest，复用 BEATs forward/infer 机制，不再触发下载 | `metrics.json`、逐样本预测 |
 
