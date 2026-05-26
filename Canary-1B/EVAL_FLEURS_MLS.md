@@ -55,7 +55,7 @@ pip install datasets soundfile librosa tqdm jiwer sacrebleu openai-whisper
 ```
 
 - 数据准备需要：`datasets soundfile librosa tqdm`。
-- 评测需要：`jiwer sacrebleu`，可选 `openai-whisper` 作为英文 WER normalizer。
+- 评测需要：`jiwer sacrebleu openai-whisper`。ASR WER 固定走官方 Whisper `EnglishTextNormalizer` 路径；依赖缺失或导入失败时评测会直接报错，不使用本地 fallback normalizer。
 - 如 Hugging Face 访问慢，可设置 `HF_ENDPOINT` / `HF_HOME`；但评测数据推荐使用下面的显式本地目录参数，便于离线迁移。
 
 ## 2. 准备数据

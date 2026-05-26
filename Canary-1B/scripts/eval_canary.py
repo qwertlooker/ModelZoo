@@ -13,7 +13,6 @@ import csv
 import json
 import os
 import platform
-import re
 import sys
 import time
 from pathlib import Path
@@ -103,15 +102,23 @@ def extract_text(item: Any) -> str:
     return str(item)
 
 
+_WER_NORMALIZER = None
+
+
 def normalize_for_wer(text: str) -> str:
-    try:
+    """Normalize ASR text with the official Whisper EnglishTextNormalizer.
+
+    Canary-1B's published ASR WER path normalizes both references and
+    hypotheses with whisper-normalizer. Do not silently substitute a local
+    regex/basic normalizer: if the dependency is missing or broken, let the
+    import/initialization error fail the evaluation.
+    """
+    global _WER_NORMALIZER
+    if _WER_NORMALIZER is None:
         from whisper.normalizers import EnglishTextNormalizer
 
-        return EnglishTextNormalizer()(text)
-    except Exception:
-        text = text.lower()
-        text = re.sub(r"[^\w\s']+", " ", text)
-        return re.sub(r"\s+", " ", text).strip()
+        _WER_NORMALIZER = EnglishTextNormalizer()
+    return _WER_NORMALIZER(text)
 
 
 def compute_metrics(taskname: str, references: list[str], hypotheses: list[str]) -> dict[str, float]:
