@@ -258,6 +258,86 @@ pip install -r requirements.txt
 - `requirements_asr.txt` 不包含 `requirements_lightning.txt`；
 - `requirements_lightning.txt` 只解决 `lightning.pytorch`、Hydra、OmegaConf 等 NeMo core/lightning 依赖；
 - `requirements_asr.txt` 解决 `lhotse`、`librosa`、`soundfile`、`jiwer`、`sacrebleu` 等 ASR/AST/PnC 依赖；
+
+#### 6.2 上库推理指导文档编写规范
+
+面向 ModelZoo 上库的推理指导文档应与模型目录中的可执行入口、数据准备方式和性能结果保持一致。生成或修改 `README_INFERENCE.md` / 上库 README 时遵守以下通用规则：
+
+**标题和章节**
+
+- 标题使用“`<ModelName> 推理指导`”，不要混入“模型-推理指导”等不一致格式。
+- Markdown 层级必须连续且清晰：文档标题用一级 `#`；主要章节用二级 `##`；主要章节内的子项用三级 `###`。不要在中途把“模型推理性能”“公网地址说明”等主要章节写成一级标题。
+- 推荐章节顺序：
+  1. 概述
+  2. 输入输出数据
+  3. 推理环境准备
+  4. 文件目录
+  5. 快速上手（获取源码、准备权重、准备数据集、模型推理）
+  6. 模型推理性能
+  7. 公网地址说明
+
+**概述和输入输出**
+
+- 概述只写模型来源、核心架构、支持任务/语言/模态，以及“本文档介绍该模型基于昇腾 NPU 推理指导”。不要把性能测试、精度测试流程等细节堆到概述中。
+- 输入输出数据以推理为主：输入写模型推理可接受的数据形式，输出写模型推理结果。若文档包含评测流程，只额外简短说明“评测使用 JSONL manifest”，不要在输入输出章节展开 manifest 字段、metric 文件或评测产物细节。
+
+**推理环境准备**
+
+- 该章节只保留版本配套表和必要说明，不写 pip 安装命令，不解释依赖安装细节。
+- 表格按“配套 / 版本”两列写清楚固件与驱动、CANN、Python、PyTorch / torch_npu、torchaudio、核心 I/O 依赖（如 soundfile）等上库环境版本。
+- 硬件写具体产品形态，例如 `Atlas 800T A2, Atlas 800I A2`，不要只写笼统的 `昇腾 910 / 910B`。
+- 如果固件与驱动版本依赖 CANN，写一句“Atlas 800I A2 推理卡请以 CANN 版本选择实际固件与驱动版本”之类的说明即可。
+- pip 安装命令放在“快速上手 / 获取源码”下，直接给命令；不要在环境章节引用 `requirements.txt`。`requirements.txt` 容易包含历史完整环境，可能引入与上库版本不一致的依赖；上库文档应优先通过上游仓库指定 commit / extra 安装必要依赖。
+
+**源码和依赖**
+
+- “参考实现”中的“通过 Git 获取对应代码的方法如下”保留通用模板写法：
+  ```bash
+  git clone {repository_url}
+  cd {repository_name}
+  git checkout {branch/tag}
+  git reset --hard {commit_id}
+  cd {code_path}
+  ```
+- “快速上手 / 获取源码”中给出当前模型可直接执行的具体命令。
+- 如果运行依赖可通过 pip 从上游仓指定 commit 安装，优先写 pip 安装命令，不要求用户手动 clone 上游源码；离线场景可另行准备源码包或 wheel，但不要把离线说明混入默认路径。
+- 安装命令直接给出，不写大段解释；版本号应与推理环境准备表一致。
+
+**文件目录**
+
+- 单独设置“文件目录”章节，目录树必须与文档中的命令入口一致。
+- 不要列出与上库推理无关的目录，例如 patch 说明目录、历史日志、本地虚拟环境、upstream clone、缓存目录等。
+- 如果文档命令使用根目录脚本名（如 `python eval_xxx.py`），仓库中必须提供对应入口脚本；否则文档必须写真实路径（如 `python scripts/eval_xxx.py`）。文档和脚本入口必须一致，不能只在目录树里省略 `scripts/`，但命令里仍使用 `scripts/`。
+- 新增根目录 wrapper 可以用于统一上库入口，但 wrapper 只能转发到真实脚本，不应复制大量逻辑。
+
+**权重和测试数据**
+
+- “准备权重”优先给出原始权重 URL 和直接下载命令（如 `wget -O ... <url>`），不要默认依赖项目内部 `download_weights.sh` 包装脚本。
+- 上库推理文档中不需要写镜像 URL、脚本环境变量分支、SHA256 校验等适配过程细节，除非上库模板明确要求。
+- “准备数据集”中的 smoke / demo 输入优先使用公网可下载的通用测试文件，并给出直接下载命令；不要默认依赖 `download_test_data.sh` 生成或下载。
+- 如果模型评测需要公开数据集 manifest，数据准备命令必须写正式准备方式，并列出生成的 manifest 路径。
+
+**数据准备和评测组织**
+
+- ASR、AST、TTS、SE、diarization 等不同任务的数据准备和执行命令应分开写；不要把多任务合并成一个含混的“全部评测”命令作为唯一说明。
+- 对 ASR/AST 等多任务模型，分别写：
+  - 准备 ASR 评测数据及生成的 ASR manifest 路径；
+  - 准备 AST 评测数据及生成的 AST manifest 路径；
+  - 执行 ASR 评测命令；
+  - 执行 AST 评测命令。
+- manifest 路径要完整列出，便于用户复制到 `--manifest` 参数。
+
+**命令风格**
+
+- 文档命令中不写 `ASCEND_RT_VISIBLE_DEVICES=0` / `CUDA_VISIBLE_DEVICES=0` 前缀；设备卡选择属于运行环境设置，不混入上库基础命令。脚本应通过 `--device npu/cpu/cuda` 表达设备类型。
+- 命令应从文档声明的模型目录执行，路径相对该目录保持一致。
+- 不要使用不存在的任务名或脚本参数；文档命令必须能与当前脚本 `--help` 对齐。
+
+**模型推理性能**
+
+- 性能章节保持简洁，避免重复前文已经说明的性能模式、warmup、dtype、batch、decode 参数等长段解释。
+- 推荐只保留必要的性能表和精度表，列出 Model、Card、数据集、Batch Size、Beam Size、RTF/RTFx、WER 等关键字段。
+- 公开参考值可简短说明一句，不要把公开榜单环境、限制、对比注意事项在性能章节反复展开；详细对齐分析可放到 `ACCEPTANCE_PLAN.md` 或 `NPU_VALIDATION.md`。
 - 一步到位推荐命令：
 
 ```bash
