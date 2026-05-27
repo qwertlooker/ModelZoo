@@ -4,6 +4,8 @@
 
 - [推理环境准备](#推理环境准备)
 
+- [文件目录](#文件目录)
+
 - [快速上手](#快速上手)
 
   - [获取源码](#获取源码)
@@ -79,6 +81,27 @@ Canary-1B 是 NVIDIA发布的多语言多任务语音模型，采用 FastConform
 
 说明：Atlas 800I A2 推理卡请以 CANN 版本选择实际固件与驱动版本。
 
+## 文件目录
+
+```text
+Canary-1B
+├── README_INFERENCE.md                 # 推理指导文档
+├── README.md                           # 模型适配说明
+├── infer.py                            # 单条或多条音频推理脚本
+├── scripts
+│   ├── eval_canary.py                  # 精度和性能评测脚本
+│   └── prepare_eval_data.py            # LibriSpeech/MLS/FLEURS 评测数据准备脚本
+├── patches
+│   └── README.md                       # 上游补丁说明
+├── weights
+│   └── canary-1b
+│       └── canary-1b.nemo              # 下载后的模型权重
+├── test_data
+│   └── demo.wav                        # 下载后的单条测试音频
+├── eval_data                           # 评测数据目录，按需生成
+└── eval_results                        # 推理/评测结果目录，按需生成
+```
+
 ## 快速上手
 
 ### 获取源码
@@ -111,32 +134,19 @@ Canary-1B 是 NVIDIA发布的多语言多任务语音模型，采用 FastConform
    ```
 
    ```bash
-   ./scripts/download_weights.sh weights/canary-1b
+   mkdir -p weights/canary-1b
+   wget -O weights/canary-1b/canary-1b.nemo \
+     https://huggingface.co/nvidia/canary-1b/resolve/main/canary-1b.nemo
    ```
 
 ### 准备数据集
 
-1. 准备单条 smoke test 音频。
+1. 准备单条通用英文语音测试文件。
 
    ```bash
-   ./scripts/download_test_data.sh test_data
-   ```
-
-   目录结构请参考：
-
-   ```text
-   Canary-1B
-   ├── infer.py
-   ├── scripts
-   │   ├── download_test_data.sh
-   │   ├── download_weights.sh
-   │   ├── eval_canary.py
-   │   └── prepare_eval_data.py
-   ├── test_data
-   │   └── dummy_1s_16k.wav
-   └── weights
-       └── canary-1b
-           └── canary-1b.nemo
+   mkdir -p test_data
+   wget -O test_data/demo.wav \
+     https://download.pytorch.org/torchaudio/tutorial-assets/Lab41-SRI-VOiCES-src-sp0307-ch127535-sg0042.wav
    ```
 
 2. 准备 LibriSpeech test-clean 性能/精度评测数据。
@@ -177,7 +187,7 @@ Canary-1B 是 NVIDIA发布的多语言多任务语音模型，采用 FastConform
    ```bash
    ASCEND_RT_VISIBLE_DEVICES=0 python infer.py \
      --model weights/canary-1b/canary-1b.nemo \
-     --audio test_data/dummy_1s_16k.wav \
+     --audio test_data/demo.wav \
      --device npu \
      --task asr \
      --source_lang en \
