@@ -54,7 +54,7 @@ Canary-1B 是 NVIDIA发布的多语言多任务语音模型，采用 FastConform
   cd {code_path}                    # 切换到模型代码所在路径，若仓库下只有该模型，则无需切换
   ```
 
-### 输入输出数据
+## 输入输出数据
 
 - 输入数据
 
@@ -149,7 +149,7 @@ Canary-1B
 2. 准备 LibriSpeech test-clean 性能/精度评测数据。
 
    ```bash
-   python scripts/prepare_eval_data.py \
+   python prepare_eval_data.py \
      --task librispeech \
      --data_dir eval_data \
      --librispeech_dir eval_data/librispeech_raw
@@ -164,7 +164,7 @@ Canary-1B
 3. 准备多语种 ASR 评测数据。
 
    ```bash
-   python scripts/prepare_eval_data.py \
+   python prepare_eval_data.py \
      --task asr \
      --data_dir eval_data \
      --asr_parquet_dir eval_data/mls_parquet \
@@ -185,7 +185,7 @@ Canary-1B
 4. 准备多语种 AST 评测数据。
 
    ```bash
-   python scripts/prepare_eval_data.py \
+   python prepare_eval_data.py \
      --task ast \
      --data_dir eval_data \
      --fleurs_parquet_dir eval_data/fleurs_parquet \
@@ -210,7 +210,7 @@ Canary-1B
 1. 执行单条 ASR 推理。
 
    ```bash
-   ASCEND_RT_VISIBLE_DEVICES=0 python infer.py \
+   python infer.py \
      --model weights/canary-1b/canary-1b.nemo \
      --audio test_data/demo.wav \
      --device npu \
@@ -237,7 +237,7 @@ Canary-1B
 2. 执行 AST 推理示例。
 
    ```bash
-   ASCEND_RT_VISIBLE_DEVICES=0 python infer.py \
+   python infer.py \
      --model weights/canary-1b/canary-1b.nemo \
      --audio /path/to/en_audio.wav \
      --device npu \
@@ -254,7 +254,7 @@ Canary-1B
    性能模式用于尽量贴近 Hugging Face Open ASR Leaderboard 的 NeMo 计时方式：按音频时长降序排序、先 warmup、正式计时使用 audio filepath list、NPU/CUDA 默认使用 `bfloat16`，并输出 `RTFx=audio_seconds/elapsed_seconds`。
 
    ```bash
-   ASCEND_RT_VISIBLE_DEVICES=0 python scripts/eval_canary.py \
+   python eval_canary.py \
      --model weights/canary-1b/canary-1b.nemo \
      --device npu \
      --manifest eval_data/librispeech_test_clean/manifest_asr_en.jsonl \
@@ -277,7 +277,7 @@ Canary-1B
    a）执行 LibriSpeech test-clean 英文 ASR 精度评测。
 
    ```bash
-   ASCEND_RT_VISIBLE_DEVICES=0 python scripts/eval_canary.py \
+   python eval_canary.py \
      --model weights/canary-1b/canary-1b.nemo \
      --device npu \
      --manifest eval_data/librispeech_test_clean/manifest_asr_en.jsonl \
@@ -289,7 +289,7 @@ Canary-1B
    b）执行 MLS ASR 多语种评测。
 
    ```bash
-   ASCEND_RT_VISIBLE_DEVICES=0 python scripts/eval_canary.py \
+   python eval_canary.py \
      --model weights/canary-1b/canary-1b.nemo \
      --device npu \
      --manifest \
@@ -304,7 +304,7 @@ Canary-1B
    c）执行 FLEURS AST 多方向评测。
 
    ```bash
-   ASCEND_RT_VISIBLE_DEVICES=0 python scripts/eval_canary.py \
+   python eval_canary.py \
      --model weights/canary-1b/canary-1b.nemo \
      --device npu \
      --manifest \
@@ -328,27 +328,23 @@ Canary-1B
    summary.metrics.json
    ```
 
-# 模型推理性能
+## 模型推理性能
 
-## 性能
-
-以下性能数据基于 LibriSpeech test-clean manifest，单卡 NPU，`--performance_mode --beam_size 1 --batch_size 64 --num_workers 0`，NPU/CUDA 自动使用 `bfloat16`，性能模式默认使用 `greedy_batch` 解码。RTF 越低越好，RTFx 越高越好。
+### 性能
 
 | Model | Card | 数据集 | Batch Size | Beam Size | RTF | RTFx |
 |---|---|---|---:|---:|---:|---:|
-| Canary-1B | Ascend 910/910B | LibriSpeech test-clean | 64 | 1 | 0.009084 | 110.08 |
+| Canary-1B | Atlas 800I A2 | LibriSpeech test-clean | 64 | 1 | 0.009084 | 110.08 |
 
-说明：Hugging Face Open ASR Leaderboard 中 `nvidia/canary-1b` 的公开 A100 参考 RTFx 为 235.34。该公开值来自 NVIDIA A100-SXM4-80GB / CUDA 环境，只作为量级参考，不作为 NPU 强制通过线。若使用 `batch_size=128` 获得更高吞吐，建议在报告中同时列出 `batch_size=64` 对齐口径结果和 `batch_size=128` 本机最大吞吐结果，并说明 batch、dtype、解码策略、warmup 和 `num_workers` 配置。
-
-## 精度
+### 精度
 
 | Model | 数据集 | Card | Batch Size | Beam Size | WER% |
 |---|---|---|---:|---:|---:|
-| Canary-1B | LibriSpeech test-clean | Ascend 910/910B | 64 | 1 | 1.4728 |
+| Canary-1B | LibriSpeech test-clean | Atlas 800I A2 | 64 | 1 | 1.4728 |
 
-公开参考：Hugging Face Open ASR Leaderboard 中 `nvidia/canary-1b` 的 LibriSpeech clean WER 为 1.48，Average WER 为 6.50。NVIDIA 模型卡中的 ASR/AST 公开精度实验使用 `beam width=5`、`length penalty=1.0`；若要严格对齐公开模型卡精度表，请使用 `--beam_size 5` 并固定数据集、normalizer 和解码参数。
+公开参考：Hugging Face Open ASR Leaderboard 中 `nvidia/canary-1b` 的 LibriSpeech clean WER 为 1.48。
 
-# 公网地址说明
+## 公网地址说明
 
 | 类型 | 说明 | 公网地址 |
 |---|---|---|
