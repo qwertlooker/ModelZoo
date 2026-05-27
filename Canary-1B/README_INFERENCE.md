@@ -45,10 +45,11 @@ Canary-1B 是 NVIDIA发布的多语言多任务语音模型，采用 FastConform
   通过 Git 获取对应代码的方法如下：
 
   ```bash
-  git clone https://gitcode.com/Ascend/ModelZoo-PyTorch.git
-  cd ModelZoo-PyTorch
-  git checkout master
-  cd ACL_PyTorch/built-in/audio/Canary-1B
+  git clone {repository_url}        # 克隆仓库代码
+  cd {repository_name}              # 切换到模型代码仓目录
+  git checkout {branch/tag}         # 切换到对应分支
+  git reset --hard {commit_id}      # 代码设置到对应的 commit_id（可选）
+  cd {code_path}                    # 切换到模型代码所在路径，若仓库下只有该模型，则无需切换
   ```
 
 ### 输入输出数据
@@ -77,7 +78,7 @@ Canary-1B 是 NVIDIA发布的多语言多任务语音模型，采用 FastConform
 | NeMo | `44cb1c7ac5cbe6fc38ecc6184a174a02e7abadbe` 对应源码或兼容版本 | - |
 | 硬件 | Atlas 800T A2, Atlas 800I A2 | - |
 
-安装依赖前请先完成 CANN、PyTorch、torch-npu 的安装。NeMo ASR 相关依赖可按如下方式安装：
+安装依赖前请先完成 CANN、PyTorch、torch-npu 的安装。NeMo 作为运行依赖通过 pip 从指定 commit 安装，推理用户无需手动克隆 NeMo 源码；如需离线部署，可提前下载 NeMo 源码或 wheel 包并在离线环境安装。NeMo ASR 相关依赖可按如下方式安装：
 
 ```bash
 pip install torch torch-npu
@@ -100,32 +101,24 @@ pip install soundfile librosa sentencepiece huggingface_hub jiwer sacrebleu open
    cd ACL_PyTorch/built-in/audio/Canary-1B
    ```
 
+2. 安装 NeMo 依赖，pip 会自动拉取指定 commit。
+
+   ```bash
+   pip install "nemo_toolkit[asr] @ git+https://github.com/NVIDIA-NeMo/NeMo.git@44cb1c7ac5cbe6fc38ecc6184a174a02e7abadbe"
+   ```
+
 ### 准备权重
 
 1. 下载 `canary-1b.nemo` 权重。
 
-   ```bash
-   ./scripts/download_weights.sh weights/canary-1b
-   ```
-
-   脚本默认通过 `huggingface_hub` 下载 `nvidia/canary-1b` 中的 `canary-1b.nemo`。如需使用镜像 URL，可设置：
-
-   ```bash
-   CANARY_DOWNLOAD_METHOD=curl \
-   CANARY_WEIGHT_URL=<canary-1b.nemo下载地址> \
-   ./scripts/download_weights.sh weights/canary-1b
-   ```
-
-2. 校验权重。
-
-   ```bash
-   sha256sum weights/canary-1b/canary-1b.nemo
-   ```
-
-   已验证权重 SHA256：
+   原始权重地址：
 
    ```text
-   b0284183a9a1e039a2fff39427e2991fa4df0b9612a3447fc33ff82b20fdfb5a
+   https://huggingface.co/nvidia/canary-1b/resolve/main/canary-1b.nemo
+   ```
+
+   ```bash
+   ./scripts/download_weights.sh weights/canary-1b
    ```
 
 ### 准备数据集
