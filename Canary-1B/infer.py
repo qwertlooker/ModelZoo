@@ -33,6 +33,19 @@ def _extract_text(item: Any) -> str:
     return str(item.text)
 
 
+def _resolve_compute_dtype(dtype_name: str) -> torch.dtype | None:
+    """Return requested model compute dtype; None preserves checkpoint/default dtype."""
+    if dtype_name == "auto":
+        return None
+    if dtype_name == "float32":
+        return torch.float32
+    if dtype_name == "float16":
+        return torch.float16
+    if dtype_name == "bfloat16":
+        return torch.bfloat16
+    raise ValueError("--compute_dtype must be one of: auto, float32, float16, bfloat16")
+
+
 def _build_manifest(args: argparse.Namespace) -> str:
     """Build a temporary Canary manifest so ASR/AST language tokens are explicit."""
     manifest = tempfile.NamedTemporaryFile("w", suffix=".jsonl", delete=False, encoding="utf-8")
@@ -62,6 +75,12 @@ def main() -> None:
     parser.add_argument("--pnc", default="yes", choices=["yes", "no"])
     parser.add_argument("--duration", type=float, default=100000.0, help="Manifest duration value")
     parser.add_argument("--beam_size", type=int, default=1)
+    parser.add_argument(
+        "--compute_dtype",
+        default="auto",
+        choices=["auto", "float32", "float16", "bfloat16"],
+        help="Model compute dtype. auto preserves the checkpoint/default dtype.",
+    )
     args = parser.parse_args()
 
     device = _resolve_device(args.device)
@@ -75,6 +94,9 @@ def main() -> None:
         model = EncDecMultiTaskModel.from_pretrained(args.model, map_location=device)
     model.eval()
     model.to(device)
+    compute_dtype = _resolve_compute_dtype(args.compute_dtype)
+    if compute_dtype is not None:
+        model.to(compute_dtype)
 
     decode_cfg = model.cfg.decoding
     decode_cfg.beam.beam_size = args.beam_size
