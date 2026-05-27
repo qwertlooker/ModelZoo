@@ -58,7 +58,7 @@ Canary-1B 是 NVIDIA发布的多语言多任务语音模型，采用 FastConform
 
 - 输入数据
 
-  支持 16 kHz 单声道 wav/flac 等音频文件。推理脚本支持直接传入一个或多个本地音频文件路径。
+  支持 16 kHz 单声道 wav/flac 等音频文件。推理脚本支持直接传入一个或多个本地音频文件路径；评测使用 JSONL manifest。
 
 - 输出数据
 
@@ -88,11 +88,8 @@ Canary-1B
 ├── README_INFERENCE.md                 # 推理指导文档
 ├── README.md                           # 模型适配说明
 ├── infer.py                            # 单条或多条音频推理脚本
-├── scripts
-│   ├── eval_canary.py                  # 精度和性能评测脚本
-│   └── prepare_eval_data.py            # LibriSpeech/MLS/FLEURS 评测数据准备脚本
-├── patches
-│   └── README.md                       # 上游补丁说明
+├── eval_canary.py                      # 精度和性能评测脚本
+├── prepare_eval_data.py                # LibriSpeech/MLS/FLEURS 评测数据准备脚本
 ├── weights
 │   └── canary-1b
 │       └── canary-1b.nemo              # 下载后的模型权重
@@ -164,20 +161,48 @@ Canary-1B
    eval_data/librispeech_test_clean/manifest_asr_en.jsonl
    ```
 
-3. 准备多语种 ASR/AST 评测数据（可选）。
+3. 准备多语种 ASR 评测数据。
 
    ```bash
    python scripts/prepare_eval_data.py \
-     --task all \
+     --task asr \
      --data_dir eval_data \
      --asr_parquet_dir eval_data/mls_parquet \
      --asr_configs german,spanish,french \
      --librispeech_dir eval_data/librispeech_raw \
+     --asr_minutes 0
+   ```
+
+   生成的 ASR manifest 默认路径：
+
+   ```text
+   eval_data/librispeech_test_clean/manifest_asr_en.jsonl
+   eval_data/mls_test_german/manifest_asr_de.jsonl
+   eval_data/mls_test_spanish/manifest_asr_es.jsonl
+   eval_data/mls_test_french/manifest_asr_fr.jsonl
+   ```
+
+4. 准备多语种 AST 评测数据。
+
+   ```bash
+   python scripts/prepare_eval_data.py \
+     --task ast \
+     --data_dir eval_data \
      --fleurs_parquet_dir eval_data/fleurs_parquet \
-     --asr_minutes 30 \
      --fleurs_split test \
-     --fleurs_limit 50 \
+     --fleurs_limit 0 \
      --ast_directions en-de,en-es,en-fr,de-en,es-en,fr-en
+   ```
+
+   生成的 AST manifest 默认路径：
+
+   ```text
+   eval_data/fleurs/en-de/manifest_ast_en_de.jsonl
+   eval_data/fleurs/en-es/manifest_ast_en_es.jsonl
+   eval_data/fleurs/en-fr/manifest_ast_en_fr.jsonl
+   eval_data/fleurs/de-en/manifest_ast_de_en.jsonl
+   eval_data/fleurs/es-en/manifest_ast_es_en.jsonl
+   eval_data/fleurs/fr-en/manifest_ast_fr_en.jsonl
    ```
 
 ### 模型推理
@@ -261,15 +286,37 @@ Canary-1B
      --output_dir eval_results/npu_librispeech_test_clean_bs16_beam5
    ```
 
-   b）执行 MLS/FLEURS 多任务评测。
+   b）执行 MLS ASR 多语种评测。
 
    ```bash
    ASCEND_RT_VISIBLE_DEVICES=0 python scripts/eval_canary.py \
      --model weights/canary-1b/canary-1b.nemo \
      --device npu \
+     --manifest \
+       eval_data/mls_test_german/manifest_asr_de.jsonl \
+       eval_data/mls_test_spanish/manifest_asr_es.jsonl \
+       eval_data/mls_test_french/manifest_asr_fr.jsonl \
      --batch_size 16 \
      --beam_size 5 \
-     --output_dir eval_results/npu_all_bs16_beam5
+     --output_dir eval_results/npu_mls_asr_bs16_beam5
+   ```
+
+   c）执行 FLEURS AST 多方向评测。
+
+   ```bash
+   ASCEND_RT_VISIBLE_DEVICES=0 python scripts/eval_canary.py \
+     --model weights/canary-1b/canary-1b.nemo \
+     --device npu \
+     --manifest \
+       eval_data/fleurs/en-de/manifest_ast_en_de.jsonl \
+       eval_data/fleurs/en-es/manifest_ast_en_es.jsonl \
+       eval_data/fleurs/en-fr/manifest_ast_en_fr.jsonl \
+       eval_data/fleurs/de-en/manifest_ast_de_en.jsonl \
+       eval_data/fleurs/es-en/manifest_ast_es_en.jsonl \
+       eval_data/fleurs/fr-en/manifest_ast_fr_en.jsonl \
+     --batch_size 16 \
+     --beam_size 5 \
+     --output_dir eval_results/npu_fleurs_ast_bs16_beam5
    ```
 
    精度结果保存在 `output_dir` 下：
