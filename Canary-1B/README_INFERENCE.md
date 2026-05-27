@@ -1,4 +1,4 @@
-# Canary-1B模型-推理指导
+# Canary-1B 推理指导
 
 - [概述](#概述)
 
@@ -17,7 +17,7 @@
 
 ## 概述
 
-Canary-1B 是 NVIDIA NeMo 发布的 10 亿参数多语言多任务语音模型，采用 FastConformer 编码器和 Transformer 解码器。该模型支持英语、德语、西班牙语、法语 4 种语言的自动语音识别（ASR），并支持英语与德语/西班牙语/法语之间的语音到文本翻译（AST），输出可选择带或不带标点和大小写（PnC）。本文档介绍该模型基于昇腾 NPU 的离线推理、性能测试和精度测试流程。
+Canary-1B 是 NVIDIA发布的多语言多任务语音模型，采用 FastConformer 编码器和 Transformer 解码器。该模型支持英语、德语、西班牙语、法语 4 种语言的自动语音识别（ASR），并支持英语与德语/西班牙语/法语之间的语音到文本翻译（AST），输出可选择带或不带标点和大小写（PnC）。本文档介绍该模型基于昇腾 NPU 推理指导。
 
 > 说明：本文档适配对象为 Hugging Face `nvidia/canary-1b` 仓库中的原始 `canary-1b.nemo` 权重，不包含 `canary-1b-flash`、`canary-1b-v2` 或 Riva/NIM 服务化镜像。
 
@@ -45,34 +45,21 @@ Canary-1B 是 NVIDIA NeMo 发布的 10 亿参数多语言多任务语音模型�
   通过 Git 获取对应代码的方法如下：
 
   ```bash
-  git clone {repository_url}        # 克隆仓库代码
-  cd {repository_name}              # 切换到模型代码仓目录
-  git checkout {branch/tag}         # 切换到对应分支
-  git reset --hard {commit_id}      # 代码设置到对应的 commit_id（可选）
-  cd {code_path}                    # 切换到模型代码所在路径，若仓库下只有该模型，则无需切换
+  git clone https://gitcode.com/Ascend/ModelZoo-PyTorch.git
+  cd ModelZoo-PyTorch
+  git checkout master
+  cd ACL_PyTorch/built-in/audio/Canary-1B
   ```
 
 ### 输入输出数据
 
 - 输入数据
 
-  支持 16 kHz 单声道 wav/flac 等音频文件。推理脚本支持直接传入一个或多个本地音频文件路径；评测脚本使用 JSONL manifest，manifest 中每一行包含音频路径、时长、任务类型、源语言、目标语言、PnC 开关和参考文本等字段。
-
-  ASR manifest 示例：
-
-  ```json
-  {"audio_filepath":"/path/to/audio.wav","duration":10.0,"taskname":"asr","source_lang":"en","target_lang":"en","pnc":"yes","answer":"reference text"}
-  ```
-
-  AST manifest 示例：
-
-  ```json
-  {"audio_filepath":"/path/to/audio.wav","duration":10.0,"taskname":"ast","source_lang":"en","target_lang":"de","pnc":"yes","answer":"reference translation"}
-  ```
+  支持 16 kHz 单声道 wav/flac 等音频文件。推理脚本支持直接传入一个或多个本地音频文件路径。
 
 - 输出数据
 
-  输出为输入音频对应的识别文本或翻译文本。精度评测时会额外生成预测结果 `*.tsv`、单任务指标 `*.metrics.json` 和汇总指标 `summary.metrics.json`。
+  输出为输入音频对应的识别文本或翻译文本。
 
 ## 推理环境准备
 
@@ -88,7 +75,7 @@ Canary-1B 是 NVIDIA NeMo 发布的 10 亿参数多语言多任务语音模型�
 | PyTorch | 与 torch-npu 配套版本 | - |
 | torch_npu | 与 CANN/PyTorch 配套版本 | - |
 | NeMo | `44cb1c7ac5cbe6fc38ecc6184a174a02e7abadbe` 对应源码或兼容版本 | - |
-| 硬件 | 昇腾 910 / 910B | - |
+| 硬件 | Atlas 800T A2, Atlas 800I A2 | - |
 
 安装依赖前请先完成 CANN、PyTorch、torch-npu 的安装。NeMo ASR 相关依赖可按如下方式安装：
 
@@ -104,17 +91,13 @@ pip install soundfile librosa sentencepiece huggingface_hub jiwer sacrebleu open
 
 ### 获取源码
 
-1. 获取适配代码仓。
+1. 获取适配源码。
 
    ```bash
    git clone https://gitcode.com/Ascend/ModelZoo-PyTorch.git
-   cd ModelZoo-PyTorch/ACL_PyTorch/built-in/audio/Canary-1B
-   ```
-
-2. 如在当前适配工程中运行，可直接进入模型目录。
-
-   ```bash
-   cd Canary-1B
+   cd ModelZoo-PyTorch
+   git checkout master
+   cd ACL_PyTorch/built-in/audio/Canary-1B
    ```
 
 ### 准备权重
