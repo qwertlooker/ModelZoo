@@ -64,29 +64,20 @@ Canary-1B 是 NVIDIA发布的多语言多任务语音模型，采用 FastConform
 
 ## 推理环境准备
 
-- 该模型需要以下插件与驱动。
+- 该模型需要以下插件与驱动
 
   **表 1** 版本配套表
 
-| 配套 | 版本 | 环境准备指导 |
-|---|---|---|
-| 固件与驱动 | 与 CANN 配套版本 | [Pytorch框架推理环境准备](https://www.hiascend.com/document/detail/zh/ModelZoo/pytorchframework/pies) |
-| CANN | 8.5.0 或与 torch-npu 匹配版本 | - |
-| Python | 3.11 / 3.12 | - |
-| PyTorch | 与 torch-npu 配套版本 | - |
-| torch_npu | 与 CANN/PyTorch 配套版本 | - |
-| NeMo | `44cb1c7ac5cbe6fc38ecc6184a174a02e7abadbe` 对应源码或兼容版本 | - |
-| 硬件 | Atlas 800T A2, Atlas 800I A2 | - |
+| 配套 | 版本 |
+|---|---|
+| 固件与驱动 | 25.5.1+ |
+| CANN | 8.5.1 |
+| Python | 3.11.14 |
+| PyTorch / torch_npu | 2.9.0 |
+| torchaudio | 2.9.0 |
+| soundfile | 0.13.1 |
 
-安装依赖前请先完成 CANN、PyTorch、torch-npu 的安装。NeMo 作为运行依赖通过 pip 从指定 commit 安装，推理用户无需手动克隆 NeMo 源码；如需离线部署，可提前下载 NeMo 源码或 wheel 包并在离线环境安装。NeMo ASR 相关依赖可按如下方式安装：
-
-```bash
-pip install torch torch-npu
-pip install "nemo_toolkit[asr] @ git+https://github.com/NVIDIA-NeMo/NeMo.git@44cb1c7ac5cbe6fc38ecc6184a174a02e7abadbe"
-pip install soundfile librosa sentencepiece huggingface_hub jiwer sacrebleu openai-whisper
-```
-
-如使用本仓历史完整环境，可参考 `requirements.txt`；正式部署建议优先安装推理和评测所需最小依赖，避免引入无关包导致版本冲突。
+说明：Atlas 800I A2 推理卡请以 CANN 版本选择实际固件与驱动版本。
 
 ## 快速上手
 
@@ -101,10 +92,12 @@ pip install soundfile librosa sentencepiece huggingface_hub jiwer sacrebleu open
    cd ACL_PyTorch/built-in/audio/Canary-1B
    ```
 
-2. 安装 NeMo 依赖，pip 会自动拉取指定 commit。
+2. 安装依赖。
 
    ```bash
+   pip install torch==2.9.0 torch_npu==2.9.0 torchaudio==2.9.0
    pip install "nemo_toolkit[asr] @ git+https://github.com/NVIDIA-NeMo/NeMo.git@44cb1c7ac5cbe6fc38ecc6184a174a02e7abadbe"
+   pip install soundfile==0.13.1 librosa sentencepiece huggingface_hub jiwer sacrebleu openai-whisper
    ```
 
 ### 准备权重
