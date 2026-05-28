@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import argparse
 import csv
-import importlib
 import json
 import os
 import platform
@@ -23,6 +22,7 @@ from whisper.normalizers import EnglishTextNormalizer
 
 import nemo
 import torch
+import torch_npu
 from jiwer import wer
 from nemo.collections.asr.models import EncDecMultiTaskModel
 from sacrebleu import corpus_bleu
@@ -123,7 +123,8 @@ def tag_from_manifest(path: Path, items: list[dict[str, Any]]) -> str:
 
 def resolve_device(device_name: str):
     if device_name == "npu":
-        importlib.import_module("torch_npu")
+        if not torch_npu.npu.is_available():
+            raise RuntimeError("NPU device requested but torch_npu reports NPU unavailable")
     return torch.device(device_name)
 
 
