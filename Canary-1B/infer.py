@@ -9,6 +9,7 @@ CPU validation.  The actual NPU card is selected by ASCEND_RT_VISIBLE_DEVICES.
 from __future__ import annotations
 
 import argparse
+import importlib
 import json
 import tempfile
 from pathlib import Path
@@ -21,7 +22,7 @@ from nemo.collections.asr.models import EncDecMultiTaskModel
 def _resolve_device(device_name: str) -> torch.device:
     """Return a torch.device without hard-coding card indices."""
     if device_name == "npu":
-        import torch_npu  # noqa: F401 - registers the NPU backend with PyTorch
+        importlib.import_module("torch_npu")  # registers the NPU backend with PyTorch
 
     if device_name not in {"npu", "cpu", "cuda"}:
         raise ValueError("--device must be one of: npu, cpu, cuda")

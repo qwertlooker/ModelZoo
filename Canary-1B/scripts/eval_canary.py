@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import importlib
 import json
 import os
 import platform
@@ -122,7 +123,7 @@ def tag_from_manifest(path: Path, items: list[dict[str, Any]]) -> str:
 
 def resolve_device(device_name: str):
     if device_name == "npu":
-        import torch_npu  # noqa: F401
+        importlib.import_module("torch_npu")
     return torch.device(device_name)
 
 
@@ -217,20 +218,35 @@ def env_report(args: argparse.Namespace) -> dict[str, Any]:
 
 
 def transcribe_audio_list(model: Any, audio_paths: list[str], args: argparse.Namespace) -> list[Any]:
-    with torch.inference_mode(), torch.no_grad():
-        outputs = model.transcribe(
-            audio_paths,
-            batch_size=args.batch_size,
-            verbose=False,
-            pnc=args.pnc,
-            source_lang=args.source_lang,
-            target_lang=args.target_lang,
-            taskname=args.task,
-            num_workers=args.num_workers,
-        )
-    if isinstance(outputs, tuple) and len(outputs) == 2:
+    try:
+        with torch.inference_mode(), torch.no_grad():
+            outputs = model.transcribe(
+                audio_paths,
+                batch_size=args.batch_size,
+                verbose=False,
+                pnc=args.pnc,
+                source_lang=args.source_lang,
+                target_lang=args.target_lang,
+                taskname=args.task,
+                num_workers=args.num_workers,
+            )
+    except Exception as exc:
+        raise RuntimeError(f"Canary transcription failed for {len(audio_paths)} audio file(s)") from exc
+
+    if outputs is None:
+        raise RuntimeError("Canary transcription returned no outputs")
+    if isinstance(outputs, tuple):
+        if len(outputs) != 2:
+            raise RuntimeError(f"Unexpected Canary transcription tuple length: {len(outputs)}")
         outputs = outputs[0]
-    return list(outputs)
+
+    transcriptions = list(outputs)
+    if len(transcriptions) != len(audio_paths):
+        raise RuntimeError(
+            "Canary transcription output count does not match input count: "
+            f"{len(transcriptions)} != {len(audio_paths)}"
+        )
+    return transcriptions
 
 
 def evaluate_manifest_performance(model: Any, manifest: Path, args: argparse.Namespace) -> dict[str, Any]:
@@ -246,7 +262,12 @@ def evaluate_manifest_performance(model: Any, manifest: Path, args: argparse.Nam
     if warmup_samples > 0:
         synchronize_device(args.device)
         warmup_started = time.time()
-        transcribe_audio_list(model, audio_paths[:warmup_samples], args)
+        warmup_outputs = transcribe_audio_list(model, audio_paths[:warmup_samples], args)
+        if len(warmup_outputs) != warmup_samples:
+            raise RuntimeError(
+                "Warmup transcription output count does not match input count: "
+                f"{len(warmup_outputs)} != {warmup_samples}"
+            )
         synchronize_device(args.device)
         warmup_elapsed = time.time() - warmup_started
 

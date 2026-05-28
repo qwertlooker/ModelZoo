@@ -533,14 +533,6 @@ def prepare_asr_config(args: argparse.Namespace, config: str) -> Path:
     from datasets import load_dataset
 
     print(f"loading ASR dataset={args.asr_dataset} config={config} split={args.asr_split}")
-    if args.offline:
-        # Make datasets/huggingface_hub fail fast unless the requested data is
-        # already available in the local cache.
-        import os
-
-        os.environ.setdefault("HF_DATASETS_OFFLINE", "1")
-        os.environ.setdefault("HF_HUB_OFFLINE", "1")
-
     if args.asr_dataset == "facebook/multilingual_librispeech":
         # Load the requested split parquet directly. This avoids pulling the old
         # dataset loading script/README and keeps ASR preparation scoped to the
