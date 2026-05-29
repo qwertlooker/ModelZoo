@@ -2,8 +2,8 @@
 
 按要求将流程拆成两步：
 
-1. **准备数据**：`scripts/prepare_eval_data.py` 只负责下载数据、转 16 kHz wav、写 JSONL manifest。
-2. **评测**：`scripts/eval_canary.py` 只读取已准备好的 manifest，使用与 `infer.py` 相同的 NeMo `model.transcribe()` 机制做推理，再计算 WER/BLEU。
+1. **准备数据**：`prepare_eval_data.py` 只负责下载数据、转 16 kHz wav、写 JSONL manifest。
+2. **评测**：`eval_canary.py` 只读取已准备好的 manifest，使用与 `infer.py` 相同的 NeMo `model.transcribe()` 机制做推理，再计算 WER/BLEU。
 
 这样 CPU/CUDA/NPU 评测可以复用同一份 wav 和 manifest，避免每次评测重复下载或抽样不一致。
 
@@ -60,7 +60,7 @@ pip install datasets soundfile librosa tqdm jiwer sacrebleu openai-whisper
 
 ### 1.1 评测脚本 import / 依赖规范
 
-项目级流程规范详见根目录《模型NPU 适配标准流程.md》的“项目级脚本严格失败原则”。`Canary-1B/scripts/eval_canary.py` 作为本模型评测入口必须遵守该项目级规范：
+项目级流程规范详见根目录《模型NPU 适配标准流程.md》的“项目级脚本严格失败原则”。`Canary-1B/eval_canary.py` 作为本模型评测入口必须遵守该项目级规范：
 
 1. 除设备后端探测类 import（例如仅 `--device npu` 才需要的 `torch_npu`）外，评测依赖统一放在文件顶部导入，禁止在 metric 计算阶段临时 import 后再 fallback。
 2. ASR WER 只能使用官方路径 `from whisper.normalizers import EnglishTextNormalizer`；不得改用 `whisper_normalizer` 包、regex/basic normalizer 或其他静默替代实现。
@@ -95,7 +95,7 @@ MLS 日志应看到 `loading local MLS parquet: ...` 或 `downloading MLS parque
 ### 2.1 最小验收数据：MLS 30 分钟 + LibriSpeech test-clean 30 分钟 + FLEURS 每方向 50 条
 
 ```bash
-python Canary-1B/scripts/prepare_eval_data.py \
+python Canary-1B/prepare_eval_data.py \
   --task all \
   --data_dir Canary-1B/eval_data \
   --asr_parquet_dir Canary-1B/eval_data/mls_parquet \
@@ -129,7 +129,7 @@ Canary-1B/eval_data/fleurs/fr-en/manifest_ast_fr_en.jsonl
 ### 2.2 准备 ASR MLS test + LibriSpeech test-clean 全量
 
 ```bash
-python Canary-1B/scripts/prepare_eval_data.py \
+python Canary-1B/prepare_eval_data.py \
   --task asr \
   --data_dir Canary-1B/eval_data \
   --asr_parquet_dir Canary-1B/eval_data/mls_parquet \
@@ -143,7 +143,7 @@ python Canary-1B/scripts/prepare_eval_data.py \
 ### 2.3 只准备 MLS ASR test 全量（不含性能用 LibriSpeech）
 
 ```bash
-python Canary-1B/scripts/prepare_eval_data.py \
+python Canary-1B/prepare_eval_data.py \
   --task asr \
   --data_dir Canary-1B/eval_data \
   --asr_parquet_dir Canary-1B/eval_data/mls_parquet \
@@ -157,7 +157,7 @@ python Canary-1B/scripts/prepare_eval_data.py \
 ### 2.4 只准备性能测试用 LibriSpeech test-clean 全量
 
 ```bash
-python Canary-1B/scripts/prepare_eval_data.py \
+python Canary-1B/prepare_eval_data.py \
   --task asr \
   --data_dir Canary-1B/eval_data \
   --asr_configs "" \
@@ -170,7 +170,7 @@ python Canary-1B/scripts/prepare_eval_data.py \
 ### 2.5 只准备 AST FLEURS test 全量
 
 ```bash
-python Canary-1B/scripts/prepare_eval_data.py \
+python Canary-1B/prepare_eval_data.py \
   --task ast \
   --data_dir Canary-1B/eval_data \
   --fleurs_parquet_dir Canary-1B/eval_data/fleurs_parquet \
@@ -185,7 +185,7 @@ python Canary-1B/scripts/prepare_eval_data.py \
 当上述目录已经由在线脚本或手动命令准备好后，离线环境使用同一命令加 `--offline`：
 
 ```bash
-python Canary-1B/scripts/prepare_eval_data.py \
+python Canary-1B/prepare_eval_data.py \
   --task all \
   --data_dir Canary-1B/eval_data \
   --asr_parquet_dir Canary-1B/eval_data/mls_parquet \
@@ -264,7 +264,7 @@ curl -L -o Canary-1B/eval_data/fleurs_parquet/fr_fr/test-00000-of-00001.parquet 
 ### 3.2 一次评测全部已准备任务（推荐：NPU 精度模式）
 
 ```bash
-ASCEND_RT_VISIBLE_DEVICES=0 python Canary-1B/scripts/eval_canary.py \
+ASCEND_RT_VISIBLE_DEVICES=0 python Canary-1B/eval_canary.py \
   --model Canary-1B/weights/canary-1b.nemo \
   --device npu \
   --batch_size 16 \
@@ -277,7 +277,7 @@ ASCEND_RT_VISIBLE_DEVICES=0 python Canary-1B/scripts/eval_canary.py \
 ### 3.3 NPU 吞吐/速度模式
 
 ```bash
-ASCEND_RT_VISIBLE_DEVICES=0 python Canary-1B/scripts/eval_canary.py \
+ASCEND_RT_VISIBLE_DEVICES=0 python Canary-1B/eval_canary.py \
   --model Canary-1B/weights/canary-1b.nemo \
   --device npu \
   --manifest Canary-1B/eval_data/librispeech_test_clean/manifest_asr_en.jsonl \
@@ -294,7 +294,7 @@ ASCEND_RT_VISIBLE_DEVICES=0 python Canary-1B/scripts/eval_canary.py \
 ### 3.4 只评测 ASR
 
 ```bash
-ASCEND_RT_VISIBLE_DEVICES=0 python Canary-1B/scripts/eval_canary.py \
+ASCEND_RT_VISIBLE_DEVICES=0 python Canary-1B/eval_canary.py \
   --model Canary-1B/weights/canary-1b.nemo \
   --device npu \
   --manifest \
@@ -309,7 +309,7 @@ ASCEND_RT_VISIBLE_DEVICES=0 python Canary-1B/scripts/eval_canary.py \
 ### 3.5 只评测 FLEURS AST 六个方向
 
 ```bash
-ASCEND_RT_VISIBLE_DEVICES=0 python Canary-1B/scripts/eval_canary.py \
+ASCEND_RT_VISIBLE_DEVICES=0 python Canary-1B/eval_canary.py \
   --model Canary-1B/weights/canary-1b.nemo \
   --device npu \
   --manifest \
@@ -330,7 +330,7 @@ ASCEND_RT_VISIBLE_DEVICES=0 python Canary-1B/scripts/eval_canary.py \
 
 ```bash
 # CPU 小子集/保守基线。全量会很慢，不建议作为吞吐路径。
-python Canary-1B/scripts/eval_canary.py \
+python Canary-1B/eval_canary.py \
   --model Canary-1B/weights/canary-1b.nemo \
   --device cpu \
   --batch_size 1 \
@@ -338,7 +338,7 @@ python Canary-1B/scripts/eval_canary.py \
   --output_dir Canary-1B/eval_results/cpu_all
 
 # NPU 精度模式。OOM 时只下调 batch_size，保持 beam_size=5。
-ASCEND_RT_VISIBLE_DEVICES=0 python Canary-1B/scripts/eval_canary.py \
+ASCEND_RT_VISIBLE_DEVICES=0 python Canary-1B/eval_canary.py \
   --model Canary-1B/weights/canary-1b.nemo \
   --device npu \
   --batch_size 16 \
@@ -346,7 +346,7 @@ ASCEND_RT_VISIBLE_DEVICES=0 python Canary-1B/scripts/eval_canary.py \
   --output_dir Canary-1B/eval_results/npu_all_bs16_beam5
 
 # NPU 吞吐模式。
-ASCEND_RT_VISIBLE_DEVICES=0 python Canary-1B/scripts/eval_canary.py \
+ASCEND_RT_VISIBLE_DEVICES=0 python Canary-1B/eval_canary.py \
   --model Canary-1B/weights/canary-1b.nemo \
   --device npu \
   --batch_size 16 \

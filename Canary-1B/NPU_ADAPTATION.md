@@ -92,7 +92,7 @@ NPU 环境需要特别注意 `torch` / `torch-npu` 版本与 CANN 匹配；如�
 下载脚本：
 
 ```bash
-./Canary-1B/scripts/download_weights.sh Canary-1B/weights/canary-1b
+./Canary-1B/download_weights.sh Canary-1B/weights/canary-1b
 ```
 
 脚本默认通过 `huggingface_hub.snapshot_download` 下载 `canary-1b.nemo`：
@@ -146,7 +146,7 @@ b0284183a9a1e039a2fff39427e2991fa4df0b9612a3447fc33ff82b20fdfb5a
 生成最小 smoke-test wav：
 
 ```bash
-./Canary-1B/scripts/download_test_data.sh Canary-1B/test_data
+./Canary-1B/download_test_data.sh Canary-1B/test_data
 ```
 
 输出：
@@ -160,7 +160,7 @@ Canary-1B/test_data/dummy_1s_16k.wav.meta.json
 
 ### 6.1 MLS / LibriSpeech / FLEURS 评测数据准备
 
-`scripts/prepare_eval_data.py` 已按在线/离线混合要求实现：
+`prepare_eval_data.py` 已按在线/离线混合要求实现：
 
 - `--asr_parquet_dir Canary-1B/eval_data/mls_parquet`：复用或下载 `facebook/multilingual_librispeech` 的 `german/spanish/french` test parquet。
 - `--librispeech_dir Canary-1B/eval_data/librispeech_raw`：保留并复用/下载 OpenSLR LibriSpeech `test-clean`，用于性能测试。
@@ -171,7 +171,7 @@ Canary-1B/test_data/dummy_1s_16k.wav.meta.json
 推荐最小验收数据：
 
 ```bash
-python Canary-1B/scripts/prepare_eval_data.py \
+python Canary-1B/prepare_eval_data.py \
   --task all \
   --data_dir Canary-1B/eval_data \
   --asr_parquet_dir Canary-1B/eval_data/mls_parquet \
@@ -187,7 +187,7 @@ python Canary-1B/scripts/prepare_eval_data.py \
 离线复用同一批文件：
 
 ```bash
-python Canary-1B/scripts/prepare_eval_data.py \
+python Canary-1B/prepare_eval_data.py \
   --task all \
   --data_dir Canary-1B/eval_data \
   --asr_parquet_dir Canary-1B/eval_data/mls_parquet \

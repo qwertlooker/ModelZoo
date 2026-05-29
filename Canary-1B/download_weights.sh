@@ -16,7 +16,7 @@ if [[ -f "${MODEL_FILE}" ]]; then
 else
   # Default to huggingface_hub + Gitee HF endpoint because it works in more
   # restricted CN environments.  To force the old curl path:
-  #   CANARY_DOWNLOAD_METHOD=curl ./Canary-1B/scripts/download_weights.sh ...
+  #   CANARY_DOWNLOAD_METHOD=curl ./Canary-1B/download_weights.sh ...
   METHOD="${CANARY_DOWNLOAD_METHOD:-hf_hub}"
   if [[ -n "${CANARY_WEIGHT_URL:-}" && -z "${CANARY_DOWNLOAD_METHOD:-}" ]]; then
     METHOD="curl"

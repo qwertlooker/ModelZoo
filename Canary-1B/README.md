@@ -48,7 +48,7 @@ pip install soundfile librosa sentencepiece huggingface_hub
 推荐通过 `huggingface_hub` 使用 Gitee HF endpoint 下载到本地目录：
 
 ```bash
-./Canary-1B/scripts/download_weights.sh Canary-1B/weights/canary-1b
+./Canary-1B/download_weights.sh Canary-1B/weights/canary-1b
 ```
 
 下载脚本默认设置：
@@ -75,7 +75,7 @@ SHA256: b0284183a9a1e039a2fff39427e2991fa4df0b9612a3447fc33ff82b20fdfb5a
 如果要改用直接 URL / 旧 `curl` 下载方式：
 
 ```bash
-CANARY_DOWNLOAD_METHOD=curl CANARY_WEIGHT_URL=<mirror-url> ./Canary-1B/scripts/download_weights.sh Canary-1B/weights/canary-1b
+CANARY_DOWNLOAD_METHOD=curl CANARY_WEIGHT_URL=<mirror-url> ./Canary-1B/download_weights.sh Canary-1B/weights/canary-1b
 ```
 
 本次在 ModelScope 以 `canary-1b` / `nvidia/canary-1b` 检索未找到同名公开模型。
@@ -144,7 +144,7 @@ NVIDIA model card 说明 ASR/AST 公开结果使用 `beam width=5`、`length pen
 生成一个 1 秒 16 kHz 单声道 wav，用于 smoke test：
 
 ```bash
-./Canary-1B/scripts/download_test_data.sh Canary-1B/test_data
+./Canary-1B/download_test_data.sh Canary-1B/test_data
 ```
 
 生成文件：
@@ -158,11 +158,11 @@ Canary-1B/test_data/dummy_1s_16k.wav.meta.json
 
 ### 5.1 MLS / LibriSpeech / FLEURS 评测数据在线/离线混合准备
 
-正式 ASR/AST 验收使用 `scripts/prepare_eval_data.py`；MLS 用于对齐 Canary 官方多语种 ASR 精度，LibriSpeech `test-clean` 保留用于 Hugging Face Open ASR Leaderboard 口径的性能测试。脚本支持指定本地目录，存在即复用，缺失才下载，`--offline` 下禁止联网：
+正式 ASR/AST 验收使用 `prepare_eval_data.py`；MLS 用于对齐 Canary 官方多语种 ASR 精度，LibriSpeech `test-clean` 保留用于 Hugging Face Open ASR Leaderboard 口径的性能测试。脚本支持指定本地目录，存在即复用，缺失才下载，`--offline` 下禁止联网：
 
 ```bash
 # 在线：下载到指定目录，并生成 manifest/meta
-python Canary-1B/scripts/prepare_eval_data.py \
+python Canary-1B/prepare_eval_data.py \
   --task all \
   --data_dir Canary-1B/eval_data \
   --asr_parquet_dir Canary-1B/eval_data/mls_parquet \
@@ -175,7 +175,7 @@ python Canary-1B/scripts/prepare_eval_data.py \
   --ast_directions en-de,en-es,en-fr,de-en,es-en,fr-en
 
 # 离线：要求本地已有 MLS/LibriSpeech/FLEURS parquet 和 LibriSpeech test-clean
-python Canary-1B/scripts/prepare_eval_data.py \
+python Canary-1B/prepare_eval_data.py \
   --task all \
   --data_dir Canary-1B/eval_data \
   --asr_parquet_dir Canary-1B/eval_data/mls_parquet \
@@ -216,7 +216,7 @@ MLS/LibriSpeech/FLEURS 音频列使用 `Audio(decode=False)`，再由 `soundfile
 
 ```bash
 # NPU 精度模式：对齐公开精度口径，OOM 时下调 batch_size。
-ASCEND_RT_VISIBLE_DEVICES=0 python Canary-1B/scripts/eval_canary.py \
+ASCEND_RT_VISIBLE_DEVICES=0 python Canary-1B/eval_canary.py \
   --model Canary-1B/weights/canary-1b.nemo \
   --device npu \
   --batch_size 16 \
@@ -224,7 +224,7 @@ ASCEND_RT_VISIBLE_DEVICES=0 python Canary-1B/scripts/eval_canary.py \
   --output_dir Canary-1B/eval_results/npu_all_bs16_beam5
 
 # NPU 吞吐模式：尽量对齐 Hugging Face Open ASR Leaderboard 的 NeMo 计时口径。
-ASCEND_RT_VISIBLE_DEVICES=0 python Canary-1B/scripts/eval_canary.py \
+ASCEND_RT_VISIBLE_DEVICES=0 python Canary-1B/eval_canary.py \
   --model Canary-1B/weights/canary-1b.nemo \
   --device npu \
   --manifest Canary-1B/eval_data/librispeech_test_clean/manifest_asr_en.jsonl \
@@ -283,13 +283,13 @@ ASCEND_RT_VISIBLE_DEVICES=0 python infer.py \
 ## 9. 交付文件
 
 - `infer.py`：CPU/NPU 融合推理脚本。
-- `scripts/download_weights.sh`：权重下载脚本。
-- `scripts/download_test_data.sh`：测试 wav 生成脚本。
+- `download_weights.sh`：权重下载脚本。
+- `download_test_data.sh`：测试 wav 生成脚本。
 - `ANALYSIS.md`：上游版本、代码节点和风险分析。
 - `NPU_ADAPTATION.md`：适配和运行说明。
 - `NPU_VALIDATION.md`：验证命令与结果记录。
 - `ACCEPTANCE_PLAN.md`：参考原始模型功能/性能/精度的完整验收方案，包含数据集选择、分层验收、通过条件和报告模板。
 - `EVAL_FLEURS_MLS.md`：MLS test ASR 与 FLEURS AST 子集/全量验证方案和运行命令。
-- `scripts/prepare_eval_data.py`：下载/准备 MLS、FLEURS 子集并生成评测 manifest。
-- `scripts/eval_canary.py`：读取已准备 manifest，使用 `model.transcribe()` 推理并输出 WER/BLEU 指标。
+- `prepare_eval_data.py`：下载/准备 MLS、FLEURS 子集并生成评测 manifest。
+- `eval_canary.py`：读取已准备 manifest，使用 `model.transcribe()` 推理并输出 WER/BLEU 指标。
 - `patches/README.md`：说明本次无上游源码 patch。

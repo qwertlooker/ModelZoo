@@ -23,8 +23,8 @@
 
 - `infer.py`：改为当前适配目录维护的参数化 CPU/NPU 融合推理脚本，默认 `--device npu`。
 - `patches/README.md`：说明本次没有上游源码 patch。
-- `scripts/download_weights.sh`：官方权重下载脚本。
-- `scripts/download_test_data.sh`：生成最小 CPU/NPU smoke-test wav。
+- `download_weights.sh`：官方权重下载脚本。
+- `download_test_data.sh`：生成最小 CPU/NPU smoke-test wav。
 - `ANALYSIS.md`、`NPU_ADAPTATION.md`、`NPU_VALIDATION.md`：适配分析、迁移说明和验证记录。
 - `.gitignore`：加入 `Canary-1B/upstream/`。
 
@@ -42,7 +42,7 @@ Canary-1B 通过 NeMo `EncDecMultiTaskModel.from_pretrained('nvidia/canary-1b')`
 | `README.md` | 已更新 | 补充基准 commit、无需 patch、运行方式和验证方式。 |
 | `requirements.txt` | 保留但不建议作为最小依赖 | 包含 CUDA/服务端/训练相关大量依赖，正式部署建议按 README 中最小依赖安装。 |
 | `patches/` | 无上游 patch | 因未修改 NeMo 上游已有文件，仅保留 README 说明。 |
-| `scripts/` | 已新增 | 提供权重下载和测试数据准备脚本。 |
+| `download_weights.sh` / `download_test_data.sh` / `prepare_eval_data.py` / `eval_canary.py` | 已新增 | 提供权重下载、测试数据准备、评测数据准备和评测脚本。 |
 
 ## 5. 设备适配点
 

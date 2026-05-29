@@ -153,7 +153,7 @@ SHA256：b0284183a9a1e039a2fff39427e2991fa4df0b9612a3447fc33ff82b20fdfb5a
 执行：
 
 ```bash
-./Canary-1B/scripts/download_test_data.sh Canary-1B/test_data
+./Canary-1B/download_test_data.sh Canary-1B/test_data
 ```
 
 结果：
@@ -170,10 +170,10 @@ Canary-1B/test_data/dummy_1s_16k.wav.meta.json
 当前脚本已补齐在线/离线混合参数：
 
 ```bash
-Canary-1B/.venv-cpu/bin/python -m py_compile Canary-1B/scripts/prepare_eval_data.py
+Canary-1B/.venv-cpu/bin/python -m py_compile Canary-1B/prepare_eval_data.py
 
 # 离线缺失检查示例：应报出缺失的本地 MLS/LibriSpeech/FLEURS parquet 路径，不访问远端
-python Canary-1B/scripts/prepare_eval_data.py \
+python Canary-1B/prepare_eval_data.py \
   --task all \
   --data_dir /tmp/canary_eval_data \
   --asr_parquet_dir /tmp/canary_eval_data/mls_parquet \
