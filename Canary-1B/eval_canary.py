@@ -22,10 +22,9 @@ from whisper.normalizers import EnglishTextNormalizer
 
 import nemo
 import torch
-import torch_npu
 from jiwer import wer
-from nemo.collections.asr.models import EncDecMultiTaskModel
 from sacrebleu import corpus_bleu
+from utils import extract_text, load_canary_model, synchronize_device
 
 DEFAULT_MANIFESTS = [
     "Canary-1B/eval_data/librispeech_test_clean/manifest_asr_en.jsonl",
@@ -119,61 +118,6 @@ def tag_from_manifest(path: Path, items: list[dict[str, Any]]) -> str:
     if task == "asr":
         return f"asr_{parent}_{src}"
     return f"ast_{src}_{tgt}"
-
-
-def resolve_device(device_name: str):
-    if device_name == "npu":
-        if not torch_npu.npu.is_available():
-            raise RuntimeError("NPU device requested but torch_npu reports NPU unavailable")
-    return torch.device(device_name)
-
-
-def load_model(args: argparse.Namespace):
-    device = resolve_device(args.device)
-    model_path = Path(args.model).expanduser()
-    if model_path.is_file() and model_path.suffix == ".nemo":
-        model = EncDecMultiTaskModel.restore_from(str(model_path), map_location=device)
-    elif model_path.is_dir() and (model_path / "canary-1b.nemo").is_file():
-        model = EncDecMultiTaskModel.restore_from(str(model_path / "canary-1b.nemo"), map_location=device)
-    else:
-        model = EncDecMultiTaskModel.from_pretrained(args.model, map_location=device)
-    model.eval()
-    model.to(device)
-    compute_dtype = resolve_compute_dtype(args, device)
-    if compute_dtype is not None:
-        model.to(compute_dtype)
-    decode_cfg = model.cfg.decoding
-    decode_cfg.beam.beam_size = args.beam_size
-    if args.decoding_strategy != "auto":
-        decode_cfg.strategy = args.decoding_strategy
-    elif args.performance_mode and args.beam_size == 1:
-        decode_cfg.strategy = "greedy_batch"
-    model.change_decoding_strategy(decode_cfg)
-    return model
-
-
-def resolve_compute_dtype(args: argparse.Namespace, device: torch.device):
-    if args.compute_dtype == "float32":
-        return torch.float32
-    if args.compute_dtype == "float16":
-        return torch.float16
-    if args.compute_dtype == "bfloat16":
-        return torch.bfloat16
-    if args.performance_mode and device.type in {"npu", "cuda"}:
-        return torch.bfloat16
-    return None
-
-
-def synchronize_device(device_name: str) -> None:
-    if device_name == "cuda":
-        torch.cuda.synchronize()
-    elif device_name == "npu":
-        torch.npu.synchronize()
-
-
-def extract_text(item: Any) -> str:
-    """Return the expected NeMo transcription text field."""
-    return str(item.text)
 
 
 _WER_NORMALIZER = EnglishTextNormalizer()
@@ -379,7 +323,15 @@ def main() -> None:
     with (output_dir / "run_env.json").open("w", encoding="utf-8") as f:
         json.dump(env_report(args), f, ensure_ascii=False, indent=2)
 
-    model = load_model(args)
+    model = load_canary_model(
+        args.model,
+        device_name=args.device,
+        compute_dtype=args.compute_dtype,
+        auto_bf16=args.performance_mode,
+        beam_size=args.beam_size,
+        decoding_strategy=args.decoding_strategy,
+        performance_mode=args.performance_mode,
+    )
     evaluate_fn = evaluate_manifest_performance if args.performance_mode else evaluate_manifest
     all_metrics = [evaluate_fn(model, manifest, args) for manifest in manifests]
     with (output_dir / "summary.metrics.json").open("w", encoding="utf-8") as f:
