@@ -62,8 +62,6 @@ Canary-1B
 ├── infer.py                            # 单条或多条音频推理脚本
 ├── eval_canary.py                      # 精度和性能评测脚本
 ├── prepare_eval_data.py                # LibriSpeech/MLS/FLEURS 评测数据准备脚本
-├── download_test_data.sh               # smoke test 音频生成脚本
-├── download_weights.sh                 # 权重下载脚本
 ├── weights
 │   └── canary-1b
 │       └── canary-1b.nemo              # 下载后的模型权重
@@ -104,12 +102,6 @@ Canary-1B
    mkdir -p weights/canary-1b
    wget -O weights/canary-1b/canary-1b.nemo \
      https://huggingface.co/nvidia/canary-1b/resolve/main/canary-1b.nemo
-   ```
-
-   也可以使用仓内脚本下载并校验权重：
-
-   ```bash
-   ./download_weights.sh weights/canary-1b
    ```
 
 ### 准备数据集

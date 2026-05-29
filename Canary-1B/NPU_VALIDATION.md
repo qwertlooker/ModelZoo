@@ -153,14 +153,23 @@ SHA256：b0284183a9a1e039a2fff39427e2991fa4df0b9612a3447fc33ff82b20fdfb5a
 执行：
 
 ```bash
-./Canary-1B/download_test_data.sh Canary-1B/test_data
+python - <<'PY'
+from pathlib import Path
+import numpy as np
+import soundfile as sf
+out = Path("Canary-1B/test_data/dummy_1s_16k.wav")
+out.parent.mkdir(parents=True, exist_ok=True)
+sr = 16000
+t = np.arange(sr, dtype=np.float32) / sr
+sf.write(out, 0.1 * np.sin(2 * np.pi * 440 * t), sr)
+print(out)
+PY
 ```
 
 结果：
 
 ```text
 Canary-1B/test_data/dummy_1s_16k.wav
-Canary-1B/test_data/dummy_1s_16k.wav.meta.json
 ```
 
 说明：该文件为 1 秒 16 kHz 单声道正弦波，仅用于 smoke test，不用于识别准确率评估。

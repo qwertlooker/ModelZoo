@@ -45,37 +45,33 @@ pip install soundfile librosa sentencepiece huggingface_hub
 
 ## 3. 权重下载
 
-推荐通过 `huggingface_hub` 使用 Gitee HF endpoint 下载到本地目录：
+推荐通过 `huggingface_hub` 下载到本地目录，可按需设置镜像 endpoint：
 
 ```bash
-./Canary-1B/download_weights.sh Canary-1B/weights/canary-1b
+export HF_HOME=~/.cache/gitee-ai
+export HF_ENDPOINT=https://hf-api.gitee.com
 ```
 
-下载脚本默认设置：
-
-```bash
-HF_HOME=~/.cache/gitee-ai
-HF_ENDPOINT=https://hf-api.gitee.com
-```
-
-并等价执行：
+执行：
 
 ```python
 from huggingface_hub import snapshot_download
 snapshot_download("nvidia/canary-1b", allow_patterns=["canary-1b.nemo"], local_dir="Canary-1B/weights/canary-1b")
 ```
 
-下载完成后会校验 SHA256。当前环境已成功下载：
+下载完成后可校验 SHA256。当前环境已成功下载：
 
 ```text
 Canary-1B/weights/canary-1b-hfmirror/canary-1b.nemo
 SHA256: b0284183a9a1e039a2fff39427e2991fa4df0b9612a3447fc33ff82b20fdfb5a
 ```
 
-如果要改用直接 URL / 旧 `curl` 下载方式：
+如果要改用直接 URL 下载方式：
 
 ```bash
-CANARY_DOWNLOAD_METHOD=curl CANARY_WEIGHT_URL=<mirror-url> ./Canary-1B/download_weights.sh Canary-1B/weights/canary-1b
+mkdir -p Canary-1B/weights/canary-1b
+wget -O Canary-1B/weights/canary-1b/canary-1b.nemo \
+  https://huggingface.co/nvidia/canary-1b/resolve/main/canary-1b.nemo
 ```
 
 本次在 ModelScope 以 `canary-1b` / `nvidia/canary-1b` 检索未找到同名公开模型。
@@ -144,14 +140,25 @@ NVIDIA model card 说明 ASR/AST 公开结果使用 `beam width=5`、`length pen
 生成一个 1 秒 16 kHz 单声道 wav，用于 smoke test：
 
 ```bash
-./Canary-1B/download_test_data.sh Canary-1B/test_data
+python - <<'PY'
+from pathlib import Path
+import numpy as np
+import soundfile as sf
+
+out = Path("Canary-1B/test_data/dummy_1s_16k.wav")
+out.parent.mkdir(parents=True, exist_ok=True)
+sr = 16000
+t = np.arange(sr, dtype=np.float32) / sr
+audio = 0.1 * np.sin(2 * np.pi * 440 * t)
+sf.write(out, audio, sr)
+print(out)
+PY
 ```
 
 生成文件：
 
 ```text
 Canary-1B/test_data/dummy_1s_16k.wav
-Canary-1B/test_data/dummy_1s_16k.wav.meta.json
 ```
 
 该文件不是 ASR 准确率样本，只用于验证模型加载、音频读取、设备迁移和推理调用链路。
@@ -283,8 +290,6 @@ ASCEND_RT_VISIBLE_DEVICES=0 python infer.py \
 ## 9. 交付文件
 
 - `infer.py`：CPU/NPU 融合推理脚本。
-- `download_weights.sh`：权重下载脚本。
-- `download_test_data.sh`：测试 wav 生成脚本。
 - `ANALYSIS.md`：上游版本、代码节点和风险分析。
 - `NPU_ADAPTATION.md`：适配和运行说明。
 - `NPU_VALIDATION.md`：验证命令与结果记录。
