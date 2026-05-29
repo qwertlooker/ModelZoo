@@ -116,7 +116,7 @@ Canary-1B
      https://download.pytorch.org/torchaudio/tutorial-assets/Lab41-SRI-VOiCES-src-sp0307-ch127535-sg0042.wav
    ```
 
-2. 准备 LibriSpeech test-clean 性能/精度评测数据，下载数据并生成 manifest。
+2. 准备 LibriSpeech test-clean 性能/精度评测数据。使用 `prepare_eval_data.py` 下载数据并生成 manifest。
 
    数据集地址：`https://www.openslr.org/12`。
 
@@ -139,7 +139,7 @@ Canary-1B
    eval_data/librispeech_test_clean/manifest_asr_en.jsonl
    ```
 
-3. 准备多语种 ASR 评测数据，下载数据并生成 manifest。
+3. 准备多语种 ASR 评测数据。使用 `prepare_eval_data.py` 下载数据并生成 manifest。
 
    数据集地址：`https://huggingface.co/datasets/facebook/multilingual_librispeech`。命令同时默认生成 LibriSpeech test-clean manifest，LibriSpeech 地址为 `https://www.openslr.org/12`。
 
@@ -171,7 +171,7 @@ Canary-1B
    eval_data/mls_test_french/manifest_asr_fr.jsonl
    ```
 
-4. 准备多语种 AST 评测数据。
+4. 准备多语种 AST 评测数据。使用 `prepare_eval_data.py` 下载数据并生成 manifest。
 
    数据集地址：`https://huggingface.co/datasets/google/fleurs`。
 
