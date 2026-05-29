@@ -46,7 +46,7 @@ class ManifestItem:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Prepare Canary-1B MLS/LibriSpeech/FLEURS eval data")
-    parser.add_argument("--task", default="all", choices=["asr", "ast", "all"])
+    parser.add_argument("--task", default="all", choices=["librispeech", "asr", "ast", "all"])
     parser.add_argument("--data_dir", default="Canary-1B/eval_data")
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--shuffle", action="store_true", help="Shuffle before taking subsets")
@@ -722,6 +722,8 @@ def prepare_fleurs_direction(args: argparse.Namespace, src: str, tgt: str) -> Pa
 def main() -> None:
     args = parse_args()
     manifests: list[Path] = []
+    if args.task == "librispeech":
+        manifests.append(prepare_librispeech(args))
     if args.task in {"asr", "all"}:
         manifests.extend(prepare_asr(args))
     if args.task in {"ast", "all"}:

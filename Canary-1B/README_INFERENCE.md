@@ -1,57 +1,30 @@
 # Canary-1B 推理指导
 
 - [概述](#概述)
-
+- [输入输出数据](#输入输出数据)
 - [推理环境准备](#推理环境准备)
-
 - [文件目录](#文件目录)
-
 - [快速上手](#快速上手)
-
   - [获取源码](#获取源码)
   - [准备权重](#准备权重)
   - [准备数据集](#准备数据集)
   - [模型推理](#模型推理)
-
 - [模型推理性能](#模型推理性能)
-
 - [公网地址说明](#公网地址说明)
 
 ## 概述
 
-Canary-1B 是 NVIDIA发布的多语言多任务语音模型，采用 FastConformer 编码器和 Transformer 解码器。该模型支持英语、德语、西班牙语、法语 4 种语言的自动语音识别（ASR），并支持英语与德语/西班牙语/法语之间的语音到文本翻译（AST），输出可选择带或不带标点和大小写（PnC）。本文档介绍该模型基于昇腾 NPU 推理指导。
+Canary-1B 是 NVIDIA 发布的多语言多任务语音模型，采用 FastConformer 编码器和 Transformer 解码器。该模型支持英语、德语、西班牙语、法语 4 种语言的自动语音识别（ASR），并支持英语与德语/西班牙语/法语之间的语音到文本翻译（AST），输出可选择带或不带标点和大小写（PnC）。本文档介绍该模型基于昇腾 NPU 的推理指导。
 
-> 说明：本文档适配对象为 Hugging Face `nvidia/canary-1b` 仓库中的原始 `canary-1b.nemo` 权重，不包含 `canary-1b-flash`、`canary-1b-v2` 或 Riva/NIM 服务化镜像。
+> 说明：本文档适配对象为 Hugging Face `nvidia/canary-1b` 仓库中的原始 `canary-1b.nemo` 权重，不包含 `canary-1b-flash`、`canary-1b-v2`。
 
-- 参考论文：
-  - Fast Conformer with Linearly Scalable Attention for Efficient Speech Recognition
-  - Attention Is All You Need
-
-- 参考实现：
+- 版本说明：
 
   ```text
   url=https://github.com/NVIDIA-NeMo/NeMo.git
   branch=main
   commit_id=44cb1c7ac5cbe6fc38ecc6184a174a02e7abadbe
   model_name=Canary-1B
-  ```
-
-  适配昇腾 AI 处理器的实现：
-
-  ```text
-  url=https://gitcode.com/Ascend/ModelZoo-PyTorch
-  branch=master
-  code_path=ACL_PyTorch/built-in/audio/Canary-1B
-  ```
-
-  通过 Git 获取对应代码的方法如下：
-
-  ```bash
-  git clone {repository_url}        # 克隆仓库代码
-  cd {repository_name}              # 切换到模型代码仓目录
-  git checkout {branch/tag}         # 切换到对应分支
-  git reset --hard {commit_id}      # 代码设置到对应的 commit_id（可选）
-  cd {code_path}                    # 切换到模型代码所在路径，若仓库下只有该模型，则无需切换
   ```
 
 ## 输入输出数据
@@ -66,7 +39,7 @@ Canary-1B 是 NVIDIA发布的多语言多任务语音模型，采用 FastConform
 
 ## 推理环境准备
 
-- 该模型需要以下插件与驱动
+- 该模型需要以下插件与驱动。
 
   **表 1** 版本配套表
 
@@ -77,7 +50,6 @@ Canary-1B 是 NVIDIA发布的多语言多任务语音模型，采用 FastConform
 | Python | 3.11.14 |
 | PyTorch / torch_npu | 2.9.0 |
 | torchaudio | 2.9.0 |
-| soundfile | 0.13.1 |
 
 说明：Atlas 800I A2 推理卡请以 CANN 版本选择实际固件与驱动版本。
 
@@ -88,8 +60,13 @@ Canary-1B
 ├── README_INFERENCE.md                 # 推理指导文档
 ├── README.md                           # 模型适配说明
 ├── infer.py                            # 单条或多条音频推理脚本
-├── eval_canary.py                      # 精度和性能评测脚本
-├── prepare_eval_data.py                # LibriSpeech/MLS/FLEURS 评测数据准备脚本
+├── eval_canary.py                      # 精度和性能评测脚本入口
+├── prepare_eval_data.py                # LibriSpeech/MLS/FLEURS 评测数据准备脚本入口
+├── scripts
+│   ├── eval_canary.py                  # 精度和性能评测脚本实现
+│   ├── prepare_eval_data.py            # 评测数据准备脚本实现
+│   ├── download_test_data.sh           # smoke test 音频生成脚本
+│   └── download_weights.sh             # 权重下载脚本
 ├── weights
 │   └── canary-1b
 │       └── canary-1b.nemo              # 下载后的模型权重
@@ -124,16 +101,18 @@ Canary-1B
 
 1. 下载 `canary-1b.nemo` 权重。
 
-   原始权重地址：
-
-   ```text
-   https://huggingface.co/nvidia/canary-1b/resolve/main/canary-1b.nemo
-   ```
+   原始权重地址：`https://huggingface.co/nvidia/canary-1b/resolve/main/canary-1b.nemo`
 
    ```bash
    mkdir -p weights/canary-1b
    wget -O weights/canary-1b/canary-1b.nemo \
      https://huggingface.co/nvidia/canary-1b/resolve/main/canary-1b.nemo
+   ```
+
+   也可以使用仓内脚本下载并校验权重：
+
+   ```bash
+   ./scripts/download_weights.sh weights/canary-1b
    ```
 
 ### 准备数据集
@@ -146,7 +125,7 @@ Canary-1B
      https://download.pytorch.org/torchaudio/tutorial-assets/Lab41-SRI-VOiCES-src-sp0307-ch127535-sg0042.wav
    ```
 
-2. 准备 LibriSpeech test-clean 性能/精度评测数据。
+2. 准备 LibriSpeech test-clean 性能/精度评测数据，下载数据并生成 manifest。
 
    ```bash
    python prepare_eval_data.py \
@@ -161,7 +140,7 @@ Canary-1B
    eval_data/librispeech_test_clean/manifest_asr_en.jsonl
    ```
 
-3. 准备多语种 ASR 评测数据。
+3. 准备多语种 ASR 评测数据，下载数据并生成 manifest。
 
    ```bash
    python prepare_eval_data.py \
@@ -210,7 +189,7 @@ Canary-1B
 1. 执行单条 ASR 推理。
 
    ```bash
-   python infer.py \
+   ASCEND_RT_VISIBLE_DEVICES=0 python infer.py \
      --model weights/canary-1b/canary-1b.nemo \
      --audio test_data/demo.wav \
      --device npu \
@@ -234,10 +213,10 @@ Canary-1B
    - `batch_size`：批大小。
    - `beam_size`：解码 beam 大小；吞吐测试常用 `1`，公开精度口径常用 `5`。
 
-2. 执行 AST 推理示例。
+2. 执行单条 AST 推理。
 
    ```bash
-   python infer.py \
+   ASCEND_RT_VISIBLE_DEVICES=0 python infer.py \
      --model weights/canary-1b/canary-1b.nemo \
      --audio /path/to/en_audio.wav \
      --device npu \
@@ -251,10 +230,8 @@ Canary-1B
 
 3. 性能测试。
 
-   性能模式用于尽量贴近 Hugging Face Open ASR Leaderboard 的 NeMo 计时方式：按音频时长降序排序、先 warmup、正式计时使用 audio filepath list、NPU/CUDA 默认使用 `bfloat16`，并输出 `RTFx=audio_seconds/elapsed_seconds`。
-
    ```bash
-   python eval_canary.py \
+   ASCEND_RT_VISIBLE_DEVICES=0 python eval_canary.py \
      --model weights/canary-1b/canary-1b.nemo \
      --device npu \
      --manifest eval_data/librispeech_test_clean/manifest_asr_en.jsonl \
@@ -267,8 +244,8 @@ Canary-1B
 
    参数说明：
 
-   - `performance_mode`：开启性能计时路径。
-   - `num_workers`：DataLoader worker 数。若环境 `/dev/shm` 较小，建议设置为 `0`，避免多进程 worker 触发 shared memory bus error。
+   - `performance_mode`：开启性能计时路径。使用 Hugging Face Open ASR Leaderboard 的 NeMo 计时方式：按音频时长降序排序、先 warmup、正式计时使用 audio filepath list、使用 `bfloat16`，并输出 `RTFx`。
+   - `num_workers`：DataLoader worker 数，默认 1。若环境 `/dev/shm` 较小，建议设置为 `0`，避免多进程 worker 触发 shared memory bus error。
    - `compute_dtype`：计算精度，支持 `auto`、`float32`、`float16`、`bfloat16`；性能模式下 NPU/CUDA 的 `auto` 默认为 `bfloat16`。
    - `decoding_strategy`：解码策略，支持 `auto`、`beam`、`greedy`、`greedy_batch`；性能模式下 `beam_size=1` 默认使用 `greedy_batch`。
 
@@ -277,7 +254,7 @@ Canary-1B
    a）执行 LibriSpeech test-clean 英文 ASR 精度评测。
 
    ```bash
-   python eval_canary.py \
+   ASCEND_RT_VISIBLE_DEVICES=0 python eval_canary.py \
      --model weights/canary-1b/canary-1b.nemo \
      --device npu \
      --manifest eval_data/librispeech_test_clean/manifest_asr_en.jsonl \
@@ -289,7 +266,7 @@ Canary-1B
    b）执行 MLS ASR 多语种评测。
 
    ```bash
-   python eval_canary.py \
+   ASCEND_RT_VISIBLE_DEVICES=0 python eval_canary.py \
      --model weights/canary-1b/canary-1b.nemo \
      --device npu \
      --manifest \
@@ -304,7 +281,7 @@ Canary-1B
    c）执行 FLEURS AST 多方向评测。
 
    ```bash
-   python eval_canary.py \
+   ASCEND_RT_VISIBLE_DEVICES=0 python eval_canary.py \
      --model weights/canary-1b/canary-1b.nemo \
      --device npu \
      --manifest \
@@ -332,17 +309,25 @@ Canary-1B
 
 ### 性能
 
-| Model | Card | 数据集 | Batch Size | Beam Size | RTF | RTFx |
-|---|---|---|---:|---:|---:|---:|
-| Canary-1B | Atlas 800I A2 | LibriSpeech test-clean | 64 | 1 | 0.009084 | 110.08 |
+| 硬件 | 数据集 | RTFx |
+|---|---|---:|
+| Atlas 800I A2 | LibriSpeech test-clean | 176.92 |
 
 ### 精度
 
-| Model | 数据集 | Card | Batch Size | Beam Size | WER% |
-|---|---|---|---:|---:|---:|
-| Canary-1B | LibriSpeech test-clean | Atlas 800I A2 | 64 | 1 | 1.4728 |
+硬件：Atlas 800I A2
 
-公开参考：Hugging Face Open ASR Leaderboard 中 `nvidia/canary-1b` 的 LibriSpeech clean WER 为 1.48。
+| 任务类型 | 语言  | 数据集                   | 指标   | 得分  | 竞品  |
+| -------- | ----- | ------------------------ | ------ | ----- | ----- |
+| ASR      | de    | Multilingual LibriSpeech | WER(%) | 3.83  | 4.19  |
+| ASR      | es    | Multilingual LibriSpeech | WER(%) | 2.30  | 3.15  |
+| ASR      | fr    | Multilingual LibriSpeech | WER(%) | 3.69  | 4.12  |
+| AST      | en-de | FLEURS                   | BLEU   | 31.41 | 32.15 |
+| AST      | en-es | FLEURS                   | BLEU   | 22.69 | 22.66 |
+| AST      | en-fr | FLEURS                   | BLEU   | 39.84 | 40.76 |
+| AST      | de-en | FLEURS                   | BLEU   | 33.50 | 33.98 |
+| AST      | es-en | FLEURS                   | BLEU   | 21.78 | 21.80 |
+| AST      | fr-en | FLEURS                   | BLEU   | 30.29 | 30.95 |
 
 ## 公网地址说明
 
