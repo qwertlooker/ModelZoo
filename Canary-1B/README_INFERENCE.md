@@ -119,6 +119,8 @@ Canary-1B
 
 1. 准备单条通用英文语音测试文件。
 
+   数据地址：`https://download.pytorch.org/torchaudio/tutorial-assets/Lab41-SRI-VOiCES-src-sp0307-ch127535-sg0042.wav`。
+
    ```bash
    mkdir -p test_data
    wget -O test_data/demo.wav \
@@ -127,12 +129,20 @@ Canary-1B
 
 2. 准备 LibriSpeech test-clean 性能/精度评测数据，下载数据并生成 manifest。
 
+   数据集地址：`https://www.openslr.org/12`。
+
    ```bash
    python prepare_eval_data.py \
      --task librispeech \
      --data_dir eval_data \
      --librispeech_dir eval_data/librispeech_raw
    ```
+
+   参数说明：
+
+   - `task`：数据准备任务类型，`librispeech` 表示只准备 LibriSpeech test-clean。
+   - `data_dir`：生成的 wav、manifest 和 meta 文件保存目录。
+   - `librispeech_dir`：LibriSpeech 原始压缩包和解压目录；若本地已存在则复用，否则自动下载。
 
    生成的 manifest 默认路径：
 
@@ -141,6 +151,8 @@ Canary-1B
    ```
 
 3. 准备多语种 ASR 评测数据，下载数据并生成 manifest。
+
+   数据集地址：`https://huggingface.co/datasets/facebook/multilingual_librispeech`。命令同时默认生成 LibriSpeech test-clean manifest，LibriSpeech 地址为 `https://www.openslr.org/12`。
 
    ```bash
    python prepare_eval_data.py \
@@ -151,6 +163,15 @@ Canary-1B
      --librispeech_dir eval_data/librispeech_raw \
      --asr_minutes 0
    ```
+
+   参数说明：
+
+   - `task`：数据准备任务类型，`asr` 表示准备 MLS 多语种 ASR 数据，并默认包含 LibriSpeech test-clean。
+   - `data_dir`：生成的 wav、manifest 和 meta 文件保存目录。
+   - `asr_parquet_dir`：MLS parquet 文件保存或复用目录，目录结构为 `<asr_parquet_dir>/<config>/<split>-00000-of-00001.parquet`。
+   - `asr_configs`：需要准备的 MLS 语言配置，多个配置以英文逗号分隔。
+   - `librispeech_dir`：LibriSpeech 原始压缩包和解压目录。
+   - `asr_minutes`：每个 ASR 数据集的音频时长上限，`0` 表示使用完整 split。
 
    生成的 ASR manifest 默认路径：
 
@@ -163,6 +184,8 @@ Canary-1B
 
 4. 准备多语种 AST 评测数据。
 
+   数据集地址：`https://huggingface.co/datasets/google/fleurs`。
+
    ```bash
    python prepare_eval_data.py \
      --task ast \
@@ -172,6 +195,15 @@ Canary-1B
      --fleurs_limit 0 \
      --ast_directions en-de,en-es,en-fr,de-en,es-en,fr-en
    ```
+
+   参数说明：
+
+   - `task`：数据准备任务类型，`ast` 表示准备 FLEURS 语音到文本翻译数据。
+   - `data_dir`：生成的 wav、manifest 和 meta 文件保存目录。
+   - `fleurs_parquet_dir`：FLEURS parquet 文件保存或复用目录，目录结构为 `<fleurs_parquet_dir>/<config>/<split>-00000-of-00001.parquet`。
+   - `fleurs_split`：FLEURS 数据集 split，精度评测使用 `test`。
+   - `fleurs_limit`：每个翻译方向的样本数上限，`0` 表示使用完整 split。
+   - `ast_directions`：AST 翻译方向，多个方向以英文逗号分隔，格式为 `<source_lang>-<target_lang>`。
 
    生成的 AST manifest 默认路径：
 
@@ -309,9 +341,9 @@ Canary-1B
 
 ### 性能
 
-| 硬件 | 数据集 | RTFx |
-|---|---|---:|
-| Atlas 800I A2 | LibriSpeech test-clean | 176.92 |
+| 硬件 | 数据集 | RTF | RTFx |
+|---|---|---:|---:|
+| Atlas 800I A2 | LibriSpeech test-clean | 0.005652242997176402 | 176.92 |
 
 ### 精度
 
