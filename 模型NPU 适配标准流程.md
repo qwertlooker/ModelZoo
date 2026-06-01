@@ -50,7 +50,7 @@ git -C <model_dir>/upstream ls-remote origin <default_branch>
 
 每个模型在开始适配、补验或提交前，都必须明确“当前适配的到底是哪一个版本”。同一模型系列常见有多个变体，例如 `canary-1b` / `canary-1b-flash` / `canary-1b-v2`、`whisper-large-v3` / `large-v3-turbo`、`MossFormer2_SE_48K` / `SS_16K` / `SR_48K`。不能只写模型系列名。
 
-必须记录到 `参考原始仓库.md`，并同步写入该模型的 `README.md` / `ANALYSIS.md` / `NPU_ADAPTATION.md` / `NPU_VALIDATION.md` 中合适位置：
+必须记录到 `NPU_ADAPTATION_ANALYSIS.md` 的“参考原始仓库与适配版本边界”章节，并同步写入该模型的 `README.md` / `ANALYSIS.md` / `NPU_ADAPTATION.md` / `NPU_VALIDATION.md` 中合适位置：
 
 - 源码来源：repo URL、默认分支、commit；如果使用子目录，写明子目录；
 - 权重来源：Hugging Face / ModelScope / GitHub Release / 网盘 URL、repo HEAD 或发布版本、具体文件名或目录；
@@ -799,7 +799,7 @@ python <model_dir>/infer.py --device cpu <model_args> <input_args>
 
 ### Step 13：文档必须包含
 
-每个模型至少生成，并同步维护根目录 `参考原始仓库.md`：
+每个模型至少生成，并同步维护根目录 `NPU_ADAPTATION_ANALYSIS.md` 的“参考原始仓库与适配版本边界”章节：
 
 ```text
 ANALYSIS.md
@@ -807,7 +807,7 @@ NPU_ADAPTATION.md
 NPU_VALIDATION.md
 ACCEPTANCE_PLAN.md
 README.md
-参考原始仓库.md
+NPU_ADAPTATION_ANALYSIS.md（参考原始仓库与适配版本边界章节）
 ```
 
 #### ANALYSIS.md 必须包含
@@ -929,7 +929,7 @@ grep -E "L0|L1|L2|L3|精度|性能|数据集" <model_dir>/ACCEPTANCE_PLAN.md
 
 提交前逐项确认：
 
-- [ ] `参考原始仓库.md` 已记录该模型源码 repo、默认分支、HEAD commit；
+- [ ] `NPU_ADAPTATION_ANALYSIS.md` 的“参考原始仓库与适配版本边界”章节已记录该模型源码 repo、默认分支、HEAD commit；
 - [ ] 已记录模型权重来源、具体文件/目录、repo HEAD 或 release/tag；
 - [ ] 已记录本地实际验证权重 SHA256；如未下载，已记录 metadata 检查结果和原因；
 - [ ] 已记录 tokenizer / codec / vocoder / embedding / segmentation 等辅助模型版本；
