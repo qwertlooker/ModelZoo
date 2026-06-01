@@ -2,88 +2,94 @@
 license: apache-2.0
 hardware: NPU
 ---
-# 引言
 
-本案例给出语音对话大模型MOSS-Speech在NPU环境部署，并基于torch_npu执行推理任务的迁移实践。
+# MOSS-Speech NPU 适配
 
-**使用约束**
-|依赖软件|版本|
-| ----------- | ----------- |
-|昇腾NPU驱动|>=25.0.RC1.1商发版本|
-|昇腾NPU固件|>=25.0.RC1.1商发版本|
-|CANN Toolkit|>=8.2.RC1商发版本|
-|CANN Kernel|>=8.2.RC1商发版本|
-|CANN NNAL|>=8.2.RC1商发版本|
+本目录提供语音对话大模型 MOSS-Speech 的 NPU 适配入口和验证文档。当前实现参考 Canary-1B 的交付结构，包含：
 
- **硬件设备**
-|设备型号|NPU配置|
-|---|---|
-|Atlas 800I A2 910B|	1卡| 
+- `infer.py`：参数化单请求推理入口，默认 `--device npu`；
+- `ANALYSIS.md`：上游与设备相关代码分析；
+- `NPU_ADAPTATION.md`：环境、下载、运行和 patch 策略；
+- `NPU_VALIDATION.md`：验证记录与待补项；
+- `ACCEPTANCE_PLAN.md`：L0/L1/L2/L3 分层验收计划；
+- `patches/README.md`：上游 patch 管理说明。
 
-# 一、环境准备
-安装依赖包：
-pip install -r requirements.txt
+## 1. 版本边界
 
-# 二、下载官方代码和权重
+检查日期：2026-06-01。
 
-MOSS-Speech推理依赖MOSS-Speech和MOSS-Speech-Codec
+- 主模型：ModelScope `openmoss/MOSS-Speech`，Git HEAD `270d64296cafb94ca1f35b14b8d7918a1c4a2dc0`。
+- Codec：ModelScope `AI-ModelScope/MOSS-Speech-Codec`，Git HEAD `a5423645a66476da761bbbdbc2003ae34e3c31c4`。
+- Space 代码：HF Space `OpenMOSS-Team/MOSS-Speech`，Git HEAD `92a89018a8aa6b36f08c366c2659c76ffdc3f980`。
+- 当前适配不包含 `MOSS-TTSD-v0.5`、CosyVoice 训练、TensorRT 或 ONNX 导出。
 
-## 2.1 下载MOSS-Speech权重
-https://modelscope.cn/models/openmoss/MOSS-Speech
+## 2. 环境准备
 
-## 2.2 下载MOSS-Speech-Codec相关代码
-https://modelscope.cn/models/AI-ModelScope/MOSS-Speech-Codec
+NPU 环境需安装与 CANN 匹配的 `torch` / `torch-npu` / `torchaudio`。原始 README 的硬件约束为：驱动/固件 `>=25.0.RC1.1`，CANN Toolkit/Kernel/NNAL `>=8.2.RC1`，参考硬件 Atlas 800I A2 910B 单卡。
 
-## 2.3 下载MOSS-Speech Space相关代码
-https://huggingface.co/spaces/OpenMOSS-Team/MOSS-Speech/tree/main
-
-
-# 三、运行指导
-
-## 3.1 huggingface下载方式修改
-在环境依赖中，对diffusers/utils/dynamic_modules_utils.py进行修改
-
-由于对cached_download不支持，对第28行注释，并做以下修改：
-```
-#from huggingface_hub import cached_download, hf_hub_download, model_info
-from huggingface_hub import hf_hub_download, model_info
-```
-此外，将288行的cached_download修改为hf_hub_download
-
-## 3.2 Whisper特征提取修改
-在环境依赖中，对transformers/models/whisper/feature_extraction_whisper.py进行修改
-
-将第319行修改为:
-```
-#input_features = extract_fbank_features(input_features[0], device)
-input_features = extract_fbank_features(input_features[0], 'cpu')
-```
-## 3.3 Matcha-TTS Transformer模型推理修改
-MOSS-Speech的Space包含TTS必备代码，并对MOSS-Speech/Matcha-TTS/matcha/models/components/transformer.py进行修改
-
-第267行增加对bf16的转换：
-```
-norm_hidden_states.to(torch.bfloat16),
-```
-## 3.4 反向傅里叶变换修改
-对MOSS-Speech/cosyvoice/hifigan/generator.py进行修改，
-```
-#inverse_transform = torch.istft(torch.complex(real, img), self.istft_params["n_fft"], self.istft_params["hop_len"],
-#                                self.istft_params["n_fft"], window=self.stft_window.to(magnitude.device))
- inverse_transform = torch.istft(torch.complex(real, img).to("cpu"), self.istft_params["n_fft"], self.istft_params["hop_len"], self.i    stft_params["n_fft"], window=self.stft_window.to("cpu"))
+```bash
+pip install torch torch-npu torchaudio
+pip install transformers accelerate modelscope soundfile librosa gradio spaces diffusers
 ```
 
-## 3.5推理参数改进
-infer.py是推理主入口，将Moss-Speech和Moss-Speech对TTS的引入加入到path中，示例：
-```
-sys.path.append("./MOSS-Speech-space/MOSS-Speech/")
-sys.path.append("./MOSS-Speech-space/MOSS-Speech/Matcha-TTS/")
-```
-此外，需要修改prompt_audio音频路径，model_path模型路径和codec_path路径。
+`requirements.txt` 是历史完整环境冻结，包含训练、服务和 CUDA 相关包；正式 NPU 环境请避免覆盖已匹配的 `torch` / `torch-npu`。
 
+## 3. 下载代码与权重
 
-## 3.6 执行推理
-```shell
-python infer.py
+```bash
+GIT_LFS_SKIP_SMUDGE=1 git clone --depth 1 \
+  https://huggingface.co/spaces/OpenMOSS-Team/MOSS-Speech \
+  MOSS-Speech/upstream
+
+python - <<'PY'
+from modelscope import snapshot_download
+snapshot_download('openmoss/MOSS-Speech', local_dir='MOSS-Speech/weights/MOSS-Speech')
+snapshot_download('AI-ModelScope/MOSS-Speech-Codec', local_dir='MOSS-Speech/weights/MOSS-Speech-Codec')
+PY
 ```
 
+下载后记录校验值：
+
+```bash
+find MOSS-Speech/weights -type f -print0 | xargs -0 sha256sum > MOSS-Speech/weights/SHA256SUMS.txt
+```
+
+## 4. 运行
+
+### NPU 生成音频
+
+```bash
+ASCEND_RT_VISIBLE_DEVICES=0 python MOSS-Speech/infer.py \
+  --model MOSS-Speech/weights/MOSS-Speech \
+  --codec MOSS-Speech/weights/MOSS-Speech-Codec \
+  --space_dir MOSS-Speech/upstream \
+  --prompt_audio MOSS-Speech/upstream/assets/prompt_cn.wav \
+  --prompt "请用一句话介绍武汉的樱花。" \
+  --output_modality audio \
+  --output_dir MOSS-Speech/outputs \
+  --device npu
+```
+
+### CPU smoke test（显式指定）
+
+```bash
+python MOSS-Speech/infer.py \
+  --model MOSS-Speech/weights/MOSS-Speech \
+  --codec MOSS-Speech/weights/MOSS-Speech-Codec \
+  --space_dir MOSS-Speech/upstream \
+  --prompt "Hello!" \
+  --output_modality text \
+  --max_new_tokens 64 \
+  --device cpu
+```
+
+## 5. 适配原则
+
+- 必需依赖保留顶层 import；仅 `torch_npu` 在 `--device npu` 时条件导入。
+- 不使用 `transfer_to_npu` 隐式替换 CUDA 写法。
+- 不手工修改 site-packages；如确需改 `diffusers`、`transformers` 或 Space 上游源码，必须固定版本并生成 patch。
+- 不在默认路径中加入 CPU fallback；NPU 算子不支持、权重缺失或 remote-code 不兼容时直接暴露原始错误。
+
+## 6. 验收
+
+详见 `ACCEPTANCE_PLAN.md`。最小 L0 要求：脚本可加载模型/codec，文本输出非空，音频输出可读且非全零；正式 L2/L3 需记录主观质量、ASR 回识别、端到端延迟、RTF、峰值 HBM/RSS。

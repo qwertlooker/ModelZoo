@@ -19,3 +19,10 @@ Canary-1B/cpu_validation_hfmirror.log
 *.tar
 *.tar.gz
 *.tgz
+MOSS-Speech/upstream/
+MOSS-Speech/weights/
+MOSS-Speech/outputs/
+MOSS-Speech/outputs_cpu/
+MOSS-Speech/.venv-cpu/
+MOSS-Speech/.venv-npu/
+MOSS-Speech/__pycache__/
