@@ -14,6 +14,9 @@
 | 设备相关扫描 | 已扫描 `cuda/device_map/torch_npu/istft/bfloat16/cached_download`；风险点见 `ANALYSIS.md`。 |
 | 上游 patch | 当前无 `.patch`；`patches/README.md` 已说明生成和检查方式。 |
 | 语法检查 | `python3 -m py_compile MOSS-Speech/infer.py` 通过。 |
+| README 回退 | 已将 `MOSS-Speech/README.md` 恢复为原始既有实现参考；新增推理说明改放 `README_INFERENCE.md`。 |
+| README_INFERENCE | 已按 Canary-1B 文档结构生成 `MOSS-Speech/README_INFERENCE.md`，覆盖概述、输入输出、环境、目录、下载、推理、流程复查、验收和公网地址。 |
+| 当前宿主 help 检查 | `python3 MOSS-Speech/infer.py --help` 在当前宿主因缺少顶层必需依赖 `torch` 直接报 `ModuleNotFoundError: No module named 'torch'`；这符合项目级严格失败原则。安装 README_INFERENCE 中依赖后需重新执行 help 和端到端命令。 |
 
 ## 2. 待完成验证
 
