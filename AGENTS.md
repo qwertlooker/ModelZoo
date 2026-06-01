@@ -1,14 +1,14 @@
-# Project Constraints
+# 项目约束
 
-- After making requested changes in this repository, commit them to the current branch by default.
-- After committing, push the current branch to the configured remote by default.
-- Do not force-push or rewrite published history unless explicitly requested.
-- If a push fails because authentication, permissions, network, or remote divergence blocks it, report the exact failure and leave the local commit intact.
+- 在本仓库中完成请求的修改后，默认将修改提交到当前分支。
+- 提交后，默认将当前分支推送到已配置的远程仓库。
+- 除非明确要求，否则不要强制推送或重写已发布历史。
+- 如果推送因认证、权限、网络或远程分支分叉等原因失败，请报告确切的失败信息，并保留本地提交不变。
 
-# Project-wide Adaptation Script Standards
+# 项目范围的适配脚本标准
 
-- These standards apply to every model directory in ModelZoo, not only Canary-1B.
-- For adaptation, evaluation, and data-preparation scripts, keep required dependencies as top-level imports by default. Device backend registration modules may be conditional, e.g. import `torch_npu` only on the NPU path.
-- Do not add unnecessary compatibility layers or silent fallbacks. Missing dependencies, missing official fields, incompatible upstream versions, or unavailable official evaluation components should fail promptly and expose the original error.
-- Do not replace official evaluation paths with regex/basic normalizers, similarly named third-party packages, simplified metrics, CPU fallbacks, or remote download fallbacks unless explicitly documented and validated as a separate non-official mode.
-- Follow `模型NPU 适配标准流程.md` as the project-level workflow source of truth.
+- 这些标准适用于 ModelZoo 中的每个模型目录，不仅限于 Canary-1B。
+- 对于适配、评估和数据准备脚本，默认将必需依赖保留为顶层导入。设备后端注册模块可以按条件导入，例如仅在 NPU 路径中导入 `torch_npu`。
+- 不要添加不必要的兼容层或静默回退。缺少依赖、缺少官方字段、上游版本不兼容或官方评估组件不可用时，应尽快失败并暴露原始错误。
+- 除非明确记录并验证为独立的非官方模式，否则不要用正则/基础规范化器、名称相近的第三方包、简化指标、CPU 回退或远程下载回退替代官方评估路径。
+- 遵循 `模型NPU 适配标准流程.md`，将其作为项目级工作流程的权威来源。
