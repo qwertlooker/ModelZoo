@@ -2,879 +2,691 @@
 
 分析日期：2026-05-22  
 分析范围：`/home/pei/ModelZoo` 下已克隆的 12 个 GitCode 仓库。  
-分析方式：静态代码/文档分析，未在 Ascend NPU 上实际执行。判断依据来自各仓库 `README.md`、随仓 `infer.py`/`infer_npu.py`/`run_web.sh`、`requirements.txt`、仓库文件规模、是否包含可直接运行脚本、是否依赖上游大仓/多权重/系统补丁、是否已有结果或性能描述。
+分析方式：静态代码/文档分析，未在 Ascend NPU 上实际执行。判断依据来自各仓库 `README.md`、随仓脚本、`requirements.txt`、大文件/LFS 状态、上游工程说明以及是否已经形成类似 `Canary-1B/README.md`、`Canary-1B/README_INFERENCE.md` 的可交付推理文档。
 
-## 0. 评价口径
+## 0. 统一评价口径
 
-### 0.1 标签含义
+### 0.1 复杂度标签
 
 | 标签 | 含义 |
 |---|---|
-| 低 | 有可直接执行脚本或清晰命令；主要工作是下载权重、替换路径、小样本冒烟测试。一般 0.5-2 人日可完成单卡功能闭环。 |
-| 中 | 需要补 CLI、批处理、指标脚本、上游仓库集成或依赖版本修正；一般 2-5 人日。 |
-| 高 | 需要多仓库联调、多处源码补丁、复杂依赖/编译、大模型或主观评价方案；一般 5-10 人日。 |
-| 很高 | 存在重大阻塞，如大文件未拉取、多卡/专用容器、上游代码大量 cuda 假设、评价体系主观且需人工听测；通常超过 10 人日或需专项资源。 |
+| 低 | 已有可直接执行脚本或清晰命令；主要工作是下载权重、替换路径、小样本冒烟和补文档。通常 0.5-2 人日可完成功能闭环。 |
+| 中 | 需要补 CLI、批处理、评测脚本、数据准备脚本、上游集成或依赖版本修正。通常 2-5 人日。 |
+| 高 | 需要多仓联调、多处源码补丁、复杂依赖/编译、大模型或主观评价方案。通常 5-10 人日。 |
+| 很高 | 存在重大阻塞，如大文件未拉取、多卡/专用容器、上游代码大量 CUDA 假设、评价体系主观且需人工听测。通常超过 10 人日或需专项资源。 |
 
-### 0.2 必看判断依据
+### 0.2 每个仓库交付件要求
 
-- 仓库完整度：是否只有 README，还是包含实际 NPU 脚本/patch 文件。
-- NPU 适配形态：`torch_npu`、`transfer_to_npu`、`onnxruntime-cann`、`cuda -> npu` 替换、CPU fallback、dtype 补丁等。
-- 外部依赖：是否必须 clone 官方上游仓库、HuggingFace/ModelScope 大权重、多模型组合、Git LFS 大包。
-- 验证闭环：是否给了运行命令、示例输出、性能数字、CSV/RTTM/音频等结果形式。
-- 数据集可获得性：是否可用公开小样本冒烟；精度验证是否需要标准标注集、人工 MOS、成对干净/带噪数据、说话人 RTTM 标注等。
+后续每个仓库统一按 6 个子标题描述：
+
+1. **仓库观察与判断依据**：说明当前仓库是否有脚本、patch、README、权重/数据说明、上游依赖和适配风险。
+2. **后续适配**：说明在当前适配基础上还要做什么，是否需要补 CLI、patch、数据准备、评测脚本和推理指导文档。
+3. **功能验证**：说明是否已有功能验证脚本，验证数据从哪里来、如何获取，权重如何获取，验收看哪些输出。
+4. **性能验证**：参考源仓库/论文/官方模型卡或同 checkpoint 官方实现，至少选一个公开数据集与原仓库 CPU/CUDA 路径做对比；说明是否已有性能脚本，数据来源和生成方式。
+5. **精度验证**：参考源仓库/论文/官方模型卡指标，至少选一个公开数据集与原仓库 CPU/CUDA 路径做对比；说明是否已有精度脚本，数据来源和生成方式。
+6. **数据集获取**：汇总功能、性能、精度所需数据 URL、下载工具、可离线复用要求和注意事项。
+
+### 0.3 统一工程标准
+
+- 推理入口建议统一命名为 `infer.py` 或 `infer_npu.py`；评测入口建议统一命名为 `eval_*.py` 或 `benchmark.py`；数据准备入口建议统一命名为 `prepare_eval_data.py`。
+- 数据准备必须支持“指定目录、存在即复用、缺失才下载、`--offline` 下不联网”。
+- 权重下载必须写明官方 URL/ModelScope/Hugging Face 模型名、目标目录和完整性校验方式。
+- 精度/性能对比不能只写“跑通”，必须写明对比对象：同 checkpoint、同数据、同评测脚本下的 CPU/CUDA/源仓结果。
+- 不添加未验证的 CPU fallback、远程下载 fallback、非官方指标替代官方指标；缺失依赖或缺失官方字段应快速失败并暴露原始错误。
 
 ---
-
 ## 1. DNSMOS
 
 ### 1.1 仓库观察与判断依据
 
-- 随仓包含 `DNSMOS/infer.py`，README 中也完整粘贴了推理脚本。
-- 推理后端明确为 `onnxruntime` 的 `CANNExecutionProvider`，不是简单的 `cuda` 字符串替换。
-- 脚本包含 NPU 环境检查、`npu-smi info`、性能模式切换、批量处理、CSV 输出。
-- README 指定测试集可用 VCC2018，并给出下载命令。
-- 该任务本质是非侵入式语音质量评分，输入 WAV，输出 `MOS_SIG/MOS_BAK/MOS_OVRL/P808_MOS`，功能链路较短。
+- 随仓包含 `DNSMOS/infer.py`，README 中也粘贴了完整推理脚本，当前功能链路最完整。
+- 适配后端是 `onnxruntime` 的 `CANNExecutionProvider`，不是简单 `cuda -> npu` 字符串替换。
+- 脚本已有 NPU 环境检查、`npu-smi info`、性能模式切换、批量处理和 CSV 输出。
+- README 已给出 VCC2018 converted speech 下载命令：`https://datashare.ed.ac.uk/bitstream/handle/10283/3061/vcc2018_submitted_systems_converted_speech.tar.gz`。
+- 权重要求来自 DNSMOS 官方 ONNX 文件：`DNSMOS/model_v8.onnx`、`DNSMOS/sig_bak_ovr.onnx`，可选 `pDNSMOS/sig_bak_ovr.onnx`。
 
 ### 1.2 后续适配
 
-- 评级：低。
-- 建议任务：
-  1. 固化 `onnxruntime-cann`、CANN、Python、numpy/librosa/soundfile/pandas 版本到最小 `requirements.txt`，避免当前文档依赖隐含。
-  2. 增加 `--device_id` 参数，当前脚本默认操作 0 卡性能模式。
-  3. 增加模型文件自动检查说明，要求 `DNSMOS/model_v8.onnx`、`DNSMOS/sig_bak_ovr.onnx`、可选 `pDNSMOS/sig_bak_ovr.onnx`。
-  4. 增加 CPU/ONNXRuntime baseline 脚本用于精度比对。
-- 规模/范围：单文件脚本增强，约 100-200 行内修改。
-- 工作量：0.5-1.5 人日。
-- 阻塞点：主要是 ONNX 权重是否能稳定下载；NPU 环境需包含 `CANNExecutionProvider`。
+- 复杂度：低。
+- 在当前脚本基础上补 `--device_id`、`--disable_performance_mode`、权重完整性检查和更清晰的错误信息。
+- 固化最小依赖：`onnxruntime-cann`、CANN、`numpy`、`librosa`、`soundfile`、`pandas`，不要把完整开发环境冻结成部署依赖。
+- 增加 CPU ONNXRuntime baseline 入口或 `--provider CPUExecutionProvider`，用于 NPU/CANN 输出一致性对比。
+- 形成 Canary-1B 风格的 `README_INFERENCE.md`：环境表、权重下载、数据准备、单条/批量推理、性能/精度命令。
 
 ### 1.3 功能验证
 
-- 评级：低。
-- 可执行方案：
-  1. 准备 5-10 条 WAV，覆盖短音频、小于 9 秒、长音频、不同采样率、单声道/双声道。
-  2. 执行：`python infer.py -t ./dataset/vcc2018 -o ./csv/vcc2018.csv --model_root . --batch_size 4`。
-  3. 检查输出 CSV 是否包含 `filename,len_in_sec,MOS_SIG,MOS_BAK,MOS_OVRL,P808_MOS`。
-- 指标：成功率 100%；无空 CSV；MOS 数值在 0-5 合理范围；短音频 padding 不报错。
-- 工作量：0.5 人日。
+- 已有验证脚本：有，`DNSMOS/infer.py` 可直接做功能验证。
+- 验证数据来源：README 推荐 VCC2018 converted speech；冒烟可用任意 16 kHz/48 kHz WAV 或自录 WAV。
+- 数据获取：`wget` 下载 VCC2018 压缩包后解压到 `DNSMOS/dataset/vcc2018`。
+- 权重获取：从 DNSMOS 官方仓库或当前 README 指定的 DNSMOS 目录准备 ONNX 权重，放到 `--model_root` 下的 `DNSMOS/`、可选 `pDNSMOS/`。
+- 验证命令：`python infer.py -t ./dataset/vcc2018 -o ./csv/vcc2018.csv --model_root . --batch_size 4`。
+- 验收：CSV 包含 `filename,len_in_sec,MOS_SIG,MOS_BAK,MOS_OVRL,P808_MOS`，MOS 在 0-5 合理范围，短音频 padding、长音频分段和批量目录均不报错。
 
 ### 1.4 性能验证
 
-- 评级：低-中。
-- 可执行方案：
-  1. 用 100/1000 条 9-30 秒 WAV 做批处理。
-  2. batch size 取 1/2/4/8，记录端到端耗时、纯推理耗时、吞吐音频时长/s、NPU 利用率。
-  3. 对比 CPU onnxruntime 与 CANNExecutionProvider。
-- 指标：吞吐提升倍数、平均单文件耗时、P95 文件耗时、NPU 显存占用。
-- 工作量：1 人日。
-- 中等原因：预处理 librosa 在 CPU，端到端性能受 I/O 与 mel 计算影响，需拆分统计。
+- 已有性能脚本：部分已有；`infer.py` 有批处理和耗时统计基础，但还需明确端到端/纯 ONNX 推理分段计时。
+- 对比对象：同一 DNSMOS ONNX 权重在源仓 CPU ONNXRuntime 与 NPU CANNExecutionProvider 的吞吐/延迟。
+- 对比数据集：至少使用 VCC2018 converted speech 中固定 100/1000 条 WAV；如需要更稳定，可额外构造 9 秒、30 秒、60 秒三档音频清单。
+- 数据生成：从 VCC2018 解压目录扫描 WAV，生成固定 manifest；不要每次随机抽样。
+- 指标：端到端耗时、纯推理耗时、音频秒/秒、平均单文件耗时、P95、HBM/RSS、batch size 1/2/4/8。
+- 参考源仓：DNSMOS 官方实现通常以 CPU/ONNX 推理为参考；NPU 通过线应是同权重同数据下输出一致且吞吐优于或不低于 CPU baseline。
 
 ### 1.5 精度验证
 
-- 评级：中。
-- 可执行方案：
-  1. CPU ONNXRuntime 与 NPU CANN 对同一批音频输出逐项对齐。
-  2. 计算四个分数的 MAE、最大绝对误差、Pearson/Spearman 相关。
-  3. 如有主观 MOS 标注，可计算与人工 MOS 的相关性；否则至少验证 NPU/CPU 数值一致性。
-- 指标：NPU vs CPU MAE 建议 < 1e-3 或根据 ORT/CANN 浮点差异放宽到 < 1e-2；排序相关 > 0.99。
-- 工作量：1-2 人日。
-- 中等原因：DNSMOS 自身是代理指标，若要验证真实 MOS 相关性，需要带主观评分的数据，不能只看脚本运行成功。
+- 已有精度脚本：无独立精度脚本，需要新增 `eval_dnsmos.py` 或在 `infer.py` 增加 baseline 对齐模式。
+- 对比对象：官方 DNSMOS ONNXRuntime CPU 输出；如果有主观 MOS 标注，再对比 DNSMOS 论文/官方报告的 MOS 相关性口径。
+- 对比数据集：最低要求用 VCC2018 固定子集做 NPU vs CPU 数值一致性；正式相关性需带人工 MOS 标签的数据，不能用无标注 WAV 直接宣称 MOS 精度。
+- 指标：`MOS_SIG/MOS_BAK/MOS_OVRL/P808_MOS` 的 MAE、最大绝对误差、Pearson/Spearman；建议 MAE < 1e-3，CANN 浮点差异较大时可放宽到 1e-2 并说明。
+- 验收：NPU 与 CPU 排序相关 > 0.99，无 NaN、无空 CSV、同一输入重复运行结果稳定。
 
 ### 1.6 数据集获取
 
-- 评级：低-中。
-- 可执行方案：
-  1. 冒烟：任意公开 WAV 或自录音频。
-  2. 批量：README 建议 VCC2018 converted speech。
-  3. 精度：如要 MOS 相关性，需要找到带主观质量评分的数据或使用原 DNSMOS 官方测试集。
-- 数据规模建议：冒烟 10 条；性能 1000 条；精度一致性 500-1000 条。
-- 阻塞点：VCC2018 可下载但体积较大；人工 MOS 标签获取难度高于纯音频获取。
+- VCC2018 converted speech：`https://datashare.ed.ac.uk/bitstream/handle/10283/3061/vcc2018_submitted_systems_converted_speech.tar.gz`。
+- 冒烟数据：任意公开 WAV 或本地生成 1/9/30 秒正弦/语音 WAV。
+- 权重：DNSMOS 官方 ONNX 文件，目标结构为 `DNSMOS/model_v8.onnx`、`DNSMOS/sig_bak_ovr.onnx`、可选 `pDNSMOS/sig_bak_ovr.onnx`。
+- 建议规模：冒烟 10 条；性能 1000 条；精度一致性 500-1000 条。
 
 ---
-
 ## 2. Index-TTS-2
 
 ### 2.1 仓库观察与判断依据
 
-- 随仓有 `infer_v2.py` 和 `run_web.sh`，README 指向上游 `triomino/index-tts`。
-- 环境要求 CANN 8.3.RC1、Python 3.11.13、torch 2.8.0、torch_npu v2.8.0-7.2.0，并要求编译安装 GCC 13.3.0、CMake 3.31.0、torch_npu。
-- README 要下载多个模型：IndexTTS-2、w2v-bert-2.0、MaskGCT、campplus、bigvgan。
-- README 说明需修改 `infer_v2.py`、新增/修改 `infer_v2_npu.py`、修改 `webui.py`。
-- README 给出性能结论：warmup 后 RTF 约 0.6，但没有精度/音质指标。
+- 随仓有 `infer_v2.py` 和 `run_web.sh`，README 指向上游 `https://github.com/triomino/index-tts.git`。
+- 环境要求较高：CANN 8.3.RC1、Python 3.11.13、torch 2.8.0、torch_npu v2.8.0-7.2.0，并要求编译 GCC 13.3.0、CMake 3.31.0、torch_npu。
+- README 要下载 IndexTTS-2、w2v-bert-2.0、MaskGCT、campplus、BigVGAN 多组权重。
+- README 说明需改 `infer_v2.py`、新增/修改 `infer_v2_npu.py`、修改 `webui.py`，说明当前还不是完整可复现 patch 交付。
+- README 已给出 warmup 后 RTF 约 0.6 的性能描述，但缺少标准测试集和精度/音质指标。
 
 ### 2.2 后续适配
 
-- 评级：高。
-- 可追溯原因：多权重、多组件、要求编译 torch_npu，且 README 中还有“非本仓库文件”的修改项，说明适配不是随仓即可直接运行。
-- 建议任务：
-  1. 将 README 中手工修改固化为 patch 或脚本，避免用户手工编辑上游仓。
-  2. 明确 `infer_v2.py` 与 `infer_v2_npu.py` 的差异，避免仅文档描述。
-  3. 增加非 WebUI 的 CLI 推理入口，支持文本、说话人提示音频、情感提示音频、输出路径参数化。
-  4. 增加模型路径配置文件，统一检查 5 组权重是否存在。
-  5. 梳理 `use_cuda_kernel` 命名，避免 NPU 模式仍出现 CUDA kernel 语义。
-- 规模/范围：涉及上游 index-tts、WebUI、声学模型、vocoder、speaker/emotion encoder，预计 5-10 个文件。
-- 工作量：5-8 人日。
-- 阻塞点：torch_npu v2.8 编译、GCC/CMake 编译、多个模型下载、NPU 上动态 shape/自回归稳定性。
+- 复杂度：高。
+- 把 README 中所有手工修改固化为 patch，覆盖上游 index-tts、WebUI、vocoder、speaker/emotion encoder 相关文件。
+- 新增非 WebUI CLI：`--text --speaker_audio --emotion_audio --model_dir --output --device --seed --duration`。
+- 增加 `check_assets.py`，统一检查 5 组权重和配置文件是否存在。
+- 整理最小依赖和编译步骤；对无法避免的 GCC/CMake/torch_npu 编译写版本矩阵。
+- 建议交付 `README_INFERENCE.md`，结构参考 Canary-1B，明确权重下载、示例数据、单条推理、批量性能和精度命令。
 
 ### 2.3 功能验证
 
-- 评级：中-高。
-- 可执行方案：
-  1. 冒烟：使用官方 example，测试自由生成和精确时长控制两种模式。
-  2. 零样本音色：准备 3 个说话人参考音频，每人 3 条文本。
-  3. 情感解耦：准备 3 种情感提示或文本软指令，各生成 3 条。
-  4. WebUI：访问 7860，验证 example、上传 prompt、输出下载。
-- 指标：生成成功率、无 NaN/空音频、输出采样率/时长正确、精确时长模式误差、异常恢复。
-- 工作量：2-3 人日。
-- 中高原因：TTS 不是单一输入输出；音色、情感、时长控制均需覆盖，且 WebUI/CLI 两条链路都要验证。
+- 已有验证脚本：有初始 `infer_v2.py`/`run_web.sh`，但缺少标准化 CLI 验证脚本。
+- 验证数据来源：上游 examples、README 中示例文本、少量自备中文参考音频；音色/情感验证需准备 speaker prompt 和 emotion prompt。
+- 权重获取：按 README 使用 ModelScope：`IndexTeam/IndexTTS-2`、`facebook/w2v-bert-2.0`、`amphion/MaskGCT`、`iic/speech_campplus_sv_zh-cn_16k-common`、`nv-community/bigvgan_v2_22khz_80band_256x`。
+- 验证内容：自由生成、精确时长控制、零样本音色、情感控制、WebUI 上传/下载。
+- 验收：输出 WAV 可播放、采样率/时长正确、非全零/非 NaN，文本短中长均可生成，WebUI 和 CLI 路径一致。
 
 ### 2.4 性能验证
 
-- 评级：中。
-- 可执行方案：
-  1. 固定 20 条短中长文本，分别测试 cold start、warmup 后 RTF。
-  2. 记录首 token/首音频延迟、总生成耗时、RTF、NPU 显存。
-  3. 比较 fp16/static 与非 static 设置。
-- 指标：RTF、P50/P95 延迟、显存峰值、失败率。README 已提 RTF 约 0.6，可作为复现目标。
-- 工作量：1-2 人日。
-- 中等原因：自回归生成性能受文本长度、采样策略、prompt 长度影响，需标准化测试集。
+- 已有性能脚本：没有独立 benchmark，需要新增 `benchmark_tts.py`。
+- 对比对象：上游 index-tts 在同 checkpoint、同 prompt、同采样参数下的 CUDA/CPU 或官方报告；当前 README 的 warmup 后 RTF≈0.6 只能作为本仓 NPU 复现目标，不是官方基线。
+- 对比数据集：至少用 AISHELL-3 或 CSMSC 抽取 50 条文本/参考音频；也可先用固定 20 条中文短中长文本和 3 个 speaker prompt 建立小基准。
+- 数据生成：固定文本清单、speaker prompt 路径、seed、采样参数，生成 manifest。
+- 指标：cold/warm RTF、首音频延迟、总生成耗时、P50/P95、显存、失败率；文本长度和 prompt 长度分桶统计。
 
 ### 2.5 精度验证
 
-- 评级：高。
-- 可执行方案：
-  1. CPU/GPU 参考实现与 NPU 输出做固定 seed 下的声学特征相似度比对。
-  2. 用 ASR 回识别生成音频，计算 CER/WER，验证可懂度。
-  3. 用 speaker embedding 计算参考音色相似度。
-  4. 用情感分类器或人工 A/B 测试评估情感一致性。
-  5. 时长控制计算目标时长误差均值/P95。
-- 指标：CER/WER、speaker cosine similarity、duration error、MOS/CMOS 或人工偏好率。
-- 工作量：5-8 人日。
-- 高原因：TTS 精度不仅是数值一致，还涉及可懂度、自然度、音色、情感和时长，客观指标不充分。
+- 已有精度脚本：无，需要新增 `eval_tts.py`。
+- 对比对象：源仓 CUDA/官方输出；生成式 TTS 不要求波形逐点一致，但要比较同文本同 prompt 下的可懂度、音色和自然度。
+- 对比数据集：至少使用 CSMSC 或 AISHELL-3 子集；若验证情感控制，需补带情感标签的公开语音或人工标注 prompt。
+- 指标：ASR 回识别 CER/WER、speaker embedding cosine similarity、目标时长误差、DNSMOS/UTMOS 或人工 MOS/CMOS；必要时做 A/B 偏好测试。
+- 验收：NPU 相比源仓 CUDA 在 CER、音色相似度、时长误差上无显著退化；人工抽听无系统性杂音、断句、漏字。
 
 ### 2.6 数据集获取
 
-- 评级：中-高。
-- 可执行方案：
-  1. 冒烟：官方 examples。
-  2. 中文 TTS：AISHELL-3、CSMSC 或自建 20-50 条提示音频。
-  3. 情感：公开情感语音或自选 prompt；若做严肃评估需要带情感标签数据。
-- 数据规模建议：冒烟 10 条；性能 50-100 条；精度 100-500 条加人工抽检。
-- 阻塞点：高质量说话人/情感提示音频与人工 MOS 评价成本较高。
+- 上游代码：`https://github.com/triomino/index-tts.git`。
+- 权重：README 已列 ModelScope 命令，目标目录分别为 `checkpoints/`、`models/facebook/w2v-bert-2.0/`、`models/amphion/MaskGCT/`、`models/iic/speech_campplus_sv_zh-cn_16k-common/`、`models/nv-community/bigvgan_v2_22khz_80band_256x/`。
+- 功能数据：上游 examples 和自备 speaker/emotion prompt。
+- 精度/性能数据：CSMSC、AISHELL-3；情感评估另需带情感标签的数据或人工标注。
+- 建议规模：冒烟 10 条；性能 50-100 条；精度 100-500 条并人工抽检。
 
 ---
-
 ## 3. MMAudio
 
 ### 3.1 仓库观察与判断依据
 
-- 仓库主要是 README 和截图，实际大包 `mmaudio.tar.gz` 是 Git LFS 指针，显示真实大小约 10GB，未拉取。
-- README 指向上游 `hkchengrex/MMAudio`，并要求下载 apple CLIP、nvidia bigvgan 等额外模型。
-- 适配方式包含多处手工改 `cuda` 为 `npu`、替换 CLIP 本地模型、VAE、BigVGAN filter/resample/bigvgan dtype 改动。
-- 硬件要求 G8600/910B2C 2 卡，比多数单卡仓库要求更高。
-- 任务是视频/文本到音频生成，验证涉及生成质量。
+- 仓库主要是 README 和截图，`mmaudio.tar.gz` 是 Git LFS 指针，真实内容约 10GB，当前未拉取。
+- README 指向上游 `https://github.com/hkchengrex/MMAudio`，可选 Gitee 镜像 `https://gitee.com/MufcLiuKai/MMAudio`。
+- 适配涉及多处手工修改：`cuda` 改 `npu`、CLIP 本地模型、VAE、BigVGAN filter/resample/bigvgan dtype 等。
+- 需要 apple CLIP、nvidia BigVGAN 等额外模型，README 还要求 G8600/910B2C 2 卡。
+- 任务是视频/文本到音频生成，功能和精度验证都依赖主观/客观生成质量评估。
 
 ### 3.2 后续适配
 
-- 评级：高。
-- 可追溯原因：多处源码手工补丁、外部大包未拉取、依赖多个大模型、2 卡硬件要求。
-- 建议任务：
-  1. 拉取 Git LFS 大包或改为明确 patch 文件，不依赖截图说明。
-  2. 将 README 中所有代码修改整理成统一 diff，覆盖 `demo.py`、`features_utils.py`、`vae.py`、BigVGAN alias-free activation 等。
-  3. 增加 `--device npu:0`、`--dtype float32/bf16` 参数，避免硬编码。
-  4. 增加单卡降级路径或明确必须 2 卡的原因。
-  5. 对 BF16 不支持点建立 op 清单，确认是否还需 CPU fallback。
-- 规模/范围：预计 6-10 个上游文件，加模型路径和 demo 配置。
-- 工作量：6-10 人日。
-- 阻塞点：10GB LFS 包、多个权重下载、2 卡资源、生成式模型 op 支持。
+- 复杂度：高。
+- 首先拉取 Git LFS 大包或改为明确 patch，不应依赖截图交付。
+- 将 README 修改整理成统一 patch，覆盖 `demo.py`、`features_utils.py`、`vae.py`、BigVGAN alias-free activation 等。
+- 增加 `--device npu:0`、`--dtype float32/bf16`、`--clip_dir`、`--bigvgan_dir`、`--output` 等参数。
+- 明确单卡是否可运行；如果必须 2 卡，需要说明模块切分和资源要求。
+- 建立 op/dtype 不支持清单，避免静默 CPU fallback。
 
 ### 3.3 功能验证
 
-- 评级：中-高。
-- 可执行方案：
-  1. 文生音频：5 条短 prompt，验证生成 wav。
-  2. 视频生音频：5 个短视频，验证视频特征、CLIP、本地 BigVGAN 链路。
-  3. 异常输入：空 prompt、长 prompt、短/长视频。
-- 指标：生成成功率、输出采样率/时长、无爆音/全零、日志无 NPU op fallback 严重错误。
-- 工作量：2-3 人日。
-- 中高原因：输入模态和模型组件多，任一权重路径或 dtype 不兼容都会失败。
+- 已有验证脚本：README 指向上游 demo，但当前仓库缺少完整可执行代码包和本地 patch。
+- 验证数据来源：手写文本 prompt、短视频样例；上游 MMAudio demo assets 如可用应优先使用。
+- 权重获取：apple/DFN5B-CLIP-ViT-H-14-378 可按 README 从 GitCode/ModelScope 获取；MMAudio/BigVGAN 权重按上游 README 或 ModelScope/HF 下载。
+- 验证内容：文生音频、视频生音频、空 prompt/长 prompt/短视频/长视频异常输入。
+- 验收：输出 WAV/视频音轨存在，采样率和时长符合参数，无全零、爆音、NaN，日志无严重 NPU op 报错。
 
 ### 3.4 性能验证
 
-- 评级：中-高。
-- 可执行方案：
-  1. 固定 10 个 prompt/视频，统计生成 5s/10s/30s 音频耗时。
-  2. 记录 RTF、NPU 利用率、显存、CPU 占用、数据拷贝时间。
-  3. 比较 float32 转换前后性能损失。
-- 指标：RTF、端到端延迟、显存峰值、2 卡利用率均衡程度。
-- 工作量：2-4 人日。
-- 中高原因：README 指出 BF16 支持不足需转 float32，这会显著影响性能，需要分模块定位瓶颈。
+- 已有性能脚本：无，需要新增 `benchmark_mmaudio.py`。
+- 对比对象：源仓 MMAudio CUDA 路径或论文/官方 demo 在同模型同 seed 下的耗时；若源仓没有硬件表，则以本地 CUDA/CPU 同数据为基线。
+- 对比数据集：至少选 AudioCaps 或 VGGSound/Clotho 子集中的 50 条 prompt/视频；小规模可先构造 10 个固定 5s/10s/30s prompt/视频。
+- 数据生成：统一视频分辨率、音频目标时长、seed、采样步数和模型配置，生成 manifest。
+- 指标：RTF、端到端延迟、CLIP/BigVGAN/VAE 分段耗时、2 卡利用率、显存峰值；记录 float32 替换 bf16 后的性能损失。
 
 ### 3.5 精度验证
 
-- 评级：高。
-- 可执行方案：
-  1. 与 GPU/CPU 官方输出做相同 seed 下音频特征比对，如 mel L1、CLAPScore、FAD。
-  2. 人工听测评估音频与文本/视频一致性、自然度、噪声。
-  3. 检查 dtype 转换后是否引入音质退化。
-- 指标：CLAPScore/FAD、人工 MOS、A/B 偏好率、mel 差异。
-- 工作量：5-8 人日。
-- 高原因：生成音频没有单一确定答案，且多模态一致性需要主客观结合。
+- 已有精度脚本：无，需要新增 `eval_mmaudio.py`。
+- 对比对象：源仓 CUDA 输出和论文推荐指标；生成式音频不能以逐点波形作为唯一标准。
+- 对比数据集：至少使用 AudioCaps 或 Clotho 做文本-音频一致性；视频任务可用 VGGSound 子集。
+- 指标：CLAPScore、FAD、mel L1/频谱差异、人工 MOS/A-B 偏好；视频输入还需评估音画一致性。
+- 验收：NPU 相比源仓 CUDA 在 CLAPScore/FAD 和人工抽听上无明显退化；dtype 改动不引入系统性杂音。
 
 ### 3.6 数据集获取
 
-- 评级：高。
-- 可执行方案：
-  1. 冒烟：手写 prompt 和少量公开视频。
-  2. 性能：构造固定长度 prompt/视频集。
-  3. 精度：AudioCaps、Clotho、VGGSound 等，但下载、授权、处理成本较高。
-- 数据规模建议：冒烟 10 条；性能 50 条；精度 200-1000 条或人工抽检 50 条。
-- 阻塞点：视频/音频版权、数据体积、评价标注、CLAP/FAD 评估工具链。
+- 上游代码：`https://github.com/hkchengrex/MMAudio`；备选镜像 `https://gitee.com/MufcLiuKai/MMAudio`。
+- CLIP：`apple/DFN5B-CLIP-ViT-H-14-378`，README 给出 GitCode 和 ModelScope 下载方式。
+- 精度/性能数据：AudioCaps、Clotho、VGGSound；注意版权、下载体积和 YouTube 链接失效问题。
+- 建议规模：冒烟 10 条；性能 50 条；精度 200-1000 条或人工抽检 50 条。
 
 ---
-
 ## 4. MOSS-Speech
 
 ### 4.1 仓库观察与判断依据
 
 - 随仓有 `infer.py` 和超长 `requirements.txt`。
-- README 指出依赖 MOSS-Speech、MOSS-Speech-Codec、HuggingFace Space 三套代码/权重。
-- README 需要修改安装环境中的 `diffusers`、`transformers` 源码，以及 MOSS-Speech Space 内 Matcha-TTS、CosyVoice HiFiGAN 文件。
-- `infer.py` 中仍可见 `device="cuda"`、`device_map="cuda"`、`.to("cuda")`，依赖 `transfer_to_npu` 自动迁移，说明适配不够显式。
-- 任务是语音对话大模型，输出可能包含音频和文本，链路复杂。
+- README 指向三套资产：ModelScope `openmoss/MOSS-Speech`、ModelScope `AI-ModelScope/MOSS-Speech-Codec`、Hugging Face Space `OpenMOSS-Team/MOSS-Speech`。
+- README 要修改 `diffusers`、`transformers` 源码，以及 Space 内 Matcha-TTS、CosyVoice HiFiGAN 文件。
+- `infer.py` 中仍可见 `device="cuda"`、`device_map="cuda"`、`.to("cuda")`，依赖 `transfer_to_npu` 自动迁移，适配显式性不足。
+- 任务是语音对话大模型，输出可能包含音频和文本，链路跨 LLM、codec、TTS、Whisper 特征和 vocoder。
 
 ### 4.2 后续适配
 
-- 评级：高。
-- 可追溯原因：三个外部项目、环境包源码补丁、脚本仍保留 cuda 设备字符串。
-- 建议任务：
-  1. 将 `infer.py` 中 `cuda` 设备显式改为 `npu` 或统一 device 参数，验证 `transfer_to_npu` 是否足够。
-  2. 把 diffusers/transformers/Matcha-TTS/HiFiGAN 修改做成 patch，并记录兼容版本。
-  3. 增加模型路径、codec 路径、prompt 音频路径 CLI 参数。
-  4. 梳理 CPU fallback：Whisper 特征提取和 `istft` 被文档要求放 CPU，需要明确性能影响和数据搬运。
-  5. 精简 requirements，当前文件像完整环境冻结，包含大量无关包和 CUDA/NVIDIA 包。
-- 规模/范围：至少 5 个第三方文件补丁 + 推理主脚本 + 环境重构。
-- 工作量：6-10 人日。
-- 阻塞点：第三方库版本漂移、远程代码 trust_remote_code、CPU/NPU 混合执行。
+- 复杂度：高。
+- 将 `infer.py` 设备参数显式化为 `--device npu/cpu/cuda`，移除硬编码 CUDA 设备字符串。
+- 把 diffusers、transformers、Matcha-TTS、HiFiGAN 修改做成 patch，并绑定可复现版本。
+- 增加 `--model_dir --codec_dir --space_dir --prompt_audio --text --output_dir` 等 CLI 参数。
+- 梳理 README 中 CPU 执行的 Whisper 特征和 `istft`，明确这是否是必要路径，不能静默 fallback。
+- 精简 `requirements.txt`，拆分最小推理依赖和完整开发环境。
 
 ### 4.3 功能验证
 
-- 评级：高。
-- 可执行方案：
-  1. 文本输入生成文本输出。
-  2. 文本输入生成音频输出。
-  3. 带 prompt audio 的音色延续。
-  4. 长对话/多轮上下文。
-  5. 异常路径：权重缺失、codec 缺失、prompt 音频格式错误。
-- 指标：生成成功率、音频可播放、采样率正确、文本非空、无明显截断。
-- 工作量：3-5 人日。
-- 高原因：链路跨 LLM、codec、TTS、Whisper 特征和 HiFiGAN，功能点多且环境补丁多。
+- 已有验证脚本：有 `infer.py`，但当前仍需大量外部源码补丁和权重路径准备后才能验证。
+- 验证数据来源：官方示例 prompt、少量中文对话文本、自备 prompt audio。
+- 权重获取：ModelScope `openmoss/MOSS-Speech`、`AI-ModelScope/MOSS-Speech-Codec`，Hugging Face Space `OpenMOSS-Team/MOSS-Speech` 代码/资源。
+- 验证内容：文本输入生成文本、文本输入生成音频、带 prompt audio 的音色延续、多轮上下文、缺权重/错音频格式异常。
+- 验收：文本非空，音频可播放且采样率正确，无明显截断/全零/NaN，错误路径暴露原始异常。
 
 ### 4.4 性能验证
 
-- 评级：中-高。
-- 可执行方案：
-  1. 固定 10 条输入，测试文本输出和音频输出两种模式。
-  2. 分段统计 LLM generate、codec、vocoder、CPU 特征/istft 时间。
-  3. 记录首 token、首音频、总延迟、RTF、显存。
-- 指标：端到端延迟、RTF、NPU/CPU 时间占比、显存峰值。
-- 工作量：2-4 人日。
-- 中高原因：文档明确存在 CPU fallback，端到端性能可能被 CPU 和数据搬运限制。
+- 已有性能脚本：无，需要新增 `benchmark_moss_speech.py`。
+- 对比对象：源仓/Space 官方 CUDA 路径；如没有公开硬件报告，则用同 checkpoint 同输入的本地 CPU/CUDA 作为基线。
+- 对比数据集：自建 20 条标准对话请求，覆盖短/长文本、是否生成音频、是否带 prompt audio；正式可加入语音对话 benchmark 子集。
+- 数据生成：固定 prompt 文本、prompt audio、随机种子和生成参数。
+- 指标：首 token、首音频、端到端延迟、RTF、LLM/codec/vocoder/CPU 特征各阶段耗时、显存和 RSS。
 
 ### 4.5 精度验证
 
-- 评级：高。
-- 可执行方案：
-  1. 文本输出用人工或任务集评价相关性。
-  2. 音频输出用 ASR 回识别 CER/WER 评估可懂度。
-  3. prompt 音色用 speaker embedding 相似度。
-  4. 主观 MOS/CMOS 听测自然度。
-- 指标：CER/WER、speaker similarity、人工 MOS、任务成功率。
-- 工作量：5-8 人日。
-- 高原因：语音对话模型没有单一标准答案，且音频自然度/音色需要人工或外部模型评价。
+- 已有精度脚本：无，需要分文本和音频两类新增评测。
+- 对比对象：源仓 CUDA 输出；语音对话没有单一标准答案，不能只看数值一致。
+- 对比数据集：文本任务可用自建固定问答集加人工验收；音频任务可用 TTS 公开语料抽样构造 prompt+文本。
+- 指标：文本任务成功率/人工相关性，音频 ASR 回识别 CER/WER、speaker embedding 相似度、DNSMOS/UTMOS、人工 MOS/CMOS。
+- 验收：NPU 输出相对源仓 CUDA 不出现系统性漏字、音色崩坏、明显噪声或延迟异常。
 
 ### 4.6 数据集获取
 
-- 评级：高。
-- 可执行方案：
-  1. 冒烟：官方 prompt 音频与少量中文对话。
-  2. 功能：自建 20-50 条对话脚本。
-  3. 精度：需要带参考回复/音频或人工评价协议，公开集不能直接覆盖全部能力。
-- 数据规模建议：冒烟 5 条；功能 50 条；精度人工 50-100 条。
-- 阻塞点：MOSS-Speech/Codec/Space 权重多源下载，数据评价主观，人工听测组织成本高。
+- 权重：`https://modelscope.cn/models/openmoss/MOSS-Speech`、`https://modelscope.cn/models/AI-ModelScope/MOSS-Speech-Codec`。
+- Space 代码：`https://huggingface.co/spaces/OpenMOSS-Team/MOSS-Speech/tree/main`。
+- 功能数据：官方示例 prompt、自建中文对话、prompt audio。
+- 精度数据：可从 CSMSC/AISHELL-3 抽 prompt+文本，正式对话能力需要人工评价协议。
+- 建议规模：冒烟 5 条；功能 50 条；精度人工 50-100 条。
 
 ---
-
 ## 5. Canary-1B
 
 ### 5.1 仓库观察与判断依据
 
-- 随仓有 `infer.py`，README 指向上游 NVIDIA NeMo 和 `nvidia/canary-1b` 权重。
-- README 说明 `infer.py` 需移动到 NeMo 官方仓，并修改模型路径软链接。
-- `infer.py` 通过 `transfer_to_npu`，调用 `EncDecMultiTaskModel.from_pretrained` 后执行 ASR 和翻译任务。
-- 功能覆盖英语 ASR、指定语言 ASR、语音翻译。
-- NeMo 依赖通常较重，且多语言/翻译任务验证需要不同数据。
+- 当前已形成较完整交付件：`README.md`、`README_INFERENCE.md`、`infer.py`、`eval_canary.py`、`prepare_eval_data.py`。
+- README 明确上游 NeMo commit `44cb1c7ac5cbe6fc38ecc6184a174a02e7abadbe`，模型权重为 Hugging Face `nvidia/canary-1b` 的 `canary-1b.nemo`，并记录 SHA256。
+- 当前适配不修改 NeMo 上游文件，没有 `.patch`；推理脚本默认 `--device npu`，CPU 验证使用 `--device cpu`。
+- 已明确 `ASCEND_RT_VISIBLE_DEVICES` 控制卡号，不写死 `npu:0`。
+- README 已包含官方精度表、Open ASR Leaderboard 性能参考、MLS/LibriSpeech/FLEURS 数据准备和在线/离线复用方案，是其他仓库的参考模板。
 
 ### 5.2 后续适配
 
-- 评级：中。
-- 可追溯原因：脚本短但依赖 NeMo 大仓；路径硬编码和任务硬编码需要工程化。
-- 建议任务：
-  1. 将 `infer.py` 改成 CLI：`--model_dir --audio --source_lang --target_lang --task`。
-  2. 增加 batch manifest 输入，支持 NeMo 常用 JSON manifest。
-  3. 明确 NPU device 设置，减少对 `transfer_to_npu` 魔法迁移的依赖。
-  4. 增加输出 JSON/CSV，包含文本、耗时、任务类型。
-- 规模/范围：单脚本增强 + NeMo 环境文档。
-- 工作量：2-4 人日。
-- 阻塞点：NeMo 版本与 torch_npu 兼容；权重缓存路径软链接易出错。
+- 复杂度：中，当前已基本完成工程化。
+- 后续主要是把实际 NPU 环境运行结果补回 README：CANN/驱动/torch_npu 版本、batch size、beam size、RTF/RTFx、WER/BLEU。
+- 补充 NPU 失败样例和常见错误排查，例如 NeMo 版本、`.nemo` 权重路径、`torchcodec`/音频解码依赖。
+- 如需发布到统一 ModelZoo 目录，保持 `README_INFERENCE.md` 的路径命令不依赖本地绝对路径。
 
 ### 5.3 功能验证
 
-- 评级：中。
-- 可执行方案：
-  1. 英语 ASR：5 条 LibriSpeech 小样本。
-  2. 西语/德语/法语等 ASR：每种 3-5 条。
-  3. 语音翻译：英语到法语/德语各 5 条。
-  4. 长音频切分或超过模型推荐长度时的行为。
-- 指标：生成文本非空、语言正确、任务参数生效、批量成功率。
-- 工作量：1-2 人日。
-- 中等原因：不仅是 ASR，还包含多语言和翻译参数组合。
+- 已有验证脚本：有，`infer.py` 支持单条/多条音频；`eval_canary.py` 支持 manifest。
+- 验证数据来源：单条 smoke 使用 PyTorch torchaudio tutorial WAV；正式数据使用 LibriSpeech、MLS、FLEURS。
+- 权重获取：`https://huggingface.co/nvidia/canary-1b/resolve/main/canary-1b.nemo` 或 `huggingface_hub.snapshot_download("nvidia/canary-1b")`。
+- 验证命令：README_INFERENCE 中已给出 ASR/AST 单条命令，参数包括 `--task --source_lang --target_lang --pnc --batch_size --beam_size`。
+- 验收：ASR/AST 输出文本非空，语言/任务参数生效，manifest 批量可运行，CPU/NPU 都能加载同一 `.nemo` 权重。
 
 ### 5.4 性能验证
 
-- 评级：中。
-- 可执行方案：
-  1. 按 10s/30s/60s 音频测试 RTF。
-  2. batch size 1/2/4，记录吞吐、显存、延迟。
-  3. 对比 CPU 或 GPU 官方参考如可用。
-- 指标：RTF、P95 延迟、音频秒/秒、显存峰值。
-- 工作量：1-2 人日。
-- 中等原因：NeMo 数据加载和预处理较重，ASR/翻译解码长度也影响性能。
+- 已有性能脚本：有，`eval_canary.py --performance_mode`。
+- 对比对象：Hugging Face Open ASR Leaderboard 的 `nvidia/canary-1b` A100 公开 RTFx，以及同 checkpoint 本地 CPU/CUDA/NeMo 路径。
+- 对比数据集：至少使用 LibriSpeech `test-clean`；该数据在 README_INFERENCE 中通过 `prepare_eval_data.py --task librispeech` 准备。
+- 指标：`elapsed_seconds`、`rtf`、`RTFx=audio_seconds/elapsed_seconds`、batch size、beam size、峰值 HBM/RSS。
+- 注意：Open ASR Leaderboard 的 A100 RTFx 只能作为公开 GPU 量级参考，不应直接作为 NPU 通过线。
 
 ### 5.5 精度验证
 
-- 评级：中。
-- 可执行方案：
-  1. ASR：LibriSpeech test-clean/test-other 或 CommonVoice 子集，计算 WER/CER。
-  2. 翻译：CoVoST 或 FLEURS 子集，计算 BLEU/chrF，人工抽检。
-  3. NPU 与 CPU/GPU 参考输出对比，检查解码差异。
-- 指标：WER/CER、BLEU/chrF、NPU vs reference 文本一致率。
-- 工作量：2-4 人日。
-- 中等原因：公开数据可得，但多语言和翻译任务使评估维度增多。
+- 已有精度脚本：有，`eval_canary.py`。
+- 对比对象：NVIDIA model card 官方 ASR WER/AST BLEU 表、Open ASR Leaderboard WER，以及本地 CPU/CUDA 同 checkpoint 结果。
+- 对比数据集：ASR 使用 MLS/LibriSpeech；AST 使用 FLEURS，必要时 CoVoST-v2。
+- 数据生成：`prepare_eval_data.py` 支持在线下载、本地目录复用和 `--offline` 禁止联网。
+- 指标：ASR WER/CER，AST BLEU/chrF，NPU vs CPU 文本一致率；正式精度建议 `beam_size=5`、`length_penalty=1.0` 对齐官方口径。
 
 ### 5.6 数据集获取
 
-- 评级：中-高。
-- 可执行方案：
-  1. 冒烟：README 示例音频或 NeMo sample。
-  2. 英语 ASR：LibriSpeech。
-  3. 多语言/翻译：FLEURS、CoVoST、CommonVoice。
-- 数据规模建议：冒烟 10 条；性能 100 条；精度每语种 100-1000 条。
-- 阻塞点：多语言数据下载、许可证、转写/翻译参考文本格式统一。
+- 权重：Hugging Face `nvidia/canary-1b`，文件 `canary-1b.nemo`。
+- Smoke WAV：`https://download.pytorch.org/torchaudio/tutorial-assets/Lab41-SRI-VOiCES-src-sp0307-ch127535-sg0042.wav`。
+- LibriSpeech：`https://www.openslr.org/12`。
+- MLS：`https://huggingface.co/datasets/facebook/multilingual_librispeech`。
+- FLEURS：`https://huggingface.co/datasets/google/fleurs`。
+- 建议规模：冒烟 1-10 条；性能 LibriSpeech test-clean；精度 MLS/FLEURS 按语种子集或全量。
 
 ---
-
 ## 6. FireRedASR-AED
 
 ### 6.1 仓库观察与判断依据
 
-- 随仓有 `infer.py`，README 指向官方 `FireRedTeam/FireRedASR` 和 ModelScope 权重 `FireRedASR-AED-L`。
-- README 要把 `infer.py` 移动到官方仓，修改 `batch_uttid` 和 `batch_wav_path`。
+- 随仓有 `infer.py`，README 指向上游 `https://github.com/FireRedTeam/FireRedASR.git` 和 ModelScope 权重 `FireRedASR-AED-L`。
+- README 要把 `infer.py` 移动到官方仓，修改 `batch_uttid` 和 `batch_wav_path`，当前脚本仍偏示例。
 - `infer.py` 使用 `transfer_to_npu`，调用 `FireRedAsr.from_pretrained('aed', ...)` 后 `model.transcribe`。
-- 任务为中文 ASR，输出文本明确，评价指标成熟。
+- 任务为中文 ASR，输出文本明确，CER/WER 指标成熟。
+- README 已吸收 Canary-1B 的数据准备要求，强调 AISHELL/LibriSpeech 等正式评测需准备数据和评测分离。
 
 ### 6.2 后续适配
 
-- 评级：中。
-- 可追溯原因：核心脚本简单，但路径、音频列表、输出和评测均硬编码/缺失。
-- 建议任务：
-  1. CLI 化：`--model_dir --input_wav/--manifest --output_csv --batch_size`。
-  2. 增加多文件目录递归、音频重采样检查。
-  3. 增加 CER/WER 评估脚本，支持参考文本 TSV/JSON。
-  4. 明确 NPU device 与 dtype。
-- 规模/范围：1-2 个脚本。
-- 工作量：2-3 人日。
-- 阻塞点：FireRedASR 上游安装依赖与 torch_npu 兼容。
+- 复杂度：中。
+- CLI 化：`--model_dir --input_wav --manifest --output_csv --batch_size --device --dtype`。
+- 增加批量目录递归、音频采样率检查、输出 JSON/CSV。
+- 新增 `prepare_eval_data.py` 或脚本化复用现有 `scripts/prepare_librispeech_test_clean.sh`，支持 AISHELL-1 test。
+- 新增 `eval_asr.py`，支持 CER/WER 和文本规范化配置。
+- 明确 NPU device 设置，减少对 `transfer_to_npu` 的隐式依赖。
 
 ### 6.3 功能验证
 
-- 评级：低-中。
-- 可执行方案：
-  1. 官方 example `BAC009S0764W0121.wav` 冒烟。
-  2. 目录输入 10 条中文 WAV。
-  3. 不同采样率/时长输入，检查是否自动处理或报出清晰错误。
-- 指标：转写文本非空、批量成功率、输出 CSV 完整。
-- 工作量：0.5-1 人日。
-- 低中原因：单任务 ASR，链路短；但当前脚本硬编码，需要先改参数化。
+- 已有验证脚本：有 `infer.py`，但需要去硬编码。
+- 验证数据来源：官方 example `BAC009S0764W0121.wav`、自备中文 WAV、AISHELL-1 小样本。
+- 权重获取：按 README 从 ModelScope 下载 `FireRedASR-AED-L` 到本地 `pretrained_models/` 或 `weights/`。
+- 验证内容：单文件、目录、manifest、多采样率/长短音频。
+- 验收：转写文本非空，批量成功率 100%，输出 CSV/JSON 包含 uttid、wav、text、耗时，异常音频报错清晰。
 
 ### 6.4 性能验证
 
-- 评级：中。
-- 可执行方案：
-  1. AISHELL-1 test 或 100 条中文音频，按 batch size 1/4/8 测试。
-  2. 记录 RTF、平均/ P95 延迟、显存、吞吐。
-  3. 分离音频读取、特征提取、模型推理、解码耗时。
-- 指标：RTF、音频秒/秒、显存峰值、失败率。
-- 工作量：1-2 人日。
-- 中等原因：AED 解码自回归，性能受解码长度和 batch 策略影响。
+- 已有性能脚本：无，需要新增 `benchmark_asr.py` 或给 `eval_asr.py` 增加 `--performance_mode`。
+- 对比对象：FireRedASR 官方 CPU/CUDA 路径或论文/官方公开指标；最低要求同 checkpoint 本地 CPU/CUDA 与 NPU 对比。
+- 对比数据集：至少使用 AISHELL-1 test；也可补 LibriSpeech test-clean 做英文兼容但中文模型主线应以 AISHELL 为准。
+- 数据生成：从 AISHELL wav.scp/text 生成 manifest，固定 batch size 1/4/8。
+- 指标：RTF、音频秒/秒、平均/P95 延迟、显存、特征提取/模型/解码分段耗时。
 
 ### 6.5 精度验证
 
-- 评级：中。
-- 可执行方案：
-  1. 用 AISHELL-1 test 计算 CER。
-  2. 对比 CPU/GPU 官方结果或官方公开指标。
-  3. NPU 与 CPU 同模型输出差异分析。
-- 指标：CER、NPU/CPU 文本一致率、空转写率。
-- 工作量：1-3 人日。
-- 中等原因：中文 ASR 数据容易获取，但完整指标需清洗文本规范化。
+- 已有精度脚本：无，需要新增 CER/WER 评测。
+- 对比对象：FireRedASR 官方 AED-L 公开结果或同 checkpoint CPU/CUDA 输出。
+- 对比数据集：AISHELL-1 test 是最低要求；可扩展 WenetSpeech/MagicData 子集。
+- 指标：CER、WER、空转写率、NPU/CPU 文本一致率；中文评测需固定文本规范化规则。
+- 验收：NPU CER 相比源仓 CPU/CUDA 无显著退化；解码差异需逐条输出 diff。
 
 ### 6.6 数据集获取
 
-- 评级：中。
-- 可执行方案：
-  1. 冒烟：官方 examples。
-  2. 精度：AISHELL-1、WenetSpeech 子集、MagicData 子集。
-  3. 性能：从上述数据抽 1-10 小时音频。
-- 数据规模建议：冒烟 10 条；精度 AISHELL-1 test 全量；性能 1h/10h 两档。
-- 阻塞点：部分中文数据集需注册或协议确认；文本规范化需统一。
+- 上游代码：`https://github.com/FireRedTeam/FireRedASR.git`。
+- 权重：ModelScope `FireRedASR-AED-L`，按 README 下载到本地模型目录。
+- 功能数据：官方 example 或任意中文 WAV。
+- 精度/性能数据：AISHELL-1 test；可扩展 WenetSpeech、MagicData。
+- 建议规模：冒烟 10 条；性能 1h/10h 两档；精度 AISHELL-1 test 全量。
 
 ---
-
 ## 7. MossFormer2_SE_48K
 
 ### 7.1 仓库观察与判断依据
 
 - 仓库主要为 README，没有随仓推理脚本文件。
-- README 指向 `modelscope/ClearerVoice-Studio` 上游，要求下载 `iic/ClearerVoice-Studio` checkpoints。
-- 示例脚本中仅设置 `torch.npu.is_available()` 和 `device = torch.device('npu:0')`，但未展示对 ClearVoice 内部模型的完整 NPU patch。
-- 任务是 48kHz 语音增强，输入输出 WAV，功能验证相对简单；精度验证需要干净参考音。
+- README 指向上游 `https://github.com/modelscope/ClearerVoice-Studio.git`，要求下载 ModelScope `iic/ClearerVoice-Studio` checkpoints。
+- 示例只展示 `torch.npu.is_available()` 和 `device = torch.device('npu:0')`，未完整展示 ClearVoice 内部模块 NPU 迁移 patch。
+- 任务是 48 kHz 语音增强，输入输出 WAV，功能验证相对简单，但精度需要成对干净/带噪参考。
+- README 说明 ModelScope 下载会包含 SE_48K、SS_16K、SR_48K 等全部模型。
 
 ### 7.2 后续适配
 
-- 评级：中。
-- 可追溯原因：当前是部署指导型仓库，缺少随仓可执行 infer.py 和明确内部模块 NPU 迁移 patch。
-- 建议任务：
-  1. 将 README 示例落为 `infer_npu.py`，支持 `--input --output --model_dir --device`。
-  2. 检查 ClearerVoice 模型内部是否全部 `.to(device)`，必要时添加 patch。
-  3. 增加 48kHz 输入检查、重采样策略、批量目录处理。
-  4. 增加增强前后音量、时长、采样率一致性检查。
-- 规模/范围：1 个推理脚本 + 可能 1-3 个上游 patch。
-- 工作量：2-4 人日。
-- 阻塞点：ClearerVoice 依赖和 checkpoint 体积；内部是否有 CUDA 特定逻辑需实测确认。
+- 复杂度：中。
+- 将 README 示例落为 `infer_npu.py`，支持 `--input --output --model_dir --device --sample_rate --batch_dir`。
+- 检查 ClearerVoice 内部是否全部 `.to(device)`，必要时提供 patch。
+- 新增 48 kHz 输入检查、重采样策略或快速失败策略，并记录选择原因。
+- 新增 `eval_se.py`，支持 PESQ/STOI/SI-SDR/DNSMOS；新增 `benchmark_se.py`。
+- 形成推理指导文档，说明 checkpoints 目录结构。
 
 ### 7.3 功能验证
 
-- 评级：低-中。
-- 可执行方案：
-  1. 单条 48kHz 带噪语音输入，检查增强 wav 输出。
-  2. 16k/44.1k/48k 输入，验证是否重采样或报错。
-  3. 目录批处理 20 条。
-- 指标：输出文件存在、采样率 48k、时长差 < 10ms、无全零/NaN、听感噪声下降。
-- 工作量：0.5-1 人日。
-- 低中原因：音频到音频链路短，但当前需先补 infer 脚本。
+- 已有验证脚本：无随仓脚本，仅 README 示例，需要补 `infer_npu.py`。
+- 验证数据来源：ClearerVoice samples、自备带噪 WAV、合成噪声 WAV。
+- 权重获取：`modelscope download --model iic/ClearerVoice-Studio --local_dir ./checkpoints`。
+- 验证内容：单条 48 kHz 输入、16 kHz/44.1 kHz/48 kHz 输入、目录批处理。
+- 验收：输出 WAV 存在，采样率 48 kHz 或符合明确策略，时长差 < 10 ms，无全零/NaN，听感噪声下降。
 
 ### 7.4 性能验证
 
-- 评级：中。
-- 可执行方案：
-  1. 按 5s/30s/60s 音频测试处理耗时。
-  2. 记录 RTF、显存、CPU 占用。
-  3. 目录批处理 100 条，统计 P50/P95。
-- 指标：RTF、P95 延迟、显存峰值、音频秒/秒。
-- 工作量：1-2 人日。
-- 中等原因：48kHz 音频点数多，模型可能分块处理，性能受 I/O 和 overlap-add 影响。
+- 已有性能脚本：无，需要新增 `benchmark_se.py`。
+- 对比对象：ClearerVoice-Studio 源仓 CPU/CUDA 路径或官方报告；最低要求同 checkpoint 同音频 CPU/CUDA 与 NPU 对比。
+- 对比数据集：至少用 VoiceBank+DEMAND 或 DNS Challenge 子集，固定 5s/30s/60s 三档。
+- 数据生成：如原始数据非 48 kHz，需固定重采样脚本并记录；性能 manifest 不应随机变化。
+- 指标：RTF、音频秒/秒、P50/P95、显存、CPU 占用、分块 overlap-add 耗时。
 
 ### 7.5 精度验证
 
-- 评级：中。
-- 可执行方案：
-  1. 使用带干净参考的噪声增强数据，计算 PESQ、STOI、SI-SDR、DNSMOS。
-  2. 对比 CPU/GPU 上游输出，计算波形/频谱差异。
-  3. 人工抽听增强是否过度降噪或语音失真。
-- 指标：PESQ/STOI/SI-SDR 提升、DNSMOS 提升、NPU vs reference 差异。
-- 工作量：2-4 人日。
-- 中等原因：需要成对干净/带噪数据，且 48kHz 下部分常用指标对采样率有要求。
+- 已有精度脚本：无，需要新增 `eval_se.py`。
+- 对比对象：ClearerVoice-Studio 官方/源仓输出，同 checkpoint CPU/CUDA 输出。
+- 对比数据集：VoiceBank+DEMAND、DNS Challenge，或干净语音+噪声合成的成对数据。
+- 指标：PESQ、STOI、SI-SDR、DNSMOS；NPU vs CPU/GPU 的波形/频谱差异。
+- 注意：部分指标对采样率有要求，48 kHz 数据可能需按官方口径重采样后计算，不能静默改变指标定义。
 
 ### 7.6 数据集获取
 
-- 评级：中。
-- 可执行方案：
-  1. 冒烟：ClearerVoice samples。
-  2. 精度：VoiceBank+DEMAND、DNS Challenge、自己混合干净语音与噪声并重采样到 48k。
-  3. 性能：构造不同长度 wav。
-- 数据规模建议：冒烟 5 条；性能 100 条；精度 500-1000 对。
-- 阻塞点：48kHz 成对数据不如 16k 常见；需注意重采样是否影响指标。
+- 上游代码：`https://github.com/modelscope/ClearerVoice-Studio.git`。
+- 权重：ModelScope `iic/ClearerVoice-Studio`，目标 `./checkpoints`。
+- 功能数据：ClearerVoice samples、自备 WAV。
+- 精度/性能数据：VoiceBank+DEMAND、DNS Challenge；也可用干净语音与噪声按固定 SNR 合成并重采样到 48 kHz。
+- 建议规模：冒烟 5 条；性能 100 条；精度 500-1000 对。
 
 ---
-
 ## 8. pyannote-speaker-diarization-3.1
 
 ### 8.1 仓库观察与判断依据
 
-- 仓库主要为 README，无随仓 infer.py 文件，但 README 给出完整示例脚本。
+- 仓库主要为 README，无随仓 `infer.py`，但 README 给出完整示例脚本。
 - 需要下载 `speaker-diarization-3.1`、`segmentation-3.0`、`wespeaker-voxceleb-resnet34-LM` 三个模型。
 - README 要修改 `config.yaml` 中 embedding/segmentation 路径。
-- 已知问题包括 `torchaudio.compliance.kaldi.py` 的 complex abs 不支持和 numpy `np.NaN` 兼容。
-- 输出是说话人分段，标准精度指标是 DER，需要 RTTM 标注。
+- 已知问题包括 `torchaudio.compliance.kaldi.py` complex abs 不支持和 numpy `np.NaN` 兼容。
+- 输出为说话人分段，标准精度指标 DER/JER，需要 RTTM 标注和评测协议。
 
 ### 8.2 后续适配
 
-- 评级：中。
-- 可追溯原因：依赖多模型配置和第三方库补丁，虽脚本简单但环境容易踩坑。
-- 建议任务：
-  1. 将 README infer 示例落为 `infer_npu.py`，支持输入 wav、config、输出 RTTM。
-  2. 提供 `config.yaml` 自动重写工具，填入本地模型路径。
-  3. 将 torchaudio/numpy 补丁整理为版本约束或 patch。
-  4. 增加多音频批处理和 RTTM 输出。
-- 规模/范围：1-2 个脚本 + config 工具 + 依赖版本锁定。
-- 工作量：2-5 人日。
-- 阻塞点：pyannote 依赖版本组合、ModelScope 权重结构、本地路径配置。
+- 复杂度：中。
+- 将 README 示例落为 `infer_npu.py`，支持 `--wav --config --output_rttm --device`。
+- 提供 `rewrite_config.py`，自动填本地 segmentation/embedding 路径。
+- 将 torchaudio/numpy 修改整理为 patch 或严格版本约束。
+- 新增 `eval_der.py`，支持参考 RTTM、collar、overlap 参数。
+- 新增长音频性能 benchmark，分段统计 segmentation、embedding、clustering。
 
 ### 8.3 功能验证
 
-- 评级：中。
-- 可执行方案：
-  1. 单说话人、双说话人、三说话人混合各 3 条。
-  2. 16k 单声道和多声道输入，验证自动混音/重采样。
-  3. 输出 RTTM 和控制台分段。
-- 指标：分段非空、说话人数合理、RTTM 格式可被 dscore/pyannote.metrics 读取。
-- 工作量：1-2 人日。
-- 中等原因：分段任务输出不是单文本，需人工查看边界和 speaker label 合理性。
+- 已有验证脚本：README 示例有，但仓库无脚本文件，需要补齐。
+- 验证数据来源：自制单说话人/双说话人 WAV、公开会议 sample。
+- 权重获取：按 README 用 ModelScope 下载 `pyannote/speaker-diarization-3.1`、`pyannote/segmentation-3.0`、`pyannote/wespeaker-voxceleb-resnet34-LM`。
+- 验证内容：单说话人、双说话人、三说话人、重叠语音、多声道输入。
+- 验收：输出 RTTM 非空，格式可被 `dscore` 或 `pyannote.metrics` 读取，说话人数和分段大致合理。
 
 ### 8.4 性能验证
 
-- 评级：中。
-- 可执行方案：
-  1. 5min/30min/1h 音频测试端到端耗时。
-  2. 分别统计 segmentation、embedding、clustering 时间。
-  3. 记录 RTF、显存、CPU 占用。
-- 指标：RTF、每小时音频处理时间、显存峰值。
-- 工作量：1-2 人日。
-- 中等原因：pipeline 包含神经网络和聚类后处理，CPU 后处理可能成为瓶颈。
+- 已有性能脚本：无，需要新增 `benchmark_diarization.py`。
+- 对比对象：pyannote 官方 CPU/CUDA pipeline 或同 checkpoint 本地 CPU/CUDA 结果。
+- 对比数据集：至少使用 AMI 会议子集；性能可选 5min/30min/1h 三档会议音频。
+- 数据生成：统一音频采样率、单声道处理、manifest 和 RTTM 输出目录。
+- 指标：RTF、每小时音频处理时间、segmentation/embedding/clustering 分段耗时、显存和 CPU 后处理占比。
 
 ### 8.5 精度验证
 
-- 评级：中-高。
-- 可执行方案：
-  1. 用 AMI、AISHELL-4、AliMeeting 或 VoxConverse 计算 DER。
-  2. 设定 collar 0.25s、是否忽略 overlap，与公开指标保持一致。
-  3. 对比 CPU/GPU pyannote 输出 DER 与分段差异。
-- 指标：DER、JER、miss/false alarm/confusion 分项。
-- 工作量：3-5 人日。
-- 中高原因：需要 RTTM 标注和严格评测协议，且聚类随机性/阈值会影响结果。
+- 已有精度脚本：无，需要新增 DER/JER 评测。
+- 对比对象：pyannote 官方 pipeline 在同数据上的 CPU/CUDA DER，或论文/model card 公开结果。
+- 对比数据集：AMI、AISHELL-4、AliMeeting 或 VoxConverse，至少选一个带 RTTM 的公开数据集。
+- 指标：DER、JER、miss/false alarm/confusion，明确 collar 0.25s/是否忽略 overlap。
+- 验收：NPU DER/JER 与源仓 CPU/CUDA 对齐；聚类随机性需固定 seed 或多次运行统计。
 
 ### 8.6 数据集获取
 
-- 评级：中-高。
-- 可执行方案：
-  1. 冒烟：自制两人对话或公开 sample。
-  2. 精度：AMI、AISHELL-4、AliMeeting、VoxConverse。
-  3. 性能：会议长音频。
-- 数据规模建议：冒烟 5 条；精度 10-100 场会议；性能 10 小时以上。
-- 阻塞点：会议数据体积大，RTTM 标注格式整理费时，部分数据需申请。
+- 权重：ModelScope `pyannote/speaker-diarization-3.1`、`pyannote/segmentation-3.0`、`pyannote/wespeaker-voxceleb-resnet34-LM`。
+- 功能数据：自制两人对话或公开 sample。
+- 精度数据：AMI、AISHELL-4、AliMeeting、VoxConverse，需 RTTM 标注。
+- 性能数据：长会议音频，可从上述数据抽取 5min/30min/1h。
+- 建议规模：冒烟 5 条；精度 10-100 场会议；性能 10 小时以上。
 
 ---
-
 ## 9. BUTSpeechFIT-DiariZen
 
 ### 9.1 仓库观察与判断依据
 
-- 仓库主要为 README，没有随仓 infer.py。
-- 依赖上游 `BUTSpeechFIT/DiariZen`、HuggingFace `diarizen-wavlm-large-s80-md`、submodule `dscore`。
+- 仓库主要为 README，没有随仓 `infer.py`。
+- 依赖上游 `https://github.com/BUTSpeechFIT/DiariZen`、Hugging Face `BUT-FIT/diarizen-wavlm-large-s80-md`、submodule/工具 `dscore`。
 - README 要安装/编译多套 pyannote 相关包，并修改 torchaudio kaldi complex abs。
-- 还涉及 numpy `np.NaN` 兼容、本地模型软链接路径问题。
-- 与 pyannote 相比，依赖更重，且下载来源更多。
+- 还涉及 numpy `np.NaN` 兼容和本地模型软链接路径问题。
+- 与 pyannote-speaker-diarization 相比，依赖更重、下载来源更多、工程化程度更低。
 
 ### 9.2 后续适配
 
-- 评级：高。
-- 可追溯原因：不是完整代码适配仓，主要是安装说明；依赖 DiariZen + pyannote + dscore + HuggingFace 权重，多处手工操作。
-- 建议任务：
-  1. 补充 `infer_npu.py` 和 `eval_der.py`，支持 wav 输入、RTTM 输出、参考 RTTM 评估。
-  2. 将 DiariZen 上游和 pyannote 依赖版本固定到可复现环境文件。
-  3. 将 torchaudio/numpy 修改变成 patch 或版本约束。
-  4. 去除软链接中手工路径假设，改为 `--model_dir`。
-- 规模/范围：环境重构 + 2 个脚本 + 若干依赖 patch。
-- 工作量：5-8 人日。
-- 阻塞点：上游 submodule 下载、pyannote 版本冲突、HuggingFace 模型目录结构。
+- 复杂度：高。
+- 补 `infer_npu.py` 和 `eval_der.py`，支持 wav 输入、RTTM 输出、参考 RTTM 评估。
+- 固定 DiariZen、pyannote、dscore 版本，形成可复现 `requirements` 和 patch。
+- 将 torchaudio/numpy 修改变成 patch 或版本约束。
+- 去除软链接中个人路径假设，全部改为 `--model_dir` 和配置文件。
+- 如果与 pyannote 仓库二选一推进，建议优先 pyannote-speaker-diarization-3.1；DiariZen 作为专项。
 
 ### 9.3 功能验证
 
-- 评级：中-高。
-- 可执行方案：
-  1. 使用 `example/EN2002a_30s.wav` 冒烟输出 speaker turns。
-  2. 输出 RTTM 并用 dscore 读取。
-  3. 2/3/4 说话人样本覆盖，包含重叠语音。
-- 指标：成功率、RTTM 格式合法、说话人数合理、无空结果。
-- 工作量：2-3 人日。
-- 中高原因：当前没有随仓脚本，且要先完成复杂环境和模型路径问题。
+- 已有验证脚本：无随仓脚本；README 参考 Hugging Face 使用说明创建 `infer.py`。
+- 验证数据来源：DiariZen example，例如 `example/EN2002a_30s.wav`，以及自制 2/3/4 说话人样本。
+- 权重获取：`git clone https://huggingface.co/BUT-FIT/diarizen-wavlm-large-s80-md.git`，必要时设置 `HF_ENDPOINT=https://hf-mirror.com`。
+- 验证内容：冒烟输出 speaker turns、RTTM 格式、重叠语音和多说话人。
+- 验收：RTTM 可被 dscore 读取，结果非空，说话人数合理，缺模型或路径错误快速失败。
 
 ### 9.4 性能验证
 
-- 评级：中。
-- 可执行方案：
-  1. 30s/5min/30min 会议音频测试。
-  2. 记录 RTF、segmentation/embedding/clustering 分段耗时。
-  3. 比较 NPU 与 CPU。
-- 指标：RTF、每小时处理时间、显存、CPU 后处理占比。
-- 工作量：1-2 人日。
-- 中等原因：pipeline 类似 diarization，后处理复杂但测试指标明确。
+- 已有性能脚本：无。
+- 对比对象：DiariZen 官方/源仓 CUDA 路径，或同 checkpoint 本地 CPU/CUDA 结果。
+- 对比数据集：至少使用 AMI 或 VoxConverse 子集；性能用 30s/5min/30min 会议音频。
+- 数据生成：准备 wav manifest 和输出 RTTM 目录，固定聚类/阈值参数。
+- 指标：RTF、segmentation/embedding/clustering 耗时、显存、CPU 后处理占比。
 
 ### 9.5 精度验证
 
-- 评级：中-高。
-- 可执行方案：
-  1. 使用 AMI/DIHARD/VoxConverse 等带 RTTM 数据。
-  2. 用 dscore 计算 DER/JER，并明确 collar/overlap 策略。
-  3. 对比官方 DiariZen 结果或 CPU 结果。
-- 指标：DER、JER、miss/FA/confusion。
-- 工作量：3-5 人日。
-- 中高原因：DER 标准评估依赖 RTTM 和协议，且 DiariZen 模型可能对数据域敏感。
+- 已有精度脚本：无，需要 `eval_der.py` 调 dscore 或 pyannote.metrics。
+- 对比对象：官方 DiariZen 报告或源仓 CPU/CUDA DER。
+- 对比数据集：AMI、DIHARD、VoxConverse、AliMeeting 至少选一个。
+- 指标：DER、JER、miss/FA/confusion，明确 collar/overlap 策略。
+- 验收：NPU 与源仓同 checkpoint 输出差异可解释，DER 不显著退化。
 
 ### 9.6 数据集获取
 
-- 评级：高。
-- 可执行方案：
-  1. 冒烟：DiariZen example。
-  2. 精度：AMI、DIHARD、VoxConverse、AliMeeting。
-  3. 性能：长会议音频。
-- 数据规模建议：冒烟 1-5 条；精度 10-100 场会议；性能 10-50 小时。
-- 阻塞点：部分标准 diarization 数据需注册/申请；RTTM 协议整理耗时；HuggingFace 下载可能不稳定。
+- 上游代码：`https://github.com/BUTSpeechFIT/DiariZen.git`。
+- 权重：Hugging Face `BUT-FIT/diarizen-wavlm-large-s80-md`。
+- dscore：README 使用 `https://githubfast.com/nryant/dscore.git`，正式文档应尽量给官方 GitHub 地址和镜像备选。
+- 数据：AMI、DIHARD、VoxConverse、AliMeeting；功能可用 DiariZen example。
+- 建议规模：冒烟 1-5 条；精度 10-100 场会议；性能 10-50 小时。
 
 ---
-
 ## 10. whisper-large-v3
 
 ### 10.1 仓库观察与判断依据
 
-- README 提供了较完整的批量 `infer.py`，支持单文件、多文件、目录输入和 CSV 输出。
-- 仓库文件列表中实际 `whisper_v3.tar.gz` 是 Git LFS 指针，真实大小约 5.6GB，未拉取；当前目录未展开出 `infer.py`。
-- README 指定 torch/torch_npu 2.5.1、transformers/datasets/accelerate/soundfile/librosa/modelscope 等依赖。
-- README 有推理结果示例：NPU 1 卡、并发线程 4、batch size 2、成功 7 个。
-- 任务是 ASR，指标 WER/CER 成熟，数据可得。
+- README 提供较完整的批量 `infer.py`，支持单文件、多文件、目录输入和 CSV 输出。
+- 仓库中 `whisper_v3.tar.gz` 是 Git LFS 指针，真实大小约 5.6GB，当前目录未展开出实际 `infer.py`。
+- README 指定 torch/torch_npu 2.5.1、transformers 4.57.3、datasets 4.4.1、accelerate 1.12.0、soundfile、librosa、ModelScope 等依赖。
+- 权重通过 ModelScope `AI-ModelScope/whisper-large-v3` 下载。
+- ASR 任务指标成熟，中文 CER、英文 WER、多语言评估数据都较容易获取。
 
 ### 10.2 后续适配
 
-- 评级：中。
-- 可追溯原因：README 脚本完整，但实际代码在未拉取的大包中；需确认 LFS 内容和脚本可运行。
-- 建议任务：
-  1. 拉取/解包 `whisper_v3.tar.gz`，把 `infer.py` 显式放入仓库。
-  2. 固化 requirements 最小集，避免过度安装。
-  3. 增加语言、任务、chunk/长音频参数。
-  4. 增加 CER/WER 评测脚本。
-- 规模/范围：1-2 个脚本，确认大包内容。
-- 工作量：2-4 人日。
-- 阻塞点：5.6GB LFS 文件下载；transformers 版本与 Whisper large-v3 权重格式。
+- 复杂度：中。
+- 拉取/解包 `whisper_v3.tar.gz`，把实际 `infer.py` 显式纳入仓库或改为 patch 交付。
+- CLI 增加 `--language --task --chunk_length_s --return_timestamps --max_new_tokens --device`。
+- 新增 `prepare_eval_data.py`，准备 AISHELL-1、LibriSpeech、FLEURS/CommonVoice 子集。
+- 新增 `eval_asr.py`，支持 CER/WER 和文本规范化。
+- 精简依赖，避免安装无关包。
 
 ### 10.3 功能验证
 
-- 评级：低-中。
-- 可执行方案：
-  1. 单个中文/英文 WAV。
-  2. 多文件列表。
-  3. 目录递归。
-  4. mp3/m4a/flac 等格式。
-- 指标：CSV 输出完整、成功率、空结果数、语言正确、长音频不崩溃。
-- 工作量：0.5-1 人日。
-- 低中原因：README 脚本已覆盖多输入，但需要先获得实际脚本文件。
+- 已有验证脚本：README 有脚本内容，但当前仓库实际文件需从 LFS 大包确认。
+- 验证数据来源：自备中文/英文 WAV，README 示例音频，AISHELL/LibriSpeech 小样本。
+- 权重获取：`modelscope download --model AI-ModelScope/whisper-large-v3 --local_dir ./whisper-large-v3`。
+- 验证内容：单文件、多文件列表、目录递归、mp3/m4a/flac、长音频。
+- 验收：CSV 输出完整，包含文件名、文本、耗时/状态；语言正确，空结果数为 0 或可解释。
 
 ### 10.4 性能验证
 
-- 评级：中。
-- 可执行方案：
-  1. batch size 1/2/4、线程 1/2/4 对比。
-  2. 10s/30s/5min 音频测试 RTF。
-  3. 记录 processor、generate、I/O 分段耗时。
-- 指标：RTF、音频秒/秒、P95 延迟、显存峰值、并发失败率。
-- 工作量：1-2 人日。
-- 中等原因：Whisper 解码自回归，性能受 `max_new_tokens`、语言和音频长度影响。
+- 已有性能脚本：README 脚本有并发/批量基础，但需独立 benchmark 和分段计时。
+- 对比对象：Hugging Face transformers Whisper large-v3 CPU/CUDA 路径或 OpenAI/Transformers 官方实现。
+- 对比数据集：至少 LibriSpeech test-clean；中文可补 AISHELL-1 test。
+- 数据生成：固定 manifest，测试 batch size 1/2/4、线程 1/2/4，10s/30s/5min 分桶。
+- 指标：RTF、音频秒/秒、P95、显存峰值、processor/generate/I/O 分段耗时。
 
 ### 10.5 精度验证
 
-- 评级：中。
-- 可执行方案：
-  1. 中文 AISHELL-1 或 WenetSpeech 子集计算 CER。
-  2. 英文 LibriSpeech test-clean/test-other 计算 WER。
-  3. 对比 transformers CPU/GPU 输出。
-- 指标：CER/WER、NPU/CPU 文本一致率、空识别率。
-- 工作量：2-3 人日。
-- 中等原因：ASR 数据和指标成熟，但多语言/文本规范化会影响可比性。
+- 已有精度脚本：无，需要新增 WER/CER 评测。
+- 对比对象：transformers CPU/CUDA 同 checkpoint 输出或官方 Whisper large-v3 公共指标。
+- 对比数据集：中文 AISHELL-1 test 计算 CER；英文 LibriSpeech test-clean/test-other 计算 WER；多语言用 FLEURS/CommonVoice。
+- 指标：CER/WER、空识别率、NPU/CPU 文本一致率；规范化需固定，不可临时修改。
+- 验收：NPU 相比 CPU/CUDA 无显著退化，长音频切块不漏段。
 
 ### 10.6 数据集获取
 
-- 评级：低-中。
-- 可执行方案：
-  1. 冒烟：README 示例音频或自备 WAV。
-  2. 中文：AISHELL-1、WenetSpeech 子集。
-  3. 英文：LibriSpeech。
-  4. 多语言：CommonVoice/FLEURS。
-- 数据规模建议：冒烟 10 条；性能 1-10 小时；精度 1000 条左右。
-- 阻塞点：大权重下载是首要阻塞，数据本身较容易。
+- 权重：ModelScope `AI-ModelScope/whisper-large-v3`。
+- 中文数据：AISHELL-1、WenetSpeech 子集。
+- 英文数据：LibriSpeech `https://www.openslr.org/12`。
+- 多语言：CommonVoice、FLEURS。
+- 建议规模：冒烟 10 条；性能 1-10 小时；精度 1000 条左右。
 
 ---
-
 ## 11. BEATs
 
 ### 11.1 仓库观察与判断依据
 
 - 随仓有 `BEATs.py`、`infer_npu.py`、`infer_cpu.py`、`requirements.txt`。
-- README 指示替换官方 UniLM `beats/BEATs.py`，并把 `infer_npu.py` 拷到 UniLM 目录。
+- README 指示 clone `https://github.com/microsoft/unilm.git` 到 `BEATs/upstream`，替换官方 UniLM `beats/BEATs.py`，并把 `infer_npu.py` 拷到 UniLM 目录。
 - `infer_npu.py` 显式使用 `torch.device('npu:0' if torch.npu.is_available() else 'cpu')`，并将模型和输入 `.to(device)`。
-- 当前示例音频路径硬编码为 `tianjingcheng/NeMo/nvidia/2902-9008-0000_01.wav`，分类标签依赖 checkpoint。
-- 任务是音频分类/特征提取，功能链路较短，但精度验证需标准分类数据。
+- 当前示例音频路径硬编码，分类标签依赖 checkpoint。
+- README 已提出 ESC-50/AudioSet 数据准备不要触发无关 split 下载，AudioSet shard 下载大小要记录。
 
 ### 11.2 后续适配
 
-- 评级：低-中。
-- 可追溯原因：已有 NPU/CPU 双脚本和替换文件，但仍需移动到上游 UniLM，路径硬编码。
-- 建议任务：
-  1. CLI 化：`--checkpoint --audio --label_map --device`。
-  2. 增加目录批量推理和 top-k 输出 CSV。
-  3. 明确不同 BEATs checkpoint 对应 label set。
-  4. 精简 requirements，当前冻结环境非常庞大且含大量无关包。
-- 规模/范围：1 个脚本改造 + 文档补充。
-- 工作量：1-3 人日。
-- 阻塞点：官方 checkpoint 和 label map 的匹配。
+- 复杂度：低-中。
+- CLI 化：`--checkpoint --audio/--manifest --label_map --device --output_csv --top_k`。
+- 增加目录批量推理和 batch 输入，当前单样本脚本无法体现 NPU 性能。
+- 明确不同 BEATs checkpoint 对应 label set 和任务类型。
+- 新增 `eval_beats.py`，支持 accuracy/mAP 和 NPU/CPU logits 对齐。
+- 精简 `requirements.txt`，拆分推理最小依赖。
 
 ### 11.3 功能验证
 
-- 评级：低。
-- 可执行方案：
-  1. 用 3-5 条 16k WAV 冒烟。
-  2. 验证 CPU 与 NPU 都可输出 top5 label/prob。
-  3. 测试不同音频长度和静音音频。
-- 指标：输出概率维度正确、top5 非空、概率无 NaN、CPU/NPU 均可运行。
-- 工作量：0.5-1 人日。
+- 已有验证脚本：有 `infer_npu.py` 和 `infer_cpu.py`。
+- 验证数据来源：任意 16 kHz WAV、ESC-50 小样本、AudioSet 子集。
+- 权重获取：按 BEATs/UniLM 官方 checkpoint 下载；文档需补具体 checkpoint URL、目标目录和 label map。
+- 验证内容：CPU/NPU 单条 top5，静音音频，不同时长音频。
+- 验收：概率维度正确，top-k 非空，无 NaN；CPU/NPU 都能加载同 checkpoint；输出 CSV 含 top-k label/prob。
 
 ### 11.4 性能验证
 
-- 评级：中。
-- 可执行方案：
-  1. batch size 1/8/16/32 测试。
-  2. 1s/10s/30s 音频测试吞吐。
-  3. CPU vs NPU 对比。
-- 指标：样本/s、音频秒/s、平均延迟、显存。
-- 工作量：1-2 人日。
-- 中等原因：当前脚本是单样本，需要补 batch 才能体现 NPU 性能。
+- 已有性能脚本：无，需要新增 batch benchmark。
+- 对比对象：UniLM/BEATs 官方 PyTorch CPU/CUDA 路径或同 checkpoint CPU baseline。
+- 对比数据集：至少 ESC-50 全量或 AudioSet eval 子集；性能可从公开 WAV 切片/复制构造 1s/10s/30s 三档。
+- 数据生成：生成 manifest，固定采样率和 batch size 1/8/16/32。
+- 指标：样本/s、音频秒/s、平均/P95 延迟、显存；同时记录特征加载和模型前向耗时。
 
 ### 11.5 精度验证
 
-- 评级：中-高。
-- 可追溯原因：demo top5 只能证明运行，不能证明分类准确；需要与 checkpoint 训练任务匹配的数据和 label map。
-- 可执行方案：
-  1. ESC-50/AudioSet 子集/官方 BEATs eval 数据，按 checkpoint 对应任务评估。
-  2. NPU vs CPU logits 差异，top1/top5 一致率。
-  3. 计算 accuracy/mAP。
+- 已有精度脚本：无，需要新增分类评估。
+- 对比对象：官方 BEATs checkpoint 的源仓 CPU/CUDA 输出和公开任务结果。
+- 对比数据集：ESC-50 较小易用；AudioSet 标准但下载复杂，需确保 label map 与 checkpoint 对齐。
 - 指标：top1/top5 accuracy、mAP、logits MAE、top-k 一致率。
-- 工作量：3-5 人日。
-- 中高原因：AudioSet 获取和标签映射复杂；不同 checkpoint 任务不同。
+- 验收：NPU 与 CPU logits 差异在浮点容差内，top-k 一致率高；分类精度与源仓同口径一致。
 
 ### 11.6 数据集获取
 
-- 评级：中。
-- 可执行方案：
-  1. 冒烟：任意 WAV。
-  2. 精度：ESC-50 较小易用；AudioSet 标准但下载复杂。
-  3. 性能：可从公开 WAV 复制/切片构造。
-- 数据规模建议：冒烟 5 条；性能 1000 条；精度 ESC-50 全量或 AudioSet eval 子集。
-- 阻塞点：AudioSet YouTube 链接失效和标签映射。
+- 上游代码：`https://github.com/microsoft/unilm.git`。
+- 权重：BEATs 官方 checkpoint；需在 README 中补完整 URL 和 label map 获取方式。
+- 数据：ESC-50、AudioSet eval 子集；AudioSet 需记录 shard 下载大小和 YouTube 失效风险。
+- 功能数据：任意 16 kHz WAV。
+- 建议规模：冒烟 5 条；性能 1000 条；精度 ESC-50 全量或 AudioSet eval 子集。
 
 ---
-
 ## 12. MOSS-TTSD-v0.5
 
 ### 12.1 仓库观察与判断依据
 
-- 仓库主要为 README 和截图，没有随仓实际补丁文件。
+- 仓库主要为 README 和截图，没有随仓实际 patch 文件。
 - README 要使用 `quay.io/ascend/vllm-ascend:v0.10.0rc1` 容器，硬件 2 卡/910B。
-- 权重建议下载 ModelScope 一键整合包，含 GitHub 代码和 MOSS-TTSD-v0.5 权重，需 7z 多卷解压。
+- 上游项目为 `https://github.com/OpenMOSS/MOSS-TTSD`；权重建议从 ModelScope 一键整合包 `xueshanlinghu/MOSS-TTSD-zhenghebao` 下载，包含代码和 MOSS-TTSD-v0.5 权重，需 7z 多卷解压。
 - README 要修改 `generation_utils.py`、`gradio_demo.py`、`inference.py`、`podcast_generate.py`、`streamer.py`、`XY_Tokenizer/inference.py`、`xy_tokenizer/nn/quantizer.py`，以及一键包下 `xy_tokenizer/model.py`。
-- 任务是语音生成，默认 bf16、flash_attention_2 等实现可能与 NPU 兼容相关。
+- 默认 bf16、flash_attention_2、vLLM-Ascend 等组合与 NPU 兼容性强相关。
 
 ### 12.2 后续适配
 
-- 评级：高。
-- 可追溯原因：多文件手工 `cuda -> npu`，专用 vLLM-Ascend 容器，2 卡要求，大整合包下载解压，未随仓提供 patch。
-- 建议任务：
-  1. 将所有 README 截图/描述的修改整理成 patch 文件。
-  2. 明确 vLLM-Ascend、torch_npu、CANN、模型 dtype/attention 后端兼容矩阵。
-  3. CLI 化 `inference.py` 的 NPU 参数，避免硬编码卡号。
-  4. 增加 tokenizer encode/decode device 行为单元测试。
-  5. 增加一键环境检查脚本，验证权重目录、JSONL、参考音频。
-- 规模/范围：8+ 文件补丁，容器和模型路径整理。
-- 工作量：6-10 人日。
-- 阻塞点：大整合包、多卷解压、2 卡资源、bf16/attention op 兼容。
+- 复杂度：高。
+- 将所有 README 截图/描述的修改整理为 patch 文件，不再依赖人工照图改代码。
+- 明确 vLLM-Ascend、torch_npu、CANN、模型 dtype、attention backend 的兼容矩阵。
+- CLI 化 `inference.py`，加入 `--device --num_devices --model_dir --tokenizer_dir --jsonl --output_dir --seed`。
+- 增加 tokenizer encode/decode device 行为单元测试。
+- 增加一键环境检查脚本，验证容器、NPU 卡数、权重目录、JSONL、参考音频。
 
 ### 12.3 功能验证
 
-- 评级：中-高。
-- 可执行方案：
-  1. 使用 `examples/examples.jsonl` 冒烟生成 1 条。
-  2. 测试多条 JSONL 批量生成。
-  3. 测试不同 `silence_duration`、seed、normalize 开关。
-  4. 校验输出目录、wav 可播放、无开头杂音/截断。
-- 指标：生成成功率、输出数量、采样率/时长、无 NaN/全零、日志无严重 NPU 错误。
-- 工作量：2-3 人日。
-- 中高原因：输入 JSONL + 参考音频 + tokenizer + 主模型 + vocoder 链路较长。
+- 已有验证脚本：上游/整合包有脚本，但本仓没有可应用 patch 后的完整脚本。
+- 验证数据来源：整合包 `examples/examples.jsonl`、自建 JSONL 和参考音频。
+- 权重获取：`modelscope download --model xueshanlinghu/MOSS-TTSD-zhenghebao`，默认下载到 `~/.cache/modelscope/hub/`，再按 README 解压多卷包。
+- 验证内容：单条 JSONL、多条批量、不同 `silence_duration`、seed、normalize 开关、Gradio demo 如需保留。
+- 验收：输出 WAV 数量正确，可播放，采样率/时长合理，无开头杂音、截断、全零/NaN。
 
 ### 12.4 性能验证
 
-- 评级：中-高。
-- 可执行方案：
-  1. 固定 10 条 JSONL，测 cold/warm 性能。
-  2. 统计预处理、tokenizer、LLM/generation、vocoder 各阶段耗时。
-  3. 比较 dtype bf16/eager/sdpa/flash_attention_2 可用组合。
-- 指标：RTF、首音频延迟、总延迟、显存峰值、2 卡利用率。
-- 工作量：2-4 人日。
-- 中高原因：生成链路长且有 attention 后端选择，性能瓶颈需分段定位。
+- 已有性能脚本：无，需要新增 `benchmark_ttsd.py`。
+- 对比对象：OpenMOSS/MOSS-TTSD 源仓或整合包 CUDA/vLLM 路径；若无公开硬件表，则同 checkpoint 同 JSONL 的本地源仓结果。
+- 对比数据集：至少使用整合包 examples 和自建 50 条 JSONL；正式可由 CSMSC/AISHELL-3 转成 prompt+text。
+- 数据生成：固定 JSONL、参考音频、seed、dtype、attention backend 和卡数。
+- 指标：RTF、首音频延迟、总延迟、tokenizer/LLM/vocoder 分段耗时、2 卡利用率、显存峰值。
 
 ### 12.5 精度验证
 
-- 评级：高。
-- 可执行方案：
-  1. ASR 回识别生成音频计算 CER，验证文本可懂度。
-  2. speaker embedding 与参考音频计算相似度。
-  3. 人工 MOS/CMOS 听测自然度、音色、韵律、杂音。
-  4. NPU 与官方 CPU/GPU 输出做同 seed A/B。
-- 指标：CER、speaker cosine similarity、MOS/CMOS、A/B 偏好率。
-- 工作量：5-8 人日。
-- 高原因：TTS/语音生成没有逐点确定答案，主观音质和音色一致性必须参与。
+- 已有精度脚本：无，需要新增 TTS/语音生成评测。
+- 对比对象：源仓 CUDA/vLLM 输出和人工听测基线。
+- 对比数据集：CSMSC/AISHELL-3 子集或整合包 examples 扩展集。
+- 指标：ASR 回识别 CER、speaker embedding cosine、DNSMOS/UTMOS、人工 MOS/CMOS、A/B 偏好率。
+- 验收：NPU 与源仓输出在可懂度、音色、自然度上无明显退化；不以波形逐点一致作为唯一标准。
 
 ### 12.6 数据集获取
 
-- 评级：高。
-- 可执行方案：
-  1. 冒烟：整合包 examples。
-  2. 功能：自建 20-50 条 JSONL 和参考音频。
-  3. 精度：使用 CSMSC/AISHELL-3 等 TTS 数据改造成 prompt + text。
-  4. 人工听测：抽 50-100 条。
-- 数据规模建议：冒烟 5 条；性能 50 条；精度 100-500 条。
-- 阻塞点：大模型权重获取和参考音频质量；人工听测成本。
+- 上游代码：`https://github.com/OpenMOSS/MOSS-TTSD`。
+- 整合包：`https://www.modelscope.cn/models/xueshanlinghu/MOSS-TTSD-zhenghebao/summary`，命令 `modelscope download --model xueshanlinghu/MOSS-TTSD-zhenghebao`。
+- 功能数据：整合包 examples、自建 JSONL 和参考音频。
+- 精度/性能数据：CSMSC、AISHELL-3 改造成 prompt+text；人工听测抽 50-100 条。
+- 建议规模：冒烟 5 条；性能 50 条；精度 100-500 条。
 
 ---
-
 ## 13. 综合优先级与落地建议
 
 ### 13.1 优先级排序
 
 | 优先级 | 仓库 | 原因 |
 |---|---|---|
-| P0 | DNSMOS | 完整 CANN 推理脚本，功能/性能闭环最快。 |
-| P0 | BEATs | 有 NPU/CPU 脚本，适合快速建立音频分类验证模板。 |
-| P1 | FireRedASR-AED | 中文 ASR，指标成熟，工程化成本中等。 |
-| P1 | whisper-large-v3 | README 脚本完整，ASR 数据易得；需先解决 LFS 大包。 |
-| P1 | Canary-1B | 多语言 ASR/翻译能力强，但 NeMo 依赖较重。 |
+| P0 | DNSMOS | 已有 CANNExecutionProvider 推理脚本，权重/数据/CSV 输出链路短，最快形成 Canary-1B 风格交付。 |
+| P0 | BEATs | 已有 NPU/CPU 双脚本，适合快速建立音频分类的功能、性能、精度模板。 |
+| P1 | FireRedASR-AED | 中文 ASR 指标成熟，工程化成本中等，适合作为 ASR 模板。 |
+| P1 | whisper-large-v3 | README 脚本较完整，ASR 数据易得；需先解决 LFS 大包/实际脚本落库。 |
+| P1 | Canary-1B | 已完成较完整输出件，可作为其他仓库 README/评测脚本标准模板。 |
 | P2 | MossFormer2_SE_48K | 语音增强功能简单，但需补随仓脚本和成对数据评估。 |
-| P2 | pyannote-speaker-diarization-3.1 | 可落地，但 DER 数据和依赖版本需投入。 |
-| P3 | Index-TTS-2 | 能力强但环境/编译/多权重复杂，建议专项做。 |
-| P3 | BUTSpeechFIT-DiariZen | 依赖链重且当前偏文档，建议与 pyannote diarization 二选一优先。 |
+| P2 | pyannote-speaker-diarization-3.1 | 可落地，但 DER 数据、RTTM 和依赖版本需投入。 |
+| P3 | Index-TTS-2 | 能力强但环境/编译/多权重复杂，建议专项。 |
+| P3 | BUTSpeechFIT-DiariZen | 依赖链重且当前偏文档，建议与 pyannote 二选一时优先 pyannote。 |
 | P3 | MMAudio | 大包、2 卡、多模态生成、质量评价均复杂。 |
 | P3 | MOSS-Speech | 多仓库和第三方源码补丁，适配风险高。 |
-| P3 | MOSS-TTSD-v0.5 | 多文件补丁、大模型、2 卡和主观验证，需专项资源。 |
+| P3 | MOSS-TTSD-v0.5 | 多文件 patch、大模型、2 卡、vLLM-Ascend 和主观验证，需专项资源。 |
 
 ### 13.2 建议执行节奏
 
-1. 第一周：DNSMOS、BEATs、FireRedASR-AED 建立统一模板：`infer_npu.py`、`eval.py`、`benchmark.py`、`README_NPU.md`。
-2. 第二周：whisper-large-v3、Canary-1B、MossFormer2_SE_48K 完成数据集和指标脚本。
-3. 第三周：pyannote/DiariZen diarization 只选一个主线，优先 pyannote-speaker-diarization-3.1，因为路径更直接。
-4. 后续专项：TTS/生成类按 Index-TTS-2 -> MOSS-TTSD -> MOSS-Speech/MMAudio 顺序推进。
+1. 第一批：DNSMOS、BEATs、FireRedASR-AED。目标是统一产出 `infer_npu.py`、`prepare_eval_data.py`、`eval.py`、`benchmark.py`、`README_INFERENCE.md`。
+2. 第二批：whisper-large-v3、MossFormer2_SE_48K、pyannote-speaker-diarization-3.1。目标是补数据准备、标准指标和源仓 CPU/CUDA 对比。
+3. Canary-1B 作为模板维护：后续只补真实 NPU 运行结果、环境版本和常见问题。
+4. 专项批：Index-TTS-2、MOSS-TTSD-v0.5、MOSS-Speech、MMAudio。先做 patch 化和权重/数据检查，再做主观/客观质量评估。
+
+### 13.3 对所有仓库的共同要求
+
+- 每个仓库的功能验证必须写明：已有脚本、验证数据 URL/生成方式、权重 URL/下载命令、运行命令、验收输出。
+- 每个仓库的性能验证必须至少选一个数据集，与源仓 CPU/CUDA/官方报告做同 checkpoint、同数据、同参数对比。
+- 每个仓库的精度验证必须至少选一个公开数据集或明确人工评测协议，与源仓 CPU/CUDA/官方指标做对比。
+- 数据准备脚本必须支持离线复用，禁止在评测阶段隐式联网下载。
+- 缺少官方指标或官方组件时应在文档中明确“缺失/待补”，不能用简化指标或第三方非官方实现冒充官方评测。
