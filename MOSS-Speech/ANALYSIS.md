@@ -36,7 +36,7 @@ grep -RIn "cuda\|device_map\|torch_npu\|istft\|bfloat16\|cached_download" MOSS-S
 - Space `utils/interface.py` 默认 `device='cuda'`，但通过构造参数可传入设备，模型加载后 `.to(self.device)`；当前适配不直接使用该 Gradio 入口。
 - `cosyvoice/hifigan/generator.py` 使用 `torch.istft`。旧 README 建议将 ISTFT 转 CPU；该做法属于 CPU fallback，不能作为默认官方 NPU 路径静默启用。若 NPU 算子不支持，应在 NPU 验证中记录原始错误，并用独立 patch/独立非官方模式处理。
 - `cosyvoice` 训练、TensorRT、ONNX 导出路径存在多处 CUDA 逻辑；当前单请求推理入口不覆盖训练/TRT/ONNX 路径。
-- `diffusers` / `transformers` site-packages 修改没有绑定精确版本，不符合当前项目标准；后续若确需修改，必须固定版本并生成可检查 patch。
+- `diffusers` / `transformers` site-packages 修改没有绑定精确版本，不符合当前项目标准；这不等于确认不需要，而是需要先复现具体版本错误，再固定版本并生成可检查 patch。
 
 ## 4. 本次适配策略
 
@@ -51,4 +51,4 @@ grep -RIn "cuda\|device_map\|torch_npu\|istft\|bfloat16\|cached_download" MOSS-S
 - 当前环境未下载主权重/codec，未完成端到端 CPU 或 NPU 生成验证。
 - MOSS-Speech 是多仓库、多 remote-code、多组件链路，主观音频质量不能只通过 dummy smoke test 判定。
 - 公开资料未给出统一的 NPU 性能或精度基线；验收应以同 checkpoint、同输入、同生成参数下 CPU/CUDA 与 NPU 的功能和质量对齐为主。
-- 若 `processor.decode` 内部必须依赖 CPU ISTFT 或 Whisper CPU 特征，应先记录官方实现和错误边界，再作为明确的非官方兼容模式评估，不得混入默认路径。
+- 若 `processor.decode` 内部必须依赖 CPU ISTFT 或 Whisper CPU 特征，应先记录官方实现和错误边界，再作为明确的非官方兼容模式评估，不得混入默认路径。原 README 中的 Matcha-TTS bf16 修改也应按同样方式复现、patch 化和验收。

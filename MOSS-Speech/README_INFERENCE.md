@@ -10,6 +10,7 @@
   - [准备测试数据](#准备测试数据)
   - [模型推理](#模型推理)
   - [流程复查命令](#流程复查命令)
+- [原始 README 代码修改项处理](#原始-readme-代码修改项处理)
 - [模型推理性能与精度验收](#模型推理性能与精度验收)
 - [公网地址说明](#公网地址说明)
 
@@ -244,6 +245,19 @@ grep -RIn "cuda\|device_map\|torch_npu\|istft\|bfloat16\|cached_download" \
 git -C MOSS-Speech/upstream diff -- <upstream_file> > MOSS-Speech/patches/0001-xxx.patch
 git -C MOSS-Speech/upstream apply --check ../patches/0001-xxx.patch
 ```
+
+## 原始 README 代码修改项处理
+
+原始 `README.md` 中列出的 `diffusers`、`transformers`、Matcha-TTS 和 HiFiGAN 代码修改项**不是简单判定为“不需要”**，而是按当前项目标准从默认推理流程中移出，作为待复现和 patch 化的适配项处理。原因如下：
+
+| 原始修改项 | 当前处理结论 | 后续进入默认流程的条件 |
+|---|---|---|
+| 修改 `diffusers/utils/dynamic_modules_utils.py`，将 `cached_download` 改为 `hf_hub_download` | 不直接手工修改 site-packages。该问题通常与 `diffusers` / `huggingface_hub` 版本组合有关。 | 固定触发问题的 `diffusers` 与 `huggingface_hub` 版本，复现原始 `ImportError` 或调用错误后，对对应源码生成可检查 patch。 |
+| 修改 `transformers/models/whisper/feature_extraction_whisper.py`，强制 Whisper fbank 在 CPU 执行 | 不作为默认静默 CPU fallback。该修改会改变设备执行路径。 | 在 NPU 环境复现 Whisper 特征提取算子错误，记录 traceback；若确需 CPU 执行，应作为明确的非官方兼容模式或可审计 patch，并说明性能影响。 |
+| 修改 `Matcha-TTS/matcha/models/components/transformer.py`，增加 bf16 转换 | 可能仍是 NPU 精度/算子适配点，但当前未验证。 | 固定 Matcha-TTS 来源和 commit，复现 dtype 相关错误或数值异常，生成 `patches/000*.patch` 并通过 `git apply --check`。 |
+| 修改 `cosyvoice/hifigan/generator.py`，将 `torch.istft` 输入和 window 转到 CPU | 不作为默认路径。它属于 CPU fallback，可能影响性能和 NPU 覆盖率。 | 在 NPU 上复现 `torch.istft` 不支持或数值异常；若必须保留，需要独立 patch、记录原始错误、标注为兼容模式，并在验收报告中列出 CPU 段耗时。 |
+
+因此，当前 `README_INFERENCE.md` 的默认命令先走官方/上游推理链路并“严格失败”：缺依赖、上游 remote code 不兼容或 NPU 算子不支持时直接暴露原始错误。只有在精确版本、错误日志和验证结果齐备后，上述修改才会进入 `MOSS-Speech/patches/`，而不是继续要求用户手工改安装环境。
 
 ## 模型推理性能与精度验收
 

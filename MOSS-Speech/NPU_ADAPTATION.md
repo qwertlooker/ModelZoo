@@ -111,7 +111,7 @@ python MOSS-Speech/infer.py \
 
 ## 6. Patch 策略
 
-当前未修改上游已有文件，因此 `MOSS-Speech/patches/` 中没有 `.patch`。旧 README 中“手工修改 site-packages”的做法不再作为默认流程。若后续确需改动：
+当前未修改上游已有文件，因此 `MOSS-Speech/patches/` 中没有 `.patch`。旧 README 中“手工修改 site-packages”的做法不再作为默认流程，但这些修改项也不是直接判定为不需要：它们分别对应 `cached_download` 版本兼容、Whisper 特征提取设备、Matcha-TTS bf16 dtype、HiFiGAN `torch.istft` NPU 支持等潜在问题。默认流程先严格复现官方链路；只有在固定版本、记录原始错误并验证 patch 后，才将对应修改纳入 `patches/`。若后续确需改动：
 
 1. 固定依赖源码版本；
 2. 在可复现源码目录中修改；
