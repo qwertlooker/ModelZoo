@@ -47,7 +47,7 @@ git -C MOSS-TTSD-v0.5/upstream reset --hard v0.5
 
 ### 2.3 权重下载与校验
 
-下载命令（在 `MOSS-TTSD-v0.5/upstream/` 下执行；模型仓库 URL 为 <https://huggingface.co/fnlp/MOSS-TTSD-v0.5>，核心权重文件固定 URL 为 <https://huggingface.co/fnlp/MOSS-TTSD-v0.5/resolve/8527b9136b6afefe2252ae597cecea2e80e7ebeb/model.safetensors>）：
+下载命令（在 `MOSS-TTSD-v0.5/upstream/` 下执行；HF 模型仓库 URL 为 <https://huggingface.co/fnlp/MOSS-TTSD-v0.5>，ModelScope 模型仓库 URL 为 <https://modelscope.cn/models/openmoss/MOSS-TTSD-v0.5>，HF 核心权重文件固定 URL 为 <https://huggingface.co/fnlp/MOSS-TTSD-v0.5/resolve/8527b9136b6afefe2252ae597cecea2e80e7ebeb/model.safetensors>）：
 
 ```bash
 python -m pip install -U "huggingface_hub[cli]"
@@ -60,6 +60,19 @@ hf download fnlp/MOSS-TTSD-v0.5 \
 hf download fnlp/XY_Tokenizer_TTSD_V0 xy_tokenizer.ckpt \
   --revision c83433728e698ed0698e88cb5096bc221fb8f8c5 \
   --local-dir XY_Tokenizer/weights
+```
+
+ModelScope 可选下载命令（国内镜像；在同一目录下执行；codec 地址为 <https://modelscope.cn/models/openmoss/XY_Tokenizer_TTSD_V0>）：
+
+```bash
+python -m pip install -U modelscope
+mkdir -p weights/MOSS-TTSD-v0.5 XY_Tokenizer/weights
+
+modelscope download --model openmoss/MOSS-TTSD-v0.5 \
+  --local_dir weights/MOSS-TTSD-v0.5
+
+modelscope download --model openmoss/XY_Tokenizer_TTSD_V0 xy_tokenizer.ckpt \
+  --local_dir XY_Tokenizer/weights
 ```
 
 校验：
@@ -127,8 +140,8 @@ ASCEND_RT_VISIBLE_DEVICES=0 python inference.py \
 模型：MOSS-TTSD-v0.5
 源码：OpenMOSS/MOSS-TTSD tag v0.5 / 0e078c62389922d3aa873ce182daf31142860b18
 patch：0001-adapt-v0.5-inference-to-npu.patch
-模型权重来源/revision/SHA256：
-XY Tokenizer checkpoint 来源/SHA256：
+模型权重来源/revision/SHA256（HF `8527b9136b6afefe2252ae597cecea2e80e7ebeb` 或 ModelScope `2633fdb794b9b6acd2a0c80dae6c2961f7db9d59`）：
+XY Tokenizer checkpoint 来源/revision/SHA256（HF `c83433728e698ed0698e88cb5096bc221fb8f8c5` 或 ModelScope `79082154409f5e883d9487c4d4b4be363323b039`）：
 日期：
 硬件：NPU 型号 / 数量 / HBM
 驱动/固件/CANN：

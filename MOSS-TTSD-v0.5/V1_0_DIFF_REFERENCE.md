@@ -20,10 +20,10 @@
 |---|---|---|
 | 主模型 HF | `fnlp/MOSS-TTSD-v0.5` / `OpenMOSS-Team/MOSS-TTSD-v0.5` | `OpenMOSS-Team/MOSS-TTSD-v1.0` |
 | 主模型 HF HEAD | `8527b9136b6afefe2252ae597cecea2e80e7ebeb` | `c7cd852d87aff71cab5bd2b9b05509cedc0ef1ba` |
-| 主模型 ModelScope | 未作为当前 v0.5 适配边界 | `openmoss/MOSS-TTSD-v1.0`，本次记录 HEAD `64fd6fb06a6d7c4211a1c9477c6038aff538970a` |
+| 主模型 ModelScope | `openmoss/MOSS-TTSD-v0.5`，本次记录 HEAD `2633fdb794b9b6acd2a0c80dae6c2961f7db9d59` | `openmoss/MOSS-TTSD-v1.0`，本次记录 HEAD `64fd6fb06a6d7c4211a1c9477c6038aff538970a` |
 | 主权重形态 | 单个 `model.safetensors` | `model-00001-of-00004.safetensors` 到 `model-00004-of-00004.safetensors` + `model.safetensors.index.json` |
 | Codec | 原项目 `XY_Tokenizer/` 代码 + `fnlp/XY_Tokenizer_TTSD_V0/xy_tokenizer.ckpt` | 独立 HF 模型 `OpenMOSS-Team/MOSS-Audio-Tokenizer` |
-| Codec HEAD | `c83433728e698ed0698e88cb5096bc221fb8f8c5` | HF `3cd226ba2947efa357ef453bcad111b6eafba782`；ModelScope `d8ec39a98954fde962b16a2f0ec22666c04094d0` |
+| Codec HEAD | HF `c83433728e698ed0698e88cb5096bc221fb8f8c5`；ModelScope `79082154409f5e883d9487c4d4b4be363323b039` | HF `3cd226ba2947efa357ef453bcad111b6eafba782`；ModelScope `d8ec39a98954fde962b16a2f0ec22666c04094d0` |
 | Codec 权重形态 | 单个 `xy_tokenizer.ckpt` | `model-00001-of-00002.safetensors`、`model-00002-of-00002.safetensors` + index |
 | Codec 代码位置 | 源码仓库内 `XY_Tokenizer/` | `MOSS-Audio-Tokenizer` 模型仓库的 `modeling_moss_audio_tokenizer.py` 等 remote code |
 | 采样率 | v0.5 依赖 XY Tokenizer 配置 | v1.0 主模型和 codec 配置均记录 `sampling_rate` / `sample_rate` 为 `24000` |

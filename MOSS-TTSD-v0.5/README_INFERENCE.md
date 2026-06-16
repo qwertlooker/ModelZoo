@@ -26,8 +26,8 @@ pip install -r XY_Tokenizer/requirements.txt
 
 权重按原项目 v0.5 方式准备。官方下载 URL：
 
-- MOSS-TTSD-v0.5 权重：<https://huggingface.co/fnlp/MOSS-TTSD-v0.5>，同内容镜像/组织别名为 <https://huggingface.co/OpenMOSS-Team/MOSS-TTSD-v0.5>；本次记录 HEAD `8527b9136b6afefe2252ae597cecea2e80e7ebeb`，核心权重文件固定 URL <https://huggingface.co/fnlp/MOSS-TTSD-v0.5/resolve/8527b9136b6afefe2252ae597cecea2e80e7ebeb/model.safetensors>。
-- XY Tokenizer checkpoint：<https://huggingface.co/fnlp/XY_Tokenizer_TTSD_V0>，文件 `xy_tokenizer.ckpt`；本次记录 HEAD `c83433728e698ed0698e88cb5096bc221fb8f8c5`。
+- MOSS-TTSD-v0.5 权重：HF <https://huggingface.co/fnlp/MOSS-TTSD-v0.5>，同内容镜像/组织别名为 <https://huggingface.co/OpenMOSS-Team/MOSS-TTSD-v0.5>；ModelScope <https://modelscope.cn/models/openmoss/MOSS-TTSD-v0.5>。本次记录 HF HEAD `8527b9136b6afefe2252ae597cecea2e80e7ebeb`、ModelScope HEAD `2633fdb794b9b6acd2a0c80dae6c2961f7db9d59`，HF 核心权重文件固定 URL <https://huggingface.co/fnlp/MOSS-TTSD-v0.5/resolve/8527b9136b6afefe2252ae597cecea2e80e7ebeb/model.safetensors>。
+- XY Tokenizer checkpoint：HF <https://huggingface.co/fnlp/XY_Tokenizer_TTSD_V0>；ModelScope <https://modelscope.cn/models/openmoss/XY_Tokenizer_TTSD_V0>，文件 `xy_tokenizer.ckpt`；本次记录 HF HEAD `c83433728e698ed0698e88cb5096bc221fb8f8c5`、ModelScope HEAD `79082154409f5e883d9487c4d4b4be363323b039`。
 - XY Tokenizer 配置：原项目自带 `XY_Tokenizer/config/xy_tokenizer_config.yaml`。
 
 推荐下载命令（在 `MOSS-TTSD-v0.5/upstream/` 下执行）：
@@ -43,6 +43,19 @@ hf download fnlp/MOSS-TTSD-v0.5 \
 hf download fnlp/XY_Tokenizer_TTSD_V0 xy_tokenizer.ckpt \
   --revision c83433728e698ed0698e88cb5096bc221fb8f8c5 \
   --local-dir XY_Tokenizer/weights
+```
+
+ModelScope 可选下载命令（国内镜像；在同一目录下执行）：
+
+```bash
+python -m pip install -U modelscope
+mkdir -p weights/MOSS-TTSD-v0.5 XY_Tokenizer/weights
+
+modelscope download --model openmoss/MOSS-TTSD-v0.5 \
+  --local_dir weights/MOSS-TTSD-v0.5
+
+modelscope download --model openmoss/XY_Tokenizer_TTSD_V0 xy_tokenizer.ckpt \
+  --local_dir XY_Tokenizer/weights
 ```
 
 如果只需要直接下载 codec checkpoint，也可使用固定 URL：

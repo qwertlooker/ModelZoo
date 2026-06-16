@@ -11,8 +11,8 @@
 | tag commit | `0e078c62389922d3aa873ce182daf31142860b18` |
 | 当前 main HEAD | `20dbb4fc44819435fee894d644a0402a0fee736a`，已面向 v1.0 |
 | 本地 upstream | `MOSS-TTSD-v0.5/upstream/`，仅用于生成/校验 patch，不提交 |
-| 模型权重 | `fnlp/MOSS-TTSD-v0.5` / `OpenMOSS-Team/MOSS-TTSD-v0.5`，URL <https://huggingface.co/fnlp/MOSS-TTSD-v0.5>，HF HEAD `8527b9136b6afefe2252ae597cecea2e80e7ebeb` |
-| XY Tokenizer | 原 v0.5 代码默认 `XY_Tokenizer/config/xy_tokenizer_config.yaml` + `XY_Tokenizer/weights/xy_tokenizer.ckpt`；checkpoint 来源 <https://huggingface.co/fnlp/XY_Tokenizer_TTSD_V0>，HEAD `c83433728e698ed0698e88cb5096bc221fb8f8c5` |
+| 模型权重 | `fnlp/MOSS-TTSD-v0.5` / `OpenMOSS-Team/MOSS-TTSD-v0.5`；HF <https://huggingface.co/fnlp/MOSS-TTSD-v0.5>，HF HEAD `8527b9136b6afefe2252ae597cecea2e80e7ebeb`；ModelScope <https://modelscope.cn/models/openmoss/MOSS-TTSD-v0.5>，ModelScope HEAD `2633fdb794b9b6acd2a0c80dae6c2961f7db9d59` |
+| XY Tokenizer | 原 v0.5 代码默认 `XY_Tokenizer/config/xy_tokenizer_config.yaml` + `XY_Tokenizer/weights/xy_tokenizer.ckpt`；HF checkpoint <https://huggingface.co/fnlp/XY_Tokenizer_TTSD_V0>，HF HEAD `c83433728e698ed0698e88cb5096bc221fb8f8c5`；ModelScope checkpoint <https://modelscope.cn/models/openmoss/XY_Tokenizer_TTSD_V0>，ModelScope HEAD `79082154409f5e883d9487c4d4b4be363323b039` |
 | 当前适配对象 | GitHub tag `v0.5` 原项目代码 + MOSS-TTSD-v0.5 权重 + XY Tokenizer checkpoint |
 | 明确排除 | MOSS-TTSD v0.7、MOSS-TTSD v1.0、SGLang 路径、未固定版本的一键包改动 |
 

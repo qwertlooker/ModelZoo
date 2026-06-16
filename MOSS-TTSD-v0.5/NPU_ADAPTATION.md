@@ -63,8 +63,8 @@ SPT_CHECKPOINT_PATH = XY_Tokenizer/weights/xy_tokenizer.ckpt
 
 | 资产 | URL | revision / HEAD | 目标路径 |
 |---|---|---|---|
-| MOSS-TTSD-v0.5 模型权重 | <https://huggingface.co/fnlp/MOSS-TTSD-v0.5>；同内容别名 <https://huggingface.co/OpenMOSS-Team/MOSS-TTSD-v0.5>；核心权重文件 <https://huggingface.co/fnlp/MOSS-TTSD-v0.5/resolve/8527b9136b6afefe2252ae597cecea2e80e7ebeb/model.safetensors> | `8527b9136b6afefe2252ae597cecea2e80e7ebeb` | `weights/MOSS-TTSD-v0.5/` |
-| XY Tokenizer checkpoint | <https://huggingface.co/fnlp/XY_Tokenizer_TTSD_V0> | `c83433728e698ed0698e88cb5096bc221fb8f8c5` | `XY_Tokenizer/weights/xy_tokenizer.ckpt` |
+| MOSS-TTSD-v0.5 模型权重 | HF <https://huggingface.co/fnlp/MOSS-TTSD-v0.5>；同内容别名 <https://huggingface.co/OpenMOSS-Team/MOSS-TTSD-v0.5>；ModelScope <https://modelscope.cn/models/openmoss/MOSS-TTSD-v0.5>；HF 核心权重文件 <https://huggingface.co/fnlp/MOSS-TTSD-v0.5/resolve/8527b9136b6afefe2252ae597cecea2e80e7ebeb/model.safetensors> | HF `8527b9136b6afefe2252ae597cecea2e80e7ebeb`；ModelScope `2633fdb794b9b6acd2a0c80dae6c2961f7db9d59` | `weights/MOSS-TTSD-v0.5/` |
+| XY Tokenizer checkpoint | HF <https://huggingface.co/fnlp/XY_Tokenizer_TTSD_V0>；ModelScope <https://modelscope.cn/models/openmoss/XY_Tokenizer_TTSD_V0> | HF `c83433728e698ed0698e88cb5096bc221fb8f8c5`；ModelScope `79082154409f5e883d9487c4d4b4be363323b039` | `XY_Tokenizer/weights/xy_tokenizer.ckpt` |
 | XY Tokenizer config | 原项目 tag `v0.5` 自带 | `0e078c62389922d3aa873ce182daf31142860b18` | `XY_Tokenizer/config/xy_tokenizer_config.yaml` |
 
 下载命令（在 `MOSS-TTSD-v0.5/upstream/` 下执行）：
@@ -80,6 +80,19 @@ hf download fnlp/MOSS-TTSD-v0.5 \
 hf download fnlp/XY_Tokenizer_TTSD_V0 xy_tokenizer.ckpt \
   --revision c83433728e698ed0698e88cb5096bc221fb8f8c5 \
   --local-dir XY_Tokenizer/weights
+```
+
+ModelScope 可选下载命令（国内镜像；在同一目录下执行）：
+
+```bash
+python -m pip install -U modelscope
+mkdir -p weights/MOSS-TTSD-v0.5 XY_Tokenizer/weights
+
+modelscope download --model openmoss/MOSS-TTSD-v0.5 \
+  --local_dir weights/MOSS-TTSD-v0.5
+
+modelscope download --model openmoss/XY_Tokenizer_TTSD_V0 xy_tokenizer.ckpt \
+  --local_dir XY_Tokenizer/weights
 ```
 
 patch 后可通过命令行覆盖：

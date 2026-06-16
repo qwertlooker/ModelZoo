@@ -7,8 +7,8 @@
 **模型边界**
 
 - 源码：`OpenMOSS/MOSS-TTSD` tag `v0.5` / commit `0e078c62389922d3aa873ce182daf31142860b18`。
-- 模型：`fnlp/MOSS-TTSD-v0.5`（<https://huggingface.co/fnlp/MOSS-TTSD-v0.5>）或同内容别名 `OpenMOSS-Team/MOSS-TTSD-v0.5`；本次记录 HEAD `8527b9136b6afefe2252ae597cecea2e80e7ebeb`。
-- Codec：原项目 `XY_Tokenizer` + `fnlp/XY_Tokenizer_TTSD_V0` 的 `xy_tokenizer.ckpt`（<https://huggingface.co/fnlp/XY_Tokenizer_TTSD_V0>）；本次记录 HEAD `c83433728e698ed0698e88cb5096bc221fb8f8c5`。
+- 模型：`fnlp/MOSS-TTSD-v0.5`（HF <https://huggingface.co/fnlp/MOSS-TTSD-v0.5>）或同内容别名 `OpenMOSS-Team/MOSS-TTSD-v0.5`；ModelScope 地址为 <https://modelscope.cn/models/openmoss/MOSS-TTSD-v0.5>。本次记录 HF HEAD `8527b9136b6afefe2252ae597cecea2e80e7ebeb`、ModelScope HEAD `2633fdb794b9b6acd2a0c80dae6c2961f7db9d59`。
+- Codec：原项目 `XY_Tokenizer` + `fnlp/XY_Tokenizer_TTSD_V0` 的 `xy_tokenizer.ckpt`（HF <https://huggingface.co/fnlp/XY_Tokenizer_TTSD_V0>；ModelScope <https://modelscope.cn/models/openmoss/XY_Tokenizer_TTSD_V0>）；本次记录 HF HEAD `c83433728e698ed0698e88cb5096bc221fb8f8c5`、ModelScope HEAD `79082154409f5e883d9487c4d4b4be363323b039`。
 - 不包含：MOSS-TTSD v0.7、v1.0、SGLang 路径、未固定版本的一键包改动。
 
 ## 0.1 权重下载命令
@@ -26,6 +26,19 @@ hf download fnlp/MOSS-TTSD-v0.5 \
 hf download fnlp/XY_Tokenizer_TTSD_V0 xy_tokenizer.ckpt \
   --revision c83433728e698ed0698e88cb5096bc221fb8f8c5 \
   --local-dir XY_Tokenizer/weights
+```
+
+ModelScope 可选下载命令（国内镜像；在同一目录下执行）：
+
+```bash
+python -m pip install -U modelscope
+mkdir -p weights/MOSS-TTSD-v0.5 XY_Tokenizer/weights
+
+modelscope download --model openmoss/MOSS-TTSD-v0.5 \
+  --local_dir weights/MOSS-TTSD-v0.5
+
+modelscope download --model openmoss/XY_Tokenizer_TTSD_V0 xy_tokenizer.ckpt \
+  --local_dir XY_Tokenizer/weights
 ```
 
 codec checkpoint 固定 URL：<https://huggingface.co/fnlp/XY_Tokenizer_TTSD_V0/resolve/c83433728e698ed0698e88cb5096bc221fb8f8c5/xy_tokenizer.ckpt>。下载后必须把模型权重和 `xy_tokenizer.ckpt` 的 SHA256 写入验收报告。
