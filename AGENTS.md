@@ -9,6 +9,10 @@
 
 - 除非用户明确要求，不要修改各模型目录中的原始 `README.md`；适配细化、推理说明、验证方案等新增内容应写入 `README_INFERENCE.md`、`ANALYSIS.md`、`NPU_ADAPTATION.md`、`NPU_VALIDATION.md`、`ACCEPTANCE_PLAN.md` 等独立文档。
 
+# 代码适配约束
+
+- 如果可以使用原项目已有代码，优先通过 patch 修改原项目代码；不要新增独立代码文件。只有在原项目确实没有合适入口且用户明确同意时，才新增代码文件。
+
 # 项目范围的适配脚本标准
 
 - 这些标准适用于 ModelZoo 中的每个模型目录，不仅限于 Canary-1B。

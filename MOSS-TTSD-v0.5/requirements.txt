@@ -1,9 +1,0 @@
-# Install torch and torch-npu according to the target CANN/driver first.
-# Example only: pip install torch torch-npu
-transformers>=4.53.2
-accelerate
-huggingface_hub
-safetensors
-torchaudio
-numpy
-soundfile

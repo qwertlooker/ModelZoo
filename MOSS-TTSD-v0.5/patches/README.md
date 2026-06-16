@@ -1,12 +1,26 @@
 # MOSS-TTSD-v0.5 patches
 
-当前适配不修改 `MOSS-TTSD-v0.5/upstream/` 中的 GitHub 上游已有文件，因此没有 `.patch` 文件。
+本目录保存对原项目已有文件的适配补丁；不在模型目录新增独立推理代码文件。
 
-本目录下的 `infer.py`、`download_weights.py`、`prepare_test_data.py` 和验证文档均为当前 ModelZoo 适配新增文件，不进入上游 patch。
+当前补丁：
 
-如果后续确需修改上游已有文件，按项目标准在 `MOSS-TTSD-v0.5/upstream/` 中完成修改并生成 patch，例如：
+- `0001-adapt-v0.5-inference-to-npu.patch`
+  - 基于 `OpenMOSS/MOSS-TTSD` tag `v0.5` / commit `0e078c62389922d3aa873ce182daf31142860b18`。
+  - 修改原项目已有 `inference.py`、`generation_utils.py`、`XY_Tokenizer/inference.py`、`XY_Tokenizer/xy_tokenizer/model.py`、`XY_Tokenizer/xy_tokenizer/nn/quantizer.py`。
+  - 增加显式 `--device npu/cpu/cuda`、`--dtype`、`--attn_implementation` 和权重/codec 路径参数；默认 `--device npu`。
+  - 修正 XY Tokenizer encode/decode 默认 CUDA 设备假设，使其从输入 tensor 推断设备。
+  - 将 quantizer 的 autocast device 从硬编码 `cuda` 改为当前 tensor device。
+
+应用方式：
 
 ```bash
-git -C MOSS-TTSD-v0.5/upstream diff -- <upstream_existing_file> > MOSS-TTSD-v0.5/patches/0001-xxx.patch
-git -C MOSS-TTSD-v0.5/upstream apply --check ../patches/0001-xxx.patch
+git -C MOSS-TTSD-v0.5/upstream checkout v0.5
+git -C MOSS-TTSD-v0.5/upstream apply ../patches/0001-adapt-v0.5-inference-to-npu.patch
+```
+
+校验方式：
+
+```bash
+git -C MOSS-TTSD-v0.5/upstream reset --hard v0.5
+git -C MOSS-TTSD-v0.5/upstream apply --check ../patches/0001-adapt-v0.5-inference-to-npu.patch
 ```

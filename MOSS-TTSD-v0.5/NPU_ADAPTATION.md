@@ -2,146 +2,111 @@
 
 ## 1. 适配目标
 
-将 MOSS-TTSD-v0.5 的旧截图式部署说明整理为可执行、可验证、可复用的 NPU 推理适配：
+在不新增独立代码文件的前提下，基于原项目 `OpenMOSS/MOSS-TTSD` tag `v0.5` 的已有推理链路完成 NPU 适配：
 
 - 默认 `--device npu`；
-- CPU 验证必须显式 `--device cpu`；
-- 不使用 `auto/use_gpu/device_map="auto"` 作为设备选择；
-- 不在代码中写死 `npu:0` / `cuda:0`；
-- NPU 卡号由环境变量控制，例如 `ASCEND_RT_VISIBLE_DEVICES=0`；
-- 缺少依赖、缺少官方字段、模型/codec revision 不匹配时直接失败并暴露原始错误。
+- CPU 验证显式 `--device cpu`；
+- 不使用 `auto/use_gpu` 作为默认设备选择；
+- 不写死 `npu:0` / `cuda:0`，实际卡号由环境变量控制；
+- 必要代码改动通过 patch 交付。
 
-## 2. 上游与 patch 策略
+## 2. patch 策略
 
-- GitHub upstream：<https://github.com/OpenMOSS/MOSS-TTSD>
-- 基准 commit：`20dbb4fc44819435fee894d644a0402a0fee736a`
-- 本次没有修改 `MOSS-TTSD-v0.5/upstream/` 中的上游已有文件，因此没有 `.patch`。
-- `infer.py`、`download_weights.py`、`prepare_test_data.py`、`validate_outputs.py` 是当前适配新增文件，不进入 patch。
+当前 patch：`MOSS-TTSD-v0.5/patches/0001-adapt-v0.5-inference-to-npu.patch`。
 
-后续若必须修改上游已有文件，应在 `MOSS-TTSD-v0.5/upstream/` 中生成 patch：
+基准源码：
 
 ```bash
-git -C MOSS-TTSD-v0.5/upstream diff -- <upstream_existing_file> > MOSS-TTSD-v0.5/patches/0001-xxx.patch
-git -C MOSS-TTSD-v0.5/upstream apply --check ../patches/0001-xxx.patch
+git -C MOSS-TTSD-v0.5/upstream checkout v0.5
+git -C MOSS-TTSD-v0.5/upstream rev-parse HEAD
+# 0e078c62389922d3aa873ce182daf31142860b18
 ```
+
+应用：
+
+```bash
+git -C MOSS-TTSD-v0.5/upstream apply ../patches/0001-adapt-v0.5-inference-to-npu.patch
+```
+
+补丁修改原项目已有文件：
+
+- `inference.py`
+- `generation_utils.py`
+- `XY_Tokenizer/inference.py`
+- `XY_Tokenizer/xy_tokenizer/model.py`
+- `XY_Tokenizer/xy_tokenizer/nn/quantizer.py`
 
 ## 3. 环境准备
 
-### 3.1 NPU 环境
-
-原 README 给出的 Ascend 约束可作为目标环境边界：
-
-| 依赖 | 建议版本 |
-|---|---|
-| 昇腾 NPU 驱动/固件 | `>=25.0.RC1.1` |
-| CANN Toolkit / Kernel / NNAL | `>=8.2.RC1` |
-| Python | `>=3.10`，NPU 容器建议 `>=3.11` |
-| PyTorch | 与 torch-npu/CANN 匹配，原说明为 `>=2.6.0` |
-| torch-npu | 与 PyTorch/CANN 匹配，原说明为 `>=2.6.0` |
-
-安装方式：
+NPU 环境中先安装与 CANN 匹配的 `torch` / `torch-npu`，再使用原项目 requirements：
 
 ```bash
+cd MOSS-TTSD-v0.5/upstream
 pip install torch torch-npu
-pip install -r MOSS-TTSD-v0.5/requirements.txt
+pip install -r requirements.txt
+pip install -r XY_Tokenizer/requirements.txt
 ```
 
-### 3.2 CPU 验证环境
+原 README 中的 Ascend 版本约束可作为目标环境参考：驱动/固件 `>=25.0.RC1.1`，CANN Toolkit/Kernel/NNAL `>=8.2.RC1`，PyTorch/torch-npu `>=2.6.0`。最终以目标 CANN 对应的 torch-npu 官方匹配表为准。
 
-CPU 验证只用于同 checkpoint、同 JSONL 的功能/质量/性能基线，不代表最终 NPU 性能：
+## 4. 权重准备
+
+原 v0.5 推理代码默认：
+
+```text
+MODEL_PATH = fnlp/MOSS-TTSD-v0.5
+SPT_CONFIG_PATH = XY_Tokenizer/config/xy_tokenizer_config.yaml
+SPT_CHECKPOINT_PATH = XY_Tokenizer/weights/xy_tokenizer.ckpt
+```
+
+patch 后可通过命令行覆盖：
 
 ```bash
-python -m venv MOSS-TTSD-v0.5/.venv-cpu
-source MOSS-TTSD-v0.5/.venv-cpu/bin/activate
-pip install torch torchaudio
-pip install -r MOSS-TTSD-v0.5/requirements.txt
+--model_path /path/to/fnlp/MOSS-TTSD-v0.5 \
+--spt_config_path /path/to/XY_Tokenizer/config/xy_tokenizer_config.yaml \
+--spt_checkpoint_path /path/to/XY_Tokenizer/weights/xy_tokenizer.ckpt
 ```
 
-当前执行环境未安装 `torch` / `transformers`，所以本次提交未做 CPU 实推；见 `NPU_VALIDATION.md`。
+正式验收前记录：模型权重来源、HF/ModelScope revision、`model.safetensors` 或等效权重 SHA256、`xy_tokenizer.ckpt` SHA256。
 
-## 4. 权重与版本边界
-
-默认固定：
-
-- 模型：`OpenMOSS-Team/MOSS-TTSD-v0.5`，revision `8527b9136b6afefe2252ae597cecea2e80e7ebeb`。
-- Codec：`OpenMOSS-Team/XY_Tokenizer_TTSD_V0_hf`，revision `c884072fd69ed00b72cd0d43355c06341c4f51a6`。
-
-下载：
-
-```bash
-python MOSS-TTSD-v0.5/download_weights.py \
-  --output_dir MOSS-TTSD-v0.5/weights
-```
-
-下载后请记录校验：
-
-```bash
-sha256sum MOSS-TTSD-v0.5/weights/MOSS-TTSD-v0.5/model.safetensors
-sha256sum MOSS-TTSD-v0.5/weights/XY_Tokenizer_TTSD_V0_hf/pytorch_model.bin
-```
-
-## 5. 输入 JSONL
-
-支持官方 v0.5 processor 的两类输入。
-
-单共享 prompt：
-
-```json
-{"base_path":"/path/to/audio","text":"[S1]... [S2]...","prompt_audio":"shared.wav","prompt_text":"[S1]... [S2]..."}
-```
-
-双 speaker prompt：
-
-```json
-{"base_path":"/path/to/audio","text":"[S1]... [S2]...","prompt_audio_speaker1":"s1.wav","prompt_text_speaker1":"...","prompt_audio_speaker2":"s2.wav","prompt_text_speaker2":"..."}
-```
-
-`prepare_test_data.py` 生成的是第二种 schema。
-
-## 6. 推理脚本
+## 5. 推理命令
 
 NPU：
 
 ```bash
-ASCEND_RT_VISIBLE_DEVICES=0 python MOSS-TTSD-v0.5/infer.py \
-  --model_path MOSS-TTSD-v0.5/weights/MOSS-TTSD-v0.5 \
-  --codec_path MOSS-TTSD-v0.5/weights/XY_Tokenizer_TTSD_V0_hf \
-  --input_jsonl MOSS-TTSD-v0.5/test_data/smoke.jsonl \
-  --output_dir MOSS-TTSD-v0.5/outputs \
+cd MOSS-TTSD-v0.5/upstream
+ASCEND_RT_VISIBLE_DEVICES=0 python inference.py \
+  --jsonl examples/examples.jsonl \
+  --output_dir outputs_npu \
   --device npu \
   --dtype bfloat16 \
   --attn_implementation sdpa \
-  --batch_size 1 \
-  --text_normalize \
-  --local_files_only
+  --model_path fnlp/MOSS-TTSD-v0.5 \
+  --spt_config_path XY_Tokenizer/config/xy_tokenizer_config.yaml \
+  --spt_checkpoint_path XY_Tokenizer/weights/xy_tokenizer.ckpt \
+  --seed 42 \
+  --use_normalize
 ```
 
 CPU：
 
 ```bash
-python MOSS-TTSD-v0.5/infer.py \
-  --model_path MOSS-TTSD-v0.5/weights/MOSS-TTSD-v0.5 \
-  --codec_path MOSS-TTSD-v0.5/weights/XY_Tokenizer_TTSD_V0_hf \
-  --input_jsonl MOSS-TTSD-v0.5/test_data/smoke.jsonl \
-  --output_dir MOSS-TTSD-v0.5/outputs_cpu \
+cd MOSS-TTSD-v0.5/upstream
+python inference.py \
+  --jsonl examples/examples.jsonl \
+  --output_dir outputs_cpu \
   --device cpu \
   --dtype float32 \
   --attn_implementation sdpa \
-  --batch_size 1 \
-  --local_files_only
+  --model_path fnlp/MOSS-TTSD-v0.5 \
+  --spt_config_path XY_Tokenizer/config/xy_tokenizer_config.yaml \
+  --spt_checkpoint_path XY_Tokenizer/weights/xy_tokenizer.ckpt \
+  --seed 42 \
+  --use_normalize
 ```
 
-输出结构：
+输出仍沿用原项目逻辑：`output_*.wav` 保存到指定 `--output_dir`。
 
-- `sample_XXXX_YY.wav`：生成音频片段；
-- `manifest.jsonl`：每条输入的输出音频、文本、模型/codec revision；
-- `run_report.json`：耗时、生成音频时长、RTF、RTFx、设备和 dtype。
+## 6. 与旧手工修改说明的关系
 
-## 7. 与旧 README 手工修改的关系
-
-旧 README 要用户手工修改多处 `cuda` 字符串和一键整合包文件。该路径存在两个问题：
-
-1. 改动没有 patch，无法复现；
-2. 一键包内部代码与当前官方 v0.5 HF remote-code snapshot 的版本边界不清晰。
-
-本次改为固定官方模型/codec snapshot，并用新增 `infer.py` 控制设备迁移。若实际业务必须继续使用 ModelScope 一键整合包，应先记录包内源码/权重 commit 或 SHA256，再把必要源码修改整理成 patch，而不是继续依赖截图和人工编辑。
+旧说明要求手工改多处 `cuda` 字符串。本次将这些改动收敛为可复现 patch；后续如果需要适配 Gradio、podcast 生成或其他路径，也应继续基于原项目已有文件生成新的 patch，而不是新增旁路脚本。

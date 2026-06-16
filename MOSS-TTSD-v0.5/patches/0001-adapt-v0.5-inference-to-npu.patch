@@ -1,0 +1,191 @@
+diff --git a/XY_Tokenizer/inference.py b/XY_Tokenizer/inference.py
+index f47bdc7..710664f 100644
+--- a/XY_Tokenizer/inference.py
++++ b/XY_Tokenizer/inference.py
+@@ -12,7 +12,7 @@ if __name__ == "__main__":
+     parser = argparse.ArgumentParser()
+     parser.add_argument("--config_path", type=str, default="./config/xy_tokenizer_config.yaml")
+     parser.add_argument("--checkpoint_path", type=str, default="./weights/xy_tokenizer.ckpt")
+-    parser.add_argument("--device", type=str, default="cuda")
++    parser.add_argument("--device", type=str, choices=["npu", "cpu", "cuda"], default="npu")
+     
+     parser.add_argument("--input_dir", type=str, required=True)
+     parser.add_argument("--output_dir", type=str, required=True)
+@@ -27,6 +27,12 @@ if __name__ == "__main__":
+     if args.debug == 1:
+         waiting_for_debug(args.debug_ip, args.debug_port)
+ 
++    if args.device == "npu":
++        import torch_npu  # Registers the NPU backend with torch.
++        if not torch.npu.is_available():
++            raise RuntimeError("NPU device requested, but torch.npu.is_available() is false")
++    if args.device == "cuda" and not torch.cuda.is_available():
++        raise RuntimeError("CUDA device requested, but torch.cuda.is_available() is false")
+     device = torch.device(args.device)
+ 
+     ## Load codec model
+diff --git a/XY_Tokenizer/xy_tokenizer/model.py b/XY_Tokenizer/xy_tokenizer/model.py
+index 1f73fc5..d7acc09 100644
+--- a/XY_Tokenizer/xy_tokenizer/model.py
++++ b/XY_Tokenizer/xy_tokenizer/model.py
+@@ -128,7 +128,7 @@ class XY_Tokenizer(nn.Module):
+         }
+         
+     @torch.inference_mode()
+-    def encode(self, wav_list, overlap_seconds=10, device=torch.device("cuda")):
++    def encode(self, wav_list, overlap_seconds=10, device=None):
+         """
+             Input:
+                 wav_list: List of audio waveforms, each with potentially different length, may exceed 30 seconds # B * (T,)
+@@ -137,6 +137,9 @@ class XY_Tokenizer(nn.Module):
+                 dict: Contains the following key-value pairs
+                     "codes_list": List of quantization codes # B * (nq, T)
+         """
++        if device is None:
++            device = wav_list[0].device
++
+         duration_seconds = 30 - overlap_seconds
+         chunk_size = int(30 * self.input_sample_rate) # Maximum samples per chunk
+         duration_size = int(duration_seconds * self.input_sample_rate) # Valid output samples per chunk
+@@ -192,7 +195,7 @@ class XY_Tokenizer(nn.Module):
+         }
+         
+     @torch.inference_mode()
+-    def decode(self, codes_list, overlap_seconds=10, device=torch.device("cuda")):
++    def decode(self, codes_list, overlap_seconds=10, device=None):
+         """
+             Input:
+                 codes_list: List of quantization codes # B * (nq, T)
+@@ -201,6 +204,9 @@ class XY_Tokenizer(nn.Module):
+                 dict: Contains the following key-value pairs
+                     "syn_wav_list": List of synthesized audio waveforms # B * (T,)
+         """
++        if device is None:
++            device = codes_list[0].device
++
+         duration_seconds = 30 - overlap_seconds
+         chunk_code_length = int(30 * self.input_sample_rate // self.encoder_downsample_rate) # Maximum code length per chunk
+         duration_code_length = int(duration_seconds * self.input_sample_rate // self.encoder_downsample_rate) # Valid code length per chunk
+diff --git a/XY_Tokenizer/xy_tokenizer/nn/quantizer.py b/XY_Tokenizer/xy_tokenizer/nn/quantizer.py
+index a7d28b9..420522e 100644
+--- a/XY_Tokenizer/xy_tokenizer/nn/quantizer.py
++++ b/XY_Tokenizer/xy_tokenizer/nn/quantizer.py
+@@ -244,7 +244,7 @@ class ResidualVQ(nn.Module):
+     def forward(self, z, input_length, n_quantizers: int = None):  # z: (B, D, T), input_length: (B)
+         z = self.input_proj(z)
+ 
+-        with torch.autocast('cuda', enabled = False):    
++        with torch.autocast(device_type=z.device.type, enabled=False):
+             batch_size, _, max_time = z.shape
+             mask = torch.arange(max_time, device=z.device).expand(batch_size, max_time) < input_length.unsqueeze(1)  # (B, T)
+ 
+diff --git a/generation_utils.py b/generation_utils.py
+index e433ad7..863bd0f 100644
+--- a/generation_utils.py
++++ b/generation_utils.py
+@@ -12,10 +12,14 @@ from XY_Tokenizer.xy_tokenizer.model import XY_Tokenizer
+ MAX_CHANNELS = 8
+ SILENCE_DURATION = 0.0  # Fixed silence duration: 0 seconds
+ 
+-def load_model(model_path, spt_config_path, spt_checkpoint_path):
++def load_model(model_path, spt_config_path, spt_checkpoint_path, torch_dtype=torch.bfloat16, attn_implementation="sdpa"):
+     tokenizer = AutoTokenizer.from_pretrained(model_path)
+     
+-    model = AsteroidTTSInstruct.from_pretrained(model_path, torch_dtype=torch.bfloat16, attn_implementation="flash_attention_2")
++    model = AsteroidTTSInstruct.from_pretrained(
++        model_path,
++        torch_dtype=torch_dtype,
++        attn_implementation=attn_implementation,
++    )
+ 
+     spt = XY_Tokenizer.load_from_checkpoint(config_path=spt_config_path, ckpt_path=spt_checkpoint_path)
+     
+@@ -438,8 +442,11 @@ def process_batch(batch_items, tokenizer, model, spt, device, system_prompt, sta
+                 traceback.print_exc()
+                 audio_results.append(None)
+         
+-        # Clean up GPU memory
+-        torch.cuda.empty_cache()
++        # Clean up accelerator memory
++        if str(device).startswith("cuda"):
++            torch.cuda.empty_cache()
++        elif str(device).startswith("npu"):
++            torch.npu.empty_cache()
+         
+         # Return text data and audio data
+         return actual_texts_data, audio_results
+diff --git a/inference.py b/inference.py
+index 69b696f..aa85faa 100644
+--- a/inference.py
++++ b/inference.py
+@@ -13,28 +13,68 @@ SPT_CONFIG_PATH = "XY_Tokenizer/config/xy_tokenizer_config.yaml"
+ SPT_CHECKPOINT_PATH = "XY_Tokenizer/weights/xy_tokenizer.ckpt"
+ MAX_CHANNELS = 8
+ 
++def _resolve_device(device_name):
++    if device_name not in {"npu", "cpu", "cuda"}:
++        raise ValueError("--device must be one of: npu, cpu, cuda")
++    if device_name == "npu":
++        import torch_npu  # Registers the NPU backend with torch.
++        if not torch.npu.is_available():
++            raise RuntimeError("NPU device requested, but torch.npu.is_available() is false")
++    if device_name == "cuda" and not torch.cuda.is_available():
++        raise RuntimeError("CUDA device requested, but torch.cuda.is_available() is false")
++    return torch.device(device_name)
++
++
++def _resolve_dtype(dtype_name):
++    if dtype_name == "float32":
++        return torch.float32
++    if dtype_name == "float16":
++        return torch.float16
++    if dtype_name == "bfloat16":
++        return torch.bfloat16
++    raise ValueError("--dtype must be one of: float32, float16, bfloat16")
++
++
+ def main():
+     parser = argparse.ArgumentParser(description="TTS inference with Asteroid model")
+     parser.add_argument("--jsonl", default="examples/examples.jsonl", 
+                        help="Path to JSONL file (default: examples/examples.jsonl)")
++    parser.add_argument("--model_path", default=MODEL_PATH,
++                       help="Path or Hugging Face id for MOSS-TTSD-v0.5 weights.")
++    parser.add_argument("--spt_config_path", default=SPT_CONFIG_PATH,
++                       help="Path to XY Tokenizer config yaml.")
++    parser.add_argument("--spt_checkpoint_path", default=SPT_CHECKPOINT_PATH,
++                       help="Path to XY Tokenizer checkpoint.")
+     parser.add_argument("--seed", type=int, default=None,
+                        help="Random seed for reproducibility (default: None)")
+     parser.add_argument("--output_dir", default="outputs",
+                        help="Output directory for generated audio files (default: outputs)")
+     parser.add_argument("--use_normalize", action="store_true", default=True,
+                        help="Whether to use text normalization (default: True)")
++    parser.add_argument("--device", choices=["npu", "cpu", "cuda"], default="npu",
++                       help="Inference device. Use ASCEND_RT_VISIBLE_DEVICES/CUDA_VISIBLE_DEVICES to select card.")
++    parser.add_argument("--dtype", choices=["float32", "float16", "bfloat16"], default="bfloat16",
++                       help="Model compute dtype.")
++    parser.add_argument("--attn_implementation", choices=["sdpa", "eager", "flash_attention_2"], default="sdpa",
++                       help="Transformers attention implementation.")
+     
+     args = parser.parse_args()
+     
+     # Create output directory if it doesn't exist
+     os.makedirs(args.output_dir, exist_ok=True)
+     
+-    device = "cuda" if torch.cuda.is_available() else "cpu"
++    device = _resolve_device(args.device)
+     print(f"Using device: {device}")
+     
+     # Load models
+     print("Loading models...")
+-    tokenizer, model, spt = load_model(MODEL_PATH, SPT_CONFIG_PATH, SPT_CHECKPOINT_PATH)
++    tokenizer, model, spt = load_model(
++        args.model_path,
++        args.spt_config_path,
++        args.spt_checkpoint_path,
++        torch_dtype=_resolve_dtype(args.dtype),
++        attn_implementation=args.attn_implementation,
++    )
+     spt = spt.to(device)
+     model = model.to(device)
+     

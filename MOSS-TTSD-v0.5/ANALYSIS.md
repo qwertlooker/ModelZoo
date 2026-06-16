@@ -6,62 +6,54 @@
 
 | 项 | 当前记录 |
 |---|---|
-| GitHub 源码 | <https://github.com/OpenMOSS/MOSS-TTSD> |
-| GitHub 默认分支 | `main` |
-| GitHub HEAD | `20dbb4fc44819435fee894d644a0402a0fee736a` |
-| 本地 upstream | `MOSS-TTSD-v0.5/upstream/`，仅用于对照，不提交 |
-| 模型权重 | `OpenMOSS-Team/MOSS-TTSD-v0.5` / `fnlp/MOSS-TTSD-v0.5` |
-| 模型权重 HEAD | `8527b9136b6afefe2252ae597cecea2e80e7ebeb` |
-| 辅助 codec | `OpenMOSS-Team/XY_Tokenizer_TTSD_V0_hf` / `fnlp/XY_Tokenizer_TTSD_V0_hf` |
-| codec HEAD | `c884072fd69ed00b72cd0d43355c06341c4f51a6` |
-| 当前适配对象 | MOSS-TTSD-v0.5 + XY Tokenizer TTSD V0 HF remote-code 路径 |
-| 明确排除 | MOSS-TTSD v0.7、MOSS-TTSD v1.0、SGLang 端到端服务化路径、历史第三方一键整合包内未验证改动 |
+| 原项目源码 | <https://github.com/OpenMOSS/MOSS-TTSD> |
+| 原项目版本 | tag `v0.5` |
+| tag commit | `0e078c62389922d3aa873ce182daf31142860b18` |
+| 当前 main HEAD | `20dbb4fc44819435fee894d644a0402a0fee736a`，已面向 v1.0 |
+| 本地 upstream | `MOSS-TTSD-v0.5/upstream/`，仅用于生成/校验 patch，不提交 |
+| 模型权重 | `fnlp/MOSS-TTSD-v0.5` / `OpenMOSS-Team/MOSS-TTSD-v0.5`，HF HEAD `8527b9136b6afefe2252ae597cecea2e80e7ebeb` |
+| XY Tokenizer | 原 v0.5 代码默认 `XY_Tokenizer/config/xy_tokenizer_config.yaml` + `XY_Tokenizer/weights/xy_tokenizer.ckpt` |
+| 当前适配对象 | GitHub tag `v0.5` 原项目代码 + MOSS-TTSD-v0.5 权重 + XY Tokenizer checkpoint |
+| 明确排除 | MOSS-TTSD v0.7、MOSS-TTSD v1.0、SGLang 路径、未固定版本的一键包改动 |
 
-权重 SHA256 尚未记录：本次环境未下载大权重。正式验收下载后必须补充 `model.safetensors` 和 codec `pytorch_model.bin` 的 SHA256。
+权重 SHA256 尚未记录：当前环境未下载大权重和 `xy_tokenizer.ckpt`。正式验收前必须补充模型权重与 codec checkpoint 的来源和 SHA256。
 
-## 2. 上游状态判断
+## 2. 新约束下的适配策略
 
-GitHub `OpenMOSS/MOSS-TTSD` 的当前顶层 README 已面向 v1.0，并在 `legacy/v0.7/` 保留 v0.7 资料；v0.5 的可加载模型实现随 Hugging Face / ModelScope 模型仓库以 remote-code 文件发布，包括：
+根据项目约束，本次重新收敛为：
 
-- `configuration_moss_ttsd.py`
-- `modeling_moss_ttsd.py`
-- `processing_moss_ttsd.py`
-- `model.safetensors`
-- `XY_Tokenizer_TTSD_V0_hf` 的 `configuration_xy_tokenizer.py`、`modeling_xy_tokenizer.py`、`feature_extraction_xy_tokenizer.py`、`pytorch_model.bin`
+- 不修改原始 `README.md`。
+- 不新增独立推理/下载/验证代码文件。
+- 优先使用原项目 tag `v0.5` 已有 `inference.py`、`generation_utils.py`、`XY_Tokenizer` 代码。
+- 必要代码改动统一进入 patch：`patches/0001-adapt-v0.5-inference-to-npu.patch`。
 
-因此，本次细化适配不再要求用户对截图中列出的多个旧文件手工 `cuda -> npu`，而是提供一个固定 revision 的 `infer.py`：
+## 3. 设备相关扫描结论
 
-1. 通过 `snapshot_download(..., revision=...)` 固定模型和 codec；
-2. 使用本地 snapshot 加载 `AutoProcessor` / `AutoModel`；
-3. 显式 `model.to(device)` 和 `processor.audio_tokenizer.to(device)`；
-4. 默认 `--device npu`，CPU 验证显式 `--device cpu`；
-5. 不使用 `device_map="auto"`，不写死卡号。
+v0.5 原项目主要 CUDA 假设：
 
-## 3. 设备相关代码扫描
+- `inference.py` 根据 `torch.cuda.is_available()` 自动选择 `cuda/cpu`，无显式 NPU 参数。
+- `generation_utils.py` 固定 `attn_implementation="flash_attention_2"`，并在结束时调用 `torch.cuda.empty_cache()`。
+- `XY_Tokenizer/inference.py` 默认 `--device cuda`。
+- `XY_Tokenizer/xy_tokenizer/model.py` 的 `encode/decode` 默认 `device=torch.device("cuda")`，即使输入 tensor 已在 NPU 也会创建 CUDA tensor。
+- `XY_Tokenizer/xy_tokenizer/nn/quantizer.py` 使用 `torch.autocast('cuda', enabled=False)`。
 
-本次对下载的 v0.5 remote-code 小文件做静态扫描，主要发现：
+当前 patch 对这些原项目已有文件做最小修改：
 
-```text
-xy_modeling_xy_tokenizer.py: with torch.autocast('cuda', enabled=False)
-```
+- 新增显式 `--device npu/cpu/cuda`，默认 NPU；仅在 NPU 路径条件导入 `torch_npu`。
+- 新增 `--dtype`、`--attn_implementation` 和模型/codec 路径参数，避免硬编码环境。
+- `XY_Tokenizer.encode/decode` 默认从输入 tensor 推断设备。
+- quantizer autocast 使用当前 tensor device。
+- 清理显存时按 `cuda/npu` 分支调用对应 empty cache。
 
-该语句位于禁用 autocast 的上下文中，没有直接 `.cuda()`、`torch.cuda.*`、`device="cuda"` 或 `map_location="cuda"` 的执行迁移逻辑。本次不对 remote-code 生成 patch；若 NPU 实测证明该语句触发后端错误，后续应在本地 snapshot 或上游代码中形成明确 patch，并记录影响。
+## 4. 当前交付件
 
-GitHub 当前 top-level README / 示例代码中仍有 CUDA/GPU 示例，例如 `device = "cuda" if torch.cuda.is_available() else "cpu"`、`device_map="auto"` 等。这些属于上游文档示例，不进入本适配默认执行路径。
-
-## 4. 当前适配新增内容
-
-- `infer.py`：统一推理入口。
-- `download_weights.py`：固定 revision 权重下载。
-- `prepare_test_data.py`：生成最小 JSONL schema 与合成 prompt wav。
-- `validate_outputs.py`：结构性输出检查。
-- `requirements.txt`：除 torch/torch-npu 外的最小依赖提示。
-- `patches/README.md`：说明当前没有上游 patch。
-- `README.md`、`README_INFERENCE.md`、`NPU_ADAPTATION.md`、`NPU_VALIDATION.md`、`ACCEPTANCE_PLAN.md`：按项目标准补齐说明。
+- `patches/0001-adapt-v0.5-inference-to-npu.patch`：唯一代码适配交付。
+- `patches/README.md`：patch 应用和校验说明。
+- `README_INFERENCE.md`：基于原项目 `inference.py` 的快速推理说明。
+- `NPU_ADAPTATION.md`、`NPU_VALIDATION.md`、`ACCEPTANCE_PLAN.md`：环境、验证和分层验收说明。
 
 ## 5. 风险与待验证项
 
-- 未在当前环境下载大权重，未记录权重 SHA256。
-- 当前环境缺少 `torch`、`torch-npu`、`transformers`、`torchaudio`，因此未执行 CPU/NPU 实推。
-- TTS 质量不能用结构性 WAV 检查替代；正式验收必须包含 ASR 回识别、speaker similarity、DNSMOS/UTMOS、人工 MOS/CMOS 或官方 TTSD-eval 口径。
-- NPU 上 `sdpa`、`eager`、`flash_attention_2` 的可用性依赖 torch/torch-npu/CANN 组合；默认选择 `sdpa`，失败时应暴露原始错误，不自动改用 CPU 或其他未验证 backend。
+- 当前环境缺少 `torch`、`torch-npu`、模型权重和 NPU/CANN，未执行 CPU/NPU 实推。
+- 原项目 v0.5 中仍存在若干宽泛 `try/except` 和失败后继续处理的逻辑；本次 patch 以 NPU 设备适配为目标，没有重构原项目整体错误处理。
+- 生成式 TTS/TTSD 不能用“能输出 WAV”作为完整验收；正式验收需按 `ACCEPTANCE_PLAN.md` 做可懂度、音色、自然度和人工听测。

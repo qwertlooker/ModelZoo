@@ -31,7 +31,7 @@
 | BUTSpeechFIT | DiariZen | `BUTSpeechFIT-DiariZen/` | [BUTSpeechFIT/DiariZen](https://github.com/BUTSpeechFIT/DiariZen)；当前交付仓库：[Ascend-SACT/BUTSpeechFIT-DiariZen](https://ai.gitcode.com/Ascend-SACT/BUTSpeechFIT-DiariZen) | 源码默认分支 `main`，HEAD `d52b8d5e3d96632b1a8a0dc34762bf811471e441`。权重为 HF `BUT-FIT/diarizen-wavlm-large-s80-md`，HEAD `a9b1b0e7974d96dcfd63af417e9da7ad8714040f`；评测辅助 `nryant/dscore` 默认分支 `master`，HEAD `e02f949ac6592279300a2c33d03daf9e0c12fd27`。 |
 | Whisper | Whisper-large-v3 | `whisper-large-v3/` | [AI-ModelScope/whisper-large-v3](https://modelscope.cn/models/AI-ModelScope/whisper-large-v3)；当前交付仓库：[Ascend-SACT/whisper-large-v3](https://ai.gitcode.com/Ascend-SACT/whisper-large-v3) | 当前适配的本地权重为 ModelScope `AI-ModelScope/whisper-large-v3`，HEAD `1d2add4944a9f612f4bd270cdbd9a07935de2fbb`；对应 OpenAI HF `openai/whisper-large-v3` HEAD `06f233fe06e710322aca913c1bc4249a0d71fce1`。非 `large-v2` / `large-v3-turbo`。 |
 | UniLM | BEATs | `BEATs/` | [microsoft/unilm](https://github.com/microsoft/unilm)；当前交付仓库：[Ascend-SACT/BEATs](https://ai.gitcode.com/Ascend-SACT/BEATs) | 源码默认分支 `master`，HEAD `833df7e7832e5064a281131ee64a481afa8e5b95`。当前适配的是 UniLM 仓库 `beats/` 子目录的 BEATs 推理链路；具体 checkpoint 尚未在当前仓库固定，需在下载/验证时明确记录所选 OneDrive `.pt`（预训练或 AudioSet fine-tuned 变体）及校验值。 |
-| MOSS | MOSS-TTSD-v0.5 | `MOSS-TTSD-v0.5/` | [OpenMOSS/MOSS-TTSD](https://github.com/OpenMOSS/MOSS-TTSD)；[OpenMOSS-Team/MOSS-TTSD-v0.5](https://huggingface.co/OpenMOSS-Team/MOSS-TTSD-v0.5)；[OpenMOSS-Team/XY_Tokenizer_TTSD_V0_hf](https://huggingface.co/OpenMOSS-Team/XY_Tokenizer_TTSD_V0_hf) | 2026-06-16 复查：GitHub 默认分支 `main` HEAD `20dbb4fc44819435fee894d644a0402a0fee736a`，当前顶层已面向 v1.0；本目录适配边界固定为 HF 模型 `OpenMOSS-Team/MOSS-TTSD-v0.5` HEAD `8527b9136b6afefe2252ae597cecea2e80e7ebeb` 与 codec `OpenMOSS-Team/XY_Tokenizer_TTSD_V0_hf` HEAD `c884072fd69ed00b72cd0d43355c06341c4f51a6`，非 v0.7/v1.0/SGLang/未固定一键包。 |
+| MOSS | MOSS-TTSD-v0.5 | `MOSS-TTSD-v0.5/` | [OpenMOSS/MOSS-TTSD](https://github.com/OpenMOSS/MOSS-TTSD)；[OpenMOSS-Team/MOSS-TTSD-v0.5](https://huggingface.co/OpenMOSS-Team/MOSS-TTSD-v0.5)；[OpenMOSS-Team/XY_Tokenizer_TTSD_V0_hf](https://huggingface.co/OpenMOSS-Team/XY_Tokenizer_TTSD_V0_hf) | 2026-06-16 复查：GitHub 默认分支 `main` HEAD `20dbb4fc44819435fee894d644a0402a0fee736a` 已面向 v1.0；当前适配边界改为原项目 tag `v0.5` / commit `0e078c62389922d3aa873ce182daf31142860b18`，模型权重 `fnlp/MOSS-TTSD-v0.5` / `OpenMOSS-Team/MOSS-TTSD-v0.5` HEAD `8527b9136b6afefe2252ae597cecea2e80e7ebeb`，XY Tokenizer 使用原项目 `XY_Tokenizer` + `xy_tokenizer.ckpt`。非 v0.7/v1.0/SGLang/未固定一键包。 |
 
 ---
 
@@ -54,13 +54,13 @@
 | MOSS-Speech | 中-低 | 高 | 高 | 中-高 | 高 | 高 | 依赖 MOSS-Speech、Codec、Space 和多个第三方包补丁，仍有 cuda/device_map 字样依赖 transfer_to_npu。 |
 | MMAudio | 低-中 | 高 | 中-高 | 中-高 | 高 | 高 | 多处手工改 cuda/npu 与 dtype，2 卡要求；仓库大包为 LFS 指针，验证生成音频质量成本高。 |
 | BUTSpeechFIT-DiariZen | 低-中 | 高 | 中-高 | 中 | 中-高 | 高 | 主要是安装/补丁说明，无随仓 infer.py；pyannote/DiariZen/dscore 组合依赖重。 |
-| MOSS-TTSD-v0.5 | 中 | 中-高 | 中 | 中-高 | 高 | 高 | 已补统一 HF remote-code 推理入口和验收文档；仍需下载大权重、真实 NPU 实推和主观/客观质量验证。 |
+| MOSS-TTSD-v0.5 | 中 | 中 | 中 | 中-高 | 高 | 高 | 已按“原项目代码优先”收敛为基于 tag v0.5 的 patch 适配；仍需下载大权重、真实 NPU 实推和主观/客观质量验证。 |
 
 ## 建议优先级
 
 1. **第一批落地**：DNSMOS、BEATs、FireRedASR-AED、whisper-large-v3。原因是单模型/单脚本链路清晰，功能与性能验证容易快速闭环。
 2. **第二批落地**：Canary-1B、pyannote-speaker-diarization-3.1、MossFormer2_SE_48K。原因是有明确部署路径，但依赖栈或标准数据集验证成本更高。
-3. **暂缓/专项攻关**：Index-TTS-2、MOSS-Speech、MMAudio、BUTSpeechFIT-DiariZen、MOSS-TTSD-v0.5。MOSS-TTSD-v0.5 已补脚本与文档，但大权重、NPU 实推和生成质量验收仍需专项资源。
+3. **暂缓/专项攻关**：Index-TTS-2、MOSS-Speech、MMAudio、BUTSpeechFIT-DiariZen、MOSS-TTSD-v0.5。MOSS-TTSD-v0.5 已补 patch 与文档，但大权重、NPU 实推和生成质量验收仍需专项资源。
 
 ---
 
@@ -669,47 +669,47 @@
 
 ### 12.1 仓库观察与判断依据
 
-- 2026-06-16 已重新 clone/检查 `https://github.com/OpenMOSS/MOSS-TTSD`，默认分支 `main` HEAD 为 `20dbb4fc44819435fee894d644a0402a0fee736a`。
-- GitHub 当前顶层文档已面向 MOSS-TTSD v1.0，`legacy/v0.7/` 保留 v0.7；v0.5 的可加载模型实现以 Hugging Face remote-code snapshot 为准。
-- 当前目录已补齐 Canary-1B 风格交付件：`infer.py`、`download_weights.py`、`prepare_test_data.py`、`validate_outputs.py`、`README_INFERENCE.md`、`ANALYSIS.md`、`NPU_ADAPTATION.md`、`NPU_VALIDATION.md`、`ACCEPTANCE_PLAN.md`、`patches/README.md`。
-- 当前适配边界固定为 `OpenMOSS-Team/MOSS-TTSD-v0.5` HEAD `8527b9136b6afefe2252ae597cecea2e80e7ebeb` 与 `OpenMOSS-Team/XY_Tokenizer_TTSD_V0_hf` HEAD `c884072fd69ed00b72cd0d43355c06341c4f51a6`；同名 `fnlp/*` 仓库 HEAD 一致。
-- 历史 ModelScope 一键整合包 `xueshanlinghu/MOSS-TTSD-zhenghebao` 仍可作为旧部署参考，但不再作为默认适配边界，避免未 patch 化的人工修改混入交付。
+- 2026-06-16 已重新检查 `https://github.com/OpenMOSS/MOSS-TTSD`：默认分支 `main` HEAD 为 `20dbb4fc44819435fee894d644a0402a0fee736a`，但当前顶层代码已面向 v1.0。
+- v0.5 原项目代码有 tag `v0.5`，commit 为 `0e078c62389922d3aa873ce182daf31142860b18`，包含 `inference.py`、`generation_utils.py`、`XY_Tokenizer/`、`examples/` 等原始推理链路。
+- 根据新约束，本目录不新增独立代码文件；MOSS-TTSD-v0.5 的代码适配收敛为 `patches/0001-adapt-v0.5-inference-to-npu.patch`。
+- 当前 patch 修改原项目已有文件：`inference.py`、`generation_utils.py`、`XY_Tokenizer/inference.py`、`XY_Tokenizer/xy_tokenizer/model.py`、`XY_Tokenizer/xy_tokenizer/nn/quantizer.py`。
+- 当前适配边界：原项目 tag `v0.5` + `fnlp/MOSS-TTSD-v0.5` / `OpenMOSS-Team/MOSS-TTSD-v0.5` 权重 + 原项目 XY Tokenizer checkpoint。
 
 ### 12.2 后续适配
 
-- 复杂度：中-高。脚本入口已补齐，但仍需真实 NPU 环境、权重下载和质量评测闭环。
-- 下载权重后必须补充 `model.safetensors` 与 codec `pytorch_model.bin` 的 SHA256。
-- 在目标 NPU 环境验证 `--attn_implementation sdpa`；如不可用，显式切换 `eager` 并记录，不在脚本中静默降级。
-- 若实际业务必须继续使用一键整合包，应先记录包内源码/权重校验，再把必要源码改动整理为 patch。
+- 复杂度：中。已有 patch 和独立文档，但仍需真实 NPU 环境、权重下载和质量评测闭环。
+- 下载权重后必须补充模型权重与 `xy_tokenizer.ckpt` 的 SHA256。
+- 在目标 NPU 环境验证 `--attn_implementation sdpa`；如不可用，显式切换 `eager` 并记录，不在代码中静默降级。
+- 如果后续要适配 Gradio 或 podcast 路径，应继续基于原项目已有文件新增 patch，不新增旁路脚本。
 
 ### 12.3 功能验证
 
-- 已有验证脚本：`infer.py`、`prepare_test_data.py`、`validate_outputs.py`。
-- 验证数据来源：L0 使用 `prepare_test_data.py` 生成 schema 样本；L1/L2 使用真实中文/英文 prompt 和对话 JSONL。
-- 验证内容：单共享 prompt、双 speaker prompt、中文/英文/中英混合、`--text_normalize`、batch、长文本。
+- 已有验证入口：原项目 `inference.py`，应用 patch 后通过 `--device npu/cpu/cuda` 选择设备。
+- 验证数据来源：原项目 `examples/examples.jsonl`、真实中文/英文 prompt 和对话 JSONL。
+- 验证内容：官方 examples、中文/英文/中英混合、双说话人 prompt、`--use_normalize`、CPU/NPU 对比。
 - 验收：输出 WAV 数量正确、可播放、采样率/时长合理，无设备不一致、CUDA-only、静默 CPU fallback。
 
 ### 12.4 性能验证
 
-- 已有性能记录：`infer.py` 输出 `run_report.json`，包含 elapsed、generated audio seconds、RTF、RTFx、batch、dtype、attention backend。
-- 对比对象：同 checkpoint、同 JSONL、同参数的 CPU/CUDA 官方 Transformers remote-code 路径。
+- 当前没有新增 benchmark 脚本；按约束先复用原项目 `inference.py`，用外部计时或日志统计 elapsed、输出总时长、RTF/RTFx。
+- 对比对象：同 checkpoint、同 JSONL、同参数的 CPU/CUDA 源路径。
 - 数据规模：L1 10-30 条；L2 50-200 条；L3 500+ 条。
-- 指标：RTF、RTFx、首条输出延迟、峰值 HBM/RSS、最大可用 batch、首次编译/加载耗时与稳定推理耗时。
+- 指标：RTF、RTFx、首条输出延迟、峰值 HBM/RSS、最大可用 batch、首次加载耗时与稳定推理耗时。
 
 ### 12.5 精度/质量验证
 
-- 已有结构检查脚本：`validate_outputs.py`，只检查 WAV 存在/可读/非零时长，不替代音质评测。
 - 正式质量指标：ASR 回识别 CER/WER、speaker embedding cosine、DNSMOS/UTMOS、人工 MOS/CMOS/A-B preference；如使用官方 TTSD-eval，需固定其 repo/commit 和指标配置。
 - 通过条件：NPU 与 CPU/CUDA 源路径相比，在可懂度、音色、自然度、说话人切换准确性上无显著退化。
+- 不以“生成了 WAV”替代正式音质验收。
 
 ### 12.6 数据集获取
 
-- 上游代码：`https://github.com/OpenMOSS/MOSS-TTSD`。
-- 模型：`https://huggingface.co/OpenMOSS-Team/MOSS-TTSD-v0.5`。
-- Codec：`https://huggingface.co/OpenMOSS-Team/XY_Tokenizer_TTSD_V0_hf`。
-- 功能数据：`prepare_test_data.py` 合成 schema 样本、官方/上游示例 prompt、自建真实双语对话 JSONL。
+- 上游代码：`https://github.com/OpenMOSS/MOSS-TTSD` tag `v0.5`。
+- 模型：`https://huggingface.co/OpenMOSS-Team/MOSS-TTSD-v0.5` 或 `fnlp/MOSS-TTSD-v0.5`。
+- Codec：原项目 `XY_Tokenizer` checkpoint `xy_tokenizer.ckpt`，需从官方发布物或已验证一键包获取并记录 SHA256。
+- 功能数据：原项目 `examples/examples.jsonl`、官方示例 prompt、自建真实双语对话 JSONL。
 - 精度/性能数据：AISHELL-3、CSMSC、LibriTTS、VCTK 改造成 prompt+text；人工听测抽样 50-100 条起。
-- 建议规模：L0 1 条；L1 10-30 条；L2 50-200 条；L3 500+ 条。
+- 建议规模：L0 1-2 条；L1 10-30 条；L2 50-200 条；L3 500+ 条。
 
 ---
 ## 13. 综合优先级与落地建议
@@ -729,14 +729,14 @@
 | P3 | BUTSpeechFIT-DiariZen | 依赖链重且当前偏文档，建议与 pyannote 二选一时优先 pyannote。 |
 | P3 | MMAudio | 大包、2 卡、多模态生成、质量评价均复杂。 |
 | P3 | MOSS-Speech | 多仓库和第三方源码补丁，适配风险高。 |
-| P3 | MOSS-TTSD-v0.5 | 已补统一推理入口和验收方案；大权重、NPU 实测与主观/客观质量评价仍需专项资源。 |
+| P3 | MOSS-TTSD-v0.5 | 已按 patch 方式适配原项目 v0.5 推理链路；大权重、NPU 实测与主观/客观质量评价仍需专项资源。 |
 
 ### 13.2 建议执行节奏
 
 1. 第一批：DNSMOS、BEATs、FireRedASR-AED。目标是统一产出 `infer_npu.py`、`prepare_eval_data.py`、`eval.py`、`benchmark.py`、`README_INFERENCE.md`。
 2. 第二批：whisper-large-v3、MossFormer2_SE_48K、pyannote-speaker-diarization-3.1。目标是补数据准备、标准指标和源仓 CPU/CUDA 对比。
 3. Canary-1B 作为模板维护：后续只补真实 NPU 运行结果、环境版本和常见问题。
-4. 专项批：Index-TTS-2、MOSS-TTSD-v0.5、MOSS-Speech、MMAudio。MOSS-TTSD-v0.5 下一步优先补权重 SHA256、CPU/NPU 实推日志和质量评测；其他生成类模型先做 patch 化和权重/数据检查，再做主观/客观质量评估。
+4. 专项批：Index-TTS-2、MOSS-TTSD-v0.5、MOSS-Speech、MMAudio。MOSS-TTSD-v0.5 下一步优先补权重 SHA256、CPU/NPU 实推日志和质量评测；其他生成类模型也应优先 patch 化原项目代码，再做权重/数据检查和主观/客观质量评估。
 
 ### 13.3 对所有仓库的共同要求
 
