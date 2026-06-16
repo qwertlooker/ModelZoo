@@ -81,7 +81,7 @@ ASCEND_RT_VISIBLE_DEVICES=0 python inference.py \
   --device npu \
   --dtype bfloat16 \
   --attn_implementation sdpa \
-  --model_path fnlp/MOSS-TTSD-v0.5 \
+  --model_path weights/MOSS-TTSD-v0.5 \
   --spt_config_path XY_Tokenizer/config/xy_tokenizer_config.yaml \
   --spt_checkpoint_path XY_Tokenizer/weights/xy_tokenizer.ckpt \
   --seed 42 \
@@ -100,7 +100,7 @@ python inference.py \
   --device cpu \
   --dtype float32 \
   --attn_implementation sdpa \
-  --model_path fnlp/MOSS-TTSD-v0.5 \
+  --model_path weights/MOSS-TTSD-v0.5 \
   --spt_config_path XY_Tokenizer/config/xy_tokenizer_config.yaml \
   --spt_checkpoint_path XY_Tokenizer/weights/xy_tokenizer.ckpt \
   --seed 42 \
