@@ -59,6 +59,8 @@ pip install -r /tmp/moss-ttsd-v0.5-requirements-npu.txt
 pip install -r XY_Tokenizer/requirements.txt
 ```
 
+如遇 `TorchCodec is required for load_with_torchcodec`，先确认最新 patch 已应用；本适配使用 `soundfile` 读取 prompt 音频文件，不要求为 NPU 路径额外安装 `torchcodec`。
+
 ```bash
 python -m pip install -U "huggingface_hub[cli]"
 mkdir -p weights/MOSS-TTSD-v0.5 XY_Tokenizer/weights
@@ -155,7 +157,7 @@ XY Tokenizer checkpoint 来源/revision/SHA256（HF `c83433728e698ed0698e88cb509
 日期：
 硬件：NPU 型号 / 数量 / HBM
 驱动/固件/CANN：
-Python / torch / torch-npu / transformers / torchaudio：
+Python / torch / torch-npu / transformers / torchaudio / soundfile：
 命令：
 输入 JSONL：
 样本数：

@@ -33,6 +33,7 @@ git -C MOSS-TTSD-v0.5/upstream apply ../patches/0001-adapt-v0.5-inference-to-npu
 - `inference.py`
 - `generation_utils.py`
 - `XY_Tokenizer/inference.py`
+- `XY_Tokenizer/utils/helpers.py`
 - `XY_Tokenizer/xy_tokenizer/model.py`
 - `XY_Tokenizer/xy_tokenizer/nn/quantizer.py`
 
@@ -51,6 +52,8 @@ pip install -r XY_Tokenizer/requirements.txt
 `flash-attn` 官方包面向 CUDA/ROCm GPU kernel，当前不作为 Ascend NPU 依赖安装；NPU 推理使用本适配补丁默认的 `--attn_implementation sdpa`，必要时显式切到 `eager` 复测。只有在 CUDA/ROCm GPU 路径且显式使用 `--attn_implementation flash_attention_2` 时，才按原项目要求安装 `flash-attn`。
 
 原 README 中的 Ascend 版本约束可作为目标环境参考：驱动/固件 `>=25.0.RC1.1`，CANN Toolkit/Kernel/NNAL `>=8.2.RC1`，PyTorch/torch-npu `>=2.6.0`。最终以目标 CANN 对应的 torch-npu 官方匹配表为准。
+
+音频读取说明：TorchAudio 2.9 起 `torchaudio.load` 依赖 TorchCodec，缺少 `torchcodec` 会报 `TorchCodec is required for load_with_torchcodec`。本补丁参考 Ascend MMAudio 的 CANN/torch-npu/torchaudio 版本约束思路，不把 `torchcodec` 作为 NPU 新增依赖；而是在原项目已有 `generation_utils.py` 与 `XY_Tokenizer/utils/helpers.py` 中把文件读取改为 `soundfile`，继续保留 `torchaudio.functional.resample` / `torchaudio.save` 用于重采样和写文件。`soundfile` 已在原项目 `requirements.txt` 中声明。
 
 ## 4. 权重准备
 

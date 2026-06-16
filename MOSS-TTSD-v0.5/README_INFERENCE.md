@@ -27,6 +27,8 @@ pip install -r XY_Tokenizer/requirements.txt
 
 说明：`flash-attn` 官方包面向 CUDA/ROCm GPU kernel，当前不作为 Ascend NPU 依赖安装。NPU 路径使用本适配默认的 `--attn_implementation sdpa`；如目标 torch-npu 组合不支持 `sdpa`，显式改为 `eager` 复测并记录。只有 CUDA/ROCm GPU 路径显式使用 `flash_attention_2` 时才安装 `flash-attn`。
 
+说明：如果环境中 `torchaudio.load` 报 `TorchCodec is required for load_with_torchcodec`，请确认已应用最新 patch。本适配不会要求额外安装 `torchcodec`；prompt 音频文件读取已改为原依赖中的 `soundfile`，避免 TorchAudio 2.9+ 对 TorchCodec 的强依赖。
+
 权重按原项目 v0.5 方式准备。官方下载 URL：
 
 - MOSS-TTSD-v0.5 权重：HF <https://huggingface.co/fnlp/MOSS-TTSD-v0.5>，同内容镜像/组织别名为 <https://huggingface.co/OpenMOSS-Team/MOSS-TTSD-v0.5>；ModelScope <https://modelscope.cn/models/openmoss/MOSS-TTSD-v0.5>。本次记录 HF HEAD `8527b9136b6afefe2252ae597cecea2e80e7ebeb`、ModelScope HEAD `2633fdb794b9b6acd2a0c80dae6c2961f7db9d59`，HF 核心权重文件固定 URL <https://huggingface.co/fnlp/MOSS-TTSD-v0.5/resolve/8527b9136b6afefe2252ae597cecea2e80e7ebeb/model.safetensors>。
