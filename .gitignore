@@ -26,3 +26,14 @@ MOSS-Speech/outputs_cpu/
 MOSS-Speech/.venv-cpu/
 MOSS-Speech/.venv-npu/
 MOSS-Speech/__pycache__/
+MOSS-TTSD-v0.5/upstream/
+MOSS-TTSD-v0.5/weights/
+MOSS-TTSD-v0.5/test_data/
+MOSS-TTSD-v0.5/eval_data/
+MOSS-TTSD-v0.5/eval_results/
+MOSS-TTSD-v0.5/outputs/
+MOSS-TTSD-v0.5/outputs_cpu/
+MOSS-TTSD-v0.5/outputs_*/
+MOSS-TTSD-v0.5/.venv-cpu/
+MOSS-TTSD-v0.5/.venv-npu/
+MOSS-TTSD-v0.5/__pycache__/

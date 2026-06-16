@@ -1,203 +1,136 @@
 ---
-license: unknown
+license: apache-2.0
 hardware: NPU
 ---
+# MOSS-TTSD-v0.5 NPU 推理适配
 
-# 引言
+本目录将 MOSS-TTSD-v0.5 的部署说明细化为与 `Canary-1B/` 类似的交付结构：固定版本边界、提供统一 `infer.py`、权重下载脚本、测试数据脚本、验证说明和分层验收方案。
 
-本案例给出语音生成大模型MOSS-TTSD-v0.5在NPU环境部署，并基于torch_npu执行推理任务的迁移实践。
+> 版本边界：当前适配对象是 Hugging Face / ModelScope 同步的 `OpenMOSS-Team/MOSS-TTSD-v0.5`（同 `fnlp/MOSS-TTSD-v0.5`）与 `OpenMOSS-Team/XY_Tokenizer_TTSD_V0_hf`（同 `fnlp/XY_Tokenizer_TTSD_V0_hf`），不是 MOSS-TTSD v0.7，也不是 v1.0 / SGLang 路径。检查日期：2026-06-16。
 
-# 一、容器环境准备
+## 1. 适配结论
 
-## 1.1 拉取镜像
+- 上游源码仓库：<https://github.com/OpenMOSS/MOSS-TTSD>
+  - 默认分支：`main`
+  - 本地 clone/远端 HEAD：`20dbb4fc44819435fee894d644a0402a0fee736a`
+  - 当前 GitHub 顶层文档已面向 v1.0；v0.7 位于 `legacy/v0.7/`，v0.5 模型代码以 Hugging Face remote-code snapshot 为准。
+- 模型权重：`OpenMOSS-Team/MOSS-TTSD-v0.5`，HEAD `8527b9136b6afefe2252ae597cecea2e80e7ebeb`。
+- 辅助 codec：`OpenMOSS-Team/XY_Tokenizer_TTSD_V0_hf`，HEAD `c884072fd69ed00b72cd0d43355c06341c4f51a6`。
+- 本次不修改 `MOSS-TTSD-v0.5/upstream/` 中的 GitHub 上游已有文件，因此没有 `.patch`。
+- `infer.py` 是当前适配新增脚本，默认 `--device npu`；CPU 验证显式使用 `--device cpu`。
+- 不使用 `device_map="auto"`，不写死 `npu:0` / `cuda:0`；实际 NPU 卡号由 `ASCEND_RT_VISIBLE_DEVICES` 控制。
+- 历史 ModelScope 一键整合包 `xueshanlinghu/MOSS-TTSD-zhenghebao` 可作为旧部署资料参考，但本目录默认以官方 HF 模型/codec snapshot 为适配边界，避免把未验证的一键包内部手工改动混入默认路径。
 
-如果已有合适的镜像，此步可以跳过。
+## 2. 文件说明
 
-查看已有镜像：
-```shell
-docker image ls
-```
-
-![alt text](images.png)
-
- 拉取镜像：
- ```shell
-docker pull quay.io/ascend/vllm-ascend:v0.10.0rc1
-```
-
-MOSS-TTSD-v0.5模型部署所需环境的相关版本如下：
-
-**使用约束**
-|依赖软件|版本|
-| ----------- | ----------- |
-|昇腾NPU驱动|>=25.0.RC1.1商发版本|
-|昇腾NPU固件|>=25.0.RC1.1商发版本|
-|CANN Toolkit|>=8.2.RC1商发版本|
-|CANN Kernel|>=8.2.RC1商发版本|
-|CANN NNAL|>=8.2.RC1商发版本|
-|Python	|>=3.11|
-|PyTorch|>=2.6.0|
-|torch_npu插件|>=2.6.0|
-
-
- **硬件设备**
-|设备型号|NPU配置|
+| 文件 | 作用 |
 |---|---|
-|Ascend 910B|	2卡|
+| `infer.py` | 统一 CPU/NPU 推理入口，支持 JSONL 批量输入、固定模型/codec revision、输出 manifest 和 RTF/RTFx 报告。 |
+| `download_weights.py` | 下载固定 revision 的 MOSS-TTSD-v0.5 和 XY Tokenizer snapshot。 |
+| `prepare_test_data.py` | 生成最小 JSONL schema 与合成 prompt wav，仅用于链路冒烟。 |
+| `validate_outputs.py` | 检查 `infer.py` 输出 WAV 是否存在、可读、非零时长；不替代音质/精度评测。 |
+| `ANALYSIS.md` | 上游、版本边界、设备扫描和当前差距分析。 |
+| `NPU_ADAPTATION.md` | 环境、权重、推理和补丁策略说明。 |
+| `NPU_VALIDATION.md` | 当前已执行检查、未执行项和 NPU/CPU 验证命令。 |
+| `ACCEPTANCE_PLAN.md` | L0/L1/L2/L3 分层验收方案。 |
 
-## 1.2 创建容器
+## 3. 环境准备
 
-在蓝区服务器上使用已有的镜像quay.io/ascend/vllm-ascend:v0.10.0rc1创建docker容器，命令如下：
-```shell
-docker run -itd -u 0  --ipc=host --privileged \
--e VLLM_USE_MODELSCOPE=True -e PYTORCH_NPU_ALLOC_CONF=max_split_size_mb:256 \
--e  ASCEND_RT_VISIBLE_DEVICES=3 \
---name moss-ttsd \
---device=/dev/davinci3 \
---device /dev/davinci_manager \
---device /dev/devmm_svm \
---device /dev/hisi_hdc \
--v /usr/local/dcmi:/usr/local/dcmi \
--v /usr/local/bin/npu-smi:/usr/local/bin/npu-smi \
--v /usr/local/Ascend/driver/lib64/:/usr/local/Ascend/driver/lib64/ \
--v /usr/local/Ascend/driver/version.info:/usr/local/Ascend/driver/version.info \
--v /etc/ascend_install.info:/etc/ascend_install.info \
--v /home/model:/model \
--p 8003:8000 \
--it quay.io/ascend/vllm-ascend:v0.10.0rc1 bash
-```
-参数说明：
+NPU 环境中请先安装与 CANN / 驱动匹配的 PyTorch 和 torch-npu，再安装本目录最小依赖。示例版本边界沿用原 README 的 Ascend 约束：驱动/固件 `>=25.0.RC1.1`，CANN Toolkit/Kernel/NNAL `>=8.2.RC1`，PyTorch/torch-npu `>=2.6.0`。实际安装请以目标机器 CANN 版本对应的 torch-npu 发布说明为准。
 
-· name: 创建的容器名
-
-· device=/dev/davinci3：模型使用的NPU（从0到7），示例中使用3号
-
-· -v /home/model:/model 模型目录挂载为/model
-
-· -p 模型端口
- 
- 可以使用如下命令查看端口是否有使用：
- ```shell
-netstat -nal |grep 8003
-```
-![alt text](port.png)
-
-## 1.3 进入容器
-
-进入docker容器执行指令：
-
-```shell
-docker exec -it moss-ttsd /bin/bash
+```bash
+# 先安装匹配 CANN 的 torch / torch-npu，再安装通用依赖
+pip install torch torch-npu
+pip install -r MOSS-TTSD-v0.5/requirements.txt
 ```
 
-## 1.4 安装依赖包
+若使用容器，可继续基于原说明中的 `quay.io/ascend/vllm-ascend:v0.10.0rc1`，但本适配脚本不依赖 vLLM/SGLang 服务化路径。
 
-在容器的MOSS-TTSD模型目录下执行如下指令安装依赖包：
-```shell
-pip install -r requirements.txt
-```
-同样可以添加国内镜像源代理：
-```shell
-pip install -r requirements.txt -i http://mirrors.aliyun.com/pypi/simple/
-pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple/
-pip install -r requirements.txt -i http://pypi.mirrors.ustc.edu.cn/simple/
-```
+## 4. 权重下载
 
-# 二、下载权重
+推荐下载到本地并在推理时使用 `--local_files_only`：
 
-## 2.1 创建模型目录
+```bash
+# 可按需设置镜像 endpoint，但不要替换为未验证的第三方模型仓库
+export HF_ENDPOINT=https://hf-mirror.com
 
-在/home/model/目录下创建Moss模型目录并进入：
-```shell
-mkdir /home/model/Moss
-cd /home/model/Moss
+python MOSS-TTSD-v0.5/download_weights.py \
+  --output_dir MOSS-TTSD-v0.5/weights
 ```
 
-## 2.2 下载权重文件
+下载后目录示例：
 
-Github项目：https://github.com/OpenMOSS/MOSS-TTSD
-
-可以使用HuggingFace下载模型权重文件，不过可能连接失败，速度也可能较慢。
-
-也可以从modelscope网站上下载一键整合包，其中已经包含了Github项目代码和MOSS-TTSD-v0.5模型权重文件，地址：https://www.modelscope.cn/models/xueshanlinghu/MOSS-TTSD-zhenghebao/summary
-
-先安装modelscope，再用modelscope进行下载：
-```shell
-pip install modelscope
-modelscope download --model xueshanlinghu/MOSS-TTSD-zhenghebao
+```text
+MOSS-TTSD-v0.5/weights/MOSS-TTSD-v0.5/
+MOSS-TTSD-v0.5/weights/XY_Tokenizer_TTSD_V0_hf/
 ```
-如果pip安装较慢或者报错，可以添加国内镜像源代理，比如阿里、清华、中科大等：
-```shell
-pip install modelscope -i http://mirrors.aliyun.com/pypi/simple/
-pip install modelscope -i https://pypi.tuna.tsinghua.edu.cn/simple/
-pip install modelscope -i http://pypi.mirrors.ustc.edu.cn/simple/
+
+大权重未随仓提交；正式验收前应记录 `model.safetensors`、`pytorch_model.bin` 等大文件 SHA256。
+
+## 5. 测试数据准备
+
+生成一个最小 JSONL 和两段合成 prompt wav：
+
+```bash
+python MOSS-TTSD-v0.5/prepare_test_data.py \
+  --output_dir MOSS-TTSD-v0.5/test_data
 ```
-默认下载的路径是：~/.cache/modelscope/hub/
 
-下载完成后，使用7z或7za解压moss-ttsd开头的压缩包
-```shell
-7za x moss-ttsd.7z.001
+该数据只用于验证 JSONL schema、模型加载、设备迁移、生成和 WAV 保存链路，不用于音质或音色克隆验收。
+
+## 6. 推理命令
+
+### NPU 推理
+
+```bash
+ASCEND_RT_VISIBLE_DEVICES=0 python MOSS-TTSD-v0.5/infer.py \
+  --model_path MOSS-TTSD-v0.5/weights/MOSS-TTSD-v0.5 \
+  --codec_path MOSS-TTSD-v0.5/weights/XY_Tokenizer_TTSD_V0_hf \
+  --input_jsonl MOSS-TTSD-v0.5/test_data/smoke.jsonl \
+  --output_dir MOSS-TTSD-v0.5/outputs \
+  --device npu \
+  --dtype bfloat16 \
+  --attn_implementation sdpa \
+  --batch_size 1 \
+  --text_normalize \
+  --local_files_only
 ```
-会自动解压4卷压缩包，得到一个moss-ttsd的文件夹。
 
-此目录下，MOSS-TTSD就是Github项目代码与资源。MOSS-TTSD-v0.5模型权重文件，在MOSS-TTSD/fnlp/MOSS-TTSD-v0.5/目录下。
+### CPU 验证
 
-# 三、运行指导
-
-## 3.1 修改推理脚本和项目代码
-
-修改以下代码文件并保存：
-
-generation_utils.py
-
-gradio_demo.py
-
-inference.py
-
-podcast_generate.py
-
-streamer.py
-
-./XY_Tokenizer/inference.py
-
-./XY_Tokenizer/xy_tokenizer/nn/quantizer.py
-
-将其中的所有cuda修改为npu，例如：
-
-![alt text](code1.png)
-
-注意，如果是使用的modelscope的一键整合包，则还需要修改./XY_Tokenizer/xy_tokenizer/model.py的encode和decode函数，将函数的device参数去掉，从传入的list中取device。
-
-![alt text](code2.png)
-![alt text](code3.png)
-
-## 3.2 执行推理
-
-使用以下命令执行推理脚本：
-```shell
-python inference.py --jsonl examples/examples.jsonl --output_dir outputs --seed 42 --use_normalize --silence_duration 0
+```bash
+python MOSS-TTSD-v0.5/infer.py \
+  --model_path MOSS-TTSD-v0.5/weights/MOSS-TTSD-v0.5 \
+  --codec_path MOSS-TTSD-v0.5/weights/XY_Tokenizer_TTSD_V0_hf \
+  --input_jsonl MOSS-TTSD-v0.5/test_data/smoke.jsonl \
+  --output_dir MOSS-TTSD-v0.5/outputs_cpu \
+  --device cpu \
+  --dtype float32 \
+  --attn_implementation sdpa \
+  --batch_size 1 \
+  --local_files_only
 ```
-参数说明：
 
---jsonl：输入 JSONL 文件路径，包含对话脚本与参考音频
+输出：
 
---output_dir：生成音频文件的保存目录
+```text
+MOSS-TTSD-v0.5/outputs/manifest.jsonl
+MOSS-TTSD-v0.5/outputs/run_report.json
+MOSS-TTSD-v0.5/outputs/sample_0000_00.wav
+```
 
---seed：随机种子
+结构检查：
 
---use_normalize：是否启用文本归一化（建议开启）
+```bash
+python MOSS-TTSD-v0.5/validate_outputs.py \
+  --manifest MOSS-TTSD-v0.5/outputs/manifest.jsonl
+```
 
---dtype：模型精度（默认 bf16）
+## 7. 正式验收提醒
 
---attn_implementation：注意力实现（默认 flash_attention_2，也支持 sdpa、eager）
+MOSS-TTSD 是生成式 TTS/对话语音模型，不能只用 1 条 dummy 样本判定适配完成。正式验收请按 `ACCEPTANCE_PLAN.md`：
 
---silence_duration：参考音频与生成音频之间的静默时长（默认 0 秒），当生成音频开头出现杂音时（通常因为生成音频续写了prompt的尾音），请尝试将该参数设置为0.1。
-
- 日志打印如下：
- 
-![alt text](log1.png)
-![alt text](log2.png)
-
-生成的音频文件在设置的output_dir的目录下：
-
-![alt text](output_dir.png)
+- L0：最小链路冒烟；
+- L1：中文/英文、单/双说话人、batch、长文本、不同 prompt 的功能矩阵；
+- L2：同 checkpoint、同 JSONL 下 CPU/CUDA 源路径与 NPU 的性能/音质/说话人相似度对齐；
+- L3：尽量对齐官方/公开 TTSD-eval、ASR 回识别、speaker similarity、DNSMOS/UTMOS 和人工 MOS/CMOS。
