@@ -38,14 +38,17 @@ git -C MOSS-TTSD-v0.5/upstream apply ../patches/0001-adapt-v0.5-inference-to-npu
 
 ## 3. 环境准备
 
-NPU 环境中先安装与 CANN 匹配的 `torch` / `torch-npu`，再使用原项目 requirements：
+NPU 环境中先安装与 CANN 匹配的 `torch` / `torch-npu`，再安装原项目依赖中的非 `flash-attn` 部分：
 
 ```bash
 cd MOSS-TTSD-v0.5/upstream
 pip install torch torch-npu
-pip install -r requirements.txt
+grep -vE '^flash-attn([<>= ].*)?$' requirements.txt > /tmp/moss-ttsd-v0.5-requirements-npu.txt
+pip install -r /tmp/moss-ttsd-v0.5-requirements-npu.txt
 pip install -r XY_Tokenizer/requirements.txt
 ```
+
+`flash-attn` 官方包面向 CUDA/ROCm GPU kernel，当前不作为 Ascend NPU 依赖安装；NPU 推理使用本适配补丁默认的 `--attn_implementation sdpa`，必要时显式切到 `eager` 复测。只有在 CUDA/ROCm GPU 路径且显式使用 `--attn_implementation flash_attention_2` 时，才按原项目要求安装 `flash-attn`。
 
 原 README 中的 Ascend 版本约束可作为目标环境参考：驱动/固件 `>=25.0.RC1.1`，CANN Toolkit/Kernel/NNAL `>=8.2.RC1`，PyTorch/torch-npu `>=2.6.0`。最终以目标 CANN 对应的 torch-npu 官方匹配表为准。
 

@@ -43,6 +43,10 @@ modelscope download --model openmoss/XY_Tokenizer_TTSD_V0 xy_tokenizer.ckpt \
 
 codec checkpoint 固定 URL：<https://huggingface.co/fnlp/XY_Tokenizer_TTSD_V0/resolve/c83433728e698ed0698e88cb5096bc221fb8f8c5/xy_tokenizer.ckpt>。下载后必须把模型权重和 `xy_tokenizer.ckpt` 的 SHA256 写入验收报告。
 
+## 0.2 Attention 后端与 `flash-attn` 约束
+
+`flash-attn` 官方包面向 CUDA/ROCm GPU kernel，当前不作为 Ascend NPU 验收依赖安装。NPU 验收命令固定显式使用 `--attn_implementation sdpa`；如目标 torch-npu 组合不支持 `sdpa`，可显式改为 `eager` 复测并在报告中记录。不得在代码中静默回退，也不得把 CUDA/ROCm `flash_attention_2` 作为 NPU 必需路径。
+
 ## 1. 验收分层
 
 | 层级 | 目的 | 数据规模 | 必跑条件 | 结论用途 |

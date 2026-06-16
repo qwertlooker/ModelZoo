@@ -33,6 +33,7 @@ v0.5 原项目主要 CUDA 假设：
 
 - `inference.py` 根据 `torch.cuda.is_available()` 自动选择 `cuda/cpu`，无显式 NPU 参数。
 - `generation_utils.py` 固定 `attn_implementation="flash_attention_2"`，并在结束时调用 `torch.cuda.empty_cache()`。
+- `requirements.txt` 包含 `flash-attn`，但官方 `flash-attn` 包面向 CUDA/ROCm GPU kernel，不作为 Ascend NPU 依赖安装；NPU 适配路径改用显式 `sdpa/eager` attention 后端。
 - `XY_Tokenizer/inference.py` 默认 `--device cuda`。
 - `XY_Tokenizer/xy_tokenizer/model.py` 的 `encode/decode` 默认 `device=torch.device("cuda")`，即使输入 tensor 已在 NPU 也会创建 CUDA tensor。
 - `XY_Tokenizer/xy_tokenizer/nn/quantizer.py` 使用 `torch.autocast('cuda', enabled=False)`。

@@ -49,6 +49,16 @@ git -C MOSS-TTSD-v0.5/upstream reset --hard v0.5
 
 下载命令（在 `MOSS-TTSD-v0.5/upstream/` 下执行；HF 模型仓库 URL 为 <https://huggingface.co/fnlp/MOSS-TTSD-v0.5>，ModelScope 模型仓库 URL 为 <https://modelscope.cn/models/openmoss/MOSS-TTSD-v0.5>，HF 核心权重文件固定 URL 为 <https://huggingface.co/fnlp/MOSS-TTSD-v0.5/resolve/8527b9136b6afefe2252ae597cecea2e80e7ebeb/model.safetensors>）：
 
+NPU 依赖安装时不要直接照抄原项目 `requirements.txt` 中的 `flash-attn`；该包面向 CUDA/ROCm GPU kernel，当前不作为 Ascend NPU 依赖。推荐先安装非 `flash-attn` 依赖：
+
+```bash
+cd MOSS-TTSD-v0.5/upstream
+pip install torch torch-npu
+grep -vE '^flash-attn([<>= ].*)?$' requirements.txt > /tmp/moss-ttsd-v0.5-requirements-npu.txt
+pip install -r /tmp/moss-ttsd-v0.5-requirements-npu.txt
+pip install -r XY_Tokenizer/requirements.txt
+```
+
 ```bash
 python -m pip install -U "huggingface_hub[cli]"
 mkdir -p weights/MOSS-TTSD-v0.5 XY_Tokenizer/weights

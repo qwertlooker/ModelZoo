@@ -8,6 +8,7 @@
   - 基于 `OpenMOSS/MOSS-TTSD` tag `v0.5` / commit `0e078c62389922d3aa873ce182daf31142860b18`。
   - 修改原项目已有 `inference.py`、`generation_utils.py`、`XY_Tokenizer/inference.py`、`XY_Tokenizer/xy_tokenizer/model.py`、`XY_Tokenizer/xy_tokenizer/nn/quantizer.py`。
   - 增加显式 `--device npu/cpu/cuda`、`--dtype`、`--attn_implementation` 和权重/codec 路径参数；默认 `--device npu`。
+  - NPU 默认 `--attn_implementation sdpa`，不依赖 CUDA/ROCm GPU 专用的 `flash-attn`；`flash_attention_2` 仅保留给显式 CUDA/ROCm 路径。
   - 修正 XY Tokenizer encode/decode 默认 CUDA 设备假设，使其从输入 tensor 推断设备。
   - 将 quantizer 的 autocast device 从硬编码 `cuda` 改为当前 tensor device。
 
