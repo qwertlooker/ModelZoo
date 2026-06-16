@@ -45,11 +45,28 @@ python -m py_compile \
 git -C MOSS-TTSD-v0.5/upstream reset --hard v0.5
 ```
 
-### 2.3 权重校验
+### 2.3 权重下载与校验
+
+下载命令（在 `MOSS-TTSD-v0.5/upstream/` 下执行；模型仓库 URL 为 <https://huggingface.co/fnlp/MOSS-TTSD-v0.5>，核心权重文件固定 URL 为 <https://huggingface.co/fnlp/MOSS-TTSD-v0.5/resolve/8527b9136b6afefe2252ae597cecea2e80e7ebeb/model.safetensors>）：
 
 ```bash
-sha256sum /path/to/fnlp/MOSS-TTSD-v0.5/*
-sha256sum /path/to/XY_Tokenizer/weights/xy_tokenizer.ckpt
+python -m pip install -U "huggingface_hub[cli]"
+mkdir -p weights/MOSS-TTSD-v0.5 XY_Tokenizer/weights
+
+hf download fnlp/MOSS-TTSD-v0.5 \
+  --revision 8527b9136b6afefe2252ae597cecea2e80e7ebeb \
+  --local-dir weights/MOSS-TTSD-v0.5
+
+hf download fnlp/XY_Tokenizer_TTSD_V0 xy_tokenizer.ckpt \
+  --revision c83433728e698ed0698e88cb5096bc221fb8f8c5 \
+  --local-dir XY_Tokenizer/weights
+```
+
+校验：
+
+```bash
+sha256sum weights/MOSS-TTSD-v0.5/*
+sha256sum XY_Tokenizer/weights/xy_tokenizer.ckpt
 ```
 
 把精确文件名、来源 URL/revision 和 SHA256 补入验收报告。
@@ -64,9 +81,9 @@ python inference.py \
   --device cpu \
   --dtype float32 \
   --attn_implementation sdpa \
-  --model_path /path/to/fnlp/MOSS-TTSD-v0.5 \
+  --model_path weights/MOSS-TTSD-v0.5 \
   --spt_config_path XY_Tokenizer/config/xy_tokenizer_config.yaml \
-  --spt_checkpoint_path /path/to/XY_Tokenizer/weights/xy_tokenizer.ckpt \
+  --spt_checkpoint_path XY_Tokenizer/weights/xy_tokenizer.ckpt \
   --seed 42 \
   --use_normalize
 ```
@@ -88,9 +105,9 @@ ASCEND_RT_VISIBLE_DEVICES=0 python inference.py \
   --device npu \
   --dtype bfloat16 \
   --attn_implementation sdpa \
-  --model_path /path/to/fnlp/MOSS-TTSD-v0.5 \
+  --model_path weights/MOSS-TTSD-v0.5 \
   --spt_config_path XY_Tokenizer/config/xy_tokenizer_config.yaml \
-  --spt_checkpoint_path /path/to/XY_Tokenizer/weights/xy_tokenizer.ckpt \
+  --spt_checkpoint_path XY_Tokenizer/weights/xy_tokenizer.ckpt \
   --seed 42 \
   --use_normalize
 ```

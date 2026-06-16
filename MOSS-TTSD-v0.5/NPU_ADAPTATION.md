@@ -59,12 +59,35 @@ SPT_CONFIG_PATH = XY_Tokenizer/config/xy_tokenizer_config.yaml
 SPT_CHECKPOINT_PATH = XY_Tokenizer/weights/xy_tokenizer.ckpt
 ```
 
+官方下载来源与当前记录 revision：
+
+| 资产 | URL | revision / HEAD | 目标路径 |
+|---|---|---|---|
+| MOSS-TTSD-v0.5 模型权重 | <https://huggingface.co/fnlp/MOSS-TTSD-v0.5>；同内容别名 <https://huggingface.co/OpenMOSS-Team/MOSS-TTSD-v0.5>；核心权重文件 <https://huggingface.co/fnlp/MOSS-TTSD-v0.5/resolve/8527b9136b6afefe2252ae597cecea2e80e7ebeb/model.safetensors> | `8527b9136b6afefe2252ae597cecea2e80e7ebeb` | `weights/MOSS-TTSD-v0.5/` |
+| XY Tokenizer checkpoint | <https://huggingface.co/fnlp/XY_Tokenizer_TTSD_V0> | `c83433728e698ed0698e88cb5096bc221fb8f8c5` | `XY_Tokenizer/weights/xy_tokenizer.ckpt` |
+| XY Tokenizer config | 原项目 tag `v0.5` 自带 | `0e078c62389922d3aa873ce182daf31142860b18` | `XY_Tokenizer/config/xy_tokenizer_config.yaml` |
+
+下载命令（在 `MOSS-TTSD-v0.5/upstream/` 下执行）：
+
+```bash
+python -m pip install -U "huggingface_hub[cli]"
+mkdir -p weights/MOSS-TTSD-v0.5 XY_Tokenizer/weights
+
+hf download fnlp/MOSS-TTSD-v0.5 \
+  --revision 8527b9136b6afefe2252ae597cecea2e80e7ebeb \
+  --local-dir weights/MOSS-TTSD-v0.5
+
+hf download fnlp/XY_Tokenizer_TTSD_V0 xy_tokenizer.ckpt \
+  --revision c83433728e698ed0698e88cb5096bc221fb8f8c5 \
+  --local-dir XY_Tokenizer/weights
+```
+
 patch 后可通过命令行覆盖：
 
 ```bash
---model_path /path/to/fnlp/MOSS-TTSD-v0.5 \
---spt_config_path /path/to/XY_Tokenizer/config/xy_tokenizer_config.yaml \
---spt_checkpoint_path /path/to/XY_Tokenizer/weights/xy_tokenizer.ckpt
+--model_path weights/MOSS-TTSD-v0.5 \
+--spt_config_path XY_Tokenizer/config/xy_tokenizer_config.yaml \
+--spt_checkpoint_path XY_Tokenizer/weights/xy_tokenizer.ckpt
 ```
 
 正式验收前记录：模型权重来源、HF/ModelScope revision、`model.safetensors` 或等效权重 SHA256、`xy_tokenizer.ckpt` SHA256。

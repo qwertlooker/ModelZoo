@@ -31,7 +31,7 @@
 | BUTSpeechFIT | DiariZen | `BUTSpeechFIT-DiariZen/` | [BUTSpeechFIT/DiariZen](https://github.com/BUTSpeechFIT/DiariZen)；当前交付仓库：[Ascend-SACT/BUTSpeechFIT-DiariZen](https://ai.gitcode.com/Ascend-SACT/BUTSpeechFIT-DiariZen) | 源码默认分支 `main`，HEAD `d52b8d5e3d96632b1a8a0dc34762bf811471e441`。权重为 HF `BUT-FIT/diarizen-wavlm-large-s80-md`，HEAD `a9b1b0e7974d96dcfd63af417e9da7ad8714040f`；评测辅助 `nryant/dscore` 默认分支 `master`，HEAD `e02f949ac6592279300a2c33d03daf9e0c12fd27`。 |
 | Whisper | Whisper-large-v3 | `whisper-large-v3/` | [AI-ModelScope/whisper-large-v3](https://modelscope.cn/models/AI-ModelScope/whisper-large-v3)；当前交付仓库：[Ascend-SACT/whisper-large-v3](https://ai.gitcode.com/Ascend-SACT/whisper-large-v3) | 当前适配的本地权重为 ModelScope `AI-ModelScope/whisper-large-v3`，HEAD `1d2add4944a9f612f4bd270cdbd9a07935de2fbb`；对应 OpenAI HF `openai/whisper-large-v3` HEAD `06f233fe06e710322aca913c1bc4249a0d71fce1`。非 `large-v2` / `large-v3-turbo`。 |
 | UniLM | BEATs | `BEATs/` | [microsoft/unilm](https://github.com/microsoft/unilm)；当前交付仓库：[Ascend-SACT/BEATs](https://ai.gitcode.com/Ascend-SACT/BEATs) | 源码默认分支 `master`，HEAD `833df7e7832e5064a281131ee64a481afa8e5b95`。当前适配的是 UniLM 仓库 `beats/` 子目录的 BEATs 推理链路；具体 checkpoint 尚未在当前仓库固定，需在下载/验证时明确记录所选 OneDrive `.pt`（预训练或 AudioSet fine-tuned 变体）及校验值。 |
-| MOSS | MOSS-TTSD-v0.5 | `MOSS-TTSD-v0.5/` | [OpenMOSS/MOSS-TTSD](https://github.com/OpenMOSS/MOSS-TTSD)；[OpenMOSS-Team/MOSS-TTSD-v0.5](https://huggingface.co/OpenMOSS-Team/MOSS-TTSD-v0.5)；[OpenMOSS-Team/XY_Tokenizer_TTSD_V0_hf](https://huggingface.co/OpenMOSS-Team/XY_Tokenizer_TTSD_V0_hf) | 2026-06-16 复查：GitHub 默认分支 `main` HEAD `20dbb4fc44819435fee894d644a0402a0fee736a` 已面向 v1.0；当前适配边界改为原项目 tag `v0.5` / commit `0e078c62389922d3aa873ce182daf31142860b18`，模型权重 `fnlp/MOSS-TTSD-v0.5` / `OpenMOSS-Team/MOSS-TTSD-v0.5` HEAD `8527b9136b6afefe2252ae597cecea2e80e7ebeb`，XY Tokenizer 使用原项目 `XY_Tokenizer` + `xy_tokenizer.ckpt`。非 v0.7/v1.0/SGLang/未固定一键包。 |
+| MOSS | MOSS-TTSD-v0.5 | `MOSS-TTSD-v0.5/` | [OpenMOSS/MOSS-TTSD](https://github.com/OpenMOSS/MOSS-TTSD)；[OpenMOSS-Team/MOSS-TTSD-v0.5](https://huggingface.co/OpenMOSS-Team/MOSS-TTSD-v0.5)；[fnlp/XY_Tokenizer_TTSD_V0](https://huggingface.co/fnlp/XY_Tokenizer_TTSD_V0) | 2026-06-16 复查：GitHub 默认分支 `main` HEAD `20dbb4fc44819435fee894d644a0402a0fee736a` 已面向 v1.0；当前适配边界改为原项目 tag `v0.5` / commit `0e078c62389922d3aa873ce182daf31142860b18`，模型权重 `fnlp/MOSS-TTSD-v0.5` / `OpenMOSS-Team/MOSS-TTSD-v0.5` HEAD `8527b9136b6afefe2252ae597cecea2e80e7ebeb`，XY Tokenizer 使用原项目 `XY_Tokenizer` + `fnlp/XY_Tokenizer_TTSD_V0` 的 `xy_tokenizer.ckpt`（HEAD `c83433728e698ed0698e88cb5096bc221fb8f8c5`）。非 v0.7/v1.0/SGLang/未固定一键包。 |
 
 ---
 
@@ -673,7 +673,7 @@
 - v0.5 原项目代码有 tag `v0.5`，commit 为 `0e078c62389922d3aa873ce182daf31142860b18`，包含 `inference.py`、`generation_utils.py`、`XY_Tokenizer/`、`examples/` 等原始推理链路。
 - 根据新约束，本目录不新增独立代码文件；MOSS-TTSD-v0.5 的代码适配收敛为 `patches/0001-adapt-v0.5-inference-to-npu.patch`。
 - 当前 patch 修改原项目已有文件：`inference.py`、`generation_utils.py`、`XY_Tokenizer/inference.py`、`XY_Tokenizer/xy_tokenizer/model.py`、`XY_Tokenizer/xy_tokenizer/nn/quantizer.py`。
-- 当前适配边界：原项目 tag `v0.5` + `fnlp/MOSS-TTSD-v0.5` / `OpenMOSS-Team/MOSS-TTSD-v0.5` 权重 + 原项目 XY Tokenizer checkpoint。
+- 当前适配边界：原项目 tag `v0.5` + `fnlp/MOSS-TTSD-v0.5` / `OpenMOSS-Team/MOSS-TTSD-v0.5` 权重 + 原项目 XY Tokenizer 代码 + `fnlp/XY_Tokenizer_TTSD_V0` 的 `xy_tokenizer.ckpt`。
 
 ### 12.2 后续适配
 
@@ -705,8 +705,23 @@
 ### 12.6 数据集获取
 
 - 上游代码：`https://github.com/OpenMOSS/MOSS-TTSD` tag `v0.5`。
-- 模型：`https://huggingface.co/OpenMOSS-Team/MOSS-TTSD-v0.5` 或 `fnlp/MOSS-TTSD-v0.5`。
-- Codec：原项目 `XY_Tokenizer` checkpoint `xy_tokenizer.ckpt`，需从官方发布物或已验证一键包获取并记录 SHA256。
+- 模型：`https://huggingface.co/fnlp/MOSS-TTSD-v0.5`；同内容别名 `https://huggingface.co/OpenMOSS-Team/MOSS-TTSD-v0.5`；本次记录 HEAD `8527b9136b6afefe2252ae597cecea2e80e7ebeb`。
+- Codec：原项目 `XY_Tokenizer` 代码 + `https://huggingface.co/fnlp/XY_Tokenizer_TTSD_V0` 的 `xy_tokenizer.ckpt`；本次记录 HEAD `c83433728e698ed0698e88cb5096bc221fb8f8c5`。
+- 下载命令（在 `MOSS-TTSD-v0.5/upstream/` 下执行）：
+
+  ```bash
+  python -m pip install -U "huggingface_hub[cli]"
+  mkdir -p weights/MOSS-TTSD-v0.5 XY_Tokenizer/weights
+
+  hf download fnlp/MOSS-TTSD-v0.5 \
+    --revision 8527b9136b6afefe2252ae597cecea2e80e7ebeb \
+    --local-dir weights/MOSS-TTSD-v0.5
+
+  hf download fnlp/XY_Tokenizer_TTSD_V0 xy_tokenizer.ckpt \
+    --revision c83433728e698ed0698e88cb5096bc221fb8f8c5 \
+    --local-dir XY_Tokenizer/weights
+  ```
+- 也可用固定 URL 直接下载 codec checkpoint：`https://huggingface.co/fnlp/XY_Tokenizer_TTSD_V0/resolve/c83433728e698ed0698e88cb5096bc221fb8f8c5/xy_tokenizer.ckpt`。下载后需记录模型权重与 `xy_tokenizer.ckpt` SHA256。
 - 功能数据：原项目 `examples/examples.jsonl`、官方示例 prompt、自建真实双语对话 JSONL。
 - 精度/性能数据：AISHELL-3、CSMSC、LibriTTS、VCTK 改造成 prompt+text；人工听测抽样 50-100 条起。
 - 建议规模：L0 1-2 条；L1 10-30 条；L2 50-200 条；L3 500+ 条。

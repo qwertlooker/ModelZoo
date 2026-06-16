@@ -7,9 +7,28 @@
 **模型边界**
 
 - 源码：`OpenMOSS/MOSS-TTSD` tag `v0.5` / commit `0e078c62389922d3aa873ce182daf31142860b18`。
-- 模型：`fnlp/MOSS-TTSD-v0.5` 或同等本地 snapshot。
-- Codec：原项目 `XY_Tokenizer` + `xy_tokenizer.ckpt`。
+- 模型：`fnlp/MOSS-TTSD-v0.5`（<https://huggingface.co/fnlp/MOSS-TTSD-v0.5>）或同内容别名 `OpenMOSS-Team/MOSS-TTSD-v0.5`；本次记录 HEAD `8527b9136b6afefe2252ae597cecea2e80e7ebeb`。
+- Codec：原项目 `XY_Tokenizer` + `fnlp/XY_Tokenizer_TTSD_V0` 的 `xy_tokenizer.ckpt`（<https://huggingface.co/fnlp/XY_Tokenizer_TTSD_V0>）；本次记录 HEAD `c83433728e698ed0698e88cb5096bc221fb8f8c5`。
 - 不包含：MOSS-TTSD v0.7、v1.0、SGLang 路径、未固定版本的一键包改动。
+
+## 0.1 权重下载命令
+
+在 `MOSS-TTSD-v0.5/upstream/` 下执行：
+
+```bash
+python -m pip install -U "huggingface_hub[cli]"
+mkdir -p weights/MOSS-TTSD-v0.5 XY_Tokenizer/weights
+
+hf download fnlp/MOSS-TTSD-v0.5 \
+  --revision 8527b9136b6afefe2252ae597cecea2e80e7ebeb \
+  --local-dir weights/MOSS-TTSD-v0.5
+
+hf download fnlp/XY_Tokenizer_TTSD_V0 xy_tokenizer.ckpt \
+  --revision c83433728e698ed0698e88cb5096bc221fb8f8c5 \
+  --local-dir XY_Tokenizer/weights
+```
+
+codec checkpoint 固定 URL：<https://huggingface.co/fnlp/XY_Tokenizer_TTSD_V0/resolve/c83433728e698ed0698e88cb5096bc221fb8f8c5/xy_tokenizer.ckpt>。下载后必须把模型权重和 `xy_tokenizer.ckpt` 的 SHA256 写入验收报告。
 
 ## 1. 验收分层
 
@@ -82,9 +101,9 @@ ASCEND_RT_VISIBLE_DEVICES=0 python inference.py \
   --device npu \
   --dtype bfloat16 \
   --attn_implementation sdpa \
-  --model_path /path/to/fnlp/MOSS-TTSD-v0.5 \
+  --model_path weights/MOSS-TTSD-v0.5 \
   --spt_config_path XY_Tokenizer/config/xy_tokenizer_config.yaml \
-  --spt_checkpoint_path /path/to/XY_Tokenizer/weights/xy_tokenizer.ckpt \
+  --spt_checkpoint_path XY_Tokenizer/weights/xy_tokenizer.ckpt \
   --seed 42 \
   --use_normalize
 ```

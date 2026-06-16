@@ -24,13 +24,36 @@ pip install -r requirements.txt
 pip install -r XY_Tokenizer/requirements.txt
 ```
 
-权重按原项目 v0.5 方式准备：
+权重按原项目 v0.5 方式准备。官方下载 URL：
 
-- MOSS-TTSD-v0.5 权重：`fnlp/MOSS-TTSD-v0.5` 或本地同等 snapshot。
-- XY Tokenizer 配置：默认 `XY_Tokenizer/config/xy_tokenizer_config.yaml`。
-- XY Tokenizer checkpoint：默认 `XY_Tokenizer/weights/xy_tokenizer.ckpt`，可从已验证的一键包或官方发布物复制到该路径。
+- MOSS-TTSD-v0.5 权重：<https://huggingface.co/fnlp/MOSS-TTSD-v0.5>，同内容镜像/组织别名为 <https://huggingface.co/OpenMOSS-Team/MOSS-TTSD-v0.5>；本次记录 HEAD `8527b9136b6afefe2252ae597cecea2e80e7ebeb`，核心权重文件固定 URL <https://huggingface.co/fnlp/MOSS-TTSD-v0.5/resolve/8527b9136b6afefe2252ae597cecea2e80e7ebeb/model.safetensors>。
+- XY Tokenizer checkpoint：<https://huggingface.co/fnlp/XY_Tokenizer_TTSD_V0>，文件 `xy_tokenizer.ckpt`；本次记录 HEAD `c83433728e698ed0698e88cb5096bc221fb8f8c5`。
+- XY Tokenizer 配置：原项目自带 `XY_Tokenizer/config/xy_tokenizer_config.yaml`。
 
-正式验收前记录权重和 checkpoint 的来源与 SHA256。
+推荐下载命令（在 `MOSS-TTSD-v0.5/upstream/` 下执行）：
+
+```bash
+python -m pip install -U "huggingface_hub[cli]"
+mkdir -p weights/MOSS-TTSD-v0.5 XY_Tokenizer/weights
+
+hf download fnlp/MOSS-TTSD-v0.5 \
+  --revision 8527b9136b6afefe2252ae597cecea2e80e7ebeb \
+  --local-dir weights/MOSS-TTSD-v0.5
+
+hf download fnlp/XY_Tokenizer_TTSD_V0 xy_tokenizer.ckpt \
+  --revision c83433728e698ed0698e88cb5096bc221fb8f8c5 \
+  --local-dir XY_Tokenizer/weights
+```
+
+如果只需要直接下载 codec checkpoint，也可使用固定 URL：
+
+```bash
+mkdir -p XY_Tokenizer/weights
+wget -O XY_Tokenizer/weights/xy_tokenizer.ckpt \
+  https://huggingface.co/fnlp/XY_Tokenizer_TTSD_V0/resolve/c83433728e698ed0698e88cb5096bc221fb8f8c5/xy_tokenizer.ckpt
+```
+
+正式验收前记录权重和 checkpoint 的来源、revision 与 SHA256。
 
 ## 3. NPU 推理
 
