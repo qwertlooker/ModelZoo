@@ -178,11 +178,25 @@ MOSS-TTSD-v0.5 的正式质量/性能验收口径统一维护在 `ACCEPTANCE_PLA
 - 功能：中文、英文、中英混合、双说话人、prompt 切换、normalize、长短文本和异常暴露。
 - 可懂度：固定 ASR 模型和 normalizer，统计 CER/WER。
 - 音色：固定 speaker embedding 模型，统计 speaker similarity / EER。
+- 公共客观评测：默认使用 `OpenMOSS/TTSD-eval`，记录 ACC、SIM、WER；该流程可测评 v0.5 输出，但不是 v0.5 已发布官方指标，必须与 CPU/CUDA 原始路径做同口径对齐。
 - 自然度：DNSMOS / UTMOS / NISQA 等作为客观参考，不替代人工听测。
 - 主观：MOS / CMOS / A-B preference，记录人数、样本数和置信区间。
 - 性能：记录 `elapsed_seconds`、`RTF`、`RTFx`、dtype、attention backend、峰值 HBM/RSS、首次加载/编译耗时和稳定推理耗时。
 
-### 2.6 推理脚本用法
+### 2.6 TTSD-eval 测评说明
+
+`OpenMOSS/TTSD-eval` 可用于 MOSS-TTSD-v0.5 的公共客观测评：其 pipeline 对生成音频做 MMS-FA forced alignment，再按 `[S1]`/`[S2]` 文本标签切分片段，使用 WeSpeaker 计算 speaker attribution ACC 和 speaker similarity SIM，并用 Whisper-large-v3 计算补充 WER。
+
+使用边界：
+
+- v0.5 README/技术报告未发布 v0.5 在 TTSD-eval 上的官方数值；因此验收报告中仍写“v0.5 官方指标未发布”。
+- TTSD-eval 结果用于 L2 公共评测和 NPU 迁移对齐：同一 testset、同一 v0.5 checkpoint、同一输入参数，分别生成 CPU/CUDA 与 NPU 音频，再比较 ACC/SIM/WER。
+- TTSD-eval 输入 manifest 必须包含 `text`、`output_audio`、`prompt_audio_speaker1`、`prompt_audio_speaker2`。v0.5 推理完成后，需要把 `output_*.wav` 回填为 `output_audio`。
+- 若 `git lfs` testset、MMS-FA checkpoint、WeSpeaker 权重或 Whisper 依赖不可用，直接记录失败原因，不用简化指标替代。
+
+详细命令、manifest 生成方式和报告字段见 `ACCEPTANCE_PLAN.md` 的 “OpenMOSS/TTSD-eval 公共评测” 小节。
+
+### 2.7 推理脚本用法
 
 #### NPU 推理
 
@@ -233,7 +247,7 @@ for p in paths:
 PY
 ```
 
-### 2.7 上游更新处理
+### 2.8 上游更新处理
 
 上游更新时必须重新执行：
 

@@ -9,6 +9,7 @@
   - [准备权重](#准备权重)
   - [准备测试数据](#准备测试数据)
   - [模型推理](#模型推理)
+- [OpenMOSS/TTSD-eval 测评](#openmossttsd-eval-测评)
 - [模型推理性能](#模型推理性能)
 - [公网地址说明](#公网地址说明)
 
@@ -199,7 +200,9 @@ MOSS-TTSD-v0.5
 
    该文件包含中文和英文双说话人长对话示例，并引用 `examples/` 目录下的 prompt wav。
 
-2. 正式验收时准备 `acceptance_l1.jsonl` / `acceptance_l2.jsonl`。字段、规模和通过条件见 `ACCEPTANCE_PLAN.md`。L1 至少覆盖中文、英文、中英混合、短句、长对话、双说话人、normalize 和 prompt 切换。
+2. 正式验收时准备 `acceptance_l1.jsonl`，字段、规模和通过条件见 `ACCEPTANCE_PLAN.md`。L1 至少覆盖中文、英文、中英混合、短句、长对话、双说话人、normalize 和 prompt 切换。
+
+3. L2 公共客观评测默认使用 `OpenMOSS/TTSD-eval` testset。该评测可用于 v0.5 输出，但不代表 v0.5 已发布官方指标；正式验收需同时跑 CPU/CUDA 原始路径和 NPU，并比较 ACC/SIM/WER。
 
 ### 模型推理
 
@@ -267,6 +270,67 @@ MOSS-TTSD-v0.5
 
    L0 通过条件：输出 WAV 数量与输入有效样本一致、WAV 可读、时长大于 0、非全静音、无设备不一致、无 CUDA 硬编码、无 TorchCodec 报错、无 NPU attention mask 形状错误。
 
+
+## OpenMOSS/TTSD-eval 测评
+
+`OpenMOSS/TTSD-eval` 可以用于 MOSS-TTSD-v0.5 的公共客观测评。它要求输入 JSONL 至少包含：
+
+- `text`：带 `[S1]` / `[S2]` 标签的 dialogue script；
+- `output_audio`：待评测的生成音频；
+- `prompt_audio_speaker1` / `prompt_audio_speaker2`：两位说话人的参考音频。
+
+使用口径：v0.5 官方正式质量指标仍为“未发布”；TTSD-eval 结果用于公共评测和 NPU 迁移对齐，不得挪用 v1.0 论文指标作为 v0.5 通过线。
+
+基本流程：
+
+```bash
+# 1. 准备 TTSD-eval
+
+git clone https://github.com/OpenMOSS/TTSD-eval.git third_party/TTSD-eval
+cd third_party/TTSD-eval
+git rev-parse HEAD
+git lfs install && git lfs pull
+unzip -oq testset.zip -d .
+pip install -r requirements.txt
+# 按 TTSD-eval README 准备 MMS-FA checkpoint、WeSpeaker 权重和 Whisper 依赖。
+
+# 2. 回到 v0.5，分别对 TTSD-eval testset 生成 CPU/CUDA 与 NPU 音频
+cd /abs/path/to/MOSS-TTSD-v0.5/upstream
+python inference.py \
+  --jsonl /abs/path/to/TTSD-eval/testset/<split>.jsonl \
+  --output_dir outputs_ttsd_eval_cpu_<split> \
+  --device cpu \
+  --dtype float32 \
+  --attn_implementation sdpa \
+  --model_path weights/MOSS-TTSD-v0.5 \
+  --spt_config_path XY_Tokenizer/config/xy_tokenizer_config.yaml \
+  --spt_checkpoint_path XY_Tokenizer/weights/xy_tokenizer.ckpt \
+  --seed 42 \
+  --use_normalize
+
+ASCEND_RT_VISIBLE_DEVICES=0 python inference.py \
+  --jsonl /abs/path/to/TTSD-eval/testset/<split>.jsonl \
+  --output_dir outputs_ttsd_eval_npu_<split> \
+  --device npu \
+  --dtype bfloat16 \
+  --attn_implementation sdpa \
+  --model_path weights/MOSS-TTSD-v0.5 \
+  --spt_config_path XY_Tokenizer/config/xy_tokenizer_config.yaml \
+  --spt_checkpoint_path XY_Tokenizer/weights/xy_tokenizer.ckpt \
+  --seed 42 \
+  --use_normalize
+```
+
+推理完成后，按 `ACCEPTANCE_PLAN.md` 将 `output_*.wav` 回填为 TTSD-eval manifest 的 `output_audio`，然后运行：
+
+```bash
+cd /abs/path/to/TTSD-eval
+bash eval.sh      # ACC / SIM
+bash run_wer.sh   # WER；中英文需分别设置 language=zh/en
+```
+
+报告中记录 TTSD-eval commit、testset 文件名/样本数/语言、MMS-FA/WeSpeaker/Whisper 版本、CPU/CUDA ACC/SIM/WER、NPU ACC/SIM/WER 和差异。
+
 ## 模型推理性能
 
 MOSS-TTSD-v0.5 属自回归生成式 TTS/TTSD 模型，性能以生成音频总时长和端到端墙钟时间计算。
@@ -274,8 +338,8 @@ MOSS-TTSD-v0.5 属自回归生成式 TTS/TTSD 模型，性能以生成音频总�
 ```bash
 cd MOSS-TTSD-v0.5/upstream
 /usr/bin/time -v bash -lc 'ASCEND_RT_VISIBLE_DEVICES=0 python inference.py \
-  --jsonl acceptance_l2.jsonl \
-  --output_dir outputs_l2_npu \
+  --jsonl /abs/path/to/TTSD-eval/testset/<split>.jsonl \
+  --output_dir outputs_ttsd_eval_npu_<split> \
   --device npu \
   --dtype bfloat16 \
   --attn_implementation sdpa \
@@ -291,7 +355,7 @@ cd MOSS-TTSD-v0.5/upstream
 ```bash
 python - <<'PY'
 import glob, soundfile as sf
-paths = sorted(glob.glob('outputs_l2_npu/output_*.wav'))
+paths = sorted(glob.glob('outputs_ttsd_eval_npu_<split>/output_*.wav'))
 total = 0.0
 for p in paths:
     data, sr = sf.read(p, always_2d=True)
@@ -308,6 +372,7 @@ PY
 | 资源 | 地址 | 说明 |
 |---|---|---|
 | OpenMOSS/MOSS-TTSD 源码 | <https://github.com/OpenMOSS/MOSS-TTSD> | 使用 tag `v0.5`，commit `0e078c62389922d3aa873ce182daf31142860b18` |
+| OpenMOSS/TTSD-eval | <https://github.com/OpenMOSS/TTSD-eval> | L2 公共客观评测，记录 ACC/SIM/WER；不是 v0.5 已发布官方指标 |
 | MOSS-TTSD-v0.5 HF 权重 | <https://huggingface.co/fnlp/MOSS-TTSD-v0.5> | 固定 revision `8527b9136b6afefe2252ae597cecea2e80e7ebeb` |
 | MOSS-TTSD-v0.5 ModelScope 权重 | <https://modelscope.cn/models/openmoss/MOSS-TTSD-v0.5> | 国内镜像，记录 HEAD `2633fdb794b9b6acd2a0c80dae6c2961f7db9d59` |
 | XY Tokenizer HF checkpoint | <https://huggingface.co/fnlp/XY_Tokenizer_TTSD_V0> | 固定 revision `c83433728e698ed0698e88cb5096bc221fb8f8c5` |
