@@ -205,6 +205,35 @@ ASCEND_RT_VISIBLE_DEVICES=0
 CUDA_VISIBLE_DEVICES=0
 ```
 
+#### 5.1 FlashAttention / SDPA 迁移原则
+
+本原则适用于所有使用 Transformers、PyTorch attention、CUDA/ROCm `flash-attn`、ONNX/OM attention 图改写或 vLLM-Ascend 的模型目录。结论来自对官方 `Ascend/ModelZoo-PyTorch` 的 `ACL_PyTorch/built-in` master 快照 `270266e` 的本地检索（约 34 个 flash-attention 相关文件），后续适配前仍需按当前日期重新复查上游文档和目标 CANN / `torch-npu` 版本。
+
+官方仓中常见做法主要有四类：
+
+| 类型 | 代表路径 / 场景 | 迁移做法 |
+|---|---|---|
+| 禁用 FA，改 `eager` | `embodied_ai/IsaacGR00T/diff.patch`、`audio/Index-TTS-vLLM-v2/README.md` 等 | 移除 `flash_attn` / `flash_attention_2`，NPU 上显式设置 `attn_implementation="eager"`。 |
+| 走 PyTorch SDPA | 多个 HF / Transformers 适配 | 使用 `torch.nn.functional.scaled_dot_product_attention` 或 Transformers `attn_implementation="sdpa"`，由 `torch-npu` 适配。 |
+| 手动改成 `torch_npu` FA 算子 | `audio/CosyVoice2/800I/modeling_qwen2.py`、`audio/whisper/whisper_torchair/modeling_whisper.py`、`audio/CosyVoice3/diff.patch`、`cv/MuseTalk/rewrite_models.py` 等 | 在模型 attention 实现中显式调用 `torch_npu.npu_prompt_flash_attention`、`torch_npu.npu_incre_flash_attention` 或 `torch_npu.npu_fusion_attention`。 |
+| ONNX/OM 图改写 | `cv/SAM*`、`foundation_models/DiT`、`ControlNet`、`blip_vqa` 等 | 将 ONNX 中的 QK / Softmax / V pattern 改写为 `FlashAttentionTik` / `FlashAttentionSoftmaxFp32` 等图算子。 |
+
+项目级默认策略：
+
+- **默认验收路径优先使用 SDPA**：若原模型能接受 PyTorch / Transformers SDPA，NPU 适配优先显式使用 `attn_implementation="sdpa"` 或 `scaled_dot_product_attention`。这是最适合作为迁移对齐验收的默认路径；验收仍必须同 checkpoint、同测试集 / manifest、同评测脚本、同 decode / 推理参数比较 CPU/CUDA 原始路径与 NPU 结果。
+- **`eager` 只能作为显式保守路径**：若目标 `torch-npu` 组合不支持当前 SDPA 形状、mask 或 dtype，可显式切到 `eager` 并在文档和验收报告中记录原因、命令、影响和复测结果；不得在代码中静默回退。
+- **不要把 CUDA `flash-attn` 当成 NPU 依赖**：不要采用“安装某个昇腾 flash-attn 包，然后继续在 Transformers 中使用 `attn_implementation="flash_attention_2"`”作为通用方案。官方 `ACL_PyTorch/built-in` 目录未体现这种通用替换路径，Transformers 的 `flash_attention_2` 默认仍主要指向 CUDA/ROCm `flash-attn` 生态。NPU 环境安装依赖时应过滤 CUDA/ROCm 专用 `flash-attn`，除非该模型有明确验证过的独立 NPU 实现并已写入版本边界和验证报告。
+- **显式 NPU FA 属于性能实验 / 专项优化路径**：如需追求性能，可参考 CosyVoice/Qwen 类改法，prefill 使用 `npu_prompt_flash_attention`，decode 使用 `npu_incre_flash_attention`，或在训练 / 通用注意力路径中使用 `npu_fusion_attention`。这不是一行替换，必须处理 mask 语义、KV cache、GQA/MQA、layout（如 `BSH` / `BNSD`）、causal sparse mode、dtype、连续性、序列长度和实际 `torch-npu` API 约束，并提供 SDPA/eager baseline 与精度、性能对齐报告。
+- **ONNX/OM 图改写只适用于图部署链路**：若模型交付形态是 ONNX / OM，可走图 pattern 改写；该路径不等价于 PyTorch / Transformers 脚本中的 `flash_attention_2`。
+- **vLLM-Ascend FA3 / `flash_attn_npu` 不是 Transformers 脚本的直接替换项**：它属于 vLLM-Ascend 后端能力，有特定版本、安装、配置和限制。只有当当前模型明确切换到 vLLM-Ascend 推理后端并按其文档启用时，才能作为单独路径验证；不能用来替代普通 Transformers 推理脚本中的 attention 参数。
+
+参考文档：
+
+- 昇腾 FlashAttentionScore 融合算子替换文档：<https://www.hiascend.com/document/detail/zh/Pytorch/600/ptmoddevg/trainingmigrguide/performance_tuning_0027.html>。该文档说明 NPU 上 `scaled_dot_product_attention` 已适配；若原模型直接调用 `flash_attn_func` / `flash_attn_varlen_func` 等 CUDA `flash-attn` 接口，其余模式需通过 `torch_npu.npu_fusion_attention` 等接口迁移。
+- `torch_npu.npu_prompt_flash_attention` API：<https://www.hiascend.com/document/detail/zh/Pytorch/60RC1/apiref/apilist/ptaoplist_000453.html>。
+- `torch_npu.npu_incre_flash_attention` API：<https://www.hiascend.com/document/detail/zh/Pytorch/60RC1/apiref/apilist/ptaoplist_000451.html>。
+- vLLM-Ascend Flash Attention 3 文档：<https://docs.vllm.ai/projects/ascend/en/main/user_guide/feature_guide/flash_attention.html>。
+
 ---
 
 ### Step 6：环境搭建必须补全

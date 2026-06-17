@@ -94,6 +94,30 @@
 - 精度/性能对比不能只写“跑通”，必须写明对比对象：同 checkpoint、同数据、同评测脚本下的 CPU/CUDA/源仓结果。
 - 不添加未验证的 CPU fallback、远程下载 fallback、非官方指标替代官方指标；缺失依赖或缺失官方字段应快速失败并暴露原始错误。
 
+### 0.4 FlashAttention / SDPA 适配结论
+
+> 适用范围：所有使用 PyTorch / Transformers attention、CUDA/ROCm `flash-attn`、ONNX/OM attention 图改写或 vLLM-Ascend 的模型。
+>
+> 检索边界：官方 `Ascend/ModelZoo-PyTorch` 的 `ACL_PyTorch/built-in` master 快照 `270266e`，本地命中约 34 个 flash-attention 相关文件；该结论作为项目级经验，正式适配前仍需复查目标 CANN / `torch-npu` / vLLM-Ascend 版本。
+
+官方仓主要出现四类方案：
+
+| 类型 | 代表路径 / 场景 | 做法 |
+|---|---|---|
+| 禁用 FA，改 `eager` | `embodied_ai/IsaacGR00T/diff.patch`、`audio/Index-TTS-vLLM-v2/README.md` | 移除 `flash_attn` / `flash_attention_2`，NPU 上强制或显式使用 `attn_implementation="eager"`。 |
+| 走 PyTorch SDPA | 多个 HF / Transformers 适配 | 使用 `torch.nn.functional.scaled_dot_product_attention` 或 Transformers `attn_implementation="sdpa"`，由 `torch-npu` 适配。 |
+| 手动改成 `torch_npu` FA 算子 | `audio/CosyVoice2/800I/modeling_qwen2.py`、`audio/whisper/whisper_torchair/modeling_whisper.py`、`audio/CosyVoice3/diff.patch`、`cv/MuseTalk/rewrite_models.py` | 直接调用 `torch_npu.npu_prompt_flash_attention`、`torch_npu.npu_incre_flash_attention`、`torch_npu.npu_fusion_attention`。 |
+| ONNX/OM 图改写 | `cv/SAM*`、`foundation_models/DiT`、`ControlNet`、`blip_vqa` | 把 ONNX 里的 QK / Softmax / V pattern 改成 `FlashAttentionTik` / `FlashAttentionSoftmaxFp32`。 |
+
+项目级结论：
+
+- NPU 适配默认优先走 `sdpa`；若不可用，显式改 `eager` 并记录原因，不允许静默 fallback。
+- 不建议安装某个“昇腾 flash-attn”包后继续在 Transformers 中使用 `attn_implementation="flash_attention_2"` 作为通用方案；官方 built-in 目录没有看到这种通用替换，Transformers 的 `flash_attention_2` 默认仍主要指向 CUDA/ROCm `flash-attn` 生态。
+- 如果原模型直接使用 `flash_attn_func` / `flash_attn_varlen_func`，应按昇腾 FlashAttentionScore 文档迁移到 `torch_npu.npu_fusion_attention` 或其他 `torch_npu` FA API，而不是继续复用 CUDA 包接口。
+- 显式 NPU FA 后端只作为性能实验或专项优化：prefill / decode 可能分别使用 `npu_prompt_flash_attention` / `npu_incre_flash_attention`，但必须处理 mask、KV cache、GQA/MQA、layout、causal sparse mode、dtype 和 API 版本约束，并补充 SDPA/eager baseline 对齐报告。
+- vLLM-Ascend 的 FA3 / `flash_attn_npu` 是 vLLM 后端能力，需按 vLLM-Ascend 文档单独启用和验收，不是当前普通 Transformers 推理脚本的直接替换项。
+- 具体规范和参考链接见《模型 NPU 适配标准流程》的 “5.1 FlashAttention / SDPA 迁移原则”。
+
 ---
 ## 1. DNSMOS
 
