@@ -357,3 +357,55 @@ ASCEND_RT_VISIBLE_DEVICES=0 python Canary-1B/infer.py \
 - LibriSpeech：<https://www.openslr.org/12>；Canary-1B 保留 `test-clean` 作为 Hugging Face Open ASR Leaderboard 口径的性能测试集，使用 `prepare_eval_data.py --librispeech_dir <dir>` 下载/复用 `<dir>/test-clean.tar.gz` 或 `<dir>/LibriSpeech/test-clean/`。
 - FLEURS：<https://huggingface.co/datasets/google/fleurs>；Canary-1B 使用 `prepare_eval_data.py --fleurs_parquet_dir <dir>` 下载/复用 `<dir>/<config>/test-00000-of-00001.parquet`，并用 `--offline` 禁止联网。
 - CoVoST-v2：<https://github.com/facebookresearch/covost>
+
+## 11. 已完成适配结果与经验补充
+
+以下内容来自原 `ADAPTATION_CASE_SUMMARY.md` 的结果与经验章节，用于在正式验收时保留已完成 NPU 结果、公开参考值和复用经验。
+
+### 适配结果
+
+#### 性能
+
+硬件：Atlas 800I A2
+
+| 数据集 | 指标 | NPU 结果 | 公开 GPU 参考 |
+|---|---|---:|---:|
+| LibriSpeech test-clean | RTF | 0.005652242997176402 | 0.0042491714115747425 |
+
+#### 精度
+
+硬件：Atlas 800I A2
+
+| 任务类型 | 语言/方向 | 数据集 | 指标 | NPU 结果 | 公开参考 |
+|---|---|---|---|---:|---:|
+| ASR | de | Multilingual LibriSpeech | WER(%) | 3.83 | 4.19 |
+| ASR | es | Multilingual LibriSpeech | WER(%) | 2.30 | 3.15 |
+| ASR | fr | Multilingual LibriSpeech | WER(%) | 3.69 | 4.12 |
+| AST | en-de | FLEURS | BLEU | 31.41 | 32.15 |
+| AST | en-es | FLEURS | BLEU | 22.69 | 22.66 |
+| AST | en-fr | FLEURS | BLEU | 39.84 | 40.76 |
+| AST | de-en | FLEURS | BLEU | 33.50 | 33.98 |
+| AST | es-en | FLEURS | BLEU | 21.78 | 21.80 |
+| AST | fr-en | FLEURS | BLEU | 30.29 | 30.95 |
+
+结果表明，在保持官方权重、官方解码和公开评测口径基本一致的情况下，Canary-1B 可以在昇腾 NPU 上完成 ASR 与 AST 推理适配。多语种 ASR 指标达到或优于公开参考，AST 指标与公开参考整体接近，性能结果也处于可对照范围。
+
+### 经验总结
+
+1. Canary-1B 的适配重点不是模型结构修改，而是保证 NeMo 官方恢复、prompt、tokenizer、解码和评测链路在 NPU 上完整跑通。
+2. 语音模型评测对数据和文本后处理非常敏感，WER/BLEU 必须明确 normalizer、标点大小写、beam size 和 length penalty。
+3. NPU 性能测试需要区分模型计算耗时和数据准备耗时，正式计时前应 warmup，并尽量使用按时长排序后的批量输入。
+4. `beam_size=1` 和 `beam_size=5` 服务于不同目标：前者适合吞吐评估，后者适合官方精度对齐，不能混用后直接比较指标。
+5. 离线部署时应提前准备 `.nemo` 权重、parquet/音频数据和 manifest，推理阶段不应依赖远程下载。
+6. 对 NPU 适配问题应显式失败并暴露原始错误，避免用 CPU fallback、简化 normalizer 或替代指标掩盖真实兼容性问题。
+
+### 公网地址说明
+
+| 类型 | 说明 | 公网地址 |
+|---|---|---|
+| 模型权重 | NVIDIA Canary-1B Hugging Face 模型仓 | https://huggingface.co/nvidia/canary-1b |
+| 开源代码仓 | NVIDIA NeMo 源码 | https://github.com/NVIDIA-NeMo/NeMo |
+| 公开性能参考 | Hugging Face Open ASR Leaderboard | https://github.com/huggingface/open_asr_leaderboard |
+| 数据集 | LibriSpeech | https://www.openslr.org/12 |
+| 数据集 | FLEURS | https://huggingface.co/datasets/google/fleurs |
+| 数据集 | Multilingual LibriSpeech | https://huggingface.co/datasets/facebook/multilingual_librispeech |

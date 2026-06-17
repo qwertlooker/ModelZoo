@@ -210,7 +210,7 @@ Canary-1B/eval_data/fleurs_parquet/es_419/test-00000-of-00001.parquet
 Canary-1B/eval_data/fleurs_parquet/fr_fr/test-00000-of-00001.parquet
 ```
 
-MLS/LibriSpeech/FLEURS 音频列使用 `Audio(decode=False)`，再由 `soundfile` 解码，避免 NPU 环境依赖 `torchcodec`。完整命令和手动下载命令见 `EVAL_FLEURS_MLS.md`。
+MLS/LibriSpeech/FLEURS 音频列使用 `Audio(decode=False)`，再由 `soundfile` 解码，避免 NPU 环境依赖 `torchcodec`。完整命令和手动下载命令见 `NPU_ADAPTATION.md`。
 
 ### 5.2 评测参数建议
 
@@ -258,7 +258,7 @@ Canary-1B/.venv-cpu/bin/python Canary-1B/infer.py \
   --batch_size 1
 ```
 
-当前机器已使用 HF 镜像权重完成 CPU 验证，输出示例：`[0]  I'm a part of that.` 详见 `NPU_VALIDATION.md`。
+当前机器已使用 HF 镜像权重完成 CPU 验证，输出示例：`[0]  I'm a part of that.` 详见 `NPU_ADAPTATION.md`。
 
 ## 7. NPU 推理
 
@@ -290,11 +290,9 @@ ASCEND_RT_VISIBLE_DEVICES=0 python infer.py \
 ## 9. 交付文件
 
 - `infer.py`：CPU/NPU 融合推理脚本。
-- `ANALYSIS.md`：上游版本、代码节点和风险分析。
-- `NPU_ADAPTATION.md`：适配和运行说明。
-- `NPU_VALIDATION.md`：验证命令与结果记录。
-- `ACCEPTANCE_PLAN.md`：参考原始模型功能/性能/精度的完整验收方案，包含数据集选择、分层验收、通过条件和报告模板。
-- `EVAL_FLEURS_MLS.md`：MLS test ASR 与 FLEURS AST 子集/全量验证方案和运行命令。
+- `README_INFERENCE.md`：面向上库/用户的推理指导文档，单独保留。
+- `NPU_ADAPTATION.md`：整合后的适配文档，保留上游分析、NPU 适配说明、验证记录、MLS/LibriSpeech/FLEURS 评测方案和案例总结细节。
+- `ACCEPTANCE_PLAN.md`：整合后的验收文档，保留分层验收方案、报告模板以及已完成 NPU 结果与经验补充。
 - `prepare_eval_data.py`：下载/准备 MLS、FLEURS 子集并生成评测 manifest。
 - `eval_canary.py`：读取已准备 manifest，使用 `model.transcribe()` 推理并输出 WER/BLEU 指标。
 - `patches/README.md`：说明本次无上游源码 patch。
