@@ -110,6 +110,8 @@ MOSS-TTSD-v0.5
 
 ## 快速上手
 
+除获取适配仓库的初始步骤外，后续命令默认从 `ACL_PyTorch/built-in/audio/MOSS-TTSD-v0.5` 目录开始，示例只使用相对路径。
+
 ### 获取源码并应用 patch
 
 1. 获取适配仓库。
@@ -138,8 +140,8 @@ MOSS-TTSD-v0.5
    ```bash
    cd upstream
    pip install torch torch-npu
-   grep -vE '^flash-attn([<>= ].*)?$' requirements.txt > /tmp/moss-ttsd-v0.5-requirements-npu.txt
-   pip install -r /tmp/moss-ttsd-v0.5-requirements-npu.txt
+   # patch 已从 requirements.txt 删除 CUDA/ROCm 专用的 flash-attn 依赖。
+   pip install -r requirements.txt
    pip install -r XY_Tokenizer/requirements.txt
    ```
 
@@ -153,7 +155,7 @@ MOSS-TTSD-v0.5
    - XY Tokenizer：`https://huggingface.co/fnlp/XY_Tokenizer_TTSD_V0`
 
    ```bash
-   cd MOSS-TTSD-v0.5/upstream
+   cd upstream
    python -m pip install -U "huggingface_hub[cli]"
    mkdir -p weights/MOSS-TTSD-v0.5 XY_Tokenizer/weights
 
@@ -169,7 +171,7 @@ MOSS-TTSD-v0.5
 2. 国内环境可使用 ModelScope 镜像。
 
    ```bash
-   cd MOSS-TTSD-v0.5/upstream
+   cd upstream
    python -m pip install -U modelscope
    mkdir -p weights/MOSS-TTSD-v0.5 XY_Tokenizer/weights
 
@@ -183,7 +185,7 @@ MOSS-TTSD-v0.5
 3. 下载后记录 SHA256。
 
    ```bash
-   cd MOSS-TTSD-v0.5/upstream
+   cd upstream
    find weights/MOSS-TTSD-v0.5 -maxdepth 1 -type f -print0 | sort -z | xargs -0 sha256sum
    sha256sum XY_Tokenizer/weights/xy_tokenizer.ckpt
    ```
@@ -195,7 +197,7 @@ MOSS-TTSD-v0.5
    默认示例路径：
 
    ```text
-   MOSS-TTSD-v0.5/upstream/examples/examples.jsonl
+   upstream/examples/examples.jsonl
    ```
 
    该文件包含中文和英文双说话人长对话示例，并引用 `examples/` 目录下的 prompt wav。
@@ -209,7 +211,7 @@ MOSS-TTSD-v0.5
 1. 执行 NPU smoke 推理。
 
    ```bash
-   cd MOSS-TTSD-v0.5/upstream
+   cd upstream
    ASCEND_RT_VISIBLE_DEVICES=0 python inference.py \
      --jsonl examples/examples.jsonl \
      --output_dir outputs_npu \
@@ -239,7 +241,7 @@ MOSS-TTSD-v0.5
 2. 执行 CPU 功能/质量基线。
 
    ```bash
-   cd MOSS-TTSD-v0.5/upstream
+   cd upstream
    python inference.py \
      --jsonl examples/examples.jsonl \
      --output_dir outputs_cpu \
@@ -256,7 +258,7 @@ MOSS-TTSD-v0.5
 3. 检查输出 WAV。
 
    ```bash
-   cd MOSS-TTSD-v0.5/upstream
+   cd upstream
    python - <<'PY'
    import glob, soundfile as sf
    paths = sorted(glob.glob('outputs_npu/output_*.wav'))
@@ -284,8 +286,9 @@ MOSS-TTSD-v0.5
 基本流程：
 
 ```bash
-# 1. 准备 TTSD-eval
+cd ACL_PyTorch/built-in/audio/MOSS-TTSD-v0.5
 
+# 1. 准备 TTSD-eval
 git clone https://github.com/OpenMOSS/TTSD-eval.git third_party/TTSD-eval
 cd third_party/TTSD-eval
 git rev-parse HEAD
@@ -295,9 +298,10 @@ pip install -r requirements.txt
 # 按 TTSD-eval README 准备 MMS-FA checkpoint、WeSpeaker 权重和 Whisper 依赖。
 
 # 2. 回到 v0.5，分别对 TTSD-eval testset 生成 CPU/CUDA 与 NPU 音频
-cd /abs/path/to/MOSS-TTSD-v0.5/upstream
+cd ../..
+cd upstream
 python inference.py \
-  --jsonl /abs/path/to/TTSD-eval/testset/<split>.jsonl \
+  --jsonl ../third_party/TTSD-eval/testset/<split>.jsonl \
   --output_dir outputs_ttsd_eval_cpu_<split> \
   --device cpu \
   --dtype float32 \
@@ -309,7 +313,7 @@ python inference.py \
   --use_normalize
 
 ASCEND_RT_VISIBLE_DEVICES=0 python inference.py \
-  --jsonl /abs/path/to/TTSD-eval/testset/<split>.jsonl \
+  --jsonl ../third_party/TTSD-eval/testset/<split>.jsonl \
   --output_dir outputs_ttsd_eval_npu_<split> \
   --device npu \
   --dtype bfloat16 \
@@ -324,7 +328,7 @@ ASCEND_RT_VISIBLE_DEVICES=0 python inference.py \
 推理完成后，按 `ACCEPTANCE_PLAN.md` 将 `output_*.wav` 回填为 TTSD-eval manifest 的 `output_audio`，然后运行：
 
 ```bash
-cd /abs/path/to/TTSD-eval
+cd ../third_party/TTSD-eval
 bash eval.sh      # ACC / SIM
 bash run_wer.sh   # WER；中英文需分别设置 language=zh/en
 ```
@@ -336,9 +340,10 @@ bash run_wer.sh   # WER；中英文需分别设置 language=zh/en
 MOSS-TTSD-v0.5 属自回归生成式 TTS/TTSD 模型，性能以生成音频总时长和端到端墙钟时间计算。
 
 ```bash
-cd MOSS-TTSD-v0.5/upstream
+cd ACL_PyTorch/built-in/audio/MOSS-TTSD-v0.5
+cd upstream
 /usr/bin/time -v bash -lc 'ASCEND_RT_VISIBLE_DEVICES=0 python inference.py \
-  --jsonl /abs/path/to/TTSD-eval/testset/<split>.jsonl \
+  --jsonl ../third_party/TTSD-eval/testset/<split>.jsonl \
   --output_dir outputs_ttsd_eval_npu_<split> \
   --device npu \
   --dtype bfloat16 \

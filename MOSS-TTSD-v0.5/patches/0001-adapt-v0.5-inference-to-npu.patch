@@ -412,3 +412,14 @@ index 39d99cb..51ddad6 100644
              print(f"Audio saved to: {output_path}")
          else:
              print(f"Audio generation failed: sample {idx}")
+diff --git a/requirements.txt b/requirements.txt
+index 991f460..e6f68e6 100644
+--- a/requirements.txt
++++ b/requirements.txt
+@@ -13,5 +13,4 @@ requests
+ openai
+ PyYAML
+ einops
+ huggingface_hub
+-flash-attn
+\ No newline at end of file

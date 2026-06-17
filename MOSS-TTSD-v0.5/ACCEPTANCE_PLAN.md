@@ -2,6 +2,8 @@
 
 本文件只保留适配迁移验收的重点：**先确认原始模型使用什么测试集、原始指标是多少，再用同一权重、同一输入、同一参数对齐原始模型结果**。性能、稳定性和扩展场景只作为补充，不能冲淡主线。
 
+除特别说明外，命令均假设先进入 `ACL_PyTorch/built-in/audio/MOSS-TTSD-v0.5`，后续路径均使用相对路径。
+
 ## 1. 验收核心结论先行
 
 | 问题 | 当前结论 | 验收要求 |
@@ -64,7 +66,7 @@ NPU 推荐配置：`--device npu --dtype bfloat16 --attn_implementation sdpa`。
 ### 4.2 原始 CPU/CUDA 基线命令
 
 ```bash
-cd MOSS-TTSD-v0.5/upstream
+cd upstream
 python inference.py \
   --jsonl examples/examples.jsonl \
   --output_dir outputs_cpu_baseline \
@@ -83,7 +85,7 @@ python inference.py \
 ### 4.3 NPU 命令
 
 ```bash
-cd MOSS-TTSD-v0.5/upstream
+cd upstream
 ASCEND_RT_VISIBLE_DEVICES=0 python inference.py \
   --jsonl examples/examples.jsonl \
   --output_dir outputs_npu \
@@ -109,6 +111,7 @@ ASCEND_RT_VISIBLE_DEVICES=0 python inference.py \
 ### 4.4.1 准备 TTSD-eval
 
 ```bash
+cd ACL_PyTorch/built-in/audio/MOSS-TTSD-v0.5
 git clone https://github.com/OpenMOSS/TTSD-eval.git third_party/TTSD-eval
 cd third_party/TTSD-eval
 git rev-parse HEAD
@@ -138,9 +141,9 @@ TTSD-eval testset 解压后的具体 JSONL 文件名以上游仓库为准。若 
 CPU/CUDA 基线与 NPU 分别生成到不同目录，例如：
 
 ```bash
-cd MOSS-TTSD-v0.5/upstream
+cd upstream
 python inference.py \
-  --jsonl /abs/path/to/TTSD-eval/testset/<split>.jsonl \
+  --jsonl ../third_party/TTSD-eval/testset/<split>.jsonl \
   --output_dir outputs_ttsd_eval_cpu_<split> \
   --device cpu \
   --dtype float32 \
@@ -152,7 +155,7 @@ python inference.py \
   --use_normalize
 
 ASCEND_RT_VISIBLE_DEVICES=0 python inference.py \
-  --jsonl /abs/path/to/TTSD-eval/testset/<split>.jsonl \
+  --jsonl ../third_party/TTSD-eval/testset/<split>.jsonl \
   --output_dir outputs_ttsd_eval_npu_<split> \
   --device npu \
   --dtype bfloat16 \
@@ -173,9 +176,9 @@ python - <<'PY'
 import json
 from pathlib import Path
 
-src = Path('/abs/path/to/TTSD-eval/testset/<split>.jsonl')
-out_dir = Path('/abs/path/to/MOSS-TTSD-v0.5/upstream/outputs_ttsd_eval_npu_<split>').resolve()
-dst = Path('/abs/path/to/TTSD-eval/data/moss_ttsd_v0_5_npu_<split>.jsonl')
+src = Path('third_party/TTSD-eval/testset/<split>.jsonl')
+out_dir = Path('upstream/outputs_ttsd_eval_npu_<split>').resolve()
+dst = Path('third_party/TTSD-eval/data/moss_ttsd_v0_5_npu_<split>.jsonl')
 dst.parent.mkdir(parents=True, exist_ok=True)
 
 with src.open(encoding='utf-8') as fin, dst.open('w', encoding='utf-8') as fout:

@@ -28,7 +28,7 @@
 - Codec：原项目 `XY_Tokenizer` + `fnlp/XY_Tokenizer_TTSD_V0` 的 `xy_tokenizer.ckpt`
 - Codec 地址：HF <https://huggingface.co/fnlp/XY_Tokenizer_TTSD_V0>，ModelScope <https://modelscope.cn/models/openmoss/XY_Tokenizer_TTSD_V0>
 - 当前记录 codec revision：HF `c83433728e698ed0698e88cb5096bc221fb8f8c5`，ModelScope `79082154409f5e883d9487c4d4b4be363323b039`
-- 本地上游副本：`MOSS-TTSD-v0.5/upstream/`
+- 本地上游副本：`upstream/`
 - 版本边界：当前只适配 MOSS-TTSD `v0.5`；不包含 MOSS-TTSD v0.7、v1.0、SGLang 路径或未固定版本的一键包改动。
 
 权重 SHA256 尚未在当前环境完成实测记录：正式验收前必须补充 `weights/MOSS-TTSD-v0.5/` 中核心权重文件和 `XY_Tokenizer/weights/xy_tokenizer.ckpt` 的 SHA256。
@@ -75,7 +75,7 @@
 | `XY_Tokenizer/utils/helpers.py` | 已 patch | 音频文件读写改为 `soundfile`，继续保留 `torchaudio.functional.resample`。 |
 | `XY_Tokenizer/xy_tokenizer/model.py` | 已 patch | `encode/decode` 默认从输入 tensor 推断设备，不再默认 CUDA。 |
 | `XY_Tokenizer/xy_tokenizer/nn/quantizer.py` | 已 patch | autocast device_type 使用当前 tensor device。 |
-| `requirements.txt` | 不直接照抄安装 | NPU 环境安装时过滤 `flash-attn`。 |
+| `requirements.txt` | 已 patch | 删除 CUDA/ROCm 专用 `flash-attn` 依赖，NPU 环境直接安装 patch 后的 `requirements.txt`。 |
 
 ### 1.5 设备适配点
 
@@ -106,6 +106,8 @@
 
 ## 2. NPU 适配与运行说明
 
+本章命令默认从 `ACL_PyTorch/built-in/audio/MOSS-TTSD-v0.5` 目录开始，后续路径均使用相对路径。
+
 ### 2.1 适配目标
 
 将 OpenMOSS/MOSS-TTSD v0.5 推理链路整理为规范的 CPU/NPU 融合路径：
@@ -123,32 +125,32 @@
 - 上游仓库：<https://github.com/OpenMOSS/MOSS-TTSD>
 - 基准 tag：`v0.5`
 - 基准 commit：`0e078c62389922d3aa873ce182daf31142860b18`
-- 当前 patch：`MOSS-TTSD-v0.5/patches/0001-adapt-v0.5-inference-to-npu.patch`
+- 当前 patch：`patches/0001-adapt-v0.5-inference-to-npu.patch`
 
 应用与校验：
 
 ```bash
-git -C MOSS-TTSD-v0.5/upstream reset --hard v0.5
-git -C MOSS-TTSD-v0.5/upstream apply --check ../patches/0001-adapt-v0.5-inference-to-npu.patch
-git -C MOSS-TTSD-v0.5/upstream apply ../patches/0001-adapt-v0.5-inference-to-npu.patch
+git -C upstream reset --hard v0.5
+git -C upstream apply --check ../patches/0001-adapt-v0.5-inference-to-npu.patch
+git -C upstream apply ../patches/0001-adapt-v0.5-inference-to-npu.patch
 ```
 
-如后续上游源码需要继续修改，应在 `MOSS-TTSD-v0.5/upstream/` 内修改已有文件并生成新 patch：
+如后续上游源码需要继续修改，应在 `upstream/` 内修改已有文件并生成新 patch：
 
 ```bash
-git -C MOSS-TTSD-v0.5/upstream diff -- <upstream_existing_file> > MOSS-TTSD-v0.5/patches/0002-xxx.patch
-git -C MOSS-TTSD-v0.5/upstream apply --check ../patches/0002-xxx.patch
+git -C upstream diff -- <upstream_existing_file> > patches/0002-xxx.patch
+git -C upstream apply --check ../patches/0002-xxx.patch
 ```
 
 ### 2.3 环境准备
 
-NPU 环境中请先安装与 CANN 匹配的 `torch` / `torch-npu`，再安装原项目依赖中的非 `flash-attn` 部分：
+NPU 环境中请先安装与 CANN 匹配的 `torch` / `torch-npu`，再安装 patch 后的原项目依赖：
 
 ```bash
-cd MOSS-TTSD-v0.5/upstream
+cd upstream
 pip install torch torch-npu
-grep -vE '^flash-attn([<>= ].*)?$' requirements.txt > /tmp/moss-ttsd-v0.5-requirements-npu.txt
-pip install -r /tmp/moss-ttsd-v0.5-requirements-npu.txt
+# patch 已从 requirements.txt 删除 CUDA/ROCm 专用的 flash-attn 依赖。
+pip install -r requirements.txt
 pip install -r XY_Tokenizer/requirements.txt
 ```
 
@@ -157,7 +159,7 @@ pip install -r XY_Tokenizer/requirements.txt
 - `flash-attn` 官方包面向 CUDA/ROCm GPU kernel，不作为 Ascend NPU 依赖。
 - NPU 推理使用 `--attn_implementation sdpa`，如目标 torch-npu 组合不支持，可显式改为 `eager` 复测并记录。
 - `soundfile` 已在原项目依赖中声明，本适配用它替代 `torchaudio.load/save` 文件 I/O。
-- 如果安装依赖时 pip 试图替换已有 NPU 版 PyTorch，请先固定与 CANN 匹配的 `torch/torch-npu` 版本，再安装其他依赖。
+- 如果安装依赖时 pip 试图替换已有 NPU 版 PyTorch，请先固定与 CANN 匹配的 `torch/torch-npu` 版本，再安装其他依赖。不得用临时过滤 requirements 的命令替代 patch。
 
 ### 2.4 权重下载
 
@@ -201,7 +203,7 @@ MOSS-TTSD-v0.5 的正式质量/性能验收口径统一维护在 `ACCEPTANCE_PLA
 #### NPU 推理
 
 ```bash
-cd MOSS-TTSD-v0.5/upstream
+cd upstream
 ASCEND_RT_VISIBLE_DEVICES=0 python inference.py \
   --jsonl examples/examples.jsonl \
   --output_dir outputs_npu \
@@ -218,7 +220,7 @@ ASCEND_RT_VISIBLE_DEVICES=0 python inference.py \
 #### CPU 功能/质量基线
 
 ```bash
-cd MOSS-TTSD-v0.5/upstream
+cd upstream
 python inference.py \
   --jsonl examples/examples.jsonl \
   --output_dir outputs_cpu \
@@ -235,7 +237,7 @@ python inference.py \
 #### 输出结构检查
 
 ```bash
-cd MOSS-TTSD-v0.5/upstream
+cd upstream
 python - <<'PY'
 import glob, soundfile as sf
 paths = sorted(glob.glob('outputs_npu/output_*.wav'))
@@ -252,10 +254,10 @@ PY
 上游更新时必须重新执行：
 
 ```bash
-git -C MOSS-TTSD-v0.5/upstream fetch origin
-git -C MOSS-TTSD-v0.5/upstream rev-parse origin/main
+git -C upstream fetch origin
+git -C upstream rev-parse origin/main
 grep -RIn "cuda\|gpu\|npu\|flash_attention\|torchaudio\.load\|torchaudio\.save\|to(device)" \
-  MOSS-TTSD-v0.5/upstream \
+  upstream \
   --exclude-dir=.git
 ```
 
@@ -284,7 +286,7 @@ grep -RIn "cuda\|gpu\|npu\|flash_attention\|torchaudio\.load\|torchaudio\.save\|
 | 工作目录 | `/home/pei/ModelZoo` |
 | 原项目 tag | `OpenMOSS/MOSS-TTSD` tag `v0.5` |
 | tag commit | `0e078c62389922d3aa873ce182daf31142860b18` |
-| patch | `MOSS-TTSD-v0.5/patches/0001-adapt-v0.5-inference-to-npu.patch` |
+| patch | `patches/0001-adapt-v0.5-inference-to-npu.patch` |
 | 当前系统 Python | `Python 3.12.3` |
 | 当前环境依赖 | 未安装 `torch`、`torch-npu`、模型权重和 `xy_tokenizer.ckpt` |
 | CPU 实推 | 未执行，原因：当前环境缺少依赖和权重 |
@@ -295,22 +297,22 @@ grep -RIn "cuda\|gpu\|npu\|flash_attention\|torchaudio\.load\|torchaudio\.save\|
 已完成的本地校验：
 
 ```bash
-git -C MOSS-TTSD-v0.5/upstream reset --hard v0.5
-git -C MOSS-TTSD-v0.5/upstream apply --check ../patches/0001-adapt-v0.5-inference-to-npu.patch
-git -C MOSS-TTSD-v0.5/upstream apply ../patches/0001-adapt-v0.5-inference-to-npu.patch
+git -C upstream reset --hard v0.5
+git -C upstream apply --check ../patches/0001-adapt-v0.5-inference-to-npu.patch
+git -C upstream apply ../patches/0001-adapt-v0.5-inference-to-npu.patch
 python3 -m py_compile \
-  MOSS-TTSD-v0.5/upstream/inference.py \
-  MOSS-TTSD-v0.5/upstream/generation_utils.py \
-  MOSS-TTSD-v0.5/upstream/gradio_demo.py \
-  MOSS-TTSD-v0.5/upstream/podcast_generate.py \
-  MOSS-TTSD-v0.5/upstream/modeling_asteroid.py \
-  MOSS-TTSD-v0.5/upstream/XY_Tokenizer/inference.py \
-  MOSS-TTSD-v0.5/upstream/XY_Tokenizer/utils/helpers.py \
-  MOSS-TTSD-v0.5/upstream/XY_Tokenizer/xy_tokenizer/model.py \
-  MOSS-TTSD-v0.5/upstream/XY_Tokenizer/xy_tokenizer/nn/quantizer.py
+  upstream/inference.py \
+  upstream/generation_utils.py \
+  upstream/gradio_demo.py \
+  upstream/podcast_generate.py \
+  upstream/modeling_asteroid.py \
+  upstream/XY_Tokenizer/inference.py \
+  upstream/XY_Tokenizer/utils/helpers.py \
+  upstream/XY_Tokenizer/xy_tokenizer/model.py \
+  upstream/XY_Tokenizer/xy_tokenizer/nn/quantizer.py
 ! grep -R -I -E 'torchaudio\.(load|save|info)\(' \
-  MOSS-TTSD-v0.5/upstream --exclude-dir=.git
-git -C MOSS-TTSD-v0.5/upstream reset --hard v0.5
+  upstream --exclude-dir=.git
+git -C upstream reset --hard v0.5
 ```
 
 结果：patch apply 检查通过；语法检查通过；`torchaudio.load/save/info` 文件 I/O 路径检查通过。
@@ -329,22 +331,22 @@ get unsupported atten_mask shape, the shape is [B, 1, L+7, L]
 ### 3.4 提交前必跑检查
 
 ```bash
-git -C MOSS-TTSD-v0.5/upstream reset --hard v0.5
-git -C MOSS-TTSD-v0.5/upstream apply --check ../patches/0001-adapt-v0.5-inference-to-npu.patch
-git -C MOSS-TTSD-v0.5/upstream apply ../patches/0001-adapt-v0.5-inference-to-npu.patch
+git -C upstream reset --hard v0.5
+git -C upstream apply --check ../patches/0001-adapt-v0.5-inference-to-npu.patch
+git -C upstream apply ../patches/0001-adapt-v0.5-inference-to-npu.patch
 python3 -m py_compile \
-  MOSS-TTSD-v0.5/upstream/inference.py \
-  MOSS-TTSD-v0.5/upstream/generation_utils.py \
-  MOSS-TTSD-v0.5/upstream/gradio_demo.py \
-  MOSS-TTSD-v0.5/upstream/podcast_generate.py \
-  MOSS-TTSD-v0.5/upstream/modeling_asteroid.py \
-  MOSS-TTSD-v0.5/upstream/XY_Tokenizer/inference.py \
-  MOSS-TTSD-v0.5/upstream/XY_Tokenizer/utils/helpers.py \
-  MOSS-TTSD-v0.5/upstream/XY_Tokenizer/xy_tokenizer/model.py \
-  MOSS-TTSD-v0.5/upstream/XY_Tokenizer/xy_tokenizer/nn/quantizer.py
+  upstream/inference.py \
+  upstream/generation_utils.py \
+  upstream/gradio_demo.py \
+  upstream/podcast_generate.py \
+  upstream/modeling_asteroid.py \
+  upstream/XY_Tokenizer/inference.py \
+  upstream/XY_Tokenizer/utils/helpers.py \
+  upstream/XY_Tokenizer/xy_tokenizer/model.py \
+  upstream/XY_Tokenizer/xy_tokenizer/nn/quantizer.py
 ! grep -R -I -E 'torchaudio\.(load|save|info)\(' \
-  MOSS-TTSD-v0.5/upstream --exclude-dir=.git
-git -C MOSS-TTSD-v0.5/upstream reset --hard v0.5
+  upstream --exclude-dir=.git
+git -C upstream reset --hard v0.5
 ```
 
 ### 3.5 NPU 实测待补项
@@ -356,8 +358,8 @@ python -V
 pip freeze | grep -E 'torch|torch-npu|torchaudio|transformers|accelerate|soundfile|librosa|numpy|scipy'
 npu-smi info || true
 uname -a
-sha256sum MOSS-TTSD-v0.5/patches/0001-adapt-v0.5-inference-to-npu.patch
-cd MOSS-TTSD-v0.5/upstream
+sha256sum patches/0001-adapt-v0.5-inference-to-npu.patch
+cd upstream
 find weights/MOSS-TTSD-v0.5 -maxdepth 1 -type f -print0 | sort -z | xargs -0 sha256sum
 sha256sum XY_Tokenizer/weights/xy_tokenizer.ckpt
 ```
