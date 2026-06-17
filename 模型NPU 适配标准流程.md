@@ -2,7 +2,7 @@
 
 ## 一句话指令
 
-> 先克隆 upstream，确认远端最新 commit，并明确“当前适配的精确版本边界”：源码 repo/分支/commit、模型权重 repo/文件/commit 或校验值、辅助模型版本，以及明确排除同系列其他变体。区分上游源码改动和当前适配脚本。上游已有文件的修改必须生成 patch；新增 `infer.py` 不放进 patch，直接放当前模型目录。`infer.py` 只保留一个，默认 `--device npu`，CPU 验证用 `--device cpu`，不要使用 `auto/use_gpu`，不要写死 `npu:0/cuda:0`，实际设备由环境变量控制。适配/评测脚本必须按项目级“严格失败”原则实现：必需依赖统一前置 import，缺依赖、缺官方预期字段或版本不匹配时直接暴露原始错误，不添加不必要的 `try/except`、`hasattr/getattr`、regex/basic 替代、CPU/远端 fallback 等静默兼容。必须补全环境搭建、权重下载、测试数据下载、CPU 当前环境验证、NPU 验证说明。还必须参考原始模型的功能、性能、精度和公开评测，生成 `ACCEPTANCE_PLAN.md`，按数据集大小、获取难度、验证难度设计 L0/L1/L2/L3 分层验收、通过条件和报告模板。最后生成 `ANALYSIS.md`、`NPU_ADAPTATION.md`、`NPU_VALIDATION.md`、`ACCEPTANCE_PLAN.md`，并验证 `git apply --check`、`py_compile`、下载 URL/脚本可用性、测试数据可用性、当前环境 CPU 推理；不能只补文档不做验证，不能只用 dummy smoke test 代替完整验收方案。
+> 先克隆 upstream，确认远端最新 commit，并明确“当前适配的精确版本边界”：源码 repo/分支/commit、模型权重 repo/文件/commit 或校验值、辅助模型版本，以及明确排除同系列其他变体。区分上游源码改动和当前适配脚本。上游已有文件的修改必须生成 patch；新增 `infer.py` 不放进 patch，直接放当前模型目录。`infer.py` 只保留一个，默认 `--device npu`，CPU 验证用 `--device cpu`，不要使用 `auto/use_gpu`，不要写死 `npu:0/cuda:0`，实际设备由环境变量控制。适配/评测脚本必须按项目级“严格失败”原则实现：必需依赖统一前置 import，缺依赖、缺官方预期字段或版本不匹配时直接暴露原始错误，不添加不必要的 `try/except`、`hasattr/getattr`、regex/basic 替代、CPU/远端 fallback 等静默兼容。必须补全环境搭建、权重下载、测试数据下载、CPU 当前环境验证、NPU 验证说明。还必须参考原始模型的功能、性能、精度和公开评测，生成 `ACCEPTANCE_PLAN.md`；验收主线必须先写清“原始测试集是什么、原始指标是多少、NPU 如何对齐原始模型结果”，同 checkpoint、同测试集/manifest、同评测脚本、同参数比较 CPU/CUDA 原始路径与 NPU 结果；官方未发布测试集或指标时必须明确写“官方未发布”，不得编造。再按数据集大小、获取难度、验证难度设计 L0/L1/L2/L3 分层验收、通过条件和报告模板。最后生成 `ANALYSIS.md`、`NPU_ADAPTATION.md`、`NPU_VALIDATION.md`、`ACCEPTANCE_PLAN.md`，并验证 `git apply --check`、`py_compile`、下载 URL/脚本可用性、测试数据可用性、当前环境 CPU 推理；不能只补文档不做验证，不能只用 dummy smoke test 代替完整验收方案。
 
 ---
 
@@ -764,6 +764,18 @@ python <model_dir>/infer.py --device cpu <model_args> <input_args>
 
 ---
 
+### Step 12.4：验收主线必须对齐原始模型结果
+
+当前是模型 NPU 适配迁移，不是重新定义模型能力。每个模型的验收计划和验收报告都必须把下面三件事放在最前面：
+
+1. **原始模型测试集是什么**：记录官方/论文/模型卡/README 使用的数据集、config、split、样本数或时长、manifest 生成方式、测试数据下载来源。
+2. **原始模型指标是多少**：记录官方公开指标、metric、normalizer/后处理、decode/推理参数、checkpoint/版本、硬件和来源链接。
+3. **NPU 如何对齐原始结果**：同 checkpoint、同测试集或同一固定 manifest、同官方或等价评测脚本、同推理参数下，比较 CPU/CUDA 原始路径与 NPU 结果；NPU 通过线应优先定义为“相对原始 CPU/CUDA 不退化”以及“在可复现条件下接近官方公开指标”。
+
+如果官方没有发布正式测试集或指标，必须在 `ACCEPTANCE_PLAN.md` 中明确写“官方未发布测试集/指标”，并说明当前只能使用官方示例、公开替代集或内部固定集做迁移对齐；不得编造官方指标，也不得把内部集、人工抽检、第三方榜单或 smoke test 说成原始模型官方结果。
+
+性能、稳定性、长稳压测、内部业务集和人工 MOS/CMOS 可以保留为补充验收，但不能替代“原始测试集 + 原始指标 + NPU 对齐原始结果”这条主线。dummy / 随机输入 / 1 条样例只能作为 L0 链路验证，不得作为精度、质量或性能验收结论。
+
 ### Step 12.5：完整验收方案（必须补充）
 
 每个模型必须新增 `ACCEPTANCE_PLAN.md`。该文件不是当前环境验证日志，而是正式交付/上线验收设计，必须参考原始模型的公开功能、性能和精度。不能只写 “smoke test 通过”。
@@ -772,7 +784,7 @@ python <model_dir>/infer.py --device cpu <model_args> <input_args>
 
 - **验收目标与版本边界**：明确当前适配的是哪个模型/权重/变体，排除哪些同系列变体；
 - **原始模型能力**：列出原始模型支持的任务、语言、输入输出、batch、解码参数或其他关键功能；
-- **官方/公开精度评测数据**：记录模型卡、论文、README 或官方 benchmark 的关键精度指标，例如 WER/CER/BLEU/mAP/Accuracy，并记录数据集、split、normalizer/后处理、decode 参数、checkpoint/版本和来源链接；
+- **原始测试集与官方/公开精度评测数据**：优先记录原始模型官方使用的测试集、split、样本规模、manifest/数据准备方式，以及模型卡、论文、README 或官方 benchmark 的关键精度指标，例如 WER/CER/BLEU/mAP/Accuracy；必须记录 normalizer/后处理、decode 参数、checkpoint/版本和来源链接；如果官方未发布，必须明确写“官方未发布”，不得编造；
 - **官方/公开性能评测数据**：记录模型卡、论文、README 或官方 benchmark 的速度/资源指标，例如 latency、throughput、RTF/RTFx、tokens/s、最大 batch、显存/内存、测试硬件、驱动/框架版本、batch 策略和来源链接；如果官方没有发布数值，必须明确写“官方未发布硬件性能数值”，并记录可替代参考（例如官方示例 batch、Leaderboard RTFx、论文训练/推理硬件）和不可直接对齐的原因；
 - **数据集选择**：按数据集大小、获取难度、授权/登录要求、验证难度和覆盖能力进行分级；
 - **分层验收**：
@@ -781,7 +793,7 @@ python <model_dir>/infer.py --device cpu <model_args> <input_args>
   - L2 推荐正式验收：可获取公开数据或内部固定集，计算主要精度和性能指标；
   - L3 完整复现：尽量对齐原始公开 benchmark 全量数据和官方评测配置；
 - **功能矩阵**：覆盖所有核心任务、语言/模态、batch、长输入、异常输入；
-- **精度验收**：指标、normalizer/后处理、CPU/CUDA vs NPU 对齐阈值、对官方/公开精度指标的允许差异；
+- **精度/质量验收**：优先围绕原始测试集和原始指标设计；指标、normalizer/后处理、CPU/CUDA 原始路径 vs NPU 对齐阈值、对官方/公开精度指标的允许差异必须写清楚；
 - **性能验收**：加载时间、延迟、吞吐、RTF/RTFx、最大 batch、峰值 HBM/RSS、稳定性，并说明与官方/公开性能指标是否可比；
 - **最低正式验收清单**：资源受限时也必须执行的最小集合；
 - **报告模板**：环境、功能、精度、性能、稳定性、结论。
