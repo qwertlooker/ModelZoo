@@ -58,7 +58,7 @@
 - `XY_Tokenizer/inference.py` 默认 `--device cuda`。
 - `XY_Tokenizer/xy_tokenizer/model.py` 的 `encode/decode` 默认 `device=torch.device("cuda")`，即使输入 tensor 已在 NPU，也会创建 CUDA tensor。
 - `XY_Tokenizer/xy_tokenizer/nn/quantizer.py` 使用 `torch.autocast('cuda', enabled=False)`。
-- 原项目依赖 `torchaudio` 做音频读写、重采样和私有 mel/Hz 转换；部分 CUDA 版 TorchAudio wheel 在 NPU 环境会因缺少 CUDA runtime（如 `libcudart.so.*`）而在 import 阶段失败。
+- `torchaudio.load` / `torchaudio.save` 在 TorchAudio 2.9+ 环境会进入 TorchCodec 路径，缺少或不匹配时会报 `TorchCodec is required for load_with_torchcodec` / `save_with_torchcodec`。
 - `modeling_asteroid.py` 自定义 `GenerationMixin._sample` 先记录 shifted 输入原始长度，再裁掉 `channels - 1` 个位置用于初始前向；如果不同步 `cur_len`，NPU `sdpa` 下发 `aclnnFlashAttentionScore` 时可能收到 query/key 长度不一致的 attention mask。
 
 因此本次必须修改上游已有文件并生成 patch，而不是仅新增外部包装脚本。
@@ -68,15 +68,14 @@
 | 文件 | 结论 | 说明 |
 |---|---|---|
 | `inference.py` | 已 patch | 增加 `--device npu/cpu/cuda`、`--dtype`、`--attn_implementation`、模型/codec 路径参数；默认 NPU；使用 `soundfile` 写 WAV。 |
-| `generation_utils.py` | 已 patch | `load_model()` 支持 dtype 和 attention backend；音频读取/写出改为 `soundfile`，重采样改为 `scipy.signal.resample_poly`；按 CUDA/NPU 分支清理显存。 |
+| `generation_utils.py` | 已 patch | `load_model()` 支持 dtype 和 attention backend；音频读取/写出改为 `soundfile`；按 CUDA/NPU 分支清理显存。 |
 | `modeling_asteroid.py` | 已 patch | 裁剪 shifted speech channels 后同步 `cur_len`，修复 NPU `sdpa` attention mask query/key 长度不一致。 |
 | `gradio_demo.py` / `podcast_generate.py` | 已 patch | WAV 写出复用 `save_audio_file()`，移除 `torchaudio.save` 路径。 |
 | `XY_Tokenizer/inference.py` | 已 patch | 默认设备改为 NPU，增加 NPU/CUDA 可用性检查。 |
-| `XY_Tokenizer/utils/helpers.py` | 已 patch | 音频文件读写改为 `soundfile`，重采样改为 `scipy.signal.resample_poly`。 |
+| `XY_Tokenizer/utils/helpers.py` | 已 patch | 音频文件读写改为 `soundfile`，继续保留 `torchaudio.functional.resample`。 |
 | `XY_Tokenizer/xy_tokenizer/model.py` | 已 patch | `encode/decode` 默认从输入 tensor 推断设备，不再默认 CUDA。 |
-| `XY_Tokenizer/xy_tokenizer/nn/modules.py` | 已 patch | 移除 `torchaudio.functional.functional` 私有函数导入，改用本地 HTK/Slaney mel/Hz 转换公式。 |
 | `XY_Tokenizer/xy_tokenizer/nn/quantizer.py` | 已 patch | autocast device_type 使用当前 tensor device。 |
-| `requirements.txt` / `XY_Tokenizer/requirements.txt` | 已 patch | 删除 `torchaudio`；顶层依赖显式保留 `soundfile`、`librosa`、`scipy`；NPU 环境安装时过滤 `flash-attn`。 |
+| `requirements.txt` | 不直接照抄安装 | NPU 环境安装时过滤 `flash-attn`。 |
 
 ### 1.5 设备适配点
 
@@ -86,7 +85,7 @@
 4. `model.to(device)`、`spt.to(device)`：模型和 codec 显式迁移到目标设备。
 5. `XY_Tokenizer.encode/decode`：默认从输入 tensor 推断设备，避免在 NPU 路径创建 CUDA tensor。
 6. `ResidualVQ.forward()`：`torch.autocast(device_type=z.device.type, enabled=False)`，避免 CUDA-only autocast。
-7. 音频处理：文件读取/写出走 `soundfile`；重采样走 `scipy.signal.resample_poly`；mel/Hz 转换使用本地 HTK/Slaney 公式，不再安装或导入 `torchaudio`。
+7. 音频 I/O：文件读取/写出走 `soundfile`；重采样仍使用 `torchaudio.functional.resample`，该路径不触发 TorchCodec 文件解码。
 8. 显存清理：CUDA 使用 `torch.cuda.empty_cache()`，NPU 使用 `torch.npu.empty_cache()`。
 9. attention mask：裁剪 shifted speech channels 后重置 `cur_len = input_ids.shape[1]`，保证 `input_ids`、`attention_mask`、cache position 长度一致。
 
@@ -96,7 +95,7 @@
 - 权重 SHA256 尚未记录；正式验收前必须补充。
 - 原项目 v0.5 中仍存在若干宽泛 `try/except` 和失败后继续处理的逻辑；本次 patch 以 NPU 设备适配为目标，没有重构原项目整体错误处理。
 - 生成式 TTS/TTSD 不能用“能输出 WAV”作为完整验收；正式验收需按 `ACCEPTANCE_PLAN.md` 做可懂度、音色、自然度和人工听测。
-- NeMo/Transformers/PyTorch 版本持续变化；若上游或依赖升级，应重新检查 `flash-attn`、音频 I/O/重采样、attention backend 和 `GenerationMixin` 行为。
+- NeMo/Transformers/PyTorch/TorchAudio 版本持续变化；若上游或依赖升级，应重新检查 `flash-attn`、TorchCodec、attention backend 和 `GenerationMixin` 行为。
 
 ### 1.7 上游版本检查记录
 
@@ -117,7 +116,7 @@
 - 不在代码中写死 `npu:0` / `cuda:0`；
 - 实际 NPU 卡号由环境变量控制，例如 `ASCEND_RT_VISIBLE_DEVICES=0`；
 - 必要代码改动通过 patch 交付，不新增旁路推理脚本；
-- NPU 路径不依赖 CUDA/ROCm `flash-attn`，不安装或导入 `torchaudio`。
+- NPU 路径不依赖 CUDA/ROCm `flash-attn`，不依赖 TorchCodec 文件 I/O。
 
 ### 2.2 上游与 patch
 
@@ -157,7 +156,7 @@ pip install -r XY_Tokenizer/requirements.txt
 
 - `flash-attn` 官方包面向 CUDA/ROCm GPU kernel，不作为 Ascend NPU 依赖。
 - NPU 推理使用 `--attn_implementation sdpa`，如目标 torch-npu 组合不支持，可显式改为 `eager` 复测并记录。
-- 运行时不再安装或导入 `torchaudio`；`soundfile` 负责音频读写，`scipy.signal.resample_poly` 负责重采样，mel/Hz 转换使用 patch 内本地公式。
+- `soundfile` 已在原项目依赖中声明，本适配用它替代 `torchaudio.load/save` 文件 I/O。
 - 如果安装依赖时 pip 试图替换已有 NPU 版 PyTorch，请先固定与 CANN 匹配的 `torch/torch-npu` 版本，再安装其他依赖。
 
 ### 2.4 权重下载
@@ -255,7 +254,7 @@ PY
 ```bash
 git -C MOSS-TTSD-v0.5/upstream fetch origin
 git -C MOSS-TTSD-v0.5/upstream rev-parse origin/main
-grep -RIn "cuda\|gpu\|npu\|flash_attention\|torchaudio\|to(device)" \
+grep -RIn "cuda\|gpu\|npu\|flash_attention\|torchaudio\.load\|torchaudio\.save\|to(device)" \
   MOSS-TTSD-v0.5/upstream \
   --exclude-dir=.git
 ```
@@ -267,15 +266,12 @@ grep -RIn "cuda\|gpu\|npu\|flash_attention\|torchaudio\|to(device)" \
 - `modeling_asteroid.py`
 - `gradio_demo.py`
 - `podcast_generate.py`
-- `requirements.txt`
 - `XY_Tokenizer/inference.py`
-- `XY_Tokenizer/requirements.txt`
 - `XY_Tokenizer/utils/helpers.py`
 - `XY_Tokenizer/xy_tokenizer/model.py`
-- `XY_Tokenizer/xy_tokenizer/nn/modules.py`
 - `XY_Tokenizer/xy_tokenizer/nn/quantizer.py`
 
-如新增硬编码 CUDA、`flash_attention_2`、`torchaudio` 运行时依赖或 attention mask 长度问题，按标准流程生成 patch 并补充验证记录。
+如新增硬编码 CUDA、`flash_attention_2`、TorchCodec 文件 I/O 或 attention mask 长度问题，按标准流程生成 patch 并补充验证记录。
 
 ## 3. 验证记录
 
@@ -311,14 +307,13 @@ python3 -m py_compile \
   MOSS-TTSD-v0.5/upstream/XY_Tokenizer/inference.py \
   MOSS-TTSD-v0.5/upstream/XY_Tokenizer/utils/helpers.py \
   MOSS-TTSD-v0.5/upstream/XY_Tokenizer/xy_tokenizer/model.py \
-  MOSS-TTSD-v0.5/upstream/XY_Tokenizer/xy_tokenizer/nn/modules.py \
   MOSS-TTSD-v0.5/upstream/XY_Tokenizer/xy_tokenizer/nn/quantizer.py
-! grep -R -I 'torchaudio' \
+! grep -R -I -E 'torchaudio\.(load|save|info)\(' \
   MOSS-TTSD-v0.5/upstream --exclude-dir=.git
 git -C MOSS-TTSD-v0.5/upstream reset --hard v0.5
 ```
 
-结果：patch apply 检查通过；语法检查通过；patched upstream 中不再包含 `torchaudio` 运行时代码或依赖声明。
+结果：patch apply 检查通过；语法检查通过；`torchaudio.load/save/info` 文件 I/O 路径检查通过。
 
 ### 3.3 已知 NPU attention mask 报错修复
 
@@ -346,9 +341,8 @@ python3 -m py_compile \
   MOSS-TTSD-v0.5/upstream/XY_Tokenizer/inference.py \
   MOSS-TTSD-v0.5/upstream/XY_Tokenizer/utils/helpers.py \
   MOSS-TTSD-v0.5/upstream/XY_Tokenizer/xy_tokenizer/model.py \
-  MOSS-TTSD-v0.5/upstream/XY_Tokenizer/xy_tokenizer/nn/modules.py \
   MOSS-TTSD-v0.5/upstream/XY_Tokenizer/xy_tokenizer/nn/quantizer.py
-! grep -R -I 'torchaudio' \
+! grep -R -I -E 'torchaudio\.(load|save|info)\(' \
   MOSS-TTSD-v0.5/upstream --exclude-dir=.git
 git -C MOSS-TTSD-v0.5/upstream reset --hard v0.5
 ```
@@ -359,7 +353,7 @@ git -C MOSS-TTSD-v0.5/upstream reset --hard v0.5
 
 ```bash
 python -V
-pip freeze | grep -E 'torch|torch-npu|transformers|accelerate|soundfile|librosa|numpy|scipy'
+pip freeze | grep -E 'torch|torch-npu|torchaudio|transformers|accelerate|soundfile|librosa|numpy|scipy'
 npu-smi info || true
 uname -a
 sha256sum MOSS-TTSD-v0.5/patches/0001-adapt-v0.5-inference-to-npu.patch

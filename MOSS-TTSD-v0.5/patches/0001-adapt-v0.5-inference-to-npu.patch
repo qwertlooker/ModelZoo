@@ -24,75 +24,30 @@ index f47bdc7..710664f 100644
      device = torch.device(args.device)
  
      ## Load codec model
-diff --git a/XY_Tokenizer/requirements.txt b/XY_Tokenizer/requirements.txt
-index fba07a1..1e84e5d 100644
---- a/XY_Tokenizer/requirements.txt
-+++ b/XY_Tokenizer/requirements.txt
-@@ -2,7 +2,6 @@ beartype
- tensorboard
- numpy
- torch
--torchaudio
- einops
- scipy
- huggingface-hub
-@@ -20,4 +19,4 @@ stopes
- s3prl
- onnxscript
- jiwer
--orjson
-\ No newline at end of file
-+orjson
 diff --git a/XY_Tokenizer/utils/helpers.py b/XY_Tokenizer/utils/helpers.py
-index 9b144a4..6a78c65 100644
+index 9b144a4..445bbe6 100644
 --- a/XY_Tokenizer/utils/helpers.py
 +++ b/XY_Tokenizer/utils/helpers.py
-@@ -1,5 +1,5 @@
+@@ -1,5 +1,6 @@
  import logging
--import torchaudio
+ import torchaudio
 +import soundfile as sf
  import os
  import sys
  import glob
-@@ -7,6 +7,7 @@ import debugpy
- import torch
- import numpy as np
- import re
-+from scipy.signal import resample_poly
- 
- def count_params_by_module(model_name, model):
-     logging.info(f"Counting num_parameters of {model_name}:")
-@@ -50,10 +51,48 @@ def count_params_by_module(model_name, model):
+@@ -50,8 +51,28 @@ def count_params_by_module(model_name, model):
      logging.info(f"################################################################")
  
  
 +def _load_audio_file(audio_path):
-+    """Load an audio file through soundfile as a float32 channels-first tensor."""
++    """Load an audio file without relying on torchaudio.load/TorchCodec."""
 +    wav_np, raw_sample_rate = sf.read(audio_path, dtype="float32", always_2d=True)
 +    wav = torch.from_numpy(wav_np.T).contiguous()
 +    return wav, raw_sample_rate
 +
 +
-+def _resample_audio(wav, sample_rate, target_sample_rate):
-+    """Resample channels-first audio with scipy."""
-+    if sample_rate == target_sample_rate:
-+        return wav
-+
-+    original_device = wav.device
-+    original_dtype = wav.dtype
-+    wav_np = wav.detach().cpu().float().numpy()
-+    gcd = np.gcd(int(sample_rate), int(target_sample_rate))
-+    up = int(target_sample_rate) // gcd
-+    down = int(sample_rate) // gcd
-+    resampled = resample_poly(wav_np, up, down, axis=-1)
-+    return torch.from_numpy(np.ascontiguousarray(resampled)).to(
-+        device=original_device,
-+        dtype=original_dtype,
-+    )
-+
-+
 +def _save_audio_file(audio_outpath, audio_out, sample_rate):
-+    """Save audio through soundfile as PCM_16 WAV."""
++    """Save audio without relying on torchaudio.save/TorchCodec."""
 +    if isinstance(audio_out, torch.Tensor):
 +        audio_np = audio_out.detach().cpu().float().numpy()
 +    else:
@@ -108,12 +63,9 @@ index 9b144a4..6a78c65 100644
 -    wav, raw_sample_rate = torchaudio.load(audio_path) # (1, T)   tensor 
 +    wav, raw_sample_rate = _load_audio_file(audio_path) # (1, T) tensor
      if raw_sample_rate != target_sample_rate:   
--        wav = torchaudio.functional.resample(wav, raw_sample_rate, target_sample_rate) # tensor 
-+        wav = _resample_audio(wav, raw_sample_rate, target_sample_rate) # tensor
+         wav = torchaudio.functional.resample(wav, raw_sample_rate, target_sample_rate) # tensor 
      return wav.squeeze()
- 
- def set_logging():
-@@ -73,7 +112,7 @@ def waiting_for_debug(ip, port):
+@@ -73,7 +94,7 @@ def waiting_for_debug(ip, port):
      
  def load_audio(audio_path, target_sample_rate):
      # Load audio file, wav shape: (channels, time)
@@ -122,16 +74,7 @@ index 9b144a4..6a78c65 100644
      
      # If multi-channel, convert to mono by averaging across channels
      if wav.shape[0] > 1:
-@@ -81,7 +120,7 @@ def load_audio(audio_path, target_sample_rate):
-     
-     # Resample if necessary
-     if raw_sample_rate != target_sample_rate:
--        wav = torchaudio.functional.resample(wav, raw_sample_rate, target_sample_rate)
-+        wav = _resample_audio(wav, raw_sample_rate, target_sample_rate)
-     
-     # Convert to numpy, add channel dimension, then back to tensor with desired shape
-     wav = np.expand_dims(wav.squeeze(0).numpy(), axis=1)  # Shape: (time, 1)
-@@ -90,13 +129,7 @@ def load_audio(audio_path, target_sample_rate):
+@@ -90,13 +111,7 @@ def load_audio(audio_path, target_sample_rate):
      return wav
  
  def save_audio(audio_outpath, audio_out, sample_rate):
@@ -146,13 +89,6 @@ index 9b144a4..6a78c65 100644
      logging.info(f"Successfully saved audio at {audio_outpath}")
      
  def find_audio_files(input_dir):
-@@ -114,4 +147,4 @@ def normalize_text(text):
-     text = text.lower()
-     # Remove extra spaces
-     text = ' '.join(text.split())
--    return text
-\ No newline at end of file
-+    return text
 diff --git a/XY_Tokenizer/xy_tokenizer/model.py b/XY_Tokenizer/xy_tokenizer/model.py
 index 1f73fc5..d7acc09 100644
 --- a/XY_Tokenizer/xy_tokenizer/model.py
@@ -195,79 +131,6 @@ index 1f73fc5..d7acc09 100644
          duration_seconds = 30 - overlap_seconds
          chunk_code_length = int(30 * self.input_sample_rate // self.encoder_downsample_rate) # Maximum code length per chunk
          duration_code_length = int(duration_seconds * self.input_sample_rate // self.encoder_downsample_rate) # Valid code length per chunk
-diff --git a/XY_Tokenizer/xy_tokenizer/nn/modules.py b/XY_Tokenizer/xy_tokenizer/nn/modules.py
-index cc186d9..cd5a78d 100644
---- a/XY_Tokenizer/xy_tokenizer/nn/modules.py
-+++ b/XY_Tokenizer/xy_tokenizer/nn/modules.py
-@@ -14,13 +14,62 @@ from torch import nn, view_as_real, view_as_complex
- from torch import nn
- from torch.nn import functional as F
- from torch.nn.utils import weight_norm, remove_weight_norm
--from torchaudio.functional.functional import _hz_to_mel, _mel_to_hz
- from transformers.activations import ACT2FN
- from dataclasses import dataclass
- from transformers.modeling_outputs import ModelOutput
- from transformers import WhisperModel
- 
- 
-+def _hz_to_mel(freq, mel_scale: str = "htk"):
-+    """Convert Hz to mel scale with the standard HTK/Slaney formulas."""
-+    if mel_scale not in ["slaney", "htk"]:
-+        raise ValueError('mel_scale should be one of "htk" or "slaney".')
-+
-+    if mel_scale == "htk":
-+        if isinstance(freq, torch.Tensor):
-+            return 2595.0 * torch.log10(1.0 + (freq / 700.0))
-+        return 2595.0 * math.log10(1.0 + (freq / 700.0))
-+
-+    f_min = 0.0
-+    f_sp = 200.0 / 3
-+    mels = (freq - f_min) / f_sp
-+
-+    min_log_hz = 1000.0
-+    min_log_mel = (min_log_hz - f_min) / f_sp
-+    logstep = math.log(6.4) / 27.0
-+    if isinstance(freq, torch.Tensor):
-+        log_mels = min_log_mel + torch.log(freq / min_log_hz) / logstep
-+        return torch.where(freq >= min_log_hz, log_mels, mels)
-+    if freq >= min_log_hz:
-+        mels = min_log_mel + math.log(freq / min_log_hz) / logstep
-+
-+    return mels
-+
-+
-+def _mel_to_hz(mels, mel_scale: str = "htk"):
-+    """Convert mel scale to Hz with the standard HTK/Slaney formulas."""
-+    if mel_scale not in ["slaney", "htk"]:
-+        raise ValueError('mel_scale should be one of "htk" or "slaney".')
-+
-+    if mel_scale == "htk":
-+        return 700.0 * (10.0 ** (mels / 2595.0) - 1.0)
-+
-+    f_min = 0.0
-+    f_sp = 200.0 / 3
-+    freqs = f_min + f_sp * mels
-+
-+    min_log_hz = 1000.0
-+    min_log_mel = (min_log_hz - f_min) / f_sp
-+    logstep = math.log(6.4) / 27.0
-+    if not isinstance(mels, torch.Tensor):
-+        if mels >= min_log_mel:
-+            return min_log_hz * math.exp(logstep * (mels - min_log_mel))
-+        return freqs
-+
-+    log_freqs = min_log_hz * torch.exp(logstep * (mels - min_log_mel))
-+    return torch.where(mels >= min_log_mel, log_freqs, freqs)
-+
-+
- # Define function to generate positional embeddings using sine and cosine functions to represent sequence position information
- def sinusoids(length, channels, max_timescale=10000):
-     """Returns sinusoidal waves for positional embedding"""
-@@ -1477,4 +1526,3 @@ class Vocos(nn.Module):
-         x = self.head(x)
-         output_length = input_length * self.hop_size
-         return x[:, None, :], output_length
--
 diff --git a/XY_Tokenizer/xy_tokenizer/nn/quantizer.py b/XY_Tokenizer/xy_tokenizer/nn/quantizer.py
 index a7d28b9..420522e 100644
 --- a/XY_Tokenizer/xy_tokenizer/nn/quantizer.py
@@ -282,20 +145,17 @@ index a7d28b9..420522e 100644
              mask = torch.arange(max_time, device=z.device).expand(batch_size, max_time) < input_length.unsqueeze(1)  # (B, T)
  
 diff --git a/generation_utils.py b/generation_utils.py
-index e433ad7..85b88d3 100644
+index e433ad7..084b5f2 100644
 --- a/generation_utils.py
 +++ b/generation_utils.py
-@@ -2,8 +2,9 @@ import os
- import re
+@@ -3,6 +3,7 @@ import re
  
  import torch
--import torchaudio
+ import torchaudio
 +import soundfile as sf
  import numpy as np
-+from scipy.signal import resample_poly
  
  from transformers import AutoTokenizer
- from modeling_asteroid import AsteroidTTSInstruct
 @@ -12,10 +13,14 @@ from XY_Tokenizer.xy_tokenizer.model import XY_Tokenizer
  MAX_CHANNELS = 8
  SILENCE_DURATION = 0.0  # Fixed silence duration: 0 seconds
@@ -322,51 +182,30 @@ index e433ad7..85b88d3 100644
              - Dict: {"speaker1": path_or_tuple, "speaker2": path_or_tuple}
      """
      if prompt_audio is None:
-@@ -104,8 +109,8 @@ def load_audio_data(prompt_audio, target_sample_rate=16000):
-             # Single audio
-             wav, sr = _load_single_audio(prompt_audio)
-             # Resample to 16k
--            if sr != target_sample_rate: 
--                wav = torchaudio.functional.resample(wav, sr, target_sample_rate)
-+            if sr != target_sample_rate:
-+                wav = _resample_audio(wav, sr, target_sample_rate)
-             # Ensure mono channel
-             if wav.shape[0] > 1:
-                 wav = wav.mean(dim=0, keepdim=True)  # Convert multi-channel to mono
-@@ -118,6 +123,48 @@ def load_audio_data(prompt_audio, target_sample_rate=16000):
+@@ -118,6 +123,38 @@ def load_audio_data(prompt_audio, target_sample_rate=16000):
          raise
  
  
 +def _load_audio_file(audio_input):
-+    """Load an audio file through soundfile as a float32 channels-first tensor."""
++    """Load an audio file without relying on torchaudio.load/TorchCodec.
++
++    TorchAudio 2.9 routes torchaudio.load through TorchCodec. Ascend NPU
++    environments commonly use the torch/torch-npu/torchaudio stack from the
++    CANN compatibility matrix, where torchcodec may be unavailable or
++    incompatible. soundfile is already an explicit project dependency and
++    returns normalized float32 samples suitable for the existing preprocessing.
++    """
 +    wav_np, sr = sf.read(audio_input, dtype="float32", always_2d=True)
 +    wav = torch.from_numpy(wav_np.T).contiguous()
 +    return wav, sr
 +
 +
-+def _resample_audio(wav, sample_rate, target_sample_rate):
-+    """Resample channels-first audio with scipy."""
-+    if sample_rate == target_sample_rate:
-+        return wav
-+
-+    original_device = wav.device
-+    original_dtype = wav.dtype
-+    wav_np = wav.detach().cpu().float().numpy()
-+    gcd = np.gcd(int(sample_rate), int(target_sample_rate))
-+    up = int(target_sample_rate) // gcd
-+    down = int(sample_rate) // gcd
-+    resampled = resample_poly(wav_np, up, down, axis=-1)
-+    return torch.from_numpy(np.ascontiguousarray(resampled)).to(
-+        device=original_device,
-+        dtype=original_dtype,
-+    )
-+
-+
 +def save_audio_file(output_path, audio_data, sample_rate):
-+    """Save audio through soundfile.
++    """Save audio without relying on torchaudio.save/TorchCodec.
 +
 +    soundfile expects shape (time, channels), while the project keeps tensors as
-+    (channels, time). Keep PCM_16 WAV output.
++    (channels, time). Keep PCM_16 WAV output to match the previous torchaudio
++    save path.
 +    """
 +    if isinstance(audio_data, torch.Tensor):
 +        audio_np = audio_data.detach().cpu().float().numpy()
@@ -382,7 +221,7 @@ index e433ad7..85b88d3 100644
  def _load_single_audio(audio_input):
      """Load single audio, supports file path or (wav, sr) tuple
      
-@@ -133,8 +180,7 @@ def _load_single_audio(audio_input):
+@@ -133,8 +170,7 @@ def _load_single_audio(audio_input):
          return wav, sr
      elif isinstance(audio_input, str):
          # Is a file path, needs to be loaded
@@ -392,34 +231,7 @@ index e433ad7..85b88d3 100644
      else:
          raise ValueError(f"Unsupported audio input format: {type(audio_input)}")
  
-@@ -144,7 +190,7 @@ def merge_speaker_audios(wav1, sr1, wav2, sr2, target_sample_rate=16000):
-     try:
-         # Process first audio
-         if sr1 != target_sample_rate:
--            wav1 = torchaudio.functional.resample(wav1, sr1, target_sample_rate)
-+            wav1 = _resample_audio(wav1, sr1, target_sample_rate)
-         # Ensure mono channel
-         if wav1.shape[0] > 1:
-             wav1 = wav1.mean(dim=0, keepdim=True)  # Convert multi-channel to mono
-@@ -153,7 +199,7 @@ def merge_speaker_audios(wav1, sr1, wav2, sr2, target_sample_rate=16000):
-         
-         # Process second audio  
-         if sr2 != target_sample_rate:
--            wav2 = torchaudio.functional.resample(wav2, sr2, target_sample_rate)
-+            wav2 = _resample_audio(wav2, sr2, target_sample_rate)
-         # Ensure mono channel
-         if wav2.shape[0] > 1:
-             wav2 = wav2.mean(dim=0, keepdim=True)  # Convert multi-channel to mono
-@@ -181,7 +227,7 @@ def process_inputs(tokenizer, spt, prompt, text, device, audio_data=None, max_ch
-             
-             # Add fixed 5-second silence at the end of audio (using 16k sample rate)
-             silence_samples = int(SILENCE_DURATION * 16000)
--            silence = torch.zeros(wav.shape[0], silence_samples)
-+            silence = wav.new_zeros(wav.shape[0], silence_samples)
-             wav = torch.cat([wav, silence], dim=1)
-             
-             with torch.no_grad():
-@@ -438,8 +484,11 @@ def process_batch(batch_items, tokenizer, model, spt, device, system_prompt, sta
+@@ -438,8 +474,11 @@ def process_batch(batch_items, tokenizer, model, spt, device, system_prompt, sta
                  traceback.print_exc()
                  audio_results.append(None)
          
@@ -600,27 +412,3 @@ index 39d99cb..51ddad6 100644
              print(f"Audio saved to: {output_path}")
          else:
              print(f"Audio generation failed: sample {idx}")
-diff --git a/requirements.txt b/requirements.txt
-index 991f460..3874bf1 100644
---- a/requirements.txt
-+++ b/requirements.txt
-@@ -1,5 +1,4 @@
- torch>=2.0.0
--torchaudio>=2.0.0
- transformers>=4.30.0
- gradio>=4.0.0
- numpy>=1.21.0
-@@ -8,10 +7,11 @@ PyPDF2
- beautifulsoup4
- soundfile
- librosa
-+scipy
- tqdm
- requests
- openai
- PyYAML
- einops
- huggingface_hub
--flash-attn
-\ No newline at end of file
-+flash-attn

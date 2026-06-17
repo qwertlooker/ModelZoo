@@ -71,12 +71,12 @@ MOSS-TTSD-v0.5 是 OpenMOSS 发布的对话式双说话人文本转语音/文本
 | Python | 3.10 / 3.11 |
 | PyTorch / torch-npu | 与 CANN 匹配，建议 2.6.0+ |
 | transformers / accelerate | 按原项目依赖安装 |
-| soundfile / scipy | `soundfile` 用于文件读写；`scipy.signal.resample_poly` 用于重采样 |
+| soundfile / torchaudio | `soundfile` 用于文件读写；`torchaudio.functional.resample` 用于重采样 |
 
 说明：
 
 - `flash-attn` 官方包面向 CUDA/ROCm GPU kernel，当前不作为 Ascend NPU 必需依赖安装。NPU 推理固定显式使用 `--attn_implementation sdpa`；仅 CUDA/ROCm GPU 路径显式使用 `flash_attention_2` 时才安装 `flash-attn`。
-- 本适配的 patch 完全移除运行时 `torchaudio` 依赖：音频读写使用 `soundfile`，重采样使用 `scipy.signal.resample_poly`，mel/Hz 转换使用本地 HTK/Slaney 公式；如果仍看到 `libcudart.so.*`、TorchCodec 或 `torchaudio` import 报错，说明 patch 未应用或运行的不是 patched 代码。
+- TorchAudio 2.9+ 的 `torchaudio.load` / `torchaudio.save` 会进入 TorchCodec 路径。本适配通过 patch 将 prompt 音频读取和 WAV 写出改为 `soundfile`，不要求额外安装 `torchcodec`。如果仍看到 `TorchCodec is required for load_with_torchcodec` 或 `save_with_torchcodec`，说明 patch 未应用或路径未覆盖。
 
 ## 文件目录
 
