@@ -6,7 +6,7 @@
 >
 > 分析范围：`/home/pei/ModelZoo` 下已克隆的 12 个 GitCode/交付仓库。
 >
-> 分析方式：静态代码/文档分析，未在 Ascend NPU 上实际执行。判断依据来自各仓库 `README.md`、随仓脚本、`requirements.txt`、大文件/LFS 状态、上游工程说明以及是否已经形成类似 `Canary-1B/README.md`、`Canary-1B/NPU_ADAPTATION_TEMPLATE.md` 的可交付推理与适配文档。
+> 分析方式：静态代码/文档分析，未在 Ascend NPU 上实际执行。判断依据来自各仓库 `README.md`、随仓脚本、`requirements.txt`、大文件/LFS 状态、上游工程说明以及是否已经形成类似 `Canary-1B/README.md`、`Canary-1B/README_INFERENCE.md` 的可交付推理文档。
 >
 > 约束：不添加未验证的 CPU fallback、远程下载 fallback、非官方指标替代官方指标；缺少依赖、缺少官方字段、上游版本不兼容或官方评估组件不可用时应快速失败并暴露原始错误。
 

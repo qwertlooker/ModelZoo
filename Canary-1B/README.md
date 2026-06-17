@@ -210,7 +210,7 @@ Canary-1B/eval_data/fleurs_parquet/es_419/test-00000-of-00001.parquet
 Canary-1B/eval_data/fleurs_parquet/fr_fr/test-00000-of-00001.parquet
 ```
 
-MLS/LibriSpeech/FLEURS 音频列使用 `Audio(decode=False)`，再由 `soundfile` 解码，避免 NPU 环境依赖 `torchcodec`。完整命令、手动下载命令、验证记录和验收模板已整合到 `NPU_ADAPTATION_TEMPLATE.md`。
+MLS/LibriSpeech/FLEURS 音频列使用 `Audio(decode=False)`，再由 `soundfile` 解码，避免 NPU 环境依赖 `torchcodec`。完整命令和手动下载命令见 `EVAL_FLEURS_MLS.md`。
 
 ### 5.2 评测参数建议
 
@@ -258,7 +258,7 @@ Canary-1B/.venv-cpu/bin/python Canary-1B/infer.py \
   --batch_size 1
 ```
 
-当前机器已使用 HF 镜像权重完成 CPU 验证，输出示例：`[0]  I'm a part of that.` 详见 `NPU_ADAPTATION_TEMPLATE.md`。
+当前机器已使用 HF 镜像权重完成 CPU 验证，输出示例：`[0]  I'm a part of that.` 详见 `NPU_VALIDATION.md`。
 
 ## 7. NPU 推理
 
@@ -289,9 +289,12 @@ ASCEND_RT_VISIBLE_DEVICES=0 python infer.py \
 
 ## 9. 交付文件
 
-- `NPU_ADAPTATION_TEMPLATE.md`：由原分析、适配、推理、验证、评测和验收文档整合而成，作为后续模型 NPU 适配模板。
 - `infer.py`：CPU/NPU 融合推理脚本。
-- `prepare_eval_data.py`：下载/准备 LibriSpeech、MLS、FLEURS 数据并生成评测 manifest。
-- `eval_canary.py`：读取 manifest，使用 `model.transcribe()` 推理并输出 WER/BLEU、RTF/RTFx 指标。
-- `utils.py`：推理和评测共用工具。
+- `ANALYSIS.md`：上游版本、代码节点和风险分析。
+- `NPU_ADAPTATION.md`：适配和运行说明。
+- `NPU_VALIDATION.md`：验证命令与结果记录。
+- `ACCEPTANCE_PLAN.md`：参考原始模型功能/性能/精度的完整验收方案，包含数据集选择、分层验收、通过条件和报告模板。
+- `EVAL_FLEURS_MLS.md`：MLS test ASR 与 FLEURS AST 子集/全量验证方案和运行命令。
+- `prepare_eval_data.py`：下载/准备 MLS、FLEURS 子集并生成评测 manifest。
+- `eval_canary.py`：读取已准备 manifest，使用 `model.transcribe()` 推理并输出 WER/BLEU 指标。
 - `patches/README.md`：说明本次无上游源码 patch。
