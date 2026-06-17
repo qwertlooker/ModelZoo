@@ -143,14 +143,78 @@ wget -c -O model/checkpoints/model.pt \
 
 ### 4.4.2 用 v0.5 生成 TTSD-eval 音频
 
-TTSD-eval testset 解压后的具体 JSONL 文件名以上游仓库为准。若 testset JSONL 字段已包含 `text`、`prompt_audio_speaker1`、`prompt_audio_speaker2`，可直接作为 v0.5 推理输入；如果 prompt audio 是相对路径，需补齐 `base_path` 或改成可解析的绝对路径。
+TTSD-eval testset 解压后的具体 JSONL 文件名以上游仓库为准。注意：TTSD-eval 的 `eval.sh`/`run_wer.sh` 不会按 JSONL 所在目录解析 `audio/zh/case1_S1.wav` 这类相对路径；v0.5 的 `inference.py` 也只会把 `base_path` 作为当前工作目录下的普通字符串拼接。因此不要直接把原始 testset JSONL 同时拿去推理和评测，必须先生成一份 prompt audio 已解析为绝对路径的 v0.5 输入 JSONL。
+
+连续执行 4.4.1 后当前目录是 `third_party/TTSD-eval`，先回到模型目录并转换输入 JSONL：
+
+```bash
+cd ../..
+
+SRC_JSONL=third_party/TTSD-eval/testset/<split>.jsonl
+SPLIT_STEM=<split>
+python - "$SRC_JSONL" "$SPLIT_STEM" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+src = Path(sys.argv[1]).resolve()
+split_stem = sys.argv[2]
+ttsd_root = Path('third_party/TTSD-eval').resolve()
+dst = Path('third_party/TTSD-eval/data') / f'moss_ttsd_v0_5_input_{split_stem}.jsonl'
+dst.parent.mkdir(parents=True, exist_ok=True)
+
+def resolve_audio(raw, base_path):
+    if not raw:
+        raise ValueError('empty audio path')
+    p = Path(str(raw)).expanduser()
+    if p.is_absolute():
+        candidates = [p]
+    else:
+        candidates = []
+        if base_path:
+            base = Path(str(base_path)).expanduser()
+            if base.is_absolute():
+                candidates.append(base / p)
+            else:
+                candidates.extend([
+                    ttsd_root / base / p,
+                    src.parent / base / p,
+                ])
+        candidates.extend([
+            src.parent / p,
+            ttsd_root / p,
+        ])
+    for cand in candidates:
+        if cand.exists():
+            return cand.resolve()
+    tried = ', '.join(str(c.resolve()) for c in candidates)
+    raise FileNotFoundError(f'cannot resolve audio path {raw!r}; tried: {tried}')
+
+count = 0
+with src.open(encoding='utf-8') as fin, dst.open('w', encoding='utf-8') as fout:
+    for line_no, line in enumerate(fin, 1):
+        if not line.strip():
+            continue
+        rec = json.loads(line)
+        base_path = rec.get('base_path')
+        for key in ('prompt_audio_speaker1', 'prompt_audio_speaker2'):
+            if key not in rec:
+                raise KeyError(f'line {line_no} missing required field {key}')
+            rec[key] = str(resolve_audio(rec[key], base_path))
+        # prompt audio 已写成绝对路径，避免 v0.5 推理时再次拼接 base_path。
+        rec['base_path'] = ''
+        fout.write(json.dumps(rec, ensure_ascii=False) + '\n')
+        count += 1
+print(f'wrote {count} lines to {dst}')
+PY
+```
 
 CPU/CUDA 基线与 NPU 分别生成到不同目录，例如：
 
 ```bash
-cd ../../upstream
+cd upstream
 python inference.py \
-  --jsonl ../third_party/TTSD-eval/testset/<split>.jsonl \
+  --jsonl ../third_party/TTSD-eval/data/moss_ttsd_v0_5_input_<split>.jsonl \
   --output_dir outputs_ttsd_eval_cpu_<split> \
   --device cpu \
   --dtype float32 \
@@ -162,7 +226,7 @@ python inference.py \
   --use_normalize
 
 ASCEND_RT_VISIBLE_DEVICES=0 python inference.py \
-  --jsonl ../third_party/TTSD-eval/testset/<split>.jsonl \
+  --jsonl ../third_party/TTSD-eval/data/moss_ttsd_v0_5_input_<split>.jsonl \
   --output_dir outputs_ttsd_eval_npu_<split> \
   --device npu \
   --dtype bfloat16 \
@@ -176,50 +240,58 @@ ASCEND_RT_VISIBLE_DEVICES=0 python inference.py \
 
 ### 4.4.3 生成 TTSD-eval 输入 manifest
 
-TTSD-eval 的 `eval.sh`/`run_wer.sh` 读取带 `output_audio` 字段的 JSONL。对 v0.5 推理输出，可用以下一次性命令把原 testset JSONL 与 `output_*.wav` 合并成评测 manifest：
+TTSD-eval 的 `eval.sh`/`run_wer.sh` 读取带 `output_audio` 字段的 JSONL，且 `output_audio`、`prompt_audio_speaker1`、`prompt_audio_speaker2` 必须在评测脚本当前工作目录下可直接访问。对 v0.5 推理输出，用上一步生成的绝对路径输入 JSONL 合并 `output_*.wav`，分别生成 CPU/CUDA 与 NPU 评测 manifest：
 
 ```bash
 cd ..
-python - <<'PY'
+SPLIT_STEM=<split>
+
+for MODE in cpu npu; do
+python - "$SPLIT_STEM" "$MODE" <<'PY'
 import json
+import sys
 from pathlib import Path
 
-src = Path('third_party/TTSD-eval/testset/<split>.jsonl')
-out_dir = Path('upstream/outputs_ttsd_eval_npu_<split>').resolve()
-dst = Path('third_party/TTSD-eval/data/moss_ttsd_v0_5_npu_<split>.jsonl')
+split_stem = sys.argv[1]
+mode = sys.argv[2]
+
+src = Path(f'third_party/TTSD-eval/data/moss_ttsd_v0_5_input_{split_stem}.jsonl')
+out_dir = Path(f'upstream/outputs_ttsd_eval_{mode}_{split_stem}').resolve()
+dst = Path(f'third_party/TTSD-eval/data/moss_ttsd_v0_5_{mode}_{split_stem}.jsonl')
 dst.parent.mkdir(parents=True, exist_ok=True)
 
+count = 0
 with src.open(encoding='utf-8') as fin, dst.open('w', encoding='utf-8') as fout:
     for idx, line in enumerate(fin):
         if not line.strip():
             continue
         rec = json.loads(line)
-        rec['output_audio'] = str(out_dir / f'output_{idx}.wav')
-        base_path = rec.get('base_path')
-        base_dir = Path(base_path) if base_path else src.parent
-        if not base_dir.is_absolute():
-            base_dir = (src.parent / base_dir).resolve()
-        for key in ('prompt_audio_speaker1', 'prompt_audio_speaker2'):
-            if key in rec:
-                path = Path(rec[key]).expanduser()
-                if not path.is_absolute():
-                    path = base_dir / path
-                rec[key] = str(path.resolve())
+        rec['output_audio'] = str((out_dir / f'output_{idx}.wav').resolve())
+        for key in ('output_audio', 'prompt_audio_speaker1', 'prompt_audio_speaker2'):
+            path = Path(rec[key]).expanduser()
+            if not path.is_absolute():
+                raise ValueError(f'{key} must be absolute for TTSD-eval: {path}')
+            if not path.exists():
+                raise FileNotFoundError(f'{key} does not exist: {path}')
         fout.write(json.dumps(rec, ensure_ascii=False) + '\n')
-print(dst)
+        count += 1
+print(f'wrote {count} lines to {dst}')
 PY
+done
 ```
 
-CPU/CUDA manifest 也用同样方式生成，只替换 `out_dir` 和 `dst`。生成后必须抽查：行数与成功输出 WAV 数一致，所有 `output_audio` 和 prompt audio 路径存在。
+生成后必须抽查：行数与成功输出 WAV 数一致，所有 `output_audio` 和 prompt audio 路径存在。若出现 `Error opening 'audio/zh/case1_S1.wav'`，说明传给 TTSD-eval 的 manifest 中仍有原始相对路径；应重新运行本小节转换，不能直接用 `testset/<split>.jsonl` 跑 `eval.sh`。
 
 ### 4.4.4 运行 ACC/SIM 与 WER
 
 ```bash
 cd third_party/TTSD-eval
-# 修改 eval.sh 中 INPUT_JSONL 为 v0.5 CPU/CUDA 与 NPU manifest 列表后运行：
+# 修改 eval.sh 中 INPUT_JSONL 为 data/moss_ttsd_v0_5_cpu_<split>.jsonl
+# 和 data/moss_ttsd_v0_5_npu_<split>.jsonl 后运行，不要填 testset/<split>.jsonl：
 bash eval.sh
 
-# WER 需按语言分别设置 run_wer.sh 的 language=zh/en 和 input_jsonl_list：
+# WER 需按语言分别设置 run_wer.sh 的 language=zh/en 和 input_jsonl_list；
+# input_jsonl_list 同样填 data/moss_ttsd_v0_5_cpu/npu_<split>.jsonl：
 bash run_wer.sh
 ```
 
