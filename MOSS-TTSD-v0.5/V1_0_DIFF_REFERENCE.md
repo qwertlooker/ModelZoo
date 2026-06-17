@@ -136,7 +136,7 @@ v1.0 JSONL 支持 1 到 5 个说话人：
 | Gradio | `>=4.0.0` | `==6.5.1` |
 | 其它 | `accelerate`、`PyPDF2`、`beautifulsoup4`、`openai` 等 | `safetensors`、`orjson`、`tiktoken`、flash-attn build deps 等 |
 
-适配含义：v1.0 的 `requirements.txt` 明确绑定 CUDA 版 torch/torchaudio，并包含 CUDA/ROCm GPU 专用的 `flash-attn` 构建依赖，NPU 环境不能照抄安装。正式文档中应改为 Ascend 兼容 torch/torch-npu/torchaudio 组合，attention 后端默认使用 `sdpa/eager`，并把 CUDA wheel 与 `flash-attn` 约束作为上游 CUDA/ROCm 参考，不作为 NPU 安装命令。
+适配含义：v1.0 的 `requirements.txt` 明确绑定 CUDA 版 torch/torchaudio，并包含 CUDA/ROCm GPU 专用的 `flash-attn` 构建依赖，NPU 环境不能照抄安装。正式文档中应改为 Ascend 兼容 torch/torch-npu 组合，音频 I/O、重采样和 mel/Hz 转换不依赖 `torchaudio`，attention 后端默认使用 `sdpa/eager`，并把 CUDA wheel 与 `flash-attn` 约束作为上游 CUDA/ROCm 参考，不作为 NPU 安装命令。
 
 ## 7. 设备与 attention 路径差异
 
