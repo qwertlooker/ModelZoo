@@ -47,7 +47,7 @@ codec checkpoint 固定 URL：<https://huggingface.co/fnlp/XY_Tokenizer_TTSD_V0/
 
 `flash-attn` 官方包面向 CUDA/ROCm GPU kernel，当前不作为 Ascend NPU 验收依赖安装。NPU 验收命令固定显式使用 `--attn_implementation sdpa`；如目标 torch-npu 组合不支持 `sdpa`，可显式改为 `eager` 复测并在报告中记录。不得在代码中静默回退，也不得把 CUDA/ROCm `flash_attention_2` 作为 NPU 必需路径。
 
-TorchAudio 2.9+ 的 `torchaudio.load` 会强依赖 TorchCodec；本适配不把 `torchcodec` 作为 NPU 验收依赖，而是通过 patch 将 prompt 音频读取改为 `soundfile`。若日志仍出现 `TorchCodec is required for load_with_torchcodec`，视为 patch 未应用或路径未覆盖，需先修正后再验收。
+TorchAudio 2.9+ 的 `torchaudio.load` / `torchaudio.save` 会强依赖 TorchCodec；本适配不把 `torchcodec` 作为 NPU 验收依赖，而是通过 patch 将 prompt 音频读取与 WAV 写出改为 `soundfile`。若日志仍出现 `TorchCodec is required for load_with_torchcodec` 或 `TorchCodec is required for save_with_torchcodec`，视为 patch 未应用或路径未覆盖，需先修正后再验收。
 
 ## 1. 验收分层
 

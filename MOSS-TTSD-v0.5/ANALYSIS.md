@@ -34,7 +34,7 @@ v0.5 原项目主要 CUDA 假设：
 - `inference.py` 根据 `torch.cuda.is_available()` 自动选择 `cuda/cpu`，无显式 NPU 参数。
 - `generation_utils.py` 固定 `attn_implementation="flash_attention_2"`，并在结束时调用 `torch.cuda.empty_cache()`。
 - `requirements.txt` 包含 `flash-attn`，但官方 `flash-attn` 包面向 CUDA/ROCm GPU kernel，不作为 Ascend NPU 依赖安装；NPU 适配路径改用显式 `sdpa/eager` attention 后端。
-- 新版 TorchAudio 的 `torchaudio.load` 会进入 TorchCodec 路径；NPU 适配不新增 `torchcodec` 依赖，改用原 requirements 已包含的 `soundfile` 读取 prompt 音频，避免 `load_with_torchcodec` 报错。
+- 新版 TorchAudio 的 `torchaudio.load` / `torchaudio.save` 会进入 TorchCodec 路径；NPU 适配不新增 `torchcodec` 依赖，改用原 requirements 已包含的 `soundfile` 读取 prompt 音频并写出 WAV，避免 `load_with_torchcodec` / `save_with_torchcodec` 报错。
 - `XY_Tokenizer/inference.py` 默认 `--device cuda`。
 - `XY_Tokenizer/xy_tokenizer/model.py` 的 `encode/decode` 默认 `device=torch.device("cuda")`，即使输入 tensor 已在 NPU 也会创建 CUDA tensor。
 - `XY_Tokenizer/xy_tokenizer/nn/quantizer.py` 使用 `torch.autocast('cuda', enabled=False)`。
@@ -48,6 +48,7 @@ v0.5 原项目主要 CUDA 假设：
 - quantizer autocast 使用当前 tensor device。
 - 清理显存时按 `cuda/npu` 分支调用对应 empty cache。
 - 裁剪 shifted speech channels 后重置 `cur_len`，保证 cache position 与初始 `input_ids` / `attention_mask` 长度一致。
+- 所有原项目 Python 代码中的 `torchaudio.load` / `torchaudio.save` 调用均被移除；仅保留 `torchaudio.functional.resample`。
 
 ## 4. 当前交付件
 

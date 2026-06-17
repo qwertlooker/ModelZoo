@@ -24,10 +24,15 @@ git -C MOSS-TTSD-v0.5/upstream apply ../patches/0001-adapt-v0.5-inference-to-npu
 python3 -m py_compile \
   MOSS-TTSD-v0.5/upstream/inference.py \
   MOSS-TTSD-v0.5/upstream/generation_utils.py \
+  MOSS-TTSD-v0.5/upstream/gradio_demo.py \
+  MOSS-TTSD-v0.5/upstream/podcast_generate.py \
   MOSS-TTSD-v0.5/upstream/modeling_asteroid.py \
   MOSS-TTSD-v0.5/upstream/XY_Tokenizer/inference.py \
+  MOSS-TTSD-v0.5/upstream/XY_Tokenizer/utils/helpers.py \
   MOSS-TTSD-v0.5/upstream/XY_Tokenizer/xy_tokenizer/model.py \
   MOSS-TTSD-v0.5/upstream/XY_Tokenizer/xy_tokenizer/nn/quantizer.py
+! grep -R -I -E 'torchaudio\.(load|save|info)\(' \
+  MOSS-TTSD-v0.5/upstream --exclude-dir=.git
 git -C MOSS-TTSD-v0.5/upstream reset --hard v0.5
 ```
 
@@ -48,10 +53,15 @@ git -C MOSS-TTSD-v0.5/upstream apply ../patches/0001-adapt-v0.5-inference-to-npu
 python -m py_compile \
   MOSS-TTSD-v0.5/upstream/inference.py \
   MOSS-TTSD-v0.5/upstream/generation_utils.py \
+  MOSS-TTSD-v0.5/upstream/gradio_demo.py \
+  MOSS-TTSD-v0.5/upstream/podcast_generate.py \
   MOSS-TTSD-v0.5/upstream/modeling_asteroid.py \
   MOSS-TTSD-v0.5/upstream/XY_Tokenizer/inference.py \
+  MOSS-TTSD-v0.5/upstream/XY_Tokenizer/utils/helpers.py \
   MOSS-TTSD-v0.5/upstream/XY_Tokenizer/xy_tokenizer/model.py \
   MOSS-TTSD-v0.5/upstream/XY_Tokenizer/xy_tokenizer/nn/quantizer.py
+! grep -R -I -E 'torchaudio\.(load|save|info)\(' \
+  MOSS-TTSD-v0.5/upstream --exclude-dir=.git
 git -C MOSS-TTSD-v0.5/upstream reset --hard v0.5
 ```
 
@@ -69,7 +79,7 @@ pip install -r /tmp/moss-ttsd-v0.5-requirements-npu.txt
 pip install -r XY_Tokenizer/requirements.txt
 ```
 
-如遇 `TorchCodec is required for load_with_torchcodec`，先确认最新 patch 已应用；本适配使用 `soundfile` 读取 prompt 音频文件，不要求为 NPU 路径额外安装 `torchcodec`。
+如遇 `TorchCodec is required for load_with_torchcodec` 或 `TorchCodec is required for save_with_torchcodec`，先确认最新 patch 已应用；本适配使用 `soundfile` 读取 prompt 音频文件并写出 WAV，不要求为 NPU 路径额外安装 `torchcodec`。
 
 ```bash
 python -m pip install -U "huggingface_hub[cli]"
@@ -151,6 +161,7 @@ ASCEND_RT_VISIBLE_DEVICES=0 python inference.py \
 
 - 无 `Expected all tensors to be on the same device`；
 - 无 `aclnnFlashAttentionScore` attention mask query/key 长度不一致错误，例如 `[B, 1, L+7, L]`；
+- 无 `TorchCodec is required for load_with_torchcodec` / `save_with_torchcodec`；
 - 无 CUDA-only / `.cuda()` / 硬编码 CUDA 设备导致的错误；
 - 无静默切到 CPU；
 - 输出 WAV 可读且非零时长。

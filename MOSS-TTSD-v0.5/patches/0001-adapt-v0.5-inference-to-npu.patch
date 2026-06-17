@@ -25,7 +25,7 @@ index f47bdc7..710664f 100644
  
      ## Load codec model
 diff --git a/XY_Tokenizer/utils/helpers.py b/XY_Tokenizer/utils/helpers.py
-index 9b144a4..1c713e4 100644
+index 9b144a4..445bbe6 100644
 --- a/XY_Tokenizer/utils/helpers.py
 +++ b/XY_Tokenizer/utils/helpers.py
 @@ -1,5 +1,6 @@
@@ -35,7 +35,7 @@ index 9b144a4..1c713e4 100644
  import os
  import sys
  import glob
-@@ -50,8 +51,15 @@ def count_params_by_module(model_name, model):
+@@ -50,8 +51,28 @@ def count_params_by_module(model_name, model):
      logging.info(f"################################################################")
  
  
@@ -46,13 +46,26 @@ index 9b144a4..1c713e4 100644
 +    return wav, raw_sample_rate
 +
 +
++def _save_audio_file(audio_outpath, audio_out, sample_rate):
++    """Save audio without relying on torchaudio.save/TorchCodec."""
++    if isinstance(audio_out, torch.Tensor):
++        audio_np = audio_out.detach().cpu().float().numpy()
++    else:
++        audio_np = np.asarray(audio_out, dtype=np.float32)
++    if audio_np.ndim == 2:
++        audio_np = audio_np.T
++    elif audio_np.ndim != 1:
++        raise ValueError(f"Expected 1D or 2D audio data, got shape {audio_np.shape}")
++    sf.write(audio_outpath, audio_np, sample_rate, subtype="PCM_16")
++
++
  def load_and_resample_audio(audio_path, target_sample_rate):
 -    wav, raw_sample_rate = torchaudio.load(audio_path) # (1, T)   tensor 
 +    wav, raw_sample_rate = _load_audio_file(audio_path) # (1, T) tensor
      if raw_sample_rate != target_sample_rate:   
          wav = torchaudio.functional.resample(wav, raw_sample_rate, target_sample_rate) # tensor 
      return wav.squeeze()
-@@ -73,7 +81,7 @@ def waiting_for_debug(ip, port):
+@@ -73,7 +94,7 @@ def waiting_for_debug(ip, port):
      
  def load_audio(audio_path, target_sample_rate):
      # Load audio file, wav shape: (channels, time)
@@ -61,6 +74,21 @@ index 9b144a4..1c713e4 100644
      
      # If multi-channel, convert to mono by averaging across channels
      if wav.shape[0] > 1:
+@@ -90,13 +111,7 @@ def load_audio(audio_path, target_sample_rate):
+     return wav
+ 
+ def save_audio(audio_outpath, audio_out, sample_rate):
+-    torchaudio.save(
+-        audio_outpath, 
+-        audio_out, 
+-        sample_rate=sample_rate, 
+-        encoding='PCM_S', 
+-        bits_per_sample=16
+-    )
++    _save_audio_file(audio_outpath, audio_out, sample_rate)
+     logging.info(f"Successfully saved audio at {audio_outpath}")
+     
+ def find_audio_files(input_dir):
 diff --git a/XY_Tokenizer/xy_tokenizer/model.py b/XY_Tokenizer/xy_tokenizer/model.py
 index 1f73fc5..d7acc09 100644
 --- a/XY_Tokenizer/xy_tokenizer/model.py
@@ -117,7 +145,7 @@ index a7d28b9..420522e 100644
              mask = torch.arange(max_time, device=z.device).expand(batch_size, max_time) < input_length.unsqueeze(1)  # (B, T)
  
 diff --git a/generation_utils.py b/generation_utils.py
-index e433ad7..cc553be 100644
+index e433ad7..084b5f2 100644
 --- a/generation_utils.py
 +++ b/generation_utils.py
 @@ -3,6 +3,7 @@ import re
@@ -154,7 +182,7 @@ index e433ad7..cc553be 100644
              - Dict: {"speaker1": path_or_tuple, "speaker2": path_or_tuple}
      """
      if prompt_audio is None:
-@@ -118,6 +123,20 @@ def load_audio_data(prompt_audio, target_sample_rate=16000):
+@@ -118,6 +123,38 @@ def load_audio_data(prompt_audio, target_sample_rate=16000):
          raise
  
  
@@ -172,10 +200,28 @@ index e433ad7..cc553be 100644
 +    return wav, sr
 +
 +
++def save_audio_file(output_path, audio_data, sample_rate):
++    """Save audio without relying on torchaudio.save/TorchCodec.
++
++    soundfile expects shape (time, channels), while the project keeps tensors as
++    (channels, time). Keep PCM_16 WAV output to match the previous torchaudio
++    save path.
++    """
++    if isinstance(audio_data, torch.Tensor):
++        audio_np = audio_data.detach().cpu().float().numpy()
++    else:
++        audio_np = np.asarray(audio_data, dtype=np.float32)
++    if audio_np.ndim == 2:
++        audio_np = audio_np.T
++    elif audio_np.ndim != 1:
++        raise ValueError(f"Expected 1D or 2D audio data, got shape {audio_np.shape}")
++    sf.write(output_path, audio_np, sample_rate, subtype="PCM_16")
++
++
  def _load_single_audio(audio_input):
      """Load single audio, supports file path or (wav, sr) tuple
      
-@@ -133,8 +152,7 @@ def _load_single_audio(audio_input):
+@@ -133,8 +170,7 @@ def _load_single_audio(audio_input):
          return wav, sr
      elif isinstance(audio_input, str):
          # Is a file path, needs to be loaded
@@ -185,7 +231,7 @@ index e433ad7..cc553be 100644
      else:
          raise ValueError(f"Unsupported audio input format: {type(audio_input)}")
  
-@@ -438,8 +456,11 @@ def process_batch(batch_items, tokenizer, model, spt, device, system_prompt, sta
+@@ -438,8 +474,11 @@ def process_batch(batch_items, tokenizer, model, spt, device, system_prompt, sta
                  traceback.print_exc()
                  audio_results.append(None)
          
@@ -199,11 +245,51 @@ index e433ad7..cc553be 100644
          
          # Return text data and audio data
          return actual_texts_data, audio_results
+diff --git a/gradio_demo.py b/gradio_demo.py
+index 86c03c5..2907c2d 100644
+--- a/gradio_demo.py
++++ b/gradio_demo.py
+@@ -1,12 +1,11 @@
+ import gradio as gr
+ import torch
+-import torchaudio
+ import tempfile
+ import json
+ import os
+ from typing import Optional, Tuple
+ 
+-from generation_utils import load_model, process_batch
++from generation_utils import load_model, process_batch, save_audio_file
+ 
+ def load_examples_from_jsonl():
+     """
+@@ -221,7 +220,7 @@ def process_single_audio_generation(
+         output_path = tempfile.NamedTemporaryFile(suffix=".wav", delete=False).name
+         
+         # Save audio
+-        torchaudio.save(output_path, audio_result["audio_data"], audio_result["sample_rate"])
++        save_audio_file(output_path, audio_result["audio_data"], audio_result["sample_rate"])
+         
+         # Build status information (using English since this is server-side output)
+         status_info = f"""
 diff --git a/inference.py b/inference.py
-index 69b696f..aa85faa 100644
+index 69b696f..b39525e 100644
 --- a/inference.py
 +++ b/inference.py
-@@ -13,28 +13,68 @@ SPT_CONFIG_PATH = "XY_Tokenizer/config/xy_tokenizer_config.yaml"
+@@ -1,11 +1,10 @@
+ import json
+ import torch
+-import torchaudio
+ import accelerate
+ import argparse
+ import os
+ 
+-from generation_utils import load_model, process_batch
++from generation_utils import load_model, process_batch, save_audio_file
+ 
+ MODEL_PATH = "fnlp/MOSS-TTSD-v0.5"
+ SYSTEM_PROMPT = "You are a speech synthesizer that generates natural, realistic, and human-like conversational audio from dialogue text."
+@@ -13,28 +12,68 @@ SPT_CONFIG_PATH = "XY_Tokenizer/config/xy_tokenizer_config.yaml"
  SPT_CHECKPOINT_PATH = "XY_Tokenizer/weights/xy_tokenizer.ckpt"
  MAX_CHANNELS = 8
  
@@ -274,14 +360,55 @@ index 69b696f..aa85faa 100644
      spt = spt.to(device)
      model = model.to(device)
      
+@@ -73,10 +112,10 @@ def main():
+     for idx, audio_result in enumerate(audio_results):
+         if audio_result is not None:
+             output_path = os.path.join(args.output_dir, f"output_{idx}.wav")
+-            torchaudio.save(
++            save_audio_file(
+                 output_path,
+                 audio_result["audio_data"],
+-                audio_result["sample_rate"]
++                audio_result["sample_rate"],
+             )
+             print(f"Saved audio to {output_path}")
+             saved_count += 1
 diff --git a/modeling_asteroid.py b/modeling_asteroid.py
 index 0588a5d..663500a 100644
 --- a/modeling_asteroid.py
 +++ b/modeling_asteroid.py
-@@ -86,5 +86,6 @@ class CustomMixin(GenerationMixin):
+@@ -86,6 +86,7 @@ class CustomMixin(GenerationMixin):
          tf_inputs = input_ids[:]
          input_ids = input_ids[:, :-(channels - 1)]
          model_kwargs["attention_mask"] = model_kwargs["attention_mask"][:, :-(channels - 1)]
 +        cur_len = input_ids.shape[1]
          base_length = input_ids.shape[1]
          model_kwargs = self._get_initial_cache_position(cur_len, input_ids.device, model_kwargs)
+ 
+diff --git a/podcast_generate.py b/podcast_generate.py
+index 39d99cb..51ddad6 100644
+--- a/podcast_generate.py
++++ b/podcast_generate.py
+@@ -1,12 +1,11 @@
+ import os
+ import torch
+-import torchaudio
+ import requests
+ from bs4 import BeautifulSoup
+ import re
+ from PyPDF2 import PdfReader
+ import openai
+-from generation_utils import load_model, process_batch
++from generation_utils import load_model, process_batch, save_audio_file
+ import argparse
+ 
+ # =============== Configuration Section ===============
+@@ -438,7 +437,7 @@ def process_input_to_audio(input_path: str, output_dir: str = "examples", langua
+     for idx, audio_result in enumerate(audio_results):
+         if audio_result is not None:
+             output_path = os.path.join(output_dir, f"generated_podcast_{idx}.wav")
+-            torchaudio.save(output_path, audio_result["audio_data"], audio_result["sample_rate"])
++            save_audio_file(output_path, audio_result["audio_data"], audio_result["sample_rate"])
+             print(f"Audio saved to: {output_path}")
+         else:
+             print(f"Audio generation failed: sample {idx}")
