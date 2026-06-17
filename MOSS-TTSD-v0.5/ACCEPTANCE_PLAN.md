@@ -2,14 +2,13 @@
 
 本文件只保留适配迁移验收的重点：**先确认原始模型使用什么测试集、原始指标是多少，再用同一权重、同一输入、同一参数对齐原始模型结果**。性能、稳定性和扩展场景只作为补充，不能冲淡主线。
 
-除特别说明外，命令均假设先在 ModelZoo 仓库根目录初始化模型目录变量，后续 `cd` 均从该变量展开，避免上一段命令已经切到 `upstream` 或 `third_party/TTSD-eval` 后相对 `cd` 失败：
+除特别说明外，以下命令按 **从 4.2 到 4.4 在同一 shell 连续执行** 编写：起点为 ModelZoo 仓库下的 `MOSS-TTSD-v0.5` 目录，每段命令承接上一段结束后的当前目录。
 
 ```bash
 cd MOSS-TTSD-v0.5
-export MOSS_TTSD_DIR="$PWD"
 ```
 
-若打开新的 shell，先重新执行上述两行。
+若单独执行某一小节，需先手动切到该小节注明或隐含的连续执行起点。
 
 ## 1. 验收核心结论先行
 
@@ -73,7 +72,7 @@ NPU 推荐配置：`--device npu --dtype bfloat16 --attn_implementation sdpa`。
 ### 4.2 原始 CPU/CUDA 基线命令
 
 ```bash
-cd "${MOSS_TTSD_DIR:?}/upstream"
+cd upstream
 python inference.py \
   --jsonl examples/examples.jsonl \
   --output_dir outputs_cpu_baseline \
@@ -92,7 +91,7 @@ python inference.py \
 ### 4.3 NPU 命令
 
 ```bash
-cd "${MOSS_TTSD_DIR:?}/upstream"
+# 连续执行 4.2 后，当前目录已是 upstream。
 ASCEND_RT_VISIBLE_DEVICES=0 python inference.py \
   --jsonl examples/examples.jsonl \
   --output_dir outputs_npu \
@@ -118,10 +117,10 @@ ASCEND_RT_VISIBLE_DEVICES=0 python inference.py \
 ### 4.4.1 准备 TTSD-eval
 
 ```bash
-cd "${MOSS_TTSD_DIR:?}"
+cd ..
 mkdir -p third_party
 git clone https://github.com/OpenMOSS/TTSD-eval.git third_party/TTSD-eval
-cd "${MOSS_TTSD_DIR:?}/third_party/TTSD-eval"
+cd third_party/TTSD-eval
 git rev-parse HEAD
 # 记录 HEAD；当前核查到的上游 HEAD 示例：dea13b98529dc16dcfb5fe45779ad63ac9238337
 
@@ -149,7 +148,7 @@ TTSD-eval testset 解压后的具体 JSONL 文件名以上游仓库为准。若 
 CPU/CUDA 基线与 NPU 分别生成到不同目录，例如：
 
 ```bash
-cd "${MOSS_TTSD_DIR:?}/upstream"
+cd ../../upstream
 python inference.py \
   --jsonl ../third_party/TTSD-eval/testset/<split>.jsonl \
   --output_dir outputs_ttsd_eval_cpu_<split> \
@@ -180,7 +179,7 @@ ASCEND_RT_VISIBLE_DEVICES=0 python inference.py \
 TTSD-eval 的 `eval.sh`/`run_wer.sh` 读取带 `output_audio` 字段的 JSONL。对 v0.5 推理输出，可用以下一次性命令把原 testset JSONL 与 `output_*.wav` 合并成评测 manifest：
 
 ```bash
-cd "${MOSS_TTSD_DIR:?}"
+cd ..
 python - <<'PY'
 import json
 from pathlib import Path
@@ -216,7 +215,7 @@ CPU/CUDA manifest 也用同样方式生成，只替换 `out_dir` 和 `dst`。生
 ### 4.4.4 运行 ACC/SIM 与 WER
 
 ```bash
-cd "${MOSS_TTSD_DIR:?}/third_party/TTSD-eval"
+cd third_party/TTSD-eval
 # 修改 eval.sh 中 INPUT_JSONL 为 v0.5 CPU/CUDA 与 NPU manifest 列表后运行：
 bash eval.sh
 
