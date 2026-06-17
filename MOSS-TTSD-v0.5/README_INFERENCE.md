@@ -110,3 +110,14 @@ python inference.py \
 ```
 
 CPU 仅用于功能/质量基线，不代表 NPU 性能。
+
+## 5. 已知 NPU attention mask 报错修复
+
+如果旧 patch 在 NPU `--attn_implementation sdpa` 下报：
+
+```text
+aclnnFlashAttentionScore failed
+get unsupported atten_mask shape, the shape is [B, 1, L+7, L]
+```
+
+请重新应用最新 `0001-adapt-v0.5-inference-to-npu.patch`。最新 patch 已在 `modeling_asteroid.py` 中修正自定义生成循环的 `cur_len`，使裁剪 shifted speech channels 后的 `input_ids`、`attention_mask` 与 cache position 长度一致。

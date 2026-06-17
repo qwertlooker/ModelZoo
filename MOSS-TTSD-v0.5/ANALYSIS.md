@@ -2,7 +2,7 @@
 
 ## 1. 参考原始仓库与版本边界
 
-检查日期：2026-06-16。
+检查日期：2026-06-17。
 
 | 项 | 当前记录 |
 |---|---|
@@ -38,6 +38,7 @@ v0.5 原项目主要 CUDA 假设：
 - `XY_Tokenizer/inference.py` 默认 `--device cuda`。
 - `XY_Tokenizer/xy_tokenizer/model.py` 的 `encode/decode` 默认 `device=torch.device("cuda")`，即使输入 tensor 已在 NPU 也会创建 CUDA tensor。
 - `XY_Tokenizer/xy_tokenizer/nn/quantizer.py` 使用 `torch.autocast('cuda', enabled=False)`。
+- `modeling_asteroid.py` 自定义 `_sample` 先记录 shifted 输入原始长度，再裁掉 `channels - 1` 个位置用于初始前向；若不同步 `cur_len`，NPU `sdpa` 下发的 `aclnnFlashAttentionScore` 会收到 query/key 长度不一致的 attention mask。
 
 当前 patch 对这些原项目已有文件做最小修改：
 
@@ -46,6 +47,7 @@ v0.5 原项目主要 CUDA 假设：
 - `XY_Tokenizer.encode/decode` 默认从输入 tensor 推断设备。
 - quantizer autocast 使用当前 tensor device。
 - 清理显存时按 `cuda/npu` 分支调用对应 empty cache。
+- 裁剪 shifted speech channels 后重置 `cur_len`，保证 cache position 与初始 `input_ids` / `attention_mask` 长度一致。
 
 ## 4. 当前交付件
 

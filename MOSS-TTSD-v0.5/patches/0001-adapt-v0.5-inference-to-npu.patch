@@ -274,3 +274,14 @@ index 69b696f..aa85faa 100644
      spt = spt.to(device)
      model = model.to(device)
      
+diff --git a/modeling_asteroid.py b/modeling_asteroid.py
+index 0588a5d..663500a 100644
+--- a/modeling_asteroid.py
++++ b/modeling_asteroid.py
+@@ -86,5 +86,6 @@ class CustomMixin(GenerationMixin):
+         tf_inputs = input_ids[:]
+         input_ids = input_ids[:, :-(channels - 1)]
+         model_kwargs["attention_mask"] = model_kwargs["attention_mask"][:, :-(channels - 1)]
++        cur_len = input_ids.shape[1]
+         base_length = input_ids.shape[1]
+         model_kwargs = self._get_initial_cache_position(cur_len, input_ids.device, model_kwargs)

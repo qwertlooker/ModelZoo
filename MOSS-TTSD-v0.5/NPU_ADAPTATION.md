@@ -32,10 +32,13 @@ git -C MOSS-TTSD-v0.5/upstream apply ../patches/0001-adapt-v0.5-inference-to-npu
 
 - `inference.py`
 - `generation_utils.py`
+- `modeling_asteroid.py`
 - `XY_Tokenizer/inference.py`
 - `XY_Tokenizer/utils/helpers.py`
 - `XY_Tokenizer/xy_tokenizer/model.py`
 - `XY_Tokenizer/xy_tokenizer/nn/quantizer.py`
+
+其中 `modeling_asteroid.py` 修正 v0.5 自定义 `GenerationMixin._sample` 中的长度状态：原逻辑先记录原始 shifted 输入长度，再裁掉 `channels - 1` 个位置用于初始前向，但没有同步 `cur_len`。NPU `sdpa` 会下发到 `aclnnFlashAttentionScore`，该算子严格校验 attention mask 的 query/key 长度；不同步时可能产生 `[B, 1, L+7, L]` 形状的 mask（例如 `[2, 1, 1584, 1577]`），与实际 query 长度不一致并报错。补丁在裁剪 `input_ids` / `attention_mask` 后重置 `cur_len = input_ids.shape[1]`。
 
 ## 3. 环境准备
 

@@ -2,7 +2,7 @@
 
 ## 1. 当前环境验证结果
 
-检查日期：2026-06-16。
+检查日期：2026-06-17。
 
 | 项 | 结果 |
 |---|---|
@@ -20,6 +20,15 @@
 ```bash
 git -C MOSS-TTSD-v0.5/upstream reset --hard v0.5
 git -C MOSS-TTSD-v0.5/upstream apply --check ../patches/0001-adapt-v0.5-inference-to-npu.patch
+git -C MOSS-TTSD-v0.5/upstream apply ../patches/0001-adapt-v0.5-inference-to-npu.patch
+python3 -m py_compile \
+  MOSS-TTSD-v0.5/upstream/inference.py \
+  MOSS-TTSD-v0.5/upstream/generation_utils.py \
+  MOSS-TTSD-v0.5/upstream/modeling_asteroid.py \
+  MOSS-TTSD-v0.5/upstream/XY_Tokenizer/inference.py \
+  MOSS-TTSD-v0.5/upstream/XY_Tokenizer/xy_tokenizer/model.py \
+  MOSS-TTSD-v0.5/upstream/XY_Tokenizer/xy_tokenizer/nn/quantizer.py
+git -C MOSS-TTSD-v0.5/upstream reset --hard v0.5
 ```
 
 ## 2. 提交前必跑检查
@@ -39,6 +48,7 @@ git -C MOSS-TTSD-v0.5/upstream apply ../patches/0001-adapt-v0.5-inference-to-npu
 python -m py_compile \
   MOSS-TTSD-v0.5/upstream/inference.py \
   MOSS-TTSD-v0.5/upstream/generation_utils.py \
+  MOSS-TTSD-v0.5/upstream/modeling_asteroid.py \
   MOSS-TTSD-v0.5/upstream/XY_Tokenizer/inference.py \
   MOSS-TTSD-v0.5/upstream/XY_Tokenizer/xy_tokenizer/model.py \
   MOSS-TTSD-v0.5/upstream/XY_Tokenizer/xy_tokenizer/nn/quantizer.py
@@ -140,6 +150,7 @@ ASCEND_RT_VISIBLE_DEVICES=0 python inference.py \
 通过条件：
 
 - 无 `Expected all tensors to be on the same device`；
+- 无 `aclnnFlashAttentionScore` attention mask query/key 长度不一致错误，例如 `[B, 1, L+7, L]`；
 - 无 CUDA-only / `.cuda()` / 硬编码 CUDA 设备导致的错误；
 - 无静默切到 CPU；
 - 输出 WAV 可读且非零时长。
