@@ -16,7 +16,7 @@ cd MOSS-TTSD-v0.5
 |---|---|---|
 | 原始模型官方测试集是什么？ | `OpenMOSS/MOSS-TTSD` v0.5 README 只提供 `examples/examples.jsonl` 作为本地推理示例，包含中文、英文各 1 条双说话人 dialogue；未在 v0.5 README 中发布正式 test split。 | L0 必跑官方 `examples/examples.jsonl`；若后续找到论文/模型卡指定 test set，优先替换为官方 test set。 |
 | 原始模型官方指标是多少？ | v0.5 README 未发布 MOSS-TTSD 生成质量的正式 WER/CER、SIM、MOS、CMOS 或 DNSMOS 表；只给出 GPU 显存估算。 | 不编造“官方指标”。正式验收报告必须明确填写“官方指标：未发布”或引用后续官方来源。 |
-| NPU 适配主要验收目标是什么？ | 证明 patch 后 NPU 推理结果与原始模型 CPU/CUDA 源路径一致或无明显退化。 | 同 checkpoint、同 JSONL、同 prompt audio、同 seed、同 dtype/attention 可解释配置下，对比原始 CPU/CUDA 与 NPU。 |
+| NPU 适配主要验收目标是什么？ | 证明 patch 后 NPU 推理结果与原始模型 CPU/CUDA 源路径一致或无明显退化。 | 同 checkpoint、同 JSONL、同 prompt audio、同 seed/normalize 下，对比原始 CPU/CUDA 与 NPU，并记录设备固定的 dtype/attention 差异。 |
 | 通过标准是什么？ | 不是“能生成 wav 就通过”。 | 官方示例必须跑通；固定对齐集上可懂度、音色、说话人切换、时长和人工听感相对原始 CPU/CUDA 无系统性退化。 |
 
 > 记住：当前是 NPU 适配迁移，不是重新定义模型能力。验收文档和报告的第一优先级永远是“原始测试集 + 原始指标 + NPU 对齐原始结果”。
@@ -65,10 +65,10 @@ cd MOSS-TTSD-v0.5
 - 同一模型权重和 codec checkpoint；
 - 同一 `--seed 42`；
 - 同一 `--use_normalize` 设置；
-- CPU/CUDA 与 NPU 使用同一 `--batch_size`；默认 `0` 表示完整 JSONL batch，显存不足时按同一正整数重跑两端对齐；
-- attention backend、dtype 和设备差异必须记录清楚。
+- CPU/CUDA 与 NPU 使用同一 JSONL；如因显存约束拆分 manifest，两端必须使用相同拆分、内容和顺序；
+- 记录设备固定选择的 dtype 和 attention backend。
 
-NPU 性能配置：`--device npu --dtype bfloat16 --attn_implementation npu_fa`。CPU/CUDA 基线使用该设备支持的原始 attention backend。正式报告必须增加 NPU `npu_fa` 与 NPU `sdpa` 小样本精度对照；`eager` 只用于问题定位，不作为 OOM 性能方案。
+NPU 只需配置 `--device npu`，代码内部固定使用 BF16 + torch-npu PFA/IFA。CPU 基线使用 FP32 + SDPA，CUDA 保持原项目 BF16 + `flash_attention_2`。不额外增加 attention 参数或静默回退。
 
 ### 4.2 原始 CPU/CUDA 基线命令
 
@@ -76,14 +76,8 @@ NPU 性能配置：`--device npu --dtype bfloat16 --attn_implementation npu_fa`�
 cd upstream
 python inference.py \
   --jsonl examples/examples.jsonl \
-  --batch_size 0 \
   --output_dir outputs_cpu_baseline \
   --device cpu \
-  --dtype float32 \
-  --attn_implementation sdpa \
-  --model_path weights/MOSS-TTSD-v0.5 \
-  --spt_config_path XY_Tokenizer/config/xy_tokenizer_config.yaml \
-  --spt_checkpoint_path XY_Tokenizer/weights/xy_tokenizer.ckpt \
   --seed 42 \
   --use_normalize
 ```
@@ -96,14 +90,8 @@ python inference.py \
 # 连续执行 4.2 后，当前目录已是 upstream。
 ASCEND_RT_VISIBLE_DEVICES=0 python inference.py \
   --jsonl examples/examples.jsonl \
-  --batch_size 0 \
   --output_dir outputs_npu \
   --device npu \
-  --dtype bfloat16 \
-  --attn_implementation npu_fa \
-  --model_path weights/MOSS-TTSD-v0.5 \
-  --spt_config_path XY_Tokenizer/config/xy_tokenizer_config.yaml \
-  --spt_checkpoint_path XY_Tokenizer/weights/xy_tokenizer.ckpt \
   --seed 42 \
   --use_normalize
 ```
@@ -114,7 +102,7 @@ ASCEND_RT_VISIBLE_DEVICES=0 python inference.py \
 结论：`OpenMOSS/TTSD-eval` 可以用于测评 MOSS-TTSD-v0.5，因为它的输入只要求 dialogue text、生成音频 `output_audio` 以及两路 speaker prompt audio，不绑定 v1.0 模型结构。使用时必须保持以下口径：
 
 - 它是公共 TTSD 评测集/评测脚本，不是 v0.5 README 已发布的官方指标；v0.5 官方指标仍记录为“官方未发布”。
-- NPU 验收仍以迁移对齐为主：同一 TTSD-eval manifest、同一 checkpoint、同一 seed/normalize/dtype/attention 可解释配置下，先跑 CPU/CUDA 原始路径，再跑 NPU，并比较 ACC、SIM、WER 差异。
+- NPU 验收仍以迁移对齐为主：同一 TTSD-eval manifest、同一 checkpoint、同一 seed/normalize 配置下，先跑 CPU/CUDA 原始路径，再跑 NPU，并记录设备固定的 dtype/attention 差异及 ACC、SIM、WER 差异。
 - TTSD-eval 的 WER 是补充可懂度指标；ACC/SIM/WER 不能替代人工听感异常排查。
 
 ### 4.4.1 准备 TTSD-eval
@@ -169,27 +157,15 @@ SPLIT_STEM="${SRC_JSONL%.jsonl}"
 # 直接使用 TTSD-eval 原始 JSONL，不修改其内容。
 python ../../../upstream/inference.py \
   --jsonl "$SRC_JSONL" \
-  --batch_size 0 \
   --output_dir "../../../upstream/outputs_ttsd_eval_cpu_${SPLIT_STEM}" \
   --device cpu \
-  --dtype float32 \
-  --attn_implementation sdpa \
-  --model_path ../../../upstream/weights/MOSS-TTSD-v0.5 \
-  --spt_config_path ../../../upstream/XY_Tokenizer/config/xy_tokenizer_config.yaml \
-  --spt_checkpoint_path ../../../upstream/XY_Tokenizer/weights/xy_tokenizer.ckpt \
   --seed 42 \
   --use_normalize
 
 ASCEND_RT_VISIBLE_DEVICES=0 python ../../../upstream/inference.py \
   --jsonl "$SRC_JSONL" \
-  --batch_size 0 \
   --output_dir "../../../upstream/outputs_ttsd_eval_npu_${SPLIT_STEM}" \
   --device npu \
-  --dtype bfloat16 \
-  --attn_implementation npu_fa \
-  --model_path ../../../upstream/weights/MOSS-TTSD-v0.5 \
-  --spt_config_path ../../../upstream/XY_Tokenizer/config/xy_tokenizer_config.yaml \
-  --spt_checkpoint_path ../../../upstream/XY_Tokenizer/weights/xy_tokenizer.ckpt \
   --seed 42 \
   --use_normalize
 ```
@@ -308,7 +284,7 @@ codec：来源、revision、SHA256
 - NPU 命令、日志、输出目录
 
 质量指标：
-- attention backend 对照：NPU `npu_fa` 与 NPU `sdpa` 固定小样本输出和指标差异
+- 固定后端记录：CPU/CUDA 与 NPU 各自实际使用的 dtype 和 attention backend
 - TTSD-eval：ACC/SIM/WER，评测 repo commit、MMS-FA/WeSpeaker/Whisper 版本、CPU/CUDA、NPU、差异
 - CER/WER：ASR 模型、normalizer、CPU/CUDA、NPU、差异
 - 说话人切换：标注规则、CPU/CUDA 错误数、NPU 错误数
@@ -316,7 +292,7 @@ codec：来源、revision、SHA256
 - 人工听测：人数、样本数、MOS/CMOS/A-B、异常样例
 
 性能记录：
-- elapsed、RTF、batch size、dtype、attention backend、峰值 HBM/RSS
+- elapsed、RTF、输入样本数、固定 dtype/attention backend、峰值 HBM/RSS
 
 结论：
 - 通过 / 不通过

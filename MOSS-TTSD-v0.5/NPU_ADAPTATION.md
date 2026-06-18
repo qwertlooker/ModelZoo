@@ -68,9 +68,9 @@
 
 | 文件 | 结论 | 说明 |
 |---|---|---|
-| `inference.py` | 已 patch | 增加 `--device npu/cpu/cuda`、`--dtype`、`--attn_implementation`、`--batch_size`、模型/codec 路径参数；默认 NPU、`npu_fa`、batch 0（完整 JSONL）；正整数 batch 时按批读取，并在批间清理 accelerator cache；使用 `soundfile` 写 WAV。 |
-| `generation_utils.py` | 已 patch | `load_model()` 支持 dtype 和 attention backend；音频读取/写出改为 `soundfile`；按 CUDA/NPU 分支清理显存。 |
-| `modeling_asteroid.py` | 已 patch | 裁剪 shifted speech channels 后同步 `cur_len`；注册 `npu_fa` attention/mask backend，prefill/decode 分别调用 NPU PFA/IFA，并直接传递 GQA KV head 数。 |
+| `inference.py` | 已 patch | 只增加 `--device npu/cpu/cuda`；默认 NPU。模型与 codec 路径按脚本目录固定读取，保留原项目完整 JSONL batch 行为，并使用 `soundfile` 写 WAV。 |
+| `generation_utils.py` | 已 patch | `load_model()` 按设备内部选择固定 dtype 和 attention backend：NPU 为 BF16 + PFA/IFA，CUDA 保持 BF16 + `flash_attention_2`，CPU 为 FP32 + SDPA；音频读取/写出改为 `soundfile`。 |
+| `modeling_asteroid.py` | 已 patch | 裁剪 shifted speech channels 后同步 `cur_len`；注册内部 NPU Flash Attention backend，prefill/decode 分别调用 PFA/IFA，并直接传递 GQA KV head 数。 |
 | `gradio_demo.py` / `podcast_generate.py` | 已 patch | WAV 写出复用 `save_audio_file()`，移除 `torchaudio.save` 路径。 |
 | `XY_Tokenizer/inference.py` | 已 patch | 默认设备改为 NPU，增加 NPU/CUDA 可用性检查。 |
 | `XY_Tokenizer/utils/helpers.py` | 已 patch | 音频文件读写改为 `soundfile`，继续保留 `torchaudio.functional.resample`。 |
@@ -81,24 +81,22 @@
 ### 1.5 设备适配点
 
 1. `inference.py::_resolve_device`：仅当 `--device npu` 时导入 `torch_npu` 注册后端；返回 `torch.device('npu')`，不绑定卡号。
-2. `inference.py::_resolve_dtype`：显式支持 `float32`、`float16`、`bfloat16`；NPU 推理推荐 `bfloat16`。
-3. `generation_utils.load_model()`：允许传入 `torch_dtype` 和 `attn_implementation`；正式 NPU 入口默认显式传入 `npu_fa`。
-4. `model.to(device)`、`spt.to(device)`：模型和 codec 显式迁移到目标设备。
-5. `XY_Tokenizer.encode/decode`：默认从输入 tensor 推断设备，避免在 NPU 路径创建 CUDA tensor。
-6. `ResidualVQ.forward()`：`torch.autocast(device_type=z.device.type, enabled=False)`，避免 CUDA-only autocast。
-7. 音频 I/O：文件读取/写出走 `soundfile`；重采样仍使用 `torchaudio.functional.resample`，该路径不触发 TorchCodec 文件解码。
-8. 显存清理：CUDA 使用 `torch.cuda.empty_cache()`，NPU 使用 `torch.npu.empty_cache()`。
-9. attention mask：裁剪 shifted speech channels 后重置 `cur_len = input_ids.shape[1]`，保证 `input_ids`、`attention_mask`、cache position 长度一致。
-10. NPU GQA attention：`npu_fa` 使用 PFA/IFA 的 `num_key_value_heads` 参数，避免 SDPA/eager 对 KV 执行 `repeat_kv`；复用 Transformers SDPA 的布尔 causal/padding mask 生成逻辑，但禁用 mask-skip，再转换为 NPU 算子的“True 表示屏蔽”语义。
-11. 可选评测 batch：`--batch_size 0` 保留原项目完整 JSONL batch；正整数用于限制峰值 HBM，每次 `process_batch()` 返回后清理 allocator cache。
+2. `generation_utils.load_model()`：只接收已解析的设备，内部固定选择 dtype 和 attention backend，不增加注意力相关 CLI 参数。
+3. `model.to(device)`、`spt.to(device)`：模型和 codec 显式迁移到目标设备。
+4. `XY_Tokenizer.encode/decode`：默认从输入 tensor 推断设备，避免在 NPU 路径创建 CUDA tensor。
+5. `ResidualVQ.forward()`：`torch.autocast(device_type=z.device.type, enabled=False)`，避免 CUDA-only autocast。
+6. 音频 I/O：文件读取/写出走 `soundfile`；重采样仍使用 `torchaudio.functional.resample`，该路径不触发 TorchCodec 文件解码。
+7. 显存清理：CUDA 使用 `torch.cuda.empty_cache()`，NPU 使用 `torch.npu.empty_cache()`。
+8. attention mask：裁剪 shifted speech channels 后重置 `cur_len = input_ids.shape[1]`，保证 `input_ids`、`attention_mask`、cache position 长度一致。
+9. NPU GQA attention：内部 Flash Attention backend 使用 PFA/IFA 的 `num_key_value_heads` 参数，避免 SDPA/eager 对 KV 执行 `repeat_kv`；复用 Transformers SDPA 的布尔 causal/padding mask 生成逻辑，但禁用 mask-skip，再转换为 NPU 算子的“True 表示屏蔽”语义。
 
 ### 1.6 风险与限制
 
 - 当前环境缺少 `torch`、`torch-npu`、模型权重和 NPU/CANN，未在本机执行 CPU/NPU 实推。
 - 权重 SHA256 尚未记录；正式验收前必须补充。
 - 原项目 v0.5 中仍存在若干宽泛 `try/except` 和失败后继续处理的逻辑；本次 patch 以 NPU 设备适配为目标，没有重构原项目整体错误处理。
-- `npu_fa` 依赖目标 `torch-npu` 的 PFA/IFA GQA 接口；当前本地环境无 NPU，尚未完成真实算子精度/性能验证，正式验收必须补齐与 CPU/CUDA、NPU SDPA 小样本基线的结果对齐。
-- 即使消除 `repeat_kv`，完整 JSONL batch 仍可能因输入 embedding、logits、KV cache 或 codec 中间张量超过 HBM；此时需实测最大 batch，不能声称 attention 修改可以无条件容纳任意评测集。
+- NPU Flash Attention 依赖目标 `torch-npu` 的 PFA/IFA GQA 接口；当前本地环境无 NPU，尚未完成真实算子精度/性能验证，正式验收必须补齐与 CPU/CUDA 原始路径的结果对齐。
+- 即使消除 `repeat_kv`，完整 JSONL 仍可能因输入 embedding、logits、KV cache 或 codec 中间张量超过 HBM；此时需按固定规则拆分 manifest，不能声称 attention 修改可以无条件容纳任意评测集。
 - 生成式 TTS/TTSD 不能用“能输出 WAV”作为完整验收；正式验收需按 `ACCEPTANCE_PLAN.md` 做可懂度、音色、自然度和人工听测。
 - NeMo/Transformers/PyTorch/TorchAudio 版本持续变化；若上游或依赖升级，应重新检查 `flash-attn`、TorchCodec、attention backend 和 `GenerationMixin` 行为。
 
@@ -109,7 +107,7 @@
 - 2026-06-17：扫描 v0.5 原项目 CUDA 假设，确认需 patch 原项目已有文件。
 - 2026-06-17：固定模型权重和 codec checkpoint 的 HF/ModelScope revision，待正式下载后补充 SHA256。
 - 2026-06-18：根据 TTSD-eval NPU OOM 栈确认整集 batch 在 `sdpa_attention.repeat_kv` 处放大 GQA KV。
-- 2026-06-18：为避免强制 batch 1 影响吞吐，新增 `npu_fa` PFA/IFA GQA backend，并将 batch 0 定义为保留原始完整 JSONL 行为；正整数 batch 仅作为显式显存上限。
+- 2026-06-18：新增内部 PFA/IFA GQA backend，随后收敛接口，仅保留 `--device`；NPU 自动使用 Flash Attention，不再暴露 dtype、attention、batch 或权重路径参数。
 
 ## 2. NPU 适配与运行说明
 
@@ -164,7 +162,7 @@ pip install -r XY_Tokenizer/requirements.txt
 依赖关系说明：
 
 - `flash-attn` 官方包面向 CUDA/ROCm GPU kernel，不作为 Ascend NPU 依赖。
-- NPU 性能推理使用 `--attn_implementation npu_fa`；`sdpa` 保留为小样本对照路径，`eager` 只用于问题定位。
+- NPU 推理固定使用 torch-npu PFA/IFA，不提供 attention backend 参数；CPU 使用 SDPA，CUDA 保持原项目 `flash_attention_2`。
 - `soundfile` 已在原项目依赖中声明，本适配用它替代 `torchaudio.load/save` 文件 I/O。
 - 如果安装依赖时 pip 试图替换已有 NPU 版 PyTorch，请先固定与 CANN 匹配的 `torch/torch-npu` 版本，再安装其他依赖。不得用临时过滤 requirements 的命令替代 patch。
 
@@ -213,14 +211,8 @@ MOSS-TTSD-v0.5 的正式质量/性能验收口径统一维护在 `ACCEPTANCE_PLA
 cd upstream
 ASCEND_RT_VISIBLE_DEVICES=0 python inference.py \
   --jsonl examples/examples.jsonl \
-  --batch_size 0 \
   --output_dir outputs_npu \
   --device npu \
-  --dtype bfloat16 \
-  --attn_implementation npu_fa \
-  --model_path weights/MOSS-TTSD-v0.5 \
-  --spt_config_path XY_Tokenizer/config/xy_tokenizer_config.yaml \
-  --spt_checkpoint_path XY_Tokenizer/weights/xy_tokenizer.ckpt \
   --seed 42 \
   --use_normalize
 ```
@@ -231,14 +223,8 @@ ASCEND_RT_VISIBLE_DEVICES=0 python inference.py \
 cd upstream
 python inference.py \
   --jsonl examples/examples.jsonl \
-  --batch_size 0 \
   --output_dir outputs_cpu \
   --device cpu \
-  --dtype float32 \
-  --attn_implementation sdpa \
-  --model_path weights/MOSS-TTSD-v0.5 \
-  --spt_config_path XY_Tokenizer/config/xy_tokenizer_config.yaml \
-  --spt_checkpoint_path XY_Tokenizer/weights/xy_tokenizer.ckpt \
   --seed 42 \
   --use_normalize
 ```
@@ -328,7 +314,7 @@ git -C upstream reset --hard v0.5
 
 ### 3.3 已知 NPU attention mask 报错修复
 
-旧 patch 在 NPU `--attn_implementation sdpa` 下可能报：
+旧 SDPA 适配路径在 NPU 上可能报：
 
 ```text
 aclnnFlashAttentionScore failed
@@ -341,15 +327,14 @@ get unsupported atten_mask shape, the shape is [B, 1, L+7, L]
 
 TTSD-eval 等多样本 JSONL 旧路径会将全部样本作为一个 batch。Transformers 4.57.6 明确在 NPU SDPA 路径禁用原生 GQA，并在 `sdpa_attention_forward()` 中对 key/value 调用 `repeat_kv()`。因此显存临时分配与 batch size、最长 padding 长度和 KV head 展开倍数共同增长。
 
-`eager_attention_forward()` 同样调用 `repeat_kv()`，并显式创建 attention weights，不能解决该性能/显存问题。本次在 `modeling_asteroid.py` 中通过 Transformers 官方 `AttentionInterface` / `AttentionMaskInterface` 扩展点注册 `npu_fa`：
+`eager_attention_forward()` 同样调用 `repeat_kv()`，并显式创建 attention weights，不能解决该性能/显存问题。本次在 `modeling_asteroid.py` 中通过 Transformers 官方 `AttentionInterface` / `AttentionMaskInterface` 扩展点注册内部 NPU Flash Attention backend：
 
 - prefill 调用 `torch_npu.npu_prompt_flash_attention`；
 - query length 为 1 的 decode 调用 `torch_npu.npu_incre_flash_attention`；
 - Q/K/V 使用 `BNSD`，分别传入 query head 数与 KV head 数；
 - 不改 site-packages，不运行时 monkey patch，不静默回退；
-- `--batch_size 0` 保留原始完整 JSONL batch，正整数才按输入顺序切分；
-- 每批 `process_batch()` 返回后再调用对应设备的 `empty_cache()`，此时函数内部大 tensor 已失活，可降低长评测中的 allocator 碎片；
-- CPU/CUDA 路径继续显式使用 `sdpa` 或原始 CUDA backend。
+- 推理 CLI 只增加 `--device`，不暴露 attention、dtype、batch 或权重路径参数；
+- CPU 使用 SDPA，CUDA 保持原始 `flash_attention_2`。
 
 官方接口说明中，PFA/IFA 的 `num_key_value_heads` 用于 GQA，要求 query head 数可整除 KV head 数。参考：
 
@@ -357,7 +342,7 @@ TTSD-eval 等多样本 JSONL 旧路径会将全部样本作为一个 batch。Tra
 - <https://www.hiascend.com/document/detail/zh/Pytorch/600/apiref/apilist/ptaoplist_000146.html>
 - <https://www.hiascend.com/document/detail/zh/Pytorch/60RC1/apiref/apilist/ptaoplist_000453.html>
 
-若 full-JSONL batch 仍 OOM，应记录峰值 HBM并实测 `--batch_size 8/4/2/1` 的最大可用值；若 batch 1 单样本仍 OOM，再按超长样本或更深层 KV cache 优化问题处理。
+若完整 JSONL 仍 OOM，应记录峰值 HBM，并保持样本内容和顺序不变，将同一 JSONL 确定性拆成较小 manifest，在 CPU/CUDA 与 NPU 两端使用相同拆分；若单样本仍 OOM，再按超长样本或更深层 KV cache 优化问题处理。
 
 ### 3.5 提交前必跑检查
 

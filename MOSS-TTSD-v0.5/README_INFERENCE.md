@@ -35,8 +35,8 @@ MOSS-TTSD-v0.5 是 OpenMOSS 发布的对话式双说话人文本转语音/文本
   - 不修改原始 `README.md`。
   - 不新增旁路推理脚本；继续使用原项目已有 `inference.py`，通过 patch 适配 NPU。
   - NPU 默认显式使用 `--device npu`，实际卡号由 `ASCEND_RT_VISIBLE_DEVICES` 控制。
-  - NPU 默认使用 `--attn_implementation npu_fa`：prefill 调用 `npu_prompt_flash_attention`，decode 调用 `npu_incre_flash_attention`，直接传递 GQA 的 KV head 数，不执行 `repeat_kv`。
-  - `--batch_size 0` 保留原项目“整个 JSONL 作为一个 batch”的行为，不强制降低吞吐；如其他中间张量仍超过 HBM，可显式设置正整数 batch。
+  - NPU 路径内部固定使用 torch-npu Flash Attention：prefill 调用 `npu_prompt_flash_attention`，decode 调用 `npu_incre_flash_attention`，直接传递 GQA 的 KV head 数，不执行 `repeat_kv`。
+  - 推理入口只新增一个 `--device` 参数，不向用户暴露 dtype、attention backend、batch size 或权重路径等额外开关。
 
 ## 输入输出数据
 
@@ -79,7 +79,7 @@ MOSS-TTSD-v0.5 是 OpenMOSS 发布的对话式双说话人文本转语音/文本
 
 说明：
 
-- `flash-attn` 官方包面向 CUDA/ROCm GPU kernel，当前不作为 Ascend NPU 必需依赖安装。NPU 使用 torch-npu 原生 PFA/IFA 的 `npu_fa` backend；仅 CUDA/ROCm GPU 路径显式使用 `flash_attention_2` 时才安装 `flash-attn`。
+- `flash-attn` 官方包面向 CUDA/ROCm GPU kernel，当前不作为 Ascend NPU 必需依赖安装。NPU 内部固定使用 torch-npu 原生 PFA/IFA；CUDA 路径保持原项目 `flash_attention_2`，CPU 路径使用 SDPA。
 - TorchAudio 2.9+ 的 `torchaudio.load` / `torchaudio.save` 会进入 TorchCodec 路径。本适配通过 patch 将 prompt 音频读取和 WAV 写出改为 `soundfile`，不要求额外安装 `torchcodec`。如果仍看到 `TorchCodec is required for load_with_torchcodec` 或 `save_with_torchcodec`，说明 patch 未应用或路径未覆盖。
 - Transformers 5.x 改变了 `_tied_weights_keys` 的数据结构和 `tie_weights()` 接口，而 MOSS-TTSD-v0.5 上游代码仍使用 Transformers 4.x 接口。当前项目不修改该模型定义，因此必须固定 `transformers==4.57.6`。
 
@@ -220,14 +220,8 @@ MOSS-TTSD-v0.5
    cd upstream
    ASCEND_RT_VISIBLE_DEVICES=0 python inference.py \
      --jsonl examples/examples.jsonl \
-     --batch_size 0 \
      --output_dir outputs_npu \
      --device npu \
-     --dtype bfloat16 \
-     --attn_implementation npu_fa \
-     --model_path weights/MOSS-TTSD-v0.5 \
-     --spt_config_path XY_Tokenizer/config/xy_tokenizer_config.yaml \
-     --spt_checkpoint_path XY_Tokenizer/weights/xy_tokenizer.ckpt \
      --seed 42 \
      --use_normalize
    ```
@@ -235,16 +229,12 @@ MOSS-TTSD-v0.5
    参数说明：
 
    - `jsonl`：输入 JSONL 文件路径。
-   - `batch_size`：同时生成的 JSONL 样本数；`0` 表示保持原项目行为，一次处理整个 JSONL；正整数用于显式限制峰值 HBM。
    - `output_dir`：输出 WAV 保存目录。
    - `device`：推理设备，支持 `npu`、`cpu`、`cuda`。
-   - `dtype`：模型权重 dtype，支持 `bfloat16`、`float16`、`float32`；NPU 推荐 `bfloat16`。
-   - `attn_implementation`：Transformers attention 后端；NPU 性能路径使用 `npu_fa`，CPU/CUDA 基线使用各自支持的原始后端。
-   - `model_path`：本地模型权重目录或 Hugging Face id。
-   - `spt_config_path`：XY Tokenizer 配置路径。
-   - `spt_checkpoint_path`：XY Tokenizer checkpoint 路径。
    - `seed`：随机种子。
    - `use_normalize`：启用原项目文本归一化路径。
+
+   模型权重、codec 配置和 checkpoint 按本文约定的目录读取。NPU 固定使用 BF16 + torch-npu Flash Attention，CPU 固定使用 FP32 + SDPA，CUDA 保持 BF16 + `flash_attention_2`，不额外暴露注意力参数。
 
 2. 执行 CPU 功能/质量基线。
 
@@ -252,14 +242,8 @@ MOSS-TTSD-v0.5
    cd upstream
    python inference.py \
      --jsonl examples/examples.jsonl \
-     --batch_size 0 \
      --output_dir outputs_cpu \
      --device cpu \
-     --dtype float32 \
-     --attn_implementation sdpa \
-     --model_path weights/MOSS-TTSD-v0.5 \
-     --spt_config_path XY_Tokenizer/config/xy_tokenizer_config.yaml \
-     --spt_checkpoint_path XY_Tokenizer/weights/xy_tokenizer.ckpt \
      --seed 42 \
      --use_normalize
    ```
@@ -311,27 +295,15 @@ cd ../..
 cd upstream
 python inference.py \
   --jsonl ../third_party/TTSD-eval/testset/<split>.jsonl \
-  --batch_size 0 \
   --output_dir outputs_ttsd_eval_cpu_<split> \
   --device cpu \
-  --dtype float32 \
-  --attn_implementation sdpa \
-  --model_path weights/MOSS-TTSD-v0.5 \
-  --spt_config_path XY_Tokenizer/config/xy_tokenizer_config.yaml \
-  --spt_checkpoint_path XY_Tokenizer/weights/xy_tokenizer.ckpt \
   --seed 42 \
   --use_normalize
 
 ASCEND_RT_VISIBLE_DEVICES=0 python inference.py \
   --jsonl ../third_party/TTSD-eval/testset/<split>.jsonl \
-  --batch_size 0 \
   --output_dir outputs_ttsd_eval_npu_<split> \
   --device npu \
-  --dtype bfloat16 \
-  --attn_implementation npu_fa \
-  --model_path weights/MOSS-TTSD-v0.5 \
-  --spt_config_path XY_Tokenizer/config/xy_tokenizer_config.yaml \
-  --spt_checkpoint_path XY_Tokenizer/weights/xy_tokenizer.ckpt \
   --seed 42 \
   --use_normalize
 ```
@@ -355,14 +327,8 @@ cd ACL_PyTorch/built-in/audio/MOSS-TTSD-v0.5
 cd upstream
 /usr/bin/time -v bash -lc 'ASCEND_RT_VISIBLE_DEVICES=0 python inference.py \
   --jsonl ../third_party/TTSD-eval/testset/<split>.jsonl \
-  --batch_size 0 \
   --output_dir outputs_ttsd_eval_npu_<split> \
   --device npu \
-  --dtype bfloat16 \
-  --attn_implementation npu_fa \
-  --model_path weights/MOSS-TTSD-v0.5 \
-  --spt_config_path XY_Tokenizer/config/xy_tokenizer_config.yaml \
-  --spt_checkpoint_path XY_Tokenizer/weights/xy_tokenizer.ckpt \
   --seed 42 \
   --use_normalize'
 ```
@@ -382,7 +348,7 @@ print('generated_audio_seconds=', total)
 PY
 ```
 
-报告中至少记录：样本数、成功输出数、输出 WAV 总时长、elapsed seconds、`RTF=elapsed/generated_audio_seconds`、`RTFx=generated_audio_seconds/elapsed`、batch size、dtype、attention backend、峰值 HBM、CPU RSS、首次加载/编译耗时和稳定推理耗时。完整性能与质量验收口径见 `ACCEPTANCE_PLAN.md`。
+报告中至少记录：输入样本数、成功输出数、输出 WAV 总时长、elapsed seconds、`RTF=elapsed/generated_audio_seconds`、`RTFx=generated_audio_seconds/elapsed`、固定 dtype/attention 路径、峰值 HBM、CPU RSS、首次加载/编译耗时和稳定推理耗时。完整性能与质量验收口径见 `ACCEPTANCE_PLAN.md`。
 
 ## NPU GQA FlashAttention 与显存说明
 
@@ -396,13 +362,13 @@ RuntimeError: NPU out of memory
 
 原因是 Transformers 4.57.6 的 NPU SDPA 路径暂不使用原生 GQA，会把 Qwen3 的 key/value heads 通过 `repeat_kv` 实体扩展到全部 attention heads。`eager` 也会执行相同展开，并额外显式构造 attention weights，因此不是该问题的性能修复。
 
-当前 patch 注册独立的 `npu_fa` attention backend：
+当前 patch 在 NPU 设备路径内部固定选择 Flash Attention backend：
 
 - prefill：`torch_npu.npu_prompt_flash_attention`；
 - 单 token decode：`torch_npu.npu_incre_flash_attention`；
 - Q/K/V 使用 `BNSD` 布局；
 - `num_heads` 和 `num_key_value_heads` 分别取 query 与 key 的 head 数，由算子直接处理 GQA；
-- 不修改 Transformers site-packages，也不静默回退到 SDPA/eager。
+- 不增加 attention CLI 参数，不修改 Transformers site-packages，也不静默回退到 SDPA/eager。
 
 目标 `torch-npu` 必须同时提供上述两个接口及 `num_key_value_heads` 参数。运行前可检查：
 
@@ -415,24 +381,18 @@ print(inspect.signature(torch_npu.npu_incre_flash_attention))
 PY
 ```
 
-性能评测可继续保持原始 full-JSONL batch：
+性能评测直接使用 NPU 设备参数：
 
 ```bash
 ASCEND_RT_VISIBLE_DEVICES=0 python inference.py \
   --jsonl <eval.jsonl> \
-  --batch_size 0 \
   --output_dir <output_dir> \
   --device npu \
-  --dtype bfloat16 \
-  --attn_implementation npu_fa \
-  --model_path weights/MOSS-TTSD-v0.5 \
-  --spt_config_path XY_Tokenizer/config/xy_tokenizer_config.yaml \
-  --spt_checkpoint_path XY_Tokenizer/weights/xy_tokenizer.ckpt \
   --seed 42 \
   --use_normalize
 ```
 
-`npu_fa` 消除的是 `repeat_kv` 造成的 KV head 实体展开，不保证整个评测集的所有其他张量都能放入 HBM。若 full-JSONL batch 仍 OOM，应按 `--batch_size 8/4/2/1` 逐级实测最大可用 batch，并在性能报告中记录；不能修改正式评测文本或静默切到 CPU 来规避。
+Flash Attention 消除的是 `repeat_kv` 造成的 KV head 实体展开，不保证整个评测集的所有其他张量都能放入 HBM。若完整 JSONL 仍 OOM，应保持样本内容和顺序不变，将同一 JSONL 确定性拆成较小 manifest，并在 CPU/CUDA 与 NPU 两端使用相同拆分；不能修改正式评测文本或静默切到 CPU 来规避。
 
 ## 已知问题：Transformers 5.x 不兼容
 

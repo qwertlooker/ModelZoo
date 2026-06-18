@@ -145,7 +145,7 @@ index a7d28b9..420522e 100644
              mask = torch.arange(max_time, device=z.device).expand(batch_size, max_time) < input_length.unsqueeze(1)  # (B, T)
  
 diff --git a/generation_utils.py b/generation_utils.py
-index e433ad7..084b5f2 100644
+index e433ad7..640ba4a 100644
 --- a/generation_utils.py
 +++ b/generation_utils.py
 @@ -3,6 +3,7 @@ import re
@@ -156,12 +156,21 @@ index e433ad7..084b5f2 100644
  import numpy as np
  
  from transformers import AutoTokenizer
-@@ -12,10 +13,14 @@ from XY_Tokenizer.xy_tokenizer.model import XY_Tokenizer
+@@ -12,10 +13,23 @@ from XY_Tokenizer.xy_tokenizer.model import XY_Tokenizer
  MAX_CHANNELS = 8
  SILENCE_DURATION = 0.0  # Fixed silence duration: 0 seconds
  
 -def load_model(model_path, spt_config_path, spt_checkpoint_path):
-+def load_model(model_path, spt_config_path, spt_checkpoint_path, torch_dtype=torch.bfloat16, attn_implementation="sdpa"):
++def load_model(model_path, spt_config_path, spt_checkpoint_path, device):
++    device_type = torch.device(device).type
++    torch_dtype = torch.float32 if device_type == "cpu" else torch.bfloat16
++    if device_type == "npu":
++        attn_implementation = "npu_fa"
++    elif device_type == "cuda":
++        attn_implementation = "flash_attention_2"
++    else:
++        attn_implementation = "sdpa"
++
      tokenizer = AutoTokenizer.from_pretrained(model_path)
      
 -    model = AsteroidTTSInstruct.from_pretrained(model_path, torch_dtype=torch.bfloat16, attn_implementation="flash_attention_2")
@@ -173,7 +182,7 @@ index e433ad7..084b5f2 100644
  
      spt = XY_Tokenizer.load_from_checkpoint(config_path=spt_config_path, ckpt_path=spt_checkpoint_path)
      
-@@ -84,7 +89,7 @@ def load_audio_data(prompt_audio, target_sample_rate=16000):
+@@ -84,7 +98,7 @@ def load_audio_data(prompt_audio, target_sample_rate=16000):
      Args:
          prompt_audio: Can be in the following formats:
              - String: audio file path
@@ -182,7 +191,7 @@ index e433ad7..084b5f2 100644
              - Dict: {"speaker1": path_or_tuple, "speaker2": path_or_tuple}
      """
      if prompt_audio is None:
-@@ -118,6 +123,38 @@ def load_audio_data(prompt_audio, target_sample_rate=16000):
+@@ -118,6 +132,38 @@ def load_audio_data(prompt_audio, target_sample_rate=16000):
          raise
  
  
@@ -221,7 +230,7 @@ index e433ad7..084b5f2 100644
  def _load_single_audio(audio_input):
      """Load single audio, supports file path or (wav, sr) tuple
      
-@@ -133,8 +170,7 @@ def _load_single_audio(audio_input):
+@@ -133,8 +179,7 @@ def _load_single_audio(audio_input):
          return wav, sr
      elif isinstance(audio_input, str):
          # Is a file path, needs to be loaded
@@ -231,7 +240,7 @@ index e433ad7..084b5f2 100644
      else:
          raise ValueError(f"Unsupported audio input format: {type(audio_input)}")
  
-@@ -438,8 +474,11 @@ def process_batch(batch_items, tokenizer, model, spt, device, system_prompt, sta
+@@ -438,8 +483,11 @@ def process_batch(batch_items, tokenizer, model, spt, device, system_prompt, sta
                  traceback.print_exc()
                  audio_results.append(None)
          
@@ -246,7 +255,7 @@ index e433ad7..084b5f2 100644
          # Return text data and audio data
          return actual_texts_data, audio_results
 diff --git a/gradio_demo.py b/gradio_demo.py
-index 86c03c5..2907c2d 100644
+index 86c03c5..31b8792 100644
 --- a/gradio_demo.py
 +++ b/gradio_demo.py
 @@ -1,12 +1,11 @@
@@ -263,6 +272,15 @@ index 86c03c5..2907c2d 100644
  
  def load_examples_from_jsonl():
      """
+@@ -128,7 +127,7 @@ def initialize_model():
+     if tokenizer is None:
+         print("Initializing model...")
+         device = "cuda" if torch.cuda.is_available() else "cpu"
+-        tokenizer, model, spt = load_model(MODEL_PATH, SPT_CONFIG_PATH, SPT_CHECKPOINT_PATH)
++        tokenizer, model, spt = load_model(MODEL_PATH, SPT_CONFIG_PATH, SPT_CHECKPOINT_PATH, device)
+         spt = spt.to(device)
+         model = model.to(device)
+         print("Model initialization completed!")
 @@ -221,7 +220,7 @@ def process_single_audio_generation(
          output_path = tempfile.NamedTemporaryFile(suffix=".wav", delete=False).name
          
@@ -273,10 +291,10 @@ index 86c03c5..2907c2d 100644
          # Build status information (using English since this is server-side output)
          status_info = f"""
 diff --git a/inference.py b/inference.py
-index 69b696f..6b8b71b 100644
+index 69b696f..cb19d1b 100644
 --- a/inference.py
 +++ b/inference.py
-@@ -1,11 +1,10 @@
+@@ -1,18 +1,30 @@
  import json
  import torch
 -import torchaudio
@@ -287,10 +305,14 @@ index 69b696f..6b8b71b 100644
 -from generation_utils import load_model, process_batch
 +from generation_utils import load_model, process_batch, save_audio_file
  
- MODEL_PATH = "fnlp/MOSS-TTSD-v0.5"
+-MODEL_PATH = "fnlp/MOSS-TTSD-v0.5"
++PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
++MODEL_PATH = os.path.join(PROJECT_DIR, "weights/MOSS-TTSD-v0.5")
  SYSTEM_PROMPT = "You are a speech synthesizer that generates natural, realistic, and human-like conversational audio from dialogue text."
-@@ -13,28 +12,74 @@ SPT_CONFIG_PATH = "XY_Tokenizer/config/xy_tokenizer_config.yaml"
- SPT_CHECKPOINT_PATH = "XY_Tokenizer/weights/xy_tokenizer.ckpt"
+-SPT_CONFIG_PATH = "XY_Tokenizer/config/xy_tokenizer_config.yaml"
+-SPT_CHECKPOINT_PATH = "XY_Tokenizer/weights/xy_tokenizer.ckpt"
++SPT_CONFIG_PATH = os.path.join(PROJECT_DIR, "XY_Tokenizer/config/xy_tokenizer_config.yaml")
++SPT_CHECKPOINT_PATH = os.path.join(PROJECT_DIR, "XY_Tokenizer/weights/xy_tokenizer.ckpt")
  MAX_CHANNELS = 8
  
 +def _resolve_device(device_name):
@@ -305,104 +327,42 @@ index 69b696f..6b8b71b 100644
 +    return torch.device(device_name)
 +
 +
-+def _resolve_dtype(dtype_name):
-+    if dtype_name == "float32":
-+        return torch.float32
-+    if dtype_name == "float16":
-+        return torch.float16
-+    if dtype_name == "bfloat16":
-+        return torch.bfloat16
-+    raise ValueError("--dtype must be one of: float32, float16, bfloat16")
-+
-+
  def main():
      parser = argparse.ArgumentParser(description="TTS inference with Asteroid model")
      parser.add_argument("--jsonl", default="examples/examples.jsonl", 
-                        help="Path to JSONL file (default: examples/examples.jsonl)")
-+    parser.add_argument("--model_path", default=MODEL_PATH,
-+                       help="Path or Hugging Face id for MOSS-TTSD-v0.5 weights.")
-+    parser.add_argument("--spt_config_path", default=SPT_CONFIG_PATH,
-+                       help="Path to XY Tokenizer config yaml.")
-+    parser.add_argument("--spt_checkpoint_path", default=SPT_CHECKPOINT_PATH,
-+                       help="Path to XY Tokenizer checkpoint.")
-     parser.add_argument("--seed", type=int, default=None,
-                        help="Random seed for reproducibility (default: None)")
-     parser.add_argument("--output_dir", default="outputs",
+@@ -23,18 +35,20 @@ def main():
                         help="Output directory for generated audio files (default: outputs)")
      parser.add_argument("--use_normalize", action="store_true", default=True,
                         help="Whether to use text normalization (default: True)")
 +    parser.add_argument("--device", choices=["npu", "cpu", "cuda"], default="npu",
 +                       help="Inference device. Use ASCEND_RT_VISIBLE_DEVICES/CUDA_VISIBLE_DEVICES to select card.")
-+    parser.add_argument("--dtype", choices=["float32", "float16", "bfloat16"], default="bfloat16",
-+                       help="Model compute dtype.")
-+    parser.add_argument("--attn_implementation", choices=["npu_fa", "sdpa", "eager", "flash_attention_2"], default="npu_fa",
-+                       help="Transformers attention implementation.")
-+    parser.add_argument("--batch_size", type=int, default=0,
-+                       help="Number of JSONL items generated together. 0 preserves the original full-JSONL batch.")
      
      args = parser.parse_args()
-+    if args.batch_size < 0:
-+        raise ValueError("--batch_size must be greater than or equal to 0")
      
      # Create output directory if it doesn't exist
      os.makedirs(args.output_dir, exist_ok=True)
      
 -    device = "cuda" if torch.cuda.is_available() else "cpu"
 +    device = _resolve_device(args.device)
-+    if args.attn_implementation == "npu_fa" and device.type != "npu":
-+        raise ValueError("--attn_implementation npu_fa requires --device npu")
      print(f"Using device: {device}")
      
      # Load models
      print("Loading models...")
 -    tokenizer, model, spt = load_model(MODEL_PATH, SPT_CONFIG_PATH, SPT_CHECKPOINT_PATH)
-+    tokenizer, model, spt = load_model(
-+        args.model_path,
-+        args.spt_config_path,
-+        args.spt_checkpoint_path,
-+        torch_dtype=_resolve_dtype(args.dtype),
-+        attn_implementation=args.attn_implementation,
-+    )
++    tokenizer, model, spt = load_model(MODEL_PATH, SPT_CONFIG_PATH, SPT_CHECKPOINT_PATH, device)
      spt = spt.to(device)
      model = model.to(device)
      
-@@ -55,28 +100,35 @@ def main():
-         accelerate.utils.set_seed(args.seed)
-         print(f"Set random seed to {args.seed}")
-     
--    # Process the batch of items
-+    # A zero batch size preserves the original full-JSONL batch. Positive
-+    # values provide an explicit memory/throughput tuning knob.
-     print("Starting inference...")
--    actual_texts_data, audio_results = process_batch(
--        batch_items=items,
--        tokenizer=tokenizer,
--        model=model,
--        spt=spt,
--        device=device,
--        system_prompt=SYSTEM_PROMPT,
--        start_idx=0,
+@@ -65,7 +79,7 @@ def main():
+         device=device,
+         system_prompt=SYSTEM_PROMPT,
+         start_idx=0,
 -        use_normalize=args.use_normalize
--    )
-+    actual_texts_data = []
-+    audio_results = []
-+    batch_size = args.batch_size or max(1, len(items))
-+    for start_idx in range(0, len(items), batch_size):
-+        batch_actual_texts, batch_audio_results = process_batch(
-+            batch_items=items[start_idx : start_idx + batch_size],
-+            tokenizer=tokenizer,
-+            model=model,
-+            spt=spt,
-+            device=device,
-+            system_prompt=SYSTEM_PROMPT,
-+            start_idx=start_idx,
-+            use_normalize=args.use_normalize,
-+        )
-+        actual_texts_data.extend(batch_actual_texts)
-+        audio_results.extend(batch_audio_results)
++        use_normalize=args.use_normalize,
+     )
      
      # Save the audio results to files
-     saved_count = 0
+@@ -73,10 +87,10 @@ def main():
      for idx, audio_result in enumerate(audio_results):
          if audio_result is not None:
              output_path = os.path.join(args.output_dir, f"output_{idx}.wav")
@@ -415,7 +375,7 @@ index 69b696f..6b8b71b 100644
              )
              print(f"Saved audio to {output_path}")
              saved_count += 1
-@@ -86,4 +138,4 @@ def main():
+@@ -86,4 +100,4 @@ def main():
      print(f"Inference completed. Saved {saved_count}/{len(items)} audio files to {args.output_dir}")
  
  if __name__ == "__main__":
@@ -423,10 +383,10 @@ index 69b696f..6b8b71b 100644
 \ No newline at end of file
 +    main()
 diff --git a/modeling_asteroid.py b/modeling_asteroid.py
-index 0588a5d..76b91d5 100644
+index 0588a5d..d316496 100644
 --- a/modeling_asteroid.py
 +++ b/modeling_asteroid.py
-@@ -11,6 +11,81 @@ from transformers.generation.configuration_utils import GenerationConfig
+@@ -11,6 +11,80 @@ from transformers.generation.configuration_utils import GenerationConfig
  from transformers.generation.stopping_criteria import StoppingCriteriaList
  from transformers import PreTrainedModel, GenerationMixin, Qwen3Config, Qwen3Model
  from transformers.generation.logits_process import LogitsProcessorList, RepetitionPenaltyLogitsProcessor, TopKLogitsWarper, TopPLogitsWarper, TemperatureLogitsWarper
@@ -496,7 +456,6 @@ index 0588a5d..76b91d5 100644
 +            query,
 +            key,
 +            value,
-+            sparse_mode=0,
 +            **common_kwargs,
 +        )
 +
@@ -508,7 +467,7 @@ index 0588a5d..76b91d5 100644
  
  
  class AsteroidTTSConfig(Qwen3Config):
-@@ -86,6 +161,7 @@ class CustomMixin(GenerationMixin):
+@@ -86,6 +160,7 @@ class CustomMixin(GenerationMixin):
          tf_inputs = input_ids[:]
          input_ids = input_ids[:, :-(channels - 1)]
          model_kwargs["attention_mask"] = model_kwargs["attention_mask"][:, :-(channels - 1)]
@@ -516,7 +475,7 @@ index 0588a5d..76b91d5 100644
          base_length = input_ids.shape[1]
          model_kwargs = self._get_initial_cache_position(cur_len, input_ids.device, model_kwargs)
  
-@@ -396,4 +472,4 @@ class AsteroidTTSInstruct(AsteroidTTSPretrainedModel, CustomMixin):
+@@ -396,4 +471,4 @@ class AsteroidTTSInstruct(AsteroidTTSPretrainedModel, CustomMixin):
              past_key_values=outputs.past_key_values,
              hidden_states=outputs.hidden_states,
              attentions=outputs.attentions,
@@ -524,7 +483,7 @@ index 0588a5d..76b91d5 100644
 \ No newline at end of file
 +        )
 diff --git a/podcast_generate.py b/podcast_generate.py
-index 39d99cb..51ddad6 100644
+index 39d99cb..39ed57d 100644
 --- a/podcast_generate.py
 +++ b/podcast_generate.py
 @@ -1,12 +1,11 @@
@@ -541,6 +500,11 @@ index 39d99cb..51ddad6 100644
  import argparse
  
  # =============== Configuration Section ===============
+@@ -400,3 +399,3 @@ def process_input_to_audio(input_path: str, output_dir: str = "examples", langua
+     print("\nStep 3: Load TTS model")
+-    tokenizer, model, spt = load_model(MODEL_PATH, SPT_CONFIG_PATH, SPT_CHECKPOINT_PATH)
++    tokenizer, model, spt = load_model(MODEL_PATH, SPT_CONFIG_PATH, SPT_CHECKPOINT_PATH, device)
+     spt = spt.to(device)
 @@ -438,7 +437,7 @@ def process_input_to_audio(input_path: str, output_dir: str = "examples", langua
      for idx, audio_result in enumerate(audio_results):
          if audio_result is not None:

@@ -703,7 +703,7 @@
 
 - 复杂度：中。已有 patch 和独立文档，但仍需真实 NPU 环境、权重下载和质量评测闭环。
 - 下载权重后必须补充模型权重与 `xy_tokenizer.ckpt` 的 SHA256。
-- 在目标 NPU 环境验证 `--attn_implementation npu_fa`，并用 NPU `sdpa` 小样本做精度对照；`eager` 只用于问题定位，不在代码中静默降级。
+- 在目标 NPU 环境验证设备内部固定的 PFA/IFA 路径，并与同 checkpoint、同 manifest 的 CPU/CUDA 原始路径做结果对齐；推理 CLI 不增加 attention 参数，也不在代码中静默降级。
 - 如果后续要适配 Gradio 或 podcast 路径，应继续基于原项目已有文件新增 patch，不新增旁路脚本。
 
 ### 12.3 功能验证
