@@ -65,6 +65,7 @@ cd MOSS-TTSD-v0.5
 - 同一模型权重和 codec checkpoint；
 - 同一 `--seed 42`；
 - 同一 `--use_normalize` 设置；
+- CPU/CUDA 与 NPU 使用同一 `--batch_size 1`；batch size 仅控制评测调度，不改变输入内容；
 - attention backend、dtype 和设备差异必须记录清楚。
 
 NPU 推荐配置：`--device npu --dtype bfloat16 --attn_implementation sdpa`。若 `sdpa` 不可用，可显式改为 `eager` 并在报告中说明，不允许静默回退。
@@ -75,6 +76,7 @@ NPU 推荐配置：`--device npu --dtype bfloat16 --attn_implementation sdpa`。
 cd upstream
 python inference.py \
   --jsonl examples/examples.jsonl \
+  --batch_size 1 \
   --output_dir outputs_cpu_baseline \
   --device cpu \
   --dtype float32 \
@@ -94,6 +96,7 @@ python inference.py \
 # 连续执行 4.2 后，当前目录已是 upstream。
 ASCEND_RT_VISIBLE_DEVICES=0 python inference.py \
   --jsonl examples/examples.jsonl \
+  --batch_size 1 \
   --output_dir outputs_npu \
   --device npu \
   --dtype bfloat16 \
@@ -166,6 +169,7 @@ SPLIT_STEM="${SRC_JSONL%.jsonl}"
 # 直接使用 TTSD-eval 原始 JSONL，不修改其内容。
 python ../../../upstream/inference.py \
   --jsonl "$SRC_JSONL" \
+  --batch_size 1 \
   --output_dir "../../../upstream/outputs_ttsd_eval_cpu_${SPLIT_STEM}" \
   --device cpu \
   --dtype float32 \
@@ -178,6 +182,7 @@ python ../../../upstream/inference.py \
 
 ASCEND_RT_VISIBLE_DEVICES=0 python ../../../upstream/inference.py \
   --jsonl "$SRC_JSONL" \
+  --batch_size 1 \
   --output_dir "../../../upstream/outputs_ttsd_eval_npu_${SPLIT_STEM}" \
   --device npu \
   --dtype bfloat16 \
@@ -310,7 +315,7 @@ codec：来源、revision、SHA256
 - 人工听测：人数、样本数、MOS/CMOS/A-B、异常样例
 
 性能记录：
-- elapsed、RTF、dtype、attention backend、峰值 HBM/RSS
+- elapsed、RTF、batch size、dtype、attention backend、峰值 HBM/RSS
 
 结论：
 - 通过 / 不通过

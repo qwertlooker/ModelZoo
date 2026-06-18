@@ -11,6 +11,7 @@
   - [模型推理](#模型推理)
 - [OpenMOSS/TTSD-eval 测评](#openmossttsd-eval-测评)
 - [模型推理性能](#模型推理性能)
+- [已知问题：NPU SDPA repeat_kv 显存不足](#已知问题npu-sdpa-repeat_kv-显存不足)
 - [已知问题：Transformers 5.x 不兼容](#已知问题transformers-5x-不兼容)
 - [公网地址说明](#公网地址说明)
 
@@ -35,6 +36,7 @@ MOSS-TTSD-v0.5 是 OpenMOSS 发布的对话式双说话人文本转语音/文本
   - 不新增旁路推理脚本；继续使用原项目已有 `inference.py`，通过 patch 适配 NPU。
   - NPU 默认显式使用 `--device npu`，实际卡号由 `ASCEND_RT_VISIBLE_DEVICES` 控制。
   - NPU attention backend 默认使用 `--attn_implementation sdpa`；如目标 torch-npu 组合不支持，显式改为 `eager` 复测并记录。
+  - 推理入口默认 `--batch_size 1`，评测 JSONL 按批处理，避免将整个数据集一次性送入 Qwen3 attention。
 
 ## 输入输出数据
 
@@ -218,6 +220,7 @@ MOSS-TTSD-v0.5
    cd upstream
    ASCEND_RT_VISIBLE_DEVICES=0 python inference.py \
      --jsonl examples/examples.jsonl \
+     --batch_size 1 \
      --output_dir outputs_npu \
      --device npu \
      --dtype bfloat16 \
@@ -232,6 +235,7 @@ MOSS-TTSD-v0.5
    参数说明：
 
    - `jsonl`：输入 JSONL 文件路径。
+   - `batch_size`：同时生成的 JSONL 样本数；NPU 默认和推荐值为 `1`，增大前必须实测峰值 HBM。
    - `output_dir`：输出 WAV 保存目录。
    - `device`：推理设备，支持 `npu`、`cpu`、`cuda`。
    - `dtype`：模型权重 dtype，支持 `bfloat16`、`float16`、`float32`；NPU 推荐 `bfloat16`。
@@ -248,6 +252,7 @@ MOSS-TTSD-v0.5
    cd upstream
    python inference.py \
      --jsonl examples/examples.jsonl \
+     --batch_size 1 \
      --output_dir outputs_cpu \
      --device cpu \
      --dtype float32 \
@@ -306,6 +311,7 @@ cd ../..
 cd upstream
 python inference.py \
   --jsonl ../third_party/TTSD-eval/testset/<split>.jsonl \
+  --batch_size 1 \
   --output_dir outputs_ttsd_eval_cpu_<split> \
   --device cpu \
   --dtype float32 \
@@ -318,6 +324,7 @@ python inference.py \
 
 ASCEND_RT_VISIBLE_DEVICES=0 python inference.py \
   --jsonl ../third_party/TTSD-eval/testset/<split>.jsonl \
+  --batch_size 1 \
   --output_dir outputs_ttsd_eval_npu_<split> \
   --device npu \
   --dtype bfloat16 \
@@ -348,6 +355,7 @@ cd ACL_PyTorch/built-in/audio/MOSS-TTSD-v0.5
 cd upstream
 /usr/bin/time -v bash -lc 'ASCEND_RT_VISIBLE_DEVICES=0 python inference.py \
   --jsonl ../third_party/TTSD-eval/testset/<split>.jsonl \
+  --batch_size 1 \
   --output_dir outputs_ttsd_eval_npu_<split> \
   --device npu \
   --dtype bfloat16 \
@@ -374,7 +382,38 @@ print('generated_audio_seconds=', total)
 PY
 ```
 
-报告中至少记录：样本数、成功输出数、输出 WAV 总时长、elapsed seconds、`RTF=elapsed/generated_audio_seconds`、`RTFx=generated_audio_seconds/elapsed`、dtype、attention backend、峰值 HBM、CPU RSS、首次加载/编译耗时和稳定推理耗时。完整性能与质量验收口径见 `ACCEPTANCE_PLAN.md`。
+报告中至少记录：样本数、成功输出数、输出 WAV 总时长、elapsed seconds、`RTF=elapsed/generated_audio_seconds`、`RTFx=generated_audio_seconds/elapsed`、batch size、dtype、attention backend、峰值 HBM、CPU RSS、首次加载/编译耗时和稳定推理耗时。完整性能与质量验收口径见 `ACCEPTANCE_PLAN.md`。
+
+## 已知问题：NPU SDPA repeat_kv 显存不足
+
+如果 TTSD-eval 或其他多样本 JSONL 在以下位置报 NPU OOM：
+
+```text
+transformers/integrations/sdpa_attention.py
+value = repeat_kv(value, module.num_key_value_groups)
+RuntimeError: NPU out of memory
+```
+
+原因是 Transformers 4.57.6 的 NPU SDPA 路径暂不使用原生 GQA，会把 Qwen3 的 key/value heads 通过 `repeat_kv` 实体扩展到全部 attention heads。旧入口把整个 JSONL 作为一个 batch，样本数和最长输入共同放大该临时张量，并可能造成 allocator 碎片。
+
+最新 patch 为 `inference.py` 增加 `--batch_size`，默认值为 `1`；每批返回后再清理未使用的 NPU cache。评测时使用：
+
+```bash
+ASCEND_RT_VISIBLE_DEVICES=0 python inference.py \
+  --jsonl <eval.jsonl> \
+  --batch_size 1 \
+  --output_dir <output_dir> \
+  --device npu \
+  --dtype bfloat16 \
+  --attn_implementation sdpa \
+  --model_path weights/MOSS-TTSD-v0.5 \
+  --spt_config_path XY_Tokenizer/config/xy_tokenizer_config.yaml \
+  --spt_checkpoint_path XY_Tokenizer/weights/xy_tokenizer.ckpt \
+  --seed 42 \
+  --use_normalize
+```
+
+不要把 `eager` 当作该 OOM 的默认修复；它通常还会显式构造 attention 中间张量。若 `--batch_size 1` 仍不足，应记录具体样本、输入 token 长度和峰值 HBM，再单独评估更大显存设备或经过精度验证的 NPU GQA/FlashAttention 专项优化，不能修改正式评测文本来规避。
 
 ## 已知问题：Transformers 5.x 不兼容
 

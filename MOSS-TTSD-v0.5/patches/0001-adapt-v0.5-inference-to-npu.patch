@@ -273,7 +273,7 @@ index 86c03c5..2907c2d 100644
          # Build status information (using English since this is server-side output)
          status_info = f"""
 diff --git a/inference.py b/inference.py
-index 69b696f..b39525e 100644
+index 69b696f..7750626 100644
 --- a/inference.py
 +++ b/inference.py
 @@ -1,11 +1,10 @@
@@ -289,7 +289,7 @@ index 69b696f..b39525e 100644
  
  MODEL_PATH = "fnlp/MOSS-TTSD-v0.5"
  SYSTEM_PROMPT = "You are a speech synthesizer that generates natural, realistic, and human-like conversational audio from dialogue text."
-@@ -13,28 +12,68 @@ SPT_CONFIG_PATH = "XY_Tokenizer/config/xy_tokenizer_config.yaml"
+@@ -13,28 +12,72 @@ SPT_CONFIG_PATH = "XY_Tokenizer/config/xy_tokenizer_config.yaml"
  SPT_CHECKPOINT_PATH = "XY_Tokenizer/weights/xy_tokenizer.ckpt"
  MAX_CHANNELS = 8
  
@@ -337,8 +337,12 @@ index 69b696f..b39525e 100644
 +                       help="Model compute dtype.")
 +    parser.add_argument("--attn_implementation", choices=["sdpa", "eager", "flash_attention_2"], default="sdpa",
 +                       help="Transformers attention implementation.")
++    parser.add_argument("--batch_size", type=int, default=1,
++                       help="Number of JSONL items generated together. Keep 1 on memory-constrained devices.")
      
      args = parser.parse_args()
++    if args.batch_size <= 0:
++        raise ValueError("--batch_size must be greater than 0")
      
      # Create output directory if it doesn't exist
      os.makedirs(args.output_dir, exist_ok=True)
@@ -360,7 +364,51 @@ index 69b696f..b39525e 100644
      spt = spt.to(device)
      model = model.to(device)
      
-@@ -73,10 +112,10 @@ def main():
+@@ -55,28 +98,43 @@ def main():
+         accelerate.utils.set_seed(args.seed)
+         print(f"Set random seed to {args.seed}")
+     
+-    # Process the batch of items
++    # Process the items in bounded batches. Passing a full evaluation JSONL to
++    # Qwen3 SDPA at once materializes repeated GQA key/value tensors and can
++    # exhaust accelerator memory before generation starts.
+     print("Starting inference...")
+-    actual_texts_data, audio_results = process_batch(
+-        batch_items=items,
+-        tokenizer=tokenizer,
+-        model=model,
+-        spt=spt,
+-        device=device,
+-        system_prompt=SYSTEM_PROMPT,
+-        start_idx=0,
+-        use_normalize=args.use_normalize
+-    )
++    actual_texts_data = []
++    audio_results = []
++    for start_idx in range(0, len(items), args.batch_size):
++        batch_actual_texts, batch_audio_results = process_batch(
++            batch_items=items[start_idx : start_idx + args.batch_size],
++            tokenizer=tokenizer,
++            model=model,
++            spt=spt,
++            device=device,
++            system_prompt=SYSTEM_PROMPT,
++            start_idx=start_idx,
++            use_normalize=args.use_normalize,
++        )
++        actual_texts_data.extend(batch_actual_texts)
++        audio_results.extend(batch_audio_results)
++
++        # process_batch() has returned, so its large temporary tensors are no
++        # longer active. Release inactive allocator blocks before the next
++        # batch to limit fragmentation during long evaluations.
++        if device.type == "cuda":
++            torch.cuda.empty_cache()
++        elif device.type == "npu":
++            torch.npu.empty_cache()
+     
+     # Save the audio results to files
+     saved_count = 0
      for idx, audio_result in enumerate(audio_results):
          if audio_result is not None:
              output_path = os.path.join(args.output_dir, f"output_{idx}.wav")
@@ -373,6 +421,13 @@ index 69b696f..b39525e 100644
              )
              print(f"Saved audio to {output_path}")
              saved_count += 1
+@@ -86,4 +144,4 @@ def main():
+     print(f"Inference completed. Saved {saved_count}/{len(items)} audio files to {args.output_dir}")
+ 
+ if __name__ == "__main__":
+-    main()
+\ No newline at end of file
++    main()
 diff --git a/modeling_asteroid.py b/modeling_asteroid.py
 index 0588a5d..663500a 100644
 --- a/modeling_asteroid.py
@@ -413,11 +468,10 @@ index 39d99cb..51ddad6 100644
          else:
              print(f"Audio generation failed: sample {idx}")
 diff --git a/requirements.txt b/requirements.txt
-index 991f460..e6f68e6 100644
+index 991f460..0e6585e 100644
 --- a/requirements.txt
 +++ b/requirements.txt
-@@ -13,5 +13,4 @@ requests
- openai
+@@ -14,4 +14,3 @@ openai
  PyYAML
  einops
  huggingface_hub

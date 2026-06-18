@@ -60,6 +60,7 @@
 - `XY_Tokenizer/xy_tokenizer/nn/quantizer.py` 使用 `torch.autocast('cuda', enabled=False)`。
 - `torchaudio.load` / `torchaudio.save` 在 TorchAudio 2.9+ 环境会进入 TorchCodec 路径，缺少或不匹配时会报 `TorchCodec is required for load_with_torchcodec` / `save_with_torchcodec`。
 - `modeling_asteroid.py` 自定义 `GenerationMixin._sample` 先记录 shifted 输入原始长度，再裁掉 `channels - 1` 个位置用于初始前向；如果不同步 `cur_len`，NPU `sdpa` 下发 `aclnnFlashAttentionScore` 时可能收到 query/key 长度不一致的 attention mask。
+- `inference.py` 原本将 JSONL 的全部样本一次性传给 `process_batch()`；TTSD-eval 等多样本输入会在 Transformers NPU SDPA 的 `repeat_kv` GQA 展开处产生大块临时张量并 OOM。
 
 因此本次必须修改上游已有文件并生成 patch，而不是仅新增外部包装脚本。
 
@@ -67,7 +68,7 @@
 
 | 文件 | 结论 | 说明 |
 |---|---|---|
-| `inference.py` | 已 patch | 增加 `--device npu/cpu/cuda`、`--dtype`、`--attn_implementation`、模型/codec 路径参数；默认 NPU；使用 `soundfile` 写 WAV。 |
+| `inference.py` | 已 patch | 增加 `--device npu/cpu/cuda`、`--dtype`、`--attn_implementation`、`--batch_size`、模型/codec 路径参数；默认 NPU、batch 1；按批读取 JSONL，并在批间清理 accelerator cache；使用 `soundfile` 写 WAV。 |
 | `generation_utils.py` | 已 patch | `load_model()` 支持 dtype 和 attention backend；音频读取/写出改为 `soundfile`；按 CUDA/NPU 分支清理显存。 |
 | `modeling_asteroid.py` | 已 patch | 裁剪 shifted speech channels 后同步 `cur_len`，修复 NPU `sdpa` attention mask query/key 长度不一致。 |
 | `gradio_demo.py` / `podcast_generate.py` | 已 patch | WAV 写出复用 `save_audio_file()`，移除 `torchaudio.save` 路径。 |
@@ -88,12 +89,14 @@
 7. 音频 I/O：文件读取/写出走 `soundfile`；重采样仍使用 `torchaudio.functional.resample`，该路径不触发 TorchCodec 文件解码。
 8. 显存清理：CUDA 使用 `torch.cuda.empty_cache()`，NPU 使用 `torch.npu.empty_cache()`。
 9. attention mask：裁剪 shifted speech channels 后重置 `cur_len = input_ids.shape[1]`，保证 `input_ids`、`attention_mask`、cache position 长度一致。
+10. 有界评测 batch：`inference.py` 默认 `--batch_size 1`，不再将完整评测 JSONL 一次性送入 Qwen3；每次 `process_batch()` 返回、临时 tensor 失活后清理 allocator cache。
 
 ### 1.6 风险与限制
 
 - 当前环境缺少 `torch`、`torch-npu`、模型权重和 NPU/CANN，未在本机执行 CPU/NPU 实推。
 - 权重 SHA256 尚未记录；正式验收前必须补充。
 - 原项目 v0.5 中仍存在若干宽泛 `try/except` 和失败后继续处理的逻辑；本次 patch 以 NPU 设备适配为目标，没有重构原项目整体错误处理。
+- NPU SDPA 当前会通过 `repeat_kv` 实体展开 Qwen3 GQA key/value；batch 大于 1 或单条超长输入仍可能超过 HBM，正式评测默认固定 batch 1。
 - 生成式 TTS/TTSD 不能用“能输出 WAV”作为完整验收；正式验收需按 `ACCEPTANCE_PLAN.md` 做可懂度、音色、自然度和人工听测。
 - NeMo/Transformers/PyTorch/TorchAudio 版本持续变化；若上游或依赖升级，应重新检查 `flash-attn`、TorchCodec、attention backend 和 `GenerationMixin` 行为。
 
@@ -103,6 +106,7 @@
 - 2026-06-17：确认当前 main HEAD 已面向 v1.0，不作为本次适配对象。
 - 2026-06-17：扫描 v0.5 原项目 CUDA 假设，确认需 patch 原项目已有文件。
 - 2026-06-17：固定模型权重和 codec checkpoint 的 HF/ModelScope revision，待正式下载后补充 SHA256。
+- 2026-06-18：根据 TTSD-eval NPU OOM 栈确认整集 batch 在 `sdpa_attention.repeat_kv` 处放大 GQA KV；新增 `--batch_size 1` 默认分批和批间 cache 清理。
 
 ## 2. NPU 适配与运行说明
 
@@ -206,6 +210,7 @@ MOSS-TTSD-v0.5 的正式质量/性能验收口径统一维护在 `ACCEPTANCE_PLA
 cd upstream
 ASCEND_RT_VISIBLE_DEVICES=0 python inference.py \
   --jsonl examples/examples.jsonl \
+  --batch_size 1 \
   --output_dir outputs_npu \
   --device npu \
   --dtype bfloat16 \
@@ -223,6 +228,7 @@ ASCEND_RT_VISIBLE_DEVICES=0 python inference.py \
 cd upstream
 python inference.py \
   --jsonl examples/examples.jsonl \
+  --batch_size 1 \
   --output_dir outputs_cpu \
   --device cpu \
   --dtype float32 \
@@ -328,7 +334,20 @@ get unsupported atten_mask shape, the shape is [B, 1, L+7, L]
 
 根因：`modeling_asteroid.py` 自定义生成循环先记录 shifted 输入原始长度，再裁掉 `channels - 1` 个位置用于初始前向，但没有同步 `cur_len`。最新 patch 在裁剪 `input_ids` / `attention_mask` 后重置 `cur_len = input_ids.shape[1]`，使 `input_ids`、`attention_mask` 与 cache position 长度一致。
 
-### 3.4 提交前必跑检查
+### 3.4 已知 NPU `repeat_kv` OOM 修复
+
+TTSD-eval 等多样本 JSONL 旧路径会将全部样本作为一个 batch。Transformers 4.57.6 明确在 NPU SDPA 路径禁用原生 GQA，并在 `sdpa_attention_forward()` 中对 key/value 调用 `repeat_kv()`。因此显存临时分配与 batch size、最长 padding 长度和 KV head 展开倍数共同增长。
+
+本次修复保持模型、checkpoint、文本和 attention backend 不变，只修改评测调度边界：
+
+- `inference.py` 增加正整数 `--batch_size`，默认 `1`；
+- 按输入顺序切分 JSONL，`start_idx` 和 `output_<index>.wav` 映射保持不变；
+- 每批 `process_batch()` 返回后再调用对应设备的 `empty_cache()`，此时函数内部大 tensor 已失活，可降低长评测中的 allocator 碎片；
+- 不静默切换 `eager`、CPU 或其他非对齐路径。
+
+若 batch 1 单样本仍 OOM，应记录该样本的文本、prompt audio token 长度和峰值 HBM，并作为超长样本/专项 NPU GQA 优化问题处理。
+
+### 3.5 提交前必跑检查
 
 ```bash
 git -C upstream reset --hard v0.5
@@ -349,7 +368,7 @@ python3 -m py_compile \
 git -C upstream reset --hard v0.5
 ```
 
-### 3.5 NPU 实测待补项
+### 3.6 NPU 实测待补项
 
 正式验收环境具备权重和 NPU 后，应补充以下记录：
 

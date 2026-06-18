@@ -7,7 +7,8 @@
 - `0001-adapt-v0.5-inference-to-npu.patch`
   - 基于 `OpenMOSS/MOSS-TTSD` tag `v0.5` / commit `0e078c62389922d3aa873ce182daf31142860b18`。
   - 修改原项目已有 `inference.py`、`generation_utils.py`、`gradio_demo.py`、`podcast_generate.py`、`modeling_asteroid.py`、`requirements.txt`、`XY_Tokenizer/inference.py`、`XY_Tokenizer/utils/helpers.py`、`XY_Tokenizer/xy_tokenizer/model.py`、`XY_Tokenizer/xy_tokenizer/nn/quantizer.py`。
-  - 增加显式 `--device npu/cpu/cuda`、`--dtype`、`--attn_implementation` 和权重/codec 路径参数；默认 `--device npu`。
+  - 增加显式 `--device npu/cpu/cuda`、`--dtype`、`--attn_implementation`、`--batch_size` 和权重/codec 路径参数；默认 `--device npu --batch_size 1`。
+  - 将评测 JSONL 按指定 batch 依次送入 `process_batch()`，并在批间清理 accelerator cache，避免整集 batch 在 Qwen3 NPU SDPA `repeat_kv` 处放大 GQA KV 导致 OOM。
   - NPU 默认 `--attn_implementation sdpa`，patch 直接从 `requirements.txt` 删除 CUDA/ROCm GPU 专用的 `flash-attn`；`flash_attention_2` 仅保留给显式 CUDA/ROCm 路径。
   - 将 prompt 音频文件读取从 `torchaudio.load` 改为原依赖中的 `soundfile`，将 WAV 写出从 `torchaudio.save` 改为 `soundfile.write`，规避 TorchAudio 2.9+ 需要 TorchCodec 的 `load_with_torchcodec` / `save_with_torchcodec` 路径。
   - 修正 XY Tokenizer encode/decode 默认 CUDA 设备假设，使其从输入 tensor 推断设备。
