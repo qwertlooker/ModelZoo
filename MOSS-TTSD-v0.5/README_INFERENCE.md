@@ -11,6 +11,7 @@
   - [模型推理](#模型推理)
 - [OpenMOSS/TTSD-eval 测评](#openmossttsd-eval-测评)
 - [模型推理性能](#模型推理性能)
+- [已知问题：Transformers 5.x 不兼容](#已知问题transformers-5x-不兼容)
 - [公网地址说明](#公网地址说明)
 
 ## 概述
@@ -70,13 +71,15 @@ MOSS-TTSD-v0.5 是 OpenMOSS 发布的对话式双说话人文本转语音/文本
 | CANN Toolkit / Kernel / NNAL | 8.2.RC1+，推荐使用目标机器统一版本 |
 | Python | 3.10 / 3.11 |
 | PyTorch / torch-npu | 与 CANN 匹配，建议 2.6.0+ |
-| transformers / accelerate | 按原项目依赖安装 |
+| transformers | 当前上游 v0.5 代码固定使用 `4.57.6`；不要安装 5.x |
+| accelerate | 按原项目依赖安装 |
 | soundfile / torchaudio | `soundfile` 用于文件读写；`torchaudio.functional.resample` 用于重采样 |
 
 说明：
 
 - `flash-attn` 官方包面向 CUDA/ROCm GPU kernel，当前不作为 Ascend NPU 必需依赖安装。NPU 推理固定显式使用 `--attn_implementation sdpa`；仅 CUDA/ROCm GPU 路径显式使用 `flash_attention_2` 时才安装 `flash-attn`。
 - TorchAudio 2.9+ 的 `torchaudio.load` / `torchaudio.save` 会进入 TorchCodec 路径。本适配通过 patch 将 prompt 音频读取和 WAV 写出改为 `soundfile`，不要求额外安装 `torchcodec`。如果仍看到 `TorchCodec is required for load_with_torchcodec` 或 `save_with_torchcodec`，说明 patch 未应用或路径未覆盖。
+- Transformers 5.x 改变了 `_tied_weights_keys` 的数据结构和 `tie_weights()` 接口，而 MOSS-TTSD-v0.5 上游代码仍使用 Transformers 4.x 接口。当前项目不修改该模型定义，因此必须固定 `transformers==4.57.6`。
 
 ## 文件目录
 
@@ -140,6 +143,7 @@ MOSS-TTSD-v0.5
    ```bash
    cd upstream
    pip install torch torch-npu
+   pip install "transformers==4.57.6"
    # patch 已从 requirements.txt 删除 CUDA/ROCm 专用的 flash-attn 依赖。
    pip install -r requirements.txt
    pip install -r XY_Tokenizer/requirements.txt
@@ -371,6 +375,26 @@ PY
 ```
 
 报告中至少记录：样本数、成功输出数、输出 WAV 总时长、elapsed seconds、`RTF=elapsed/generated_audio_seconds`、`RTFx=generated_audio_seconds/elapsed`、dtype、attention backend、峰值 HBM、CPU RSS、首次加载/编译耗时和稳定推理耗时。完整性能与质量验收口径见 `ACCEPTANCE_PLAN.md`。
+
+## 已知问题：Transformers 5.x 不兼容
+
+如果环境安装了 `transformers==5.12.1`，模型加载阶段可能报：
+
+```text
+AttributeError: 'list' object has no attribute 'keys'
+```
+
+报错位置通常位于 Transformers 的 `get_expanded_tied_weights_keys()`。原因是 Transformers 5.x 要求 `_tied_weights_keys` 为“目标权重到源权重”的字典映射，而 MOSS-TTSD-v0.5 上游 `modeling_asteroid.py` 仍按 Transformers 4.x 接口将其定义为列表。
+
+当前项目仅记录该依赖边界，不修改上游模型代码。请在运行推理或 TTSD-eval 前固定已验证版本：
+
+```bash
+pip uninstall -y transformers
+pip install "transformers==4.57.6"
+python -c "import transformers; print(transformers.__version__)"
+```
+
+预期输出为 `4.57.6`。本地已验证该版本可以完成 `AsteroidTTSInstruct.from_pretrained()` 初始化并保持各通道输入 embedding 与 `lm_heads` 的权重绑定。不要通过忽略异常、关闭权重绑定或 CPU 回退绕过该错误。
 
 ## 公网地址说明
 
