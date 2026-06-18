@@ -163,28 +163,7 @@ ls -1 *.jsonl
 SRC_JSONL="<实际的_split_文件名>.jsonl"
 SPLIT_STEM="${SRC_JSONL%.jsonl}"
 
-# 按 inference.py 的规则，从当前 testset/ 目录预检全部 prompt audio。
-python - "$SRC_JSONL" <<'PY'
-import json
-import sys
-from pathlib import Path
-
-src = Path(sys.argv[1])
-with src.open(encoding='utf-8') as fin:
-    for line_no, line in enumerate(fin, 1):
-        if not line.strip():
-            continue
-        rec = json.loads(line)
-        base_path = Path(rec.get('base_path') or '.')
-        for key in ('prompt_audio_speaker1', 'prompt_audio_speaker2'):
-            path = base_path / rec[key]
-            if not path.is_file():
-                raise FileNotFoundError(
-                    f'line {line_no}: {key} is not accessible from testset/: {path}'
-                )
-print(f'prompt paths OK: {src}')
-PY
-
+# 直接使用 TTSD-eval 原始 JSONL，不修改其内容。
 python ../../../upstream/inference.py \
   --jsonl "$SRC_JSONL" \
   --output_dir "../../../upstream/outputs_ttsd_eval_cpu_${SPLIT_STEM}" \
