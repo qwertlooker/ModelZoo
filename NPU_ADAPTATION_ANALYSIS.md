@@ -696,14 +696,14 @@
 - 2026-06-16 已重新检查 `https://github.com/OpenMOSS/MOSS-TTSD`：默认分支 `main` HEAD 为 `20dbb4fc44819435fee894d644a0402a0fee736a`，但当前顶层代码已面向 v1.0。
 - v0.5 原项目代码有 tag `v0.5`，commit 为 `0e078c62389922d3aa873ce182daf31142860b18`，包含 `inference.py`、`generation_utils.py`、`XY_Tokenizer/`、`examples/` 等原始推理链路。
 - 根据新约束，本目录不新增独立代码文件；MOSS-TTSD-v0.5 的代码适配收敛为 `patches/0001-adapt-v0.5-inference-to-npu.patch`。
-- 当前 patch 修改原项目已有文件：`inference.py`、`generation_utils.py`、`XY_Tokenizer/inference.py`、`XY_Tokenizer/xy_tokenizer/model.py`、`XY_Tokenizer/xy_tokenizer/nn/quantizer.py`。
+- 当前 patch 修改原项目已有推理、模型、codec 和音频 I/O 文件；其中 `modeling_asteroid.py` 注册 NPU PFA/IFA GQA attention backend，避免 Transformers SDPA/eager 的 `repeat_kv` 实体展开。
 - 当前适配边界：原项目 tag `v0.5` + `fnlp/MOSS-TTSD-v0.5` / `OpenMOSS-Team/MOSS-TTSD-v0.5` 权重 + 原项目 XY Tokenizer 代码 + `fnlp/XY_Tokenizer_TTSD_V0` 的 `xy_tokenizer.ckpt`。
 
 ### 12.2 后续适配
 
 - 复杂度：中。已有 patch 和独立文档，但仍需真实 NPU 环境、权重下载和质量评测闭环。
 - 下载权重后必须补充模型权重与 `xy_tokenizer.ckpt` 的 SHA256。
-- 在目标 NPU 环境验证 `--attn_implementation sdpa`；如不可用，显式切换 `eager` 并记录，不在代码中静默降级。
+- 在目标 NPU 环境验证 `--attn_implementation npu_fa`，并用 NPU `sdpa` 小样本做精度对照；`eager` 只用于问题定位，不在代码中静默降级。
 - 如果后续要适配 Gradio 或 podcast 路径，应继续基于原项目已有文件新增 patch，不新增旁路脚本。
 
 ### 12.3 功能验证

@@ -65,10 +65,10 @@ cd MOSS-TTSD-v0.5
 - 同一模型权重和 codec checkpoint；
 - 同一 `--seed 42`；
 - 同一 `--use_normalize` 设置；
-- CPU/CUDA 与 NPU 使用同一 `--batch_size 1`；batch size 仅控制评测调度，不改变输入内容；
+- CPU/CUDA 与 NPU 使用同一 `--batch_size`；默认 `0` 表示完整 JSONL batch，显存不足时按同一正整数重跑两端对齐；
 - attention backend、dtype 和设备差异必须记录清楚。
 
-NPU 推荐配置：`--device npu --dtype bfloat16 --attn_implementation sdpa`。若 `sdpa` 不可用，可显式改为 `eager` 并在报告中说明，不允许静默回退。
+NPU 性能配置：`--device npu --dtype bfloat16 --attn_implementation npu_fa`。CPU/CUDA 基线使用该设备支持的原始 attention backend。正式报告必须增加 NPU `npu_fa` 与 NPU `sdpa` 小样本精度对照；`eager` 只用于问题定位，不作为 OOM 性能方案。
 
 ### 4.2 原始 CPU/CUDA 基线命令
 
@@ -76,7 +76,7 @@ NPU 推荐配置：`--device npu --dtype bfloat16 --attn_implementation sdpa`。
 cd upstream
 python inference.py \
   --jsonl examples/examples.jsonl \
-  --batch_size 1 \
+  --batch_size 0 \
   --output_dir outputs_cpu_baseline \
   --device cpu \
   --dtype float32 \
@@ -96,11 +96,11 @@ python inference.py \
 # 连续执行 4.2 后，当前目录已是 upstream。
 ASCEND_RT_VISIBLE_DEVICES=0 python inference.py \
   --jsonl examples/examples.jsonl \
-  --batch_size 1 \
+  --batch_size 0 \
   --output_dir outputs_npu \
   --device npu \
   --dtype bfloat16 \
-  --attn_implementation sdpa \
+  --attn_implementation npu_fa \
   --model_path weights/MOSS-TTSD-v0.5 \
   --spt_config_path XY_Tokenizer/config/xy_tokenizer_config.yaml \
   --spt_checkpoint_path XY_Tokenizer/weights/xy_tokenizer.ckpt \
@@ -169,7 +169,7 @@ SPLIT_STEM="${SRC_JSONL%.jsonl}"
 # 直接使用 TTSD-eval 原始 JSONL，不修改其内容。
 python ../../../upstream/inference.py \
   --jsonl "$SRC_JSONL" \
-  --batch_size 1 \
+  --batch_size 0 \
   --output_dir "../../../upstream/outputs_ttsd_eval_cpu_${SPLIT_STEM}" \
   --device cpu \
   --dtype float32 \
@@ -182,11 +182,11 @@ python ../../../upstream/inference.py \
 
 ASCEND_RT_VISIBLE_DEVICES=0 python ../../../upstream/inference.py \
   --jsonl "$SRC_JSONL" \
-  --batch_size 1 \
+  --batch_size 0 \
   --output_dir "../../../upstream/outputs_ttsd_eval_npu_${SPLIT_STEM}" \
   --device npu \
   --dtype bfloat16 \
-  --attn_implementation sdpa \
+  --attn_implementation npu_fa \
   --model_path ../../../upstream/weights/MOSS-TTSD-v0.5 \
   --spt_config_path ../../../upstream/XY_Tokenizer/config/xy_tokenizer_config.yaml \
   --spt_checkpoint_path ../../../upstream/XY_Tokenizer/weights/xy_tokenizer.ckpt \
@@ -308,6 +308,7 @@ codec：来源、revision、SHA256
 - NPU 命令、日志、输出目录
 
 质量指标：
+- attention backend 对照：NPU `npu_fa` 与 NPU `sdpa` 固定小样本输出和指标差异
 - TTSD-eval：ACC/SIM/WER，评测 repo commit、MMS-FA/WeSpeaker/Whisper 版本、CPU/CUDA、NPU、差异
 - CER/WER：ASR 模型、normalizer、CPU/CUDA、NPU、差异
 - 说话人切换：标注规则、CPU/CUDA 错误数、NPU 错误数
