@@ -2,7 +2,7 @@
 
 ## 一句话指令
 
-> 先克隆 upstream，确认远端最新 commit，并明确“当前适配的精确版本边界”：源码 repo/分支/commit、模型权重 repo/文件/commit 或校验值、辅助模型版本，以及明确排除同系列其他变体。区分上游源码改动和当前适配脚本。上游已有文件的修改必须生成 patch；新增 `infer.py` 不放进 patch，直接放当前模型目录。`infer.py` 只保留一个，默认 `--device npu`，CPU 验证用 `--device cpu`，不要使用 `auto/use_gpu`，不要写死 `npu:0/cuda:0`，实际设备由环境变量控制。适配/评测脚本必须按项目级“严格失败”原则实现：必需依赖统一前置 import，缺依赖、缺官方预期字段或版本不匹配时直接暴露原始错误，不添加不必要的 `try/except`、`hasattr/getattr`、regex/basic 替代、CPU/远端 fallback 等静默兼容。必须补全环境搭建、权重下载、测试数据下载、CPU 当前环境验证、NPU 验证说明。还必须参考原始模型的功能、性能、精度和公开评测，生成 `ACCEPTANCE_PLAN.md`；验收主线必须先写清“原始测试集是什么、原始指标是多少、NPU 如何对齐原始模型结果”，同 checkpoint、同测试集/manifest、同评测脚本、同参数比较 CPU/CUDA 原始路径与 NPU 结果；官方未发布测试集或指标时必须明确写“官方未发布”，不得编造。再按数据集大小、获取难度、验证难度设计 L0/L1/L2/L3 分层验收、通过条件和报告模板。最后生成 `ANALYSIS.md`、`NPU_ADAPTATION.md`、`NPU_VALIDATION.md`、`ACCEPTANCE_PLAN.md`，并验证 `git apply --check`、`py_compile`、下载 URL/脚本可用性、测试数据可用性、当前环境 CPU 推理；不能只补文档不做验证，不能只用 dummy smoke test 代替完整验收方案。
+> 先克隆 upstream，确认远端最新 commit，并明确“当前适配的精确版本边界”：源码 repo/分支/commit、模型权重 repo/文件/commit 或校验值、辅助模型版本，以及明确排除同系列其他变体。区分上游源码改动和当前适配脚本。上游已有文件的修改必须生成 patch；新增 `infer.py` 不放进 patch，直接放当前模型目录。`infer.py` 只保留一个，默认 `--device npu`，CPU 验证用 `--device cpu`，不要使用 `auto/use_gpu`，不要写死 `npu:0/cuda:0`，实际设备由环境变量控制。适配/评测脚本必须按项目级“严格失败”原则实现：必需依赖统一前置 import，缺依赖、缺官方预期字段或版本不匹配时直接暴露原始错误，不添加不必要的 `try/except`、`hasattr/getattr`、regex/basic 替代、CPU/远端 fallback 等静默兼容。必须补全环境搭建、权重下载、测试数据下载、CPU 当前环境验证、NPU 验证说明。还必须参考原始模型的功能、性能、精度和公开评测，生成 `ACCEPTANCE_PLAN.md`；验收主线必须先写清“原始测试集是什么、原始指标是多少、NPU 如何对齐原始模型结果”，同 checkpoint、同测试集/manifest、同评测脚本、同参数比较 CPU/CUDA 原始路径与 NPU 结果；官方未发布测试集或指标时必须明确写“官方未发布”，不得编造。再按数据集大小、获取难度、验证难度设计 L0/L1/L2/L3 分层验收、通过条件和报告模板。模型目录默认维护 `README_INFERENCE.md`、`NPU_ADAPTATION.md`、`ACCEPTANCE_PLAN.md` 三类主文档，不再为同一内容新增分散文档；最后验证 `git apply --check`、`py_compile`、下载 URL/脚本可用性、测试数据可用性、当前环境 CPU 推理，不能只补文档不做验证，不能只用 dummy smoke test 代替完整验收方案。
 
 ---
 
@@ -50,7 +50,7 @@ git -C <model_dir>/upstream ls-remote origin <default_branch>
 
 每个模型在开始适配、补验或提交前，都必须明确“当前适配的到底是哪一个版本”。同一模型系列常见有多个变体，例如 `canary-1b` / `canary-1b-flash` / `canary-1b-v2`、`whisper-large-v3` / `large-v3-turbo`、`MossFormer2_SE_48K` / `SS_16K` / `SR_48K`。不能只写模型系列名。
 
-必须记录到 `NPU_ADAPTATION_ANALYSIS.md` 的“参考原始仓库与适配版本边界”章节，并同步写入该模型的 `README.md` / `ANALYSIS.md` / `NPU_ADAPTATION.md` / `NPU_VALIDATION.md` 中合适位置：
+必须记录到该模型的 `NPU_ADAPTATION.md`，并在 `README_INFERENCE.md` 和 `ACCEPTANCE_PLAN.md` 中按各自用途保留必要的版本边界；如维护根目录 `NPU_ADAPTATION_ANALYSIS.md`，只同步项目级索引信息，避免复制完整内容：
 
 - 源码来源：repo URL、默认分支、commit；如果使用子目录，写明子目录；
 - 权重来源：Hugging Face / ModelScope / GitHub Release / 网盘 URL、repo HEAD 或发布版本、具体文件名或目录；
@@ -98,9 +98,9 @@ nemo/collections/asr/...
 
 ```text
 infer.py
-ANALYSIS.md
+README_INFERENCE.md
 NPU_ADAPTATION.md
-NPU_VALIDATION.md
+ACCEPTANCE_PLAN.md
 patches/README.md
 scripts/download_weights.sh
 scripts/download_test_data.sh
@@ -238,7 +238,7 @@ CUDA_VISIBLE_DEVICES=0
 
 ### Step 6：环境搭建必须补全
 
-每个模型必须在 `README.md` 和 `NPU_ADAPTATION.md` 中说明环境搭建方式。
+每个模型必须在 `README_INFERENCE.md` 和 `NPU_ADAPTATION.md` 中按文档用途说明环境搭建方式。
 
 至少包含：
 
@@ -366,7 +366,7 @@ pip install -r requirements.txt
 
 - 性能章节保持简洁，避免重复前文已经说明的性能模式、warmup、dtype、batch、decode 参数等长段解释。
 - 推荐只保留必要的性能表和精度表，列出 Model、Card、数据集、Batch Size、Beam Size、RTF/RTFx、WER 等关键字段。
-- 公开参考值可简短说明一句，不要把公开榜单环境、限制、对比注意事项在性能章节反复展开；详细对齐分析可放到 `ACCEPTANCE_PLAN.md` 或 `NPU_VALIDATION.md`。
+- 公开参考值可简短说明一句，不要把公开榜单环境、限制、对比注意事项在性能章节反复展开；详细对齐分析和结果放到 `ACCEPTANCE_PLAN.md`。
 - 一步到位推荐命令：
 
 ```bash
@@ -415,7 +415,7 @@ PY
 
 #### 6.3 依赖验收必须包含导入测试
 
-依赖安装完成后，必须在 `NPU_VALIDATION.md` 中给出最小导入测试。不要只写“安装完成”。
+依赖安装完成后，必须在 `NPU_ADAPTATION.md` 的验证记录中给出最小导入测试。不要只写“安装完成”。
 
 以 Canary-1B 为例：
 
@@ -479,11 +479,11 @@ python infer.py --model <model_dir>/weights/<model_name> --device cpu ...
 huggingface-cli login
 ```
 
-必须在 `NPU_VALIDATION.md` 记录实际验证使用的权重路径或权重来源。
+必须在 `NPU_ADAPTATION.md` 记录实际验证使用的权重路径或权重来源。
 
 #### 7.1 权重下载 URL 必须验证
 
-不能只把官方页面写进文档。提交前必须至少做以下一种验证，并把命令和结果写入 `NPU_VALIDATION.md`：
+不能只把官方页面写进文档。提交前必须至少做以下一种验证，并把命令和结果写入 `NPU_ADAPTATION.md`：
 
 1. **小权重/可接受大小**：实际运行下载脚本，确认目标文件存在、大小合理，最好记录 SHA256。
 2. **大权重**：不强制完整下载，但必须检查仓库 metadata 和必需文件 URL：
@@ -545,7 +545,7 @@ python infer.py \
 - 文本/JSON/manifest：检查行数、字段名、路径是否存在；
 - dummy 输入：必须明确记录“只验证链路，不验证准确率”。
 
-验证命令和输出必须写入 `NPU_VALIDATION.md`。
+验证命令和输出必须写入 `NPU_ADAPTATION.md`。
 
 #### 8.2 评测数据准备必须与评测脚本解耦
 
@@ -637,7 +637,7 @@ Canary-1B 的 FLEURS 与 LibriSpeech 数据准备进一步明确了一个通用�
 
 6. **记录数据来源与实际本地路径**
    - metadata 必须记录远端 URL / repo id、config、split、目标本地文件、是否复用已有文件、是否离线、样本数和总时长。
-   - `NPU_VALIDATION.md` 必须记录实际使用的本地数据目录和一次可读性检查结果。
+   - `NPU_ADAPTATION.md` 必须记录实际使用的本地数据目录和一次可读性检查结果。
 
 ---
 
@@ -699,7 +699,7 @@ python3 -m py_compile <model_dir>/infer.py
 python3 <model_dir>/infer.py --help
 ```
 
-要求：`--help` 不应因为缺少 `torch_npu`、权重文件或非必要推理依赖而失败。若上游包导入不可避免，必须在 `NPU_VALIDATION.md` 记录失败原因并说明如何安装最小依赖。
+要求：`--help` 不应因为缺少 `torch_npu`、权重文件或非必要推理依赖而失败。若上游包导入不可避免，必须在 `NPU_ADAPTATION.md` 记录失败原因并说明如何安装最小依赖。
 
 #### 11.2 准备 CPU 可运行依赖
 
@@ -710,7 +710,7 @@ pip install -r <model_dir>/requirements.txt
 # 或按文档安装最小 CPU 依赖
 ```
 
-如果当前环境无法安装依赖，必须在 `NPU_VALIDATION.md` 写明阻塞原因，例如：
+如果当前环境无法安装依赖，必须在 `NPU_ADAPTATION.md` 写明阻塞原因，例如：
 
 - 缺少系统库；
 - Python 版本不兼容；
@@ -827,7 +827,7 @@ python <model_dir>/infer.py --device cpu <model_args> <input_args>
 - **最低正式验收清单**：资源受限时也必须执行的最小集合；
 - **报告模板**：环境、功能、精度、性能、稳定性、结论。
 
-`NPU_VALIDATION.md` 中必须说明现有 smoke test 的局限，并引用 `ACCEPTANCE_PLAN.md` 作为后续完整验收入口。`README.md` 的文件说明中也必须列出 `ACCEPTANCE_PLAN.md`。
+`NPU_ADAPTATION.md` 中必须说明现有 smoke test 的局限，并引用 `ACCEPTANCE_PLAN.md` 作为完整验收入口。
 
 示例判定原则：
 
@@ -838,78 +838,40 @@ python <model_dir>/infer.py --device cpu <model_args> <input_args>
 
 ---
 
-### Step 13：文档必须包含
+### Step 13：文档组织与内容
 
-每个模型至少生成，并同步维护根目录 `NPU_ADAPTATION_ANALYSIS.md` 的“参考原始仓库与适配版本边界”章节：
+除非用户明确要求，不修改模型原始 `README.md`。每个模型默认维护以下三类主文档：
 
 ```text
-ANALYSIS.md
+README_INFERENCE.md
 NPU_ADAPTATION.md
-NPU_VALIDATION.md
 ACCEPTANCE_PLAN.md
-README.md
-NPU_ADAPTATION_ANALYSIS.md（参考原始仓库与适配版本边界章节）
 ```
 
-#### ANALYSIS.md 必须包含
+#### README_INFERENCE.md：上库推理指导
 
-- upstream repo；
-- upstream commit；
-- 是否匹配远端最新版本；
-- 当前适配版本边界：源码、权重、辅助模型、明确排除的同系列变体；
-- 当前目录原有文件分析；
-- 扫描到的设备相关节点；
-- 修改了哪些上游源码节点；
-- 是否生成 patch；
-- 已知风险和限制；
-- 上游更新时如何处理。
+- 面向正式仓用户，包含模型概述、版本边界、输入输出、环境配套表、交付目录、权重和数据准备、推理/评测命令、性能与精度表、公网地址；
+- 只保留可直接执行的正式使用说明，路径、脚本名和参数必须与交付文件一致；
+- 不堆叠本地调试日志、适配过程、失败记录和大段指标对齐分析，相关内容链接到另外两份文档。
 
-#### NPU_ADAPTATION.md 必须包含
+#### NPU_ADAPTATION.md：适配实现与验证事实
 
-- 环境搭建；
-- 适配版本边界；
-- 权重下载；
-- 测试数据下载；
-- patch 如何应用；
-- `infer.py` 参数说明；
-- CPU 推理命令；
-- NPU 推理命令；
-- 常见问题。
+- 合并原 `ANALYSIS.md` 和 `NPU_VALIDATION.md` 的职责；
+- 记录 upstream repo/commit/检查日期、源码和权重版本边界、非目标变体、原目录分析、设备节点、修改范围、patch、依赖和设备适配方式；
+- 记录权重/数据路径及校验、`git apply --check`、导入测试、`py_compile`、CPU/NPU 实际验证命令和结果、未执行原因、风险与限制；
+- 只记录已实施或已验证事实，不在此重复完整验收方案和官方指标表。
 
-#### NPU_VALIDATION.md 必须包含
+#### ACCEPTANCE_PLAN.md：验收方案与结果
 
-- upstream clone / commit 验证；
-- 权重 repo / 文件 / SHA256 或 metadata 检查结果；
-- `git apply --check` 结果，或说明无 patch；
-- `py_compile` 结果；
-- 当前环境 CPU 验证命令和结果；
-- NPU 验证命令和结果，若无 NPU 则说明未执行原因；
-- 权重路径；
-- 测试数据路径；
-- 输出摘要；
-- 已知限制；
-- 已说明现有 smoke test 的局限，并引用 `ACCEPTANCE_PLAN.md`。
+- 记录原始模型功能、测试集、官方/公开精度与性能指标、normalizer/后处理、decode 参数、checkpoint 和来源；
+- 记录数据准备和评测方案、固定 manifest、CPU/CUDA/NPU 对齐方式、L0/L1/L2/L3、功能矩阵、精度/性能/稳定性标准、最低验收清单和报告模板；
+- 正式验收完成后，在同一文档补充实际 NPU 结果、与原始/CPU/CUDA 结果的差异、结论和经验，不另建专项评测或案例总结文档。
 
-#### ACCEPTANCE_PLAN.md 必须包含
+#### 文档收敛原则
 
-- 原始模型功能/性能/精度参考；
-- 数据集大小、获取难度、验证难度分析；
-- L0/L1/L2/L3 分层验收；
-- 功能矩阵、精度指标、性能指标、稳定性场景；
-- 最低正式验收清单和报告模板。
-
-#### README.md 必须包含
-
-- 模型简介；
-- 当前适配的精确版本及非目标变体说明；
-- 硬件/软件约束；
-- 环境安装；
-- 权重下载；
-- 测试数据下载；
-- CPU 验证；
-- NPU 推理；
-- 文件说明；
-- `ACCEPTANCE_PLAN.md` 链接/说明。
+- 不再默认新增 `ANALYSIS.md`、`NPU_VALIDATION.md`、`EVAL_*.md`、`ADAPTATION_CASE_SUMMARY.md` 等分散文档；存量内容应无损合并到上述三类主文档后再清理。
+- 同一环境、命令、指标或结论只在职责所属文档完整维护，其他文档使用简短摘要和链接引用。
+- 根目录 `NPU_ADAPTATION_ANALYSIS.md` 如继续维护，只保留项目级盘点、优先级和版本索引，不复制模型级详细内容。
 
 ---
 
@@ -951,12 +913,14 @@ python <model_dir>/infer.py --device cpu <model_args> <input_args>
 # 8. NPU 验证，有 NPU 环境时执行
 ASCEND_RT_VISIBLE_DEVICES=0 python <model_dir>/infer.py --device npu <model_args> <input_args>
 
-# 9. 完整验收方案检查
+# 9. 三类主文档和完整验收方案检查
+test -f <model_dir>/README_INFERENCE.md
+test -f <model_dir>/NPU_ADAPTATION.md
 test -f <model_dir>/ACCEPTANCE_PLAN.md
 grep -E "L0|L1|L2|L3|精度|性能|数据集" <model_dir>/ACCEPTANCE_PLAN.md
 ```
 
-如果某一步无法执行，不能删除该步骤，必须在 `NPU_VALIDATION.md` 中记录：
+如果某一步无法执行，不能删除该步骤，必须在 `NPU_ADAPTATION.md` 中记录：
 
 - 未执行命令；
 - 未执行原因；
@@ -970,10 +934,10 @@ grep -E "L0|L1|L2|L3|精度|性能|数据集" <model_dir>/ACCEPTANCE_PLAN.md
 
 提交前逐项确认：
 
-- [ ] `NPU_ADAPTATION_ANALYSIS.md` 的“参考原始仓库与适配版本边界”章节已记录该模型源码 repo、默认分支、HEAD commit；
+- [ ] `NPU_ADAPTATION.md` 已记录该模型源码 repo、默认分支、HEAD commit 和检查日期；
 - [ ] 已记录模型权重来源、具体文件/目录、repo HEAD 或 release/tag；
 - [ ] 已记录本地实际验证权重 SHA256；如未下载，已记录 metadata 检查结果和原因；
 - [ ] 已记录 tokenizer / codec / vocoder / embedding / segmentation 等辅助模型版本；
 - [ ] 已明确排除同系列其他变体；
-- [ ] `README.md`、`ANALYSIS.md`、`NPU_ADAPTATION.md`、`NPU_VALIDATION.md`、`ACCEPTANCE_PLAN.md` 中的版本边界一致；
+- [ ] `README_INFERENCE.md`、`NPU_ADAPTATION.md`、`ACCEPTANCE_PLAN.md` 中的版本边界一致；
 - [ ] `ACCEPTANCE_PLAN.md` 已参考原始模型功能/性能/精度，列出数据集大小、获取难度、验证难度和分层验收标准。

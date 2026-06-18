@@ -19,9 +19,12 @@
 - NPU 验收默认是迁移对齐验收：同 checkpoint、同测试集/manifest、同评测脚本、同参数下比较 CPU/CUDA 原始路径与 NPU 结果；性能、稳定性、内部扩展集和人工主观评测只能作为补充，不能替代原始模型结果对齐。
 - dummy、随机输入、少量 smoke 样例只能证明链路可运行，不得作为精度、质量或性能验收结论。
 
-# 文档保留约束
+# 文档组织约束
 
-- 除非用户明确要求，不要修改各模型目录中的原始 `README.md`；适配细化、推理说明、验证方案等新增内容应写入 `README_INFERENCE.md`、`ANALYSIS.md`、`NPU_ADAPTATION.md`、`NPU_VALIDATION.md`、`ACCEPTANCE_PLAN.md` 等独立文档。
+- 除非用户明确要求，不要修改各模型目录中的原始 `README.md`。
+- 每个模型默认维护三类主文档：`README_INFERENCE.md` 面向正式上库和用户使用；`NPU_ADAPTATION.md` 记录版本边界、代码分析、适配实现及实际验证事实；`ACCEPTANCE_PLAN.md` 记录原始指标、评测方案、对齐标准、验收结果和报告模板。
+- 不再默认新增 `ANALYSIS.md`、`NPU_VALIDATION.md` 或专项评测说明等分散文档；相关内容应分别合并到 `NPU_ADAPTATION.md` 和 `ACCEPTANCE_PLAN.md`。存量文档合并前不得丢失有效信息。
+- 三类主文档应各司其职并通过链接交叉引用，避免重复维护同一段环境、命令、指标或验证结论；文档中的路径、参数和命令必须与实际交付文件一致。
 
 # 最小化修改与简单设计
 
