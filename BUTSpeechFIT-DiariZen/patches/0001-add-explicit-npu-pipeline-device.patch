@@ -1,0 +1,72 @@
+diff --git a/diarizen/pipelines/inference.py b/diarizen/pipelines/inference.py
+index 4ec8d26..d928050 100644
+--- a/diarizen/pipelines/inference.py
++++ b/diarizen/pipelines/inference.py
+@@ -30,6 +30,7 @@ class DiariZenPipeline(SpeakerDiarizationPipeline):
+         embedding_model,
+         config_parse: Optional[Dict[str, Any]] = None,
+         rttm_out_dir: Optional[str] = None,
++        device: Optional[torch.device] = None,
+     ):
+         config_path = Path(diarizen_hub / "config.toml")
+         config = toml.load(config_path.as_posix())
+@@ -54,7 +55,7 @@ class DiariZenPipeline(SpeakerDiarizationPipeline):
+             clustering=clustering_config["method"],
+             embedding_batch_size=inference_config["batch_size"],
+             segmentation_batch_size=inference_config["batch_size"],
+-            device=torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
++            device=device or torch.device("cpu"),
+         )
+ 
+         self.apply_median_filtering = inference_config["apply_median_filtering"]
+@@ -98,6 +99,7 @@ class DiariZenPipeline(SpeakerDiarizationPipeline):
+         repo_id: str,
+         cache_dir: str = None,
+         rttm_out_dir: str = None,
++        device: Optional[torch.device] = None,
+     ) -> "DiariZenPipeline":
+         diarizen_hub = snapshot_download(
+             repo_id=repo_id,
+@@ -115,7 +117,8 @@ class DiariZenPipeline(SpeakerDiarizationPipeline):
+         return cls(
+             diarizen_hub=Path(diarizen_hub).expanduser().absolute(),
+             embedding_model=embedding_model,
+-            rttm_out_dir=rttm_out_dir
++            rttm_out_dir=rttm_out_dir,
++            device=device,
+         )
+ 
+     def __call__(self, in_wav, sess_name=None):
+diff --git a/pyannote-audio/pyannote/audio/pipelines/speaker_verification.py b/pyannote-audio/pyannote/audio/pipelines/speaker_verification.py
+index 61eefc4..f6b6120 100644
+--- a/pyannote-audio/pyannote/audio/pipelines/speaker_verification.py
++++ b/pyannote-audio/pyannote/audio/pipelines/speaker_verification.py
+@@ -451,6 +451,14 @@ class ONNXWeSpeakerPretrainedSpeakerEmbedding(BaseInference):
+                     },
+                 )
+             ]
++        elif device.type == "npu":
++            provider = "CANNExecutionProvider"
++            if provider not in ort.get_available_providers():
++                raise RuntimeError(
++                    "CANNExecutionProvider is unavailable. Install an ONNX "
++                    "Runtime CANN build matching the installed CANN version."
++                )
++            providers = [provider]
+         else:
+             warnings.warn(
+                 f"Unsupported device type: {device.type}, falling back to CPU"
+@@ -575,7 +583,12 @@ class ONNXWeSpeakerPretrainedSpeakerEmbedding(BaseInference):
+         batch_size, num_channels, num_samples = waveforms.shape
+         assert num_channels == 1
+ 
+-        features = self.compute_fbank(waveforms.to(self.device))
++        if self.device.type == "npu":
++            features = self.compute_fbank(waveforms.cpu())
++            if masks is not None:
++                masks = masks.cpu()
++        else:
++            features = self.compute_fbank(waveforms.to(self.device))
+         _, num_frames, _ = features.shape
+ 
+         if masks is None:

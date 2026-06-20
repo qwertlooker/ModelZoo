@@ -1,14 +1,34 @@
-# Ascend-SACT 语音/音频模型 NPU 适配整合分析报告
+# Ascend-SACT 模型 NPU 适配整合分析报告
 
 本文整合原 `参考原始仓库.md`、`NPU_ADAPTATION_ANALYSIS.md`、`DETAILED_NPU_ADAPTATION_ANALYSIS.md` 三份文档，统一记录各模型目录的参考原始仓库、版本边界、NPU 适配静态评估、后续适配/验证工作量与落地建议。
 
-> 基准检查日期：2026-05-25（参考仓库与权重版本边界） / 2026-05-22（NPU 适配静态分析）。后续适配前需按《模型 NPU 适配标准流程》重新确认上游版本、权重校验值、依赖版本和评测数据可用性。
+> 基准检查日期：2026-05-25（原 12 个仓库版本边界） / 2026-05-22（原静态分析） / 2026-06-20（本轮六模型专项复查）。后续适配前需按《模型 NPU 适配标准流程》重新确认上游版本、权重校验值、依赖版本和评测数据可用性。
 >
 > 分析范围：`/home/pei/ModelZoo` 下已克隆的 12 个 GitCode/交付仓库。
 >
 > 分析方式：静态代码/文档分析，未在 Ascend NPU 上实际执行。判断依据来自各仓库 `README.md`、随仓脚本、`requirements.txt`、大文件/LFS 状态、上游工程说明以及是否已经形成类似 `Canary-1B/README.md`、`Canary-1B/README_INFERENCE.md` 的可交付推理文档。
 >
 > 约束：不添加未验证的 CPU fallback、远程下载 fallback、非官方指标替代官方指标；缺少依赖、缺少官方字段、上游版本不兼容或官方评估组件不可用时应快速失败并暴露原始错误。
+
+---
+
+## 2026-06-20 六模型专项复查
+
+本轮按 Canary-1B 的三类主文档结构复查以下模型，并分别新增
+`README_INFERENCE.md`、`NPU_ADAPTATION.md`、`ACCEPTANCE_PLAN.md`。
+
+| 模型 | 参考仓 commit | 当前结论 | 主阻塞 |
+|---|---|---|---|
+| DNSMOS | `d1e4c2c14df9cb935d61dc5f448e655772b12379` | 已按官方逐窗算法重写入口；CPU 常规/personalized 与官方脚本全字段误差 0 | 待 ONNX Runtime CANN/NPU 数值、性能和正式数据集验收 |
+| speechscorer | `f1d6e3ee3d0f113c610a969e6fde4a29af3216d1` | 已形成显式 device 最小 patch，`apply --check` 通过 | 官方未发布 SpeechOcean762 数值相关性；待权重和 NPU 实测 |
+| Hy3-preview | `eb533c1dfd9a1fa7f373f9b980a9c0f973f1dad8` | 原始 1592 行 vLLM patch 已固定 SHA，`apply --check` 通过 | 295B 权重、16 卡 TP/EP/MTP、parser 和官方任务实测 |
+| MiroThinker-1.7 | `a4199f82dcadf88e81e296eb2d0e79bdb5805184` | 固定 vLLM-Ascend 服务边界和完整 agent 验收口径 | 235B/16 卡、外部工具和官方 BrowseComp/GAIA/HLE 复现 |
+| MolFormer | `b39184dcb79501f0cd81def11e7b934176194a4c` | 改用官方 pretrained checkpoint feature-extraction 入口 | 待 embedding CPU/NPU 对齐和 11 项 MoleculeNet fine-tuning |
+| BUTSpeechFIT-DiariZen | `7961b5ab79b1232b9da367f14f8cd4f592694465` | 已新增 infer 和 PyTorch NPU/CANN embedding patch | 待完整依赖、权重、RTTM 对齐和官方数据 DER |
+
+本轮完成版本取证、代码/patch 整理、三类主文档和静态验证；当前机器没有
+NPU/CANN 运行环境和模型权重，因此真实 NPU 数值、性能和官方数据集验收仍以各模型
+`NPU_ADAPTATION.md`、`ACCEPTANCE_PLAN.md` 的记录为准。
 
 ---
 
@@ -20,7 +40,11 @@
 
 | 模型系列 | 模型名称 | 当前目录 | 参考原始仓库 | 当前适配对象 / 版本边界 |
 | --- | --- | --- | --- | --- |
-| DNSMOS | DNSMOS | `DNSMOS/` | [huiqiguo/DNSMOS](https://github.com/huiqiguo/DNSMOS)；当前交付仓库：[Ascend-SACT/DNSMOS](https://gitcode.com/Ascend-SACT/DNSMOS) | 源码默认分支 `master`，HEAD `029cb037092d51ffa812a14085bb6994d9b63282`。适配脚本加载 ONNX 权重 `DNSMOS/model_v8.onnx`、`DNSMOS/sig_bak_ovr.onnx`，个性化模式加载 `pDNSMOS/sig_bak_ovr.onnx`。 |
+| DNSMOS | DNSMOS | `DNSMOS/` | [microsoft/DNS-Challenge](https://github.com/microsoft/DNS-Challenge)；当前交付仓库：[Ascend-SACT/DNSMOS](https://gitcode.com/Ascend-SACT/DNSMOS) | 官方源码 `master` HEAD `591184a9fcb2cbdec02520fed81a32bbbf9d73ff`。适配脚本加载官方 `DNSMOS/model_v8.onnx`、`DNSMOS/sig_bak_ovr.onnx`，个性化模式加载 `pDNSMOS/sig_bak_ovr.onnx`。 |
+| speechscorer | speechscorer | `speechscorer/` | [yaya-sy/speechscorer](https://github.com/yaya-sy/speechscorer)；当前交付仓库：[Ascend-SACT/speechscorer](https://gitcode.com/Ascend-SACT/speechscorer) | 上游 `main` HEAD `bbe0be772b37f472994d5a97f809214fd67a2c8e`；当前第一阶段目标固定 `whisper-clm` 和 `openai/whisper-base.en` HEAD `911407f4214e0e1d82085af863093ec0b66f9cd6`，不包含其他 HuBERT/WavLM scorer。 |
+| Tencent Hy | Hy3-preview | `Hy3-preview/` | [Tencent-Hunyuan/Hy3-preview](https://github.com/Tencent-Hunyuan/Hy3-preview)；当前交付仓库：[Ascend-SACT/Hy3-preview](https://gitcode.com/Ascend-SACT/Hy3-preview) | 官方代码 `main` HEAD `38ac237dc0bf4329f054d09054aaf22fdaf6f553`；权重 `tencent/Hy3-preview` HEAD `549c2b3a0fd5b9a6c6059a9935bf0d59ab69d75a`；适配基线为 vLLM/vLLM-Ascend `v0.18.0rc1`，目标是 295B Instruct 模型，非 Base/量化变体。 |
+| MiroMind | MiroThinker-1.7 | `MiroThinker-1.7/` | [MiroMindAI/MiroThinker](https://github.com/MiroMindAI/MiroThinker)；当前交付仓库：[Ascend-SACT/MiroThinker-1.7](https://gitcode.com/Ascend-SACT/MiroThinker-1.7) | upstream `main` HEAD `370f98361553ddf787bedc5745760e04114cb161`；权重 `miromind-ai/MiroThinker-1.7` HEAD `1a42014ce72e1025fdbf3c48d54545715ab3eea8`；适配基线为 vLLM/vLLM-Ascend `v0.17.0rc1`，目标为 235B 模型及其 MiroFlow Agent，不是 mini/v1.5/v1.0/H1。 |
+| IBM | MolFormer | `MolFormer/` | [IBM/molformer](https://github.com/IBM/molformer)；当前交付仓库：[Ascend-SACT/MolFormer](https://gitcode.com/Ascend-SACT/MolFormer) | IBM 源码 HEAD `3b9ac434db387fadf2cf99b99def654cbf193841`；目标权重为 `ibm-research/MoLFormer-XL-both-10pct` HEAD `7b12d946c181a37f6012b9dc3b002275de070314`，不是论文完整 100% 预训练权重。 |
 | Index-TTS | Index-TTS-2 | `Index-TTS-2/` | [triomino/index-tts](https://github.com/triomino/index-tts)；当前交付仓库：[Ascend-SACT/Index-TTS-2](https://ai.gitcode.com/Ascend-SACT/Index-TTS-2) | 源码默认分支 `main`，HEAD `2e6283e88f77c4804a7d65cad2d05a196d3d8262`。主权重为 ModelScope `IndexTeam/IndexTTS-2`，HEAD `f165d7e5bd70d292969875d89d6e5d4fc8b328ca`；辅助权重包括 `facebook/w2v-bert-2.0`、`amphion/MaskGCT`、`iic/speech_campplus_sv_zh-cn_16k-common`、`nv-community/bigvgan_v2_22khz_80band_256x`。 |
 | MMAudio | MMAudio | `MMAudio/` | [hkchengrex/MMAudio](https://github.com/hkchengrex/MMAudio)；当前交付仓库：[Ascend-SACT/MMAudio](https://ai.gitcode.com/Ascend-SACT/MMAudio) | 源码默认分支 `main`，HEAD `974010a026c731054592d8f777218bd9d85a6c24`。适配文档使用官方 MMAudio 工程及其模型资源，并额外固定手动下载依赖：`apple/DFN5B-CLIP-ViT-H-14-378`、`nvidia/bigvgan_v2_44khz_128band_512x`（HF HEAD `95a9d1dcb12906c03edd938d77b9333d6ded7dfb`）。 |
 | openmoss | MOSS-Speech | `MOSS-Speech/` | [ModelScope openmoss/MOSS-Speech](https://modelscope.cn/models/openmoss/MOSS-Speech)；[HF Space OpenMOSS-Team/MOSS-Speech](https://huggingface.co/spaces/OpenMOSS-Team/MOSS-Speech/tree/main)；当前交付仓库：[Ascend-SACT/MOSS-Speech](https://ai.gitcode.com/Ascend-SACT/MOSS-Speech) | 主权重 ModelScope `openmoss/MOSS-Speech`，HEAD `270d64296cafb94ca1f35b14b8d7918a1c4a2dc0`；Codec 为 `AI-ModelScope/MOSS-Speech-Codec`，HEAD `a5423645a66476da761bbbdbc2003ae34e3c31c4`；Space 代码 HEAD `92a89018a8aa6b36f08c366c2659c76ffdc3f980`。 |
@@ -28,7 +52,7 @@
 | FireRedASR | FireRedASR-AED | `FireRedASR-AED/` | [FireRedTeam/FireRedASR](https://github.com/FireRedTeam/FireRedASR)；当前交付仓库：[Ascend-SACT/FireRedASR-AED](https://ai.gitcode.com/Ascend-SACT/FireRedASR-AED) | 源码默认分支 `main`，HEAD `834635e4cf277ed8ca92049fc375b17c3dc20748`。适配权重明确为 AED 大模型 `FireRedTeam/FireRedASR-AED-L` / `pretrained_models/FireRedASR-AED-L`（ModelScope HEAD `8d025b0cf627c3ca0ae098a21a1e7b843d7e0b07`），非 LLM / TensorRT 变体。 |
 | MossFormer | MossFormer2_SE_48K | `MossFormer2_SE_48K/` | [modelscope/ClearerVoice-Studio](https://github.com/modelscope/ClearerVoice-Studio)；当前交付仓库：[Ascend-SACT/MossFormer2_SE_48K](https://ai.gitcode.com/Ascend-SACT/MossFormer2_SE_48K) | 源码默认分支 `main`，HEAD `6b3774dc79c46ae8bed2a4fa5f706f0ac8c75c61`。权重来源 ModelScope `iic/ClearerVoice-Studio`，HEAD `4289b9eab740a5ffdbc5cba94fec102b75238dad`；当前适配目标为 `model_names=['MossFormer2_SE_48K']`，非 `SS_16K` / `SR_48K`。 |
 | Pyannote | Speaker-Diarization-3.1 | `pyannote-speaker-diarization-3.1/` | [pyannote/speaker-diarization-3.1](https://modelscope.cn/models/pyannote/speaker-diarization-3.1)；当前交付仓库：[Ascend-SACT/pyannote-speaker-diarization-3.1](https://ai.gitcode.com/Ascend-SACT/pyannote-speaker-diarization-3.1) | 主 pipeline 为 ModelScope `pyannote/speaker-diarization-3.1`，HEAD `fdd9bbacbf6759e17cf9d59322b67f24bf38ea84`；依赖 `pyannote/segmentation-3.0` HEAD `b0f1bc8ab32eb656d4574be2430e709a2dd98c7d` 和 `pyannote/wespeaker-voxceleb-resnet34-LM` HEAD `1c38f3cd8918d8dc7cd54432b19dce5407738e76`。当前适配的是 speaker-diarization-3.1，不是 3.0/社区其他 pipeline。 |
-| BUTSpeechFIT | DiariZen | `BUTSpeechFIT-DiariZen/` | [BUTSpeechFIT/DiariZen](https://github.com/BUTSpeechFIT/DiariZen)；当前交付仓库：[Ascend-SACT/BUTSpeechFIT-DiariZen](https://ai.gitcode.com/Ascend-SACT/BUTSpeechFIT-DiariZen) | 源码默认分支 `main`，HEAD `d52b8d5e3d96632b1a8a0dc34762bf811471e441`。权重为 HF `BUT-FIT/diarizen-wavlm-large-s80-md`，HEAD `a9b1b0e7974d96dcfd63af417e9da7ad8714040f`；评测辅助 `nryant/dscore` 默认分支 `master`，HEAD `e02f949ac6592279300a2c33d03daf9e0c12fd27`。 |
+| BUTSpeechFIT | DiariZen | `BUTSpeechFIT-DiariZen/` | [BUTSpeechFIT/DiariZen](https://github.com/BUTSpeechFIT/DiariZen)；当前交付仓库：[Ascend-SACT/BUTSpeechFIT-DiariZen](https://ai.gitcode.com/Ascend-SACT/BUTSpeechFIT-DiariZen) | 源码默认分支 `main`，HEAD `a60b18151dbbe246e4199d8ef5cd2ece3872ea94`。权重为 HF `BUT-FIT/diarizen-wavlm-large-s80-md`，HEAD `a9b1b0e7974d96dcfd63af417e9da7ad8714040f`；评测辅助 `nryant/dscore` commit `e02f949ac6592279300a2c33d03daf9e0c12fd27`。 |
 | Whisper | Whisper-large-v3 | `whisper-large-v3/` | [AI-ModelScope/whisper-large-v3](https://modelscope.cn/models/AI-ModelScope/whisper-large-v3)；当前交付仓库：[Ascend-SACT/whisper-large-v3](https://ai.gitcode.com/Ascend-SACT/whisper-large-v3) | 当前适配的本地权重为 ModelScope `AI-ModelScope/whisper-large-v3`，HEAD `1d2add4944a9f612f4bd270cdbd9a07935de2fbb`；对应 OpenAI HF `openai/whisper-large-v3` HEAD `06f233fe06e710322aca913c1bc4249a0d71fce1`。非 `large-v2` / `large-v3-turbo`。 |
 | UniLM | BEATs | `BEATs/` | [microsoft/unilm](https://github.com/microsoft/unilm)；当前交付仓库：[Ascend-SACT/BEATs](https://ai.gitcode.com/Ascend-SACT/BEATs) | 源码默认分支 `master`，HEAD `833df7e7832e5064a281131ee64a481afa8e5b95`。当前适配的是 UniLM 仓库 `beats/` 子目录的 BEATs 推理链路；具体 checkpoint 尚未在当前仓库固定，需在下载/验证时明确记录所选 OneDrive `.pt`（预训练或 AudioSet fine-tuned 变体）及校验值。 |
 | MOSS | MOSS-TTSD-v0.5 | `MOSS-TTSD-v0.5/` | [OpenMOSS/MOSS-TTSD](https://github.com/OpenMOSS/MOSS-TTSD)；[OpenMOSS-Team/MOSS-TTSD-v0.5](https://huggingface.co/OpenMOSS-Team/MOSS-TTSD-v0.5)；[fnlp/XY_Tokenizer_TTSD_V0](https://huggingface.co/fnlp/XY_Tokenizer_TTSD_V0) | 2026-06-16 复查：GitHub 默认分支 `main` HEAD `20dbb4fc44819435fee894d644a0402a0fee736a` 已面向 v1.0；当前适配边界改为原项目 tag `v0.5` / commit `0e078c62389922d3aa873ce182daf31142860b18`，模型权重 `fnlp/MOSS-TTSD-v0.5` / `OpenMOSS-Team/MOSS-TTSD-v0.5` HEAD `8527b9136b6afefe2252ae597cecea2e80e7ebeb`，XY Tokenizer 使用原项目 `XY_Tokenizer` + `fnlp/XY_Tokenizer_TTSD_V0` 的 `xy_tokenizer.ckpt`（HEAD `c83433728e698ed0698e88cb5096bc221fb8f8c5`）。非 v0.7/v1.0/SGLang/未固定一键包。 |

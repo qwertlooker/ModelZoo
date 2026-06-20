@@ -1,0 +1,13 @@
+accelerate==1.6.0
+einops
+h5py
+huggingface-hub
+joblib
+librosa
+numpy==1.26.4
+pandas
+scipy
+soundfile
+toml
+torchinfo
+tqdm

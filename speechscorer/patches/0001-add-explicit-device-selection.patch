@@ -1,0 +1,208 @@
+diff --git a/speechscorer/base_scorer.py b/speechscorer/base_scorer.py
+index 0651368..9c278e4 100644
+--- a/speechscorer/base_scorer.py
++++ b/speechscorer/base_scorer.py
+@@ -18,8 +18,8 @@ class BaseScorer:
+     """
+     def __init__(self,
+                  model_checkpoint: Union[Path, str],
+-                 use_gpu: bool=False):
+-        self.use_gpu = use_gpu
++                 device: str = "cpu"):
++        self.device = torch.device(device)
+         self.model_checkpoint = model_checkpoint
+         self.metrics = ["entropy", "perplexity"]
+         self.with_targets_metrics = ["entropy", "perplexity","cross_entropy",\
+@@ -121,4 +121,4 @@ class BaseScorer:
+         # LOGGER.info("Computing statistics...")
+         outputs = self.forward_model(x=x)
+         # computing all statstics
+-        return self.compute_metrics(outputs)
+\ No newline at end of file
++        return self.compute_metrics(outputs)
+diff --git a/speechscorer/clm/base_clm_scorer.py b/speechscorer/clm/base_clm_scorer.py
+index e739e10..8925a5f 100644
+--- a/speechscorer/clm/base_clm_scorer.py
++++ b/speechscorer/clm/base_clm_scorer.py
+@@ -14,14 +14,13 @@ class BaseConditionalLanguageModelScorer(BaseScorer):
+     seen as the hesitation of the model at transcribing\
+     the input speech.
+     """
+-    def __init__(self, model_checkpoint: Union[Path, str], use_gpu: bool = False):
+-        super().__init__(model_checkpoint, use_gpu)
++    def __init__(self, model_checkpoint: Union[Path, str], device: str = "cpu"):
++        super().__init__(model_checkpoint, device)
+ 
+     def load_model(self,
+                    model_class,
+                    logger: Logger) -> None:
+         logger.info("Loading the model...")
+         self.model = model_class.from_pretrained(self.model_checkpoint).eval()
+-        self.device = torch.device('cuda' if torch.cuda.is_available() and self.use_gpu else 'cpu')
+         logger.info(f"Using device {self.device}")
+-        self.model.to(self.device)
+\ No newline at end of file
++        self.model.to(self.device)
+diff --git a/speechscorer/clm/hubert_clm_scorer.py b/speechscorer/clm/hubert_clm_scorer.py
+index bb0bfc4..8b282c3 100644
+--- a/speechscorer/clm/hubert_clm_scorer.py
++++ b/speechscorer/clm/hubert_clm_scorer.py
+@@ -16,8 +16,8 @@ class HuBERTConditionalLanguageModelScorer(BaseConditionalLanguageModelScorer):
+     This class implements a HuBERT conditional language model\
+     based scorer.
+     """
+-    def __init__(self, model_checkpoint: Union[Path, str], use_gpu: bool = False):
+-        super().__init__(model_checkpoint, use_gpu)
++    def __init__(self, model_checkpoint: Union[Path, str], device: str = "cpu"):
++        super().__init__(model_checkpoint, device)
+         self.load_model(model_class=HubertForCTC, logger=LOGGER)
+     
+     def forward_model(self,
+@@ -27,4 +27,4 @@ class HuBERTConditionalLanguageModelScorer(BaseConditionalLanguageModelScorer):
+         with torch.no_grad():
+             x = x.to(self.device)
+             logits = self.model(x).logits
+-        return logits
+\ No newline at end of file
++        return logits
+diff --git a/speechscorer/clm/wavlm_clm_scorer.py b/speechscorer/clm/wavlm_clm_scorer.py
+index 623dbcf..037ccd4 100644
+--- a/speechscorer/clm/wavlm_clm_scorer.py
++++ b/speechscorer/clm/wavlm_clm_scorer.py
+@@ -16,8 +16,8 @@ class WavLMConditionalLanguageModelScorer(BaseConditionalLanguageModelScorer):
+     This class implements a WavLM conditional language model\
+     based scorer.
+     """
+-    def __init__(self, model_checkpoint: Union[Path, str], use_gpu: bool = False):
+-        super().__init__(model_checkpoint, use_gpu)
++    def __init__(self, model_checkpoint: Union[Path, str], device: str = "cpu"):
++        super().__init__(model_checkpoint, device)
+         self.load_model(model_class=WavLMForCTC, logger=LOGGER)
+     
+     def forward_model(self,
+@@ -27,4 +27,4 @@ class WavLMConditionalLanguageModelScorer(BaseConditionalLanguageModelScorer):
+         with torch.no_grad():
+             x = x.to(self.device)
+             logits = self.model(x).logits
+-        return logits
+\ No newline at end of file
++        return logits
+diff --git a/speechscorer/clm/whisper_clm_scorer.py b/speechscorer/clm/whisper_clm_scorer.py
+index cf06f90..1b89542 100644
+--- a/speechscorer/clm/whisper_clm_scorer.py
++++ b/speechscorer/clm/whisper_clm_scorer.py
+@@ -16,8 +16,8 @@ class WhisperConditionalLanguageModelScorer(BaseConditionalLanguageModelScorer):
+     This class implements a Whisper conditional language model\
+     based scorer.
+     """
+-    def __init__(self, model_checkpoint: Union[Path, str], use_gpu: bool = False):
+-        super().__init__(model_checkpoint, use_gpu)
++    def __init__(self, model_checkpoint: Union[Path, str], device: str = "cpu"):
++        super().__init__(model_checkpoint, device)
+         self.load_model(model_class=WhisperForConditionalGeneration, logger=LOGGER)
+     
+     def forward_model(self,
+@@ -35,4 +35,4 @@ class WhisperConditionalLanguageModelScorer(BaseConditionalLanguageModelScorer):
+             logits = torch.stack(logits, 1)
+             logits[logits == float("-Inf")] = 1e-12
+ 
+-        return logits
+\ No newline at end of file
++        return logits
+diff --git a/speechscorer/main.py b/speechscorer/main.py
+index 3e9f343..aecb14a 100644
+--- a/speechscorer/main.py
++++ b/speechscorer/main.py
+@@ -49,11 +49,11 @@ def run_scorer(scorer: BaseScorer,
+ 
+ def init_scorer(scorer_name: str,
+                 model_checkpoint,
+-                use_gpu: bool=False
++                device: str
+                 ) -> BaseScorer:
+     """Initializes a scorer class."""
+     scorer = SCORERES[scorer_name]
+-    scorer = scorer(model_checkpoint, use_gpu)
++    scorer = scorer(model_checkpoint, device)
+     return scorer
+ 
+ def get_args():
+@@ -93,17 +93,22 @@ def get_args():
+                         help="The the max length of the input sequence to consider.",
+                         required=False,
+                         default=None)
+-    parser.add_argument('--use-gpu',
+-                        action="store_true",
+-                        default=False,
+-                        help="will use gpu if --use-gpu and gpu is available.")
++    parser.add_argument(
++        "--device",
++        choices=["npu", "cpu", "cuda"],
++        default="npu",
++        help="Execution device. The default is npu.",
++    )
+     return parser.parse_args()
+ 
+ def main():
+     args = get_args()
++    if args.device == "npu":
++        import torch_npu
++
+     output_folder = Path("results")
+     output_folder.mkdir(exist_ok=True, parents=True)
+-    scorer = init_scorer(args.scorer, args.model_checkpoint, args.use_gpu)
++    scorer = init_scorer(args.scorer, args.model_checkpoint, args.device)
+     processor_checkpoint = args.model_checkpoint if args.processor_checkpoint is None else args.processor_checkpoint
+     input_audios = Path(args.audio)
+     if input_audios.is_file():
+@@ -119,4 +124,4 @@ def main():
+     df.to_csv(output_folder / f"results.csv", index=None)
+ 
+ if __name__ == "__main__":
+-    main()
+\ No newline at end of file
++    main()
+diff --git a/speechscorer/mlm/base_mlm_scorer.py b/speechscorer/mlm/base_mlm_scorer.py
+index 1989295..aa24a25 100644
+--- a/speechscorer/mlm/base_mlm_scorer.py
++++ b/speechscorer/mlm/base_mlm_scorer.py
+@@ -25,8 +25,8 @@ class BaseMLMScorer(BaseScorer):
+ 
+     def __init__(self,
+                  model_checkpoint: Union[Path, str],
+-                 use_gpu: bool=False):
+-        super().__init__(model_checkpoint=model_checkpoint, use_gpu=use_gpu)
++                 device: str = "cpu"):
++        super().__init__(model_checkpoint=model_checkpoint, device=device)
+         
+     def cosine_similarity_scores(self,
+                                  projected_hidden_vectors: Tensor,
+diff --git a/speechscorer/mlm/hubert_mlm_scorer.py b/speechscorer/mlm/hubert_mlm_scorer.py
+index f0418e3..da210da 100644
+--- a/speechscorer/mlm/hubert_mlm_scorer.py
++++ b/speechscorer/mlm/hubert_mlm_scorer.py
+@@ -15,15 +15,14 @@ class HubertMLMScorer(BaseMLMScorer):
+     """
+     HuBERT scorer using masked language model objective.
+     """
+-    def __init__(self, model_checkpoint, use_gpu: bool=False):
+-        super().__init__(model_checkpoint=model_checkpoint, use_gpu=use_gpu)
++    def __init__(self, model_checkpoint, device: str = "cpu"):
++        super().__init__(model_checkpoint=model_checkpoint, device=device)
+         self.load_model()
+ 
+     def load_model(self) -> None:
+         LOGGER.info(f"Loading model from {self.model_checkpoint}...")
+         models, cfg, _ = fairseq.checkpoint_utils.load_model_ensemble_and_task([self.model_checkpoint])
+         self.model = models[0].eval()
+-        self.device = torch.device('cuda' if torch.cuda.is_available() and self.use_gpu else 'cpu')
+         LOGGER.info(f"Using device {self.device}")
+         self.model.to(self.device)
+         self.cfg = cfg
+@@ -65,4 +64,4 @@ class HubertMLMScorer(BaseMLMScorer):
+             logits = self.cosine_similarity_scores(projected_hidden_vectors=projected_c,
+                                                    temperature=self.cfg.model.logit_temp,
+                                                    label_embeddings=self.model.label_embs_concat)
+-            return logits.cpu()
+\ No newline at end of file
++            return logits.cpu()
