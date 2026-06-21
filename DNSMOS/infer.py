@@ -1,7 +1,11 @@
 import argparse
 import csv
 import glob
+import hashlib
+import json
 import os
+import platform
+import sys
 import time
 from pathlib import Path
 
@@ -166,13 +170,52 @@ def collect_audio(paths):
     return clips
 
 
+def read_manifest(path):
+    clips = []
+    manifest_path = Path(path)
+    with manifest_path.open(encoding="utf-8") as handle:
+        for line_number, line in enumerate(handle, 1):
+            if not line.strip():
+                continue
+            row = json.loads(line)
+            if "audio_path" not in row:
+                raise ValueError(
+                    f"{manifest_path}:{line_number}: missing audio_path"
+                )
+            audio_path = Path(row["audio_path"])
+            if not audio_path.is_absolute():
+                audio_path = manifest_path.parent / audio_path
+            if not audio_path.is_file():
+                raise FileNotFoundError(audio_path)
+            if audio_path.suffix.lower() != ".wav":
+                raise ValueError(f"Only WAV input is supported: {audio_path}")
+            clips.append(audio_path.resolve())
+    if not clips:
+        raise ValueError(f"Empty manifest: {manifest_path}")
+    if len(clips) != len(set(clips)):
+        raise ValueError(f"Duplicate audio paths in manifest: {manifest_path}")
+    return clips
+
+
+def sha256(path):
+    digest = hashlib.sha256()
+    with Path(path).open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
 def parse_args():
     parser = argparse.ArgumentParser(description="DNSMOS P.835 inference")
-    parser.add_argument(
+    inputs = parser.add_mutually_exclusive_group(required=True)
+    inputs.add_argument(
         "--audio",
         nargs="+",
-        required=True,
         help="WAV files or directories searched recursively.",
+    )
+    inputs.add_argument(
+        "--manifest",
+        help="JSONL manifest containing one audio_path field per row.",
     )
     parser.add_argument(
         "--model_root",
@@ -197,7 +240,7 @@ def main():
         if not model_path.is_file():
             raise FileNotFoundError(model_path)
 
-    clips = collect_audio(args.audio)
+    clips = read_manifest(args.manifest) if args.manifest else collect_audio(args.audio)
     scorer = ComputeScore(
         str(primary_model), str(p808_model), device=args.device
     )
@@ -216,6 +259,31 @@ def main():
     print(f"files={len(rows)} audio_seconds={audio_seconds:.3f}")
     print(f"elapsed_seconds={elapsed:.3f} rtf={elapsed / audio_seconds:.6f}")
     print(f"output={output_path}")
+    metadata = {
+        "command": " ".join(sys.argv),
+        "device": args.device,
+        "provider": scorer.primary_session.get_providers()[0],
+        "personalized": args.personalized,
+        "manifest": args.manifest,
+        "files": len(rows),
+        "audio_seconds": audio_seconds,
+        "elapsed_seconds": elapsed,
+        "rtf": elapsed / audio_seconds,
+        "primary_model": str(primary_model),
+        "primary_model_sha256": sha256(primary_model),
+        "p808_model": str(p808_model),
+        "p808_model_sha256": sha256(p808_model),
+        "python": sys.version,
+        "platform": platform.platform(),
+        "onnxruntime": ort.__version__,
+        "numpy": np.__version__,
+    }
+    metadata_path = output_path.with_suffix(output_path.suffix + ".meta.json")
+    metadata_path.write_text(
+        json.dumps(metadata, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+    print(f"metadata={metadata_path}")
 
 
 if __name__ == "__main__":

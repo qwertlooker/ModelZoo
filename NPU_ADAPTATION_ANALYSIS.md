@@ -17,16 +17,16 @@
 本轮按 Canary-1B 的三类主文档结构复查以下模型，并分别新增
 `README_INFERENCE.md`、`NPU_ADAPTATION.md`、`ACCEPTANCE_PLAN.md`。
 
-| 模型 | 参考仓 commit | 当前结论 | 主阻塞 |
+| 模型 | 参考仓 commit | 当前状态 | 当前结论与主阻塞 |
 |---|---|---|---|
-| DNSMOS | `d1e4c2c14df9cb935d61dc5f448e655772b12379` | 已按官方逐窗算法重写入口；CPU 常规/personalized 与官方脚本全字段误差 0 | 待 ONNX Runtime CANN/NPU 数值、性能和正式数据集验收 |
-| speechscorer | `f1d6e3ee3d0f113c610a969e6fde4a29af3216d1` | 已形成显式 device 最小 patch，`apply --check` 通过 | 官方未发布 SpeechOcean762 数值相关性；待权重和 NPU 实测 |
-| Hy3-preview | `eb533c1dfd9a1fa7f373f9b980a9c0f973f1dad8` | 原始 1592 行 vLLM patch 已固定 SHA，`apply --check` 通过 | 295B 权重、16 卡 TP/EP/MTP、parser 和官方任务实测 |
-| MiroThinker-1.7 | `a4199f82dcadf88e81e296eb2d0e79bdb5805184` | 固定 vLLM-Ascend 服务边界和完整 agent 验收口径 | 235B/16 卡、外部工具和官方 BrowseComp/GAIA/HLE 复现 |
-| MolFormer | `b39184dcb79501f0cd81def11e7b934176194a4c` | 改用官方 pretrained checkpoint feature-extraction 入口 | 待 embedding CPU/NPU 对齐和 11 项 MoleculeNet fine-tuning |
-| BUTSpeechFIT-DiariZen | `7961b5ab79b1232b9da367f14f8cd4f592694465` | 已新增 infer 和 PyTorch NPU/CANN embedding patch | 待完整依赖、权重、RTTM 对齐和官方数据 DER |
+| DNSMOS | `d1e4c2c14df9cb935d61dc5f448e655772b12379` | S2 | CPU 常规/personalized 与官方脚本全字段误差 0；已补 manifest/compare，待 CANN/NPU S3 |
+| speechscorer | `f1d6e3ee3d0f113c610a969e6fde4a29af3216d1` | S1 | 已修正原始公开路径为 HuBERT-MLM并补数据/比较入口；待 3.8GB 权重、fairseq 和 NPU 实测 |
+| Hy3-preview | `eb533c1dfd9a1fa7f373f9b980a9c0f973f1dad8` | S1 | patch 静态门禁通过并补服务回归工具；待 295B/16 卡 TP/EP/MTP、parser 和官方任务实测 |
+| MiroThinker-1.7 | `a4199f82dcadf88e81e296eb2d0e79bdb5805184` | S1 | 已修复服务名和 8K/256K 配置冲突并补固定 prompt；待 235B/16 卡、外部工具和 agent benchmark |
+| MolFormer | `b39184dcb79501f0cd81def11e7b934176194a4c` | S2 | 固定权重和 10 条 CPU embedding 实测通过，已补 manifest/compare；待 NPU 对齐及 11 项 fine-tuning |
+| BUTSpeechFIT-DiariZen | `7961b5ab79b1232b9da367f14f8cd4f592694465` | S1 | 已修复 dscore 命令并补 manifest/provider/DER 工具；待权重、RTTM 对齐和正式数据 DER |
 
-本轮完成版本取证、代码/patch 整理、三类主文档和静态验证；当前机器没有
+本轮完成版本取证、代码/patch 整理、三类主文档、可执行验收入口和静态验证；当前机器没有
 NPU/CANN 运行环境和模型权重，因此真实 NPU 数值、性能和官方数据集验收仍以各模型
 `NPU_ADAPTATION.md`、`ACCEPTANCE_PLAN.md` 的记录为准。
 
@@ -41,7 +41,7 @@ NPU/CANN 运行环境和模型权重，因此真实 NPU 数值、性能和官方
 | 模型系列 | 模型名称 | 当前目录 | 参考原始仓库 | 当前适配对象 / 版本边界 |
 | --- | --- | --- | --- | --- |
 | DNSMOS | DNSMOS | `DNSMOS/` | [microsoft/DNS-Challenge](https://github.com/microsoft/DNS-Challenge)；当前交付仓库：[Ascend-SACT/DNSMOS](https://gitcode.com/Ascend-SACT/DNSMOS) | 官方源码 `master` HEAD `591184a9fcb2cbdec02520fed81a32bbbf9d73ff`。适配脚本加载官方 `DNSMOS/model_v8.onnx`、`DNSMOS/sig_bak_ovr.onnx`，个性化模式加载 `pDNSMOS/sig_bak_ovr.onnx`。 |
-| speechscorer | speechscorer | `speechscorer/` | [yaya-sy/speechscorer](https://github.com/yaya-sy/speechscorer)；当前交付仓库：[Ascend-SACT/speechscorer](https://gitcode.com/Ascend-SACT/speechscorer) | 上游 `main` HEAD `bbe0be772b37f472994d5a97f809214fd67a2c8e`；当前第一阶段目标固定 `whisper-clm` 和 `openai/whisper-base.en` HEAD `911407f4214e0e1d82085af863093ec0b66f9cd6`，不包含其他 HuBERT/WavLM scorer。 |
+| speechscorer | speechscorer | `speechscorer/` | [yaya-sy/speechscorer](https://github.com/yaya-sy/speechscorer)；当前交付仓库：[Ascend-SACT/speechscorer](https://gitcode.com/Ascend-SACT/speechscorer) | 上游 `main` HEAD `bbe0be772b37f472994d5a97f809214fd67a2c8e`；当前第一阶段目标固定公开主路径 `hubert-mlm`、HuBERT checkpoint `hubert_base_ls960.pt` 与 SpeechOcean762，`whisper-clm` 仅保留为后续扩展，不作为本轮验收主线。 |
 | Tencent Hy | Hy3-preview | `Hy3-preview/` | [Tencent-Hunyuan/Hy3-preview](https://github.com/Tencent-Hunyuan/Hy3-preview)；当前交付仓库：[Ascend-SACT/Hy3-preview](https://gitcode.com/Ascend-SACT/Hy3-preview) | 官方代码 `main` HEAD `38ac237dc0bf4329f054d09054aaf22fdaf6f553`；权重 `tencent/Hy3-preview` HEAD `549c2b3a0fd5b9a6c6059a9935bf0d59ab69d75a`；适配基线为 vLLM/vLLM-Ascend `v0.18.0rc1`，目标是 295B Instruct 模型，非 Base/量化变体。 |
 | MiroMind | MiroThinker-1.7 | `MiroThinker-1.7/` | [MiroMindAI/MiroThinker](https://github.com/MiroMindAI/MiroThinker)；当前交付仓库：[Ascend-SACT/MiroThinker-1.7](https://gitcode.com/Ascend-SACT/MiroThinker-1.7) | upstream `main` HEAD `370f98361553ddf787bedc5745760e04114cb161`；权重 `miromind-ai/MiroThinker-1.7` HEAD `1a42014ce72e1025fdbf3c48d54545715ab3eea8`；适配基线为 vLLM/vLLM-Ascend `v0.17.0rc1`，目标为 235B 模型及其 MiroFlow Agent，不是 mini/v1.5/v1.0/H1。 |
 | IBM | MolFormer | `MolFormer/` | [IBM/molformer](https://github.com/IBM/molformer)；当前交付仓库：[Ascend-SACT/MolFormer](https://gitcode.com/Ascend-SACT/MolFormer) | IBM 源码 HEAD `3b9ac434db387fadf2cf99b99def654cbf193841`；目标权重为 `ibm-research/MoLFormer-XL-both-10pct` HEAD `7b12d946c181a37f6012b9dc3b002275de070314`，不是论文完整 100% 预训练权重。 |
@@ -122,7 +122,7 @@ NPU/CANN 运行环境和模型权重，因此真实 NPU 数值、性能和官方
 
 > 适用范围：所有使用 PyTorch / Transformers attention、CUDA/ROCm `flash-attn`、ONNX/OM attention 图改写或 vLLM-Ascend 的模型。
 >
-> 检索边界：官方 `Ascend/ModelZoo-PyTorch` 的 `ACL_PyTorch/built-in` master 快照 `270266e`，本地命中约 34 个 flash-attention 相关文件；该结论作为项目级经验，正式适配前仍需复查目标 CANN / `torch-npu` / vLLM-Ascend 版本。
+> 检索边界：官方 `Ascend/ModelZoo-PyTorch` 的 `ACL_PyTorch/built-in` master 快照 `6fecdfba771499ecf4cbc3ed975884720e2a8635`（核查日期 2026-06-21）；该结论作为项目级经验，正式适配前仍需复查目标 CANN / `torch-npu` / vLLM-Ascend 版本。
 
 官方仓主要出现四类方案：
 
@@ -741,7 +741,8 @@ NPU/CANN 运行环境和模型权重，因此真实 NPU 数值、性能和官方
 
 - 当前没有新增 benchmark 脚本；按约束先复用原项目 `inference.py`，用外部计时或日志统计 elapsed、输出总时长、RTF/RTFx。
 - 对比对象：同 checkpoint、同 JSONL、同参数的 CPU/CUDA 源路径。
-- 数据规模：L1 10-30 条；L2 50-200 条；L3 500+ 条。
+- 数据规模：功能验证使用官方 examples 2 条；L2 使用 TTSD-eval 中文/英文全量
+  各 50 条。
 - 指标：RTF、RTFx、首条输出延迟、峰值 HBM/RSS、最大可用 batch、首次加载耗时与稳定推理耗时。
 
 ### 12.5 精度/质量验证
@@ -755,7 +756,8 @@ NPU/CANN 运行环境和模型权重，因此真实 NPU 数值、性能和官方
 - 上游代码：`https://github.com/OpenMOSS/MOSS-TTSD` tag `v0.5`。
 - 模型：`https://huggingface.co/fnlp/MOSS-TTSD-v0.5`；同内容别名 `https://huggingface.co/OpenMOSS-Team/MOSS-TTSD-v0.5`；本次记录 HEAD `8527b9136b6afefe2252ae597cecea2e80e7ebeb`。
 - Codec：原项目 `XY_Tokenizer` 代码 + `https://huggingface.co/fnlp/XY_Tokenizer_TTSD_V0` 的 `xy_tokenizer.ckpt`；本次记录 HEAD `c83433728e698ed0698e88cb5096bc221fb8f8c5`。
-- 下载命令（在 `MOSS-TTSD-v0.5/upstream/` 下执行）：
+- 下载命令和三工作树布局以 `MOSS-TTSD-v0.5/README_INFERENCE.md` 为准。
+  固定资产命令示意：
 
   ```bash
   python -m pip install -U "huggingface_hub[cli]"
@@ -771,8 +773,8 @@ NPU/CANN 运行环境和模型权重，因此真实 NPU 数值、性能和官方
   ```
 - 也可用固定 URL 直接下载 codec checkpoint：`https://huggingface.co/fnlp/XY_Tokenizer_TTSD_V0/resolve/c83433728e698ed0698e88cb5096bc221fb8f8c5/xy_tokenizer.ckpt`。下载后需记录模型权重与 `xy_tokenizer.ckpt` SHA256。
 - 功能数据：原项目 `examples/examples.jsonl`、官方示例 prompt、自建真实双语对话 JSONL。
-- 精度/性能数据：AISHELL-3、CSMSC、LibriTTS、VCTK 改造成 prompt+text；人工听测抽样 50-100 条起。
-- 建议规模：L0 1-2 条；L1 10-30 条；L2 50-200 条；L3 500+ 条。
+- 精度/性能数据：固定 `OpenMOSS/TTSD-eval` commit 的中文/英文全量各 50 条，
+  同时计算 ACC/SIM/WER 和 RTF/RTFx；其他数据只作补充。
 
 ---
 ## 13. 综合优先级与落地建议

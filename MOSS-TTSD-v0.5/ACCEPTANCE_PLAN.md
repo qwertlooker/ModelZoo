@@ -1,312 +1,268 @@
 # MOSS-TTSD-v0.5 验收计划
 
-本文件只保留适配迁移验收的重点：**先确认原始模型使用什么测试集、原始指标是多少，再用同一权重、同一输入、同一参数对齐原始模型结果**。性能、稳定性和扩展场景只作为补充，不能冲淡主线。
+本文只定义可复现的迁移验收。v0.5 官方未发布正式 test split 和生成质量数值；
+`OpenMOSS/TTSD-eval` 是公共评测集，不得把 v1.0 指标写成 v0.5 官方指标。
 
-除特别说明外，以下命令按 **从 4.2 到 4.4 在同一 shell 连续执行** 编写：起点为 ModelZoo 仓库下的 `MOSS-TTSD-v0.5` 目录，每段命令承接上一段结束后的当前目录。
+## 1. 原始测试集、官方指标和版本边界
 
-```bash
-cd MOSS-TTSD-v0.5
-```
+| 项目 | 固定值 |
+|---|---|
+| 上游源码 | `OpenMOSS/MOSS-TTSD` tag `v0.5`，commit `0e078c62389922d3aa873ce182daf31142860b18` |
+| 模型权重 | `fnlp/MOSS-TTSD-v0.5` revision `8527b9136b6afefe2252ae597cecea2e80e7ebeb` |
+| Codec | `fnlp/XY_Tokenizer_TTSD_V0/xy_tokenizer.ckpt` revision `c83433728e698ed0698e88cb5096bc221fb8f8c5` |
+| 官方示例 | `examples/examples.jsonl`，中文和英文各 1 条 |
+| 官方正式 test split | 官方未发布 |
+| 官方质量指标 | 官方未发布 |
+| 公共评测 | `OpenMOSS/TTSD-eval` commit `dea13b98529dc16dcfb5fe45779ad63ac9238337`，中文/英文各 50 条 |
+| TTSD-eval testset.zip SHA256 | `49ed8338f3e5323c5ffcff01f3480a9c245937256d9197d792c973cba5603e17` |
+| 适配 patch | `patches/0001-adapt-v0.5-inference-to-npu.patch`，SHA256 `426303406d9289c0f981ca333604107af323a56a576c5129a844aacc83962056` |
 
-若单独执行某一小节，需先手动切到该小节注明或隐含的连续执行起点。
+TTSD-eval 的 ACC、SIM、WER 用于同 checkpoint 的迁移对齐。正式报告必须同时写出
+TTSD-eval commit、语言、样本数、MMS-FA、WeSpeaker 和 Whisper 版本，不得只写一个
+汇总数。
 
-## 1. 验收核心结论先行
+## 2. 功能验证与 L2
 
-| 问题 | 当前结论 | 验收要求 |
-|---|---|---|
-| 原始模型官方测试集是什么？ | `OpenMOSS/MOSS-TTSD` v0.5 README 只提供 `examples/examples.jsonl` 作为本地推理示例，包含中文、英文各 1 条双说话人 dialogue；未在 v0.5 README 中发布正式 test split。 | L0 必跑官方 `examples/examples.jsonl`；若后续找到论文/模型卡指定 test set，优先替换为官方 test set。 |
-| 原始模型官方指标是多少？ | v0.5 README 未发布 MOSS-TTSD 生成质量的正式 WER/CER、SIM、MOS、CMOS 或 DNSMOS 表；只给出 GPU 显存估算。 | 不编造“官方指标”。正式验收报告必须明确填写“官方指标：未发布”或引用后续官方来源。 |
-| NPU 适配主要验收目标是什么？ | 证明 patch 后 NPU 推理结果与原始模型 CPU/CUDA 源路径一致或无明显退化。 | 同 checkpoint、同 JSONL、同 prompt audio、同 seed/normalize 下，对比原始 CPU/CUDA 与 NPU，并记录设备固定的 dtype/attention 差异。 |
-| 通过标准是什么？ | 不是“能生成 wav 就通过”。 | 官方示例必须跑通；固定对齐集上可懂度、音色、说话人切换、时长和人工听感相对原始 CPU/CUDA 无系统性退化。 |
+| 层级 | 数据 | 样本规模 | 用途 |
+|---|---|---:|---|
+| 功能验证 | v0.5 `examples/examples.jsonl` | 2 | 三组入口、权重、codec、WAV 输出和失败用例 |
+| L2 | `ttsd_eval_zh.jsonl`、`ttsd_eval_en.jsonl` | 50 + 50 | 全量 ACC、SIM、WER、RTF/RTFx 和资源对齐 |
 
-> 记住：当前是 NPU 适配迁移，不是重新定义模型能力。验收文档和报告的第一优先级永远是“原始测试集 + 原始指标 + NPU 对齐原始结果”。
+功能验证只能证明链路可运行。功能验证和 L2 都必须保留三组结果：
 
-## 2. 原始模型基准盘点
+1. `original_cuda`：未应用 patch 的原始 CUDA；
+2. `patched_cuda`：应用 patch 后的同设备 CUDA；
+3. `npu`：应用 patch 后的 NPU。
 
-### 2.1 版本边界
+三组使用相同权重、manifest、seed 和 normalize 设置，写入不同目录。
 
-- 源码：`OpenMOSS/MOSS-TTSD` tag `v0.5` / commit `0e078c62389922d3aa873ce182daf31142860b18`。
-- 模型：`fnlp/MOSS-TTSD-v0.5` 或同内容别名 `OpenMOSS-Team/MOSS-TTSD-v0.5`。
-- Codec：原项目 `XY_Tokenizer` + `fnlp/XY_Tokenizer_TTSD_V0` 的 `xy_tokenizer.ckpt`。
-- 适配 patch：`patches/0001-adapt-v0.5-inference-to-npu.patch`。
-- 不包含：MOSS-TTSD v0.7、v1.0、SGLang 路径、服务化压测、重新训练或微调。
+## 3. 数据准备
 
-正式验收报告必须记录模型权重、codec checkpoint、patch SHA256；未记录 SHA256 时不能宣称可复现验收。
-
-### 2.2 原始测试集与指标
-
-| 类别 | 原始来源 | 当前状态 | 用途 |
-|---|---|---|---|
-| 官方示例集 | `upstream/examples/examples.jsonl` | 2 条：中文双说话人、英文双说话人；prompt audio 位于 `upstream/examples/`。 | L0 smoke，证明原始入口和 NPU 入口能跑通。 |
-| 官方正式 test set | v0.5 README / 本仓库记录 | 未发布。 | 不得把其他版本测试集直接写成 v0.5 官方 test set。 |
-| 官方正式质量指标 | v0.5 README / 本仓库记录 | 未发布 MOSS-TTSD-v0.5 生成质量指标。 | 不得编造；报告中写“官方未发布”。 |
-| OpenMOSS/TTSD-eval 公共评测集 | `OpenMOSS/TTSD-eval` | 可用于测评 v0.5 输出；该仓库提供中/英各 50 条 dialogue samples、ACC/SIM/WER 客观评测流程。 | 作为 L2 公共评测和 NPU 对齐评测使用；它不是 v0.5 已公开官方指标。 |
-| 原始模型对齐基线 | 同权重、同 JSONL 在 CPU 或 CUDA 源路径运行结果 | 需验收时现场生成并归档。 | NPU 迁移的主要对照组。 |
-
-补充说明：官方博客/技术资料中的 codec 指标或其他版本指标，不能直接当作 MOSS-TTSD-v0.5 生成模型的验收通过线；除非明确证明同版本、同测试集、同评测脚本。`OpenMOSS/TTSD-eval` 是 OpenMOSS 发布的公共 TTSD 评测流程，适合用来客观测评 v0.5 的生成结果，但因技术报告只发布 v1.0 指标，v0.5 在该集上的 CPU/CUDA 原始路径结果需要现场实测，不能直接挪用 v1.0 表格数值。
-
-## 3. 最小验收分层
-
-| 层级 | 数据 | 目的 | 是否必跑 | 通过关注点 |
-|---|---|---|---|---|
-| L0 官方示例 | `examples/examples.jsonl` 全量 2 条 | 对齐原始示例入口 | 必跑 | CPU/CUDA 与 NPU 都能完成；输出 wav 可读、非空、无 NaN/Inf。 |
-| L1 固定对齐集 | 10-30 条固定 JSONL，覆盖中/英、短/长文本、prompt 切换、说话人切换 | 迁移质量回归 | 正式交付必跑 | NPU 相对 CPU/CUDA 无明显可懂度、音色、切换错误退化。 |
-| L2 OpenMOSS/TTSD-eval | `OpenMOSS/TTSD-eval` testset；中/英各 50 条 dialogue samples | 公共客观评测 + 迁移对齐 | 正式交付默认必跑；若数据/依赖不可取得，必须记录失败原因 | 统计 ACC、SIM、WER；重点比较 CPU/CUDA 原始路径与 NPU 差异，不把 v1.0 公开指标当作 v0.5 通过线。 |
-| L3 扩展评测 | 内部业务集、人工 MOS/CMOS、长音频稳定性 | 上线风险评估 | 可选 | 只作为补充，不替代原始模型对齐。 |
-
-## 4. NPU 对齐评测方法
-
-### 4.1 固定输入与参数
-
-所有对比必须固定：
-
-- 同一 `examples/examples.jsonl` 或同一固定评测 JSONL；
-- 同一 prompt audio 与 prompt text；
-- 同一模型权重和 codec checkpoint；
-- 同一 `--seed 42`；
-- 同一 `--use_normalize` 设置；
-- CPU/CUDA 与 NPU 使用同一 JSONL；如因显存约束拆分 manifest，两端必须使用相同拆分、内容和顺序；
-- 记录设备固定选择的 dtype 和 attention backend。
-
-NPU 只需配置 `--device npu`，代码内部固定使用 BF16 + torch-npu PFA/IFA。CPU 基线使用 FP32 + SDPA，CUDA 保持原项目 BF16 + `flash_attention_2`。不额外增加 attention 参数或静默回退。
-
-### 4.2 原始 CPU/CUDA 基线命令
+以下命令从模型目录执行：
 
 ```bash
-cd upstream
-python inference.py \
-  --jsonl examples/examples.jsonl \
-  --output_dir outputs_cpu_baseline \
-  --device cpu \
-  --seed 42 \
-  --use_normalize
-```
-
-如有 CUDA 环境，可再跑 CUDA 作为更接近原始上游 GPU 路径的参考；没有 CUDA 时，CPU 基线必须保留。
-
-### 4.3 NPU 命令
-
-```bash
-# 连续执行 4.2 后，当前目录已是 upstream。
-ASCEND_RT_VISIBLE_DEVICES=0 python inference.py \
-  --jsonl examples/examples.jsonl \
-  --output_dir outputs_npu \
-  --device npu \
-  --seed 42 \
-  --use_normalize
-```
-
-
-## 4.4 OpenMOSS/TTSD-eval 公共评测
-
-结论：`OpenMOSS/TTSD-eval` 可以用于测评 MOSS-TTSD-v0.5，因为它的输入只要求 dialogue text、生成音频 `output_audio` 以及两路 speaker prompt audio，不绑定 v1.0 模型结构。使用时必须保持以下口径：
-
-- 它是公共 TTSD 评测集/评测脚本，不是 v0.5 README 已发布的官方指标；v0.5 官方指标仍记录为“官方未发布”。
-- NPU 验收仍以迁移对齐为主：同一 TTSD-eval manifest、同一 checkpoint、同一 seed/normalize 配置下，先跑 CPU/CUDA 原始路径，再跑 NPU，并记录设备固定的 dtype/attention 差异及 ACC、SIM、WER 差异。
-- TTSD-eval 的 WER 是补充可懂度指标；ACC/SIM/WER 不能替代人工听感异常排查。
-
-### 4.4.1 准备 TTSD-eval
-
-```bash
-cd ..
-mkdir -p third_party
 git clone https://github.com/OpenMOSS/TTSD-eval.git third_party/TTSD-eval
-cd third_party/TTSD-eval
-git rev-parse HEAD
-# 记录 HEAD；当前核查到的上游 HEAD 示例：dea13b98529dc16dcfb5fe45779ad63ac9238337
+git -C third_party/TTSD-eval checkout \
+  dea13b98529dc16dcfb5fe45779ad63ac9238337
+curl -L --fail \
+  -o third_party/TTSD-eval/testset.zip \
+  https://media.githubusercontent.com/media/OpenMOSS/TTSD-eval/dea13b98529dc16dcfb5fe45779ad63ac9238337/testset.zip
+echo "49ed8338f3e5323c5ffcff01f3480a9c245937256d9197d792c973cba5603e17  third_party/TTSD-eval/testset.zip" \
+  | sha256sum -c -
+unzip -oq third_party/TTSD-eval/testset.zip -d third_party/TTSD-eval
 
-git lfs install
-git lfs pull
-unzip -oq testset.zip -d .
-find testset -maxdepth 3 -type f | sort
-
-conda create -n ttsd_eval python=3.12 -y
-conda activate ttsd_eval
-pip install -r requirements.txt
-
-mkdir -p model/checkpoints
-wget -c -O model/checkpoints/model.pt \
-  "https://dl.fbaipublicfiles.com/mms/torchaudio/ctc_alignment_mling_uroman/model.pt"
-# 另按 TTSD-eval README 下载并解压 wespeaker voxblink2_samresnet100_ft 到 model/。
-
-# 退出 ttsd_eval，恢复执行 4.2/4.3 时使用的 MOSS-TTSD 推理环境。
-conda deactivate
+wc -l \
+  third_party/TTSD-eval/testset/ttsd_eval_zh.jsonl \
+  third_party/TTSD-eval/testset/ttsd_eval_en.jsonl
 ```
 
-如果 `git lfs`、testset、MMS-FA checkpoint、WeSpeaker 权重或 Whisper 依赖不可用，验收报告必须记录原始错误；不得用自定义小样本或简化指标冒充 TTSD-eval 结果。
+预期分别为 50、50。
 
-### 4.4.2 用 v0.5 生成 TTSD-eval 音频
+评测依赖按固定 TTSD-eval commit 的 README 安装。WeSpeaker 模型放到
+`third_party/TTSD-eval/model/voxblink2_samresnet100_ft`；MMS-FA checkpoint 放到
+`third_party/TTSD-eval/model/checkpoints/model.pt`。无法取得任一官方组件时应记录
+原始错误并保持验收未完成，不能替换成名称相近的第三方实现。
 
-TTSD-eval testset 解压后的具体 JSONL 文件名以上游仓库为准。原始 JSONL 中的
-`audio/zh/case1_S1.wav` 等 prompt audio 路径是相对 `testset/` 目录编写的，但
-v0.5 `inference.py` 和 TTSD-eval 都按 **进程当前工作目录** 解析这些路径，而不是按
-JSONL 文件所在目录解析。
+## 4. 三组推理
 
-因此不修改原始 JSONL，也不改写其中的 prompt audio 路径；连续执行 4.4.1 后，从
-`third_party/TTSD-eval` 进入 `testset/`，并在该目录完成后续 inference、manifest
-生成和 eval：
-
-CPU/CUDA 基线与 NPU 分别生成到不同目录，例如：
+环境、源码工作树和权重按 `README_INFERENCE.md` 执行。功能验证使用官方示例：
 
 ```bash
-cd testset
-ls -1 *.jsonl
-SRC_JSONL="<实际的_split_文件名>.jsonl"
-SPLIT_STEM="${SRC_JSONL%.jsonl}"
+MODEL_ROOT="$PWD"
+MANIFEST="$MODEL_ROOT/upstream-original/examples/examples.jsonl"
+mkdir -p results/functional
 
-# 直接使用 TTSD-eval 原始 JSONL，不修改其内容。
-python ../../../upstream/inference.py \
-  --jsonl "$SRC_JSONL" \
-  --output_dir "../../../upstream/outputs_ttsd_eval_cpu_${SPLIT_STEM}" \
-  --device cpu \
-  --seed 42 \
-  --use_normalize
+source .venv-cuda-original/bin/activate
+(
+  cd upstream-original
+  HF_HOME="$MODEL_ROOT/hf-cache" HF_HUB_OFFLINE=1 CUDA_VISIBLE_DEVICES=0 \
+    python inference.py \
+      --jsonl "$MANIFEST" \
+      --output_dir "$MODEL_ROOT/results/functional/original_cuda" \
+      --seed 42 \
+      --use_normalize
+)
+deactivate
 
-ASCEND_RT_VISIBLE_DEVICES=0 python ../../../upstream/inference.py \
-  --jsonl "$SRC_JSONL" \
-  --output_dir "../../../upstream/outputs_ttsd_eval_npu_${SPLIT_STEM}" \
-  --device npu \
-  --seed 42 \
-  --use_normalize
+source .venv-cuda-patched/bin/activate
+(
+  cd upstream-npu
+  CUDA_VISIBLE_DEVICES=0 python inference.py \
+    --jsonl "$MANIFEST" \
+    --output_dir "$MODEL_ROOT/results/functional/patched_cuda" \
+    --device cuda \
+    --seed 42 \
+    --use_normalize
+)
+deactivate
+
+source .venv-npu/bin/activate
+(
+  cd upstream-npu
+  ASCEND_RT_VISIBLE_DEVICES=0 python inference.py \
+    --jsonl "$MANIFEST" \
+    --output_dir "$MODEL_ROOT/results/functional/npu" \
+    --device npu \
+    --seed 42 \
+    --use_normalize
+)
+deactivate
 ```
 
-### 4.4.3 生成 TTSD-eval 输入 manifest
+原始入口没有 `--device` 参数，依赖 CUDA 和 `flash_attention_2`；不能给原始组添加
+patch 后参数。若缺少 CUDA，S3 三组迁移验收即未完成，不能用 CPU 改写原始模型行为。
 
-TTSD-eval 的原始 testset JSONL 没有 `output_audio` 字段，因此仍需生成 CPU/CUDA 与
-NPU 各自的评测 manifest。这里只新增相对 `testset/` 可访问的 `output_audio`，原始
-prompt audio 字段保持不变。
+## 5. 输出检查和 evaluator manifest
 
-连续执行 4.4.2 后当前目录仍是 `third_party/TTSD-eval/testset`：
+检查采样率、时长、峰值、NaN/Inf 和全静音：
 
 ```bash
-# 单独执行本小节时，先重新设置：
-# SRC_JSONL="<实际的_split_文件名>.jsonl"
-# SPLIT_STEM="${SRC_JSONL%.jsonl}"
-
-for MODE in cpu npu; do
-python - "$SRC_JSONL" "$SPLIT_STEM" "$MODE" <<'PY'
-import json
-import sys
+python - <<'PY'
 from pathlib import Path
+import numpy as np
+import soundfile as sf
 
-src = Path(sys.argv[1])
-split_stem = sys.argv[2]
-mode = sys.argv[3]
-
-out_dir = Path(f'../../../upstream/outputs_ttsd_eval_{mode}_{split_stem}')
-dst = Path(f'../data/moss_ttsd_v0_5_{mode}_{split_stem}.jsonl')
-dst.parent.mkdir(parents=True, exist_ok=True)
-
-count = 0
-with src.open(encoding='utf-8') as fin, dst.open('w', encoding='utf-8') as fout:
-    for idx, line in enumerate(fin):
-        if not line.strip():
-            continue
-        rec = json.loads(line)
-        rec['output_audio'] = str(out_dir / f'output_{idx}.wav')
-        for key in ('output_audio', 'prompt_audio_speaker1', 'prompt_audio_speaker2'):
-            path = Path(rec[key]).expanduser()
-            if not path.exists():
-                raise FileNotFoundError(f'{key} does not exist: {path}')
-        fout.write(json.dumps(rec, ensure_ascii=False) + '\n')
-        count += 1
-print(f'wrote {count} lines to {dst}')
+for group in ("original_cuda", "patched_cuda", "npu"):
+    paths = sorted(Path("results/functional", group).glob("output_*.wav"))
+    if len(paths) != 2:
+        raise RuntimeError(f"{group}: expected 2 outputs, got {len(paths)}")
+    for path in paths:
+        audio, sample_rate = sf.read(path, always_2d=True)
+        if sample_rate <= 0 or len(audio) == 0:
+            raise RuntimeError(f"empty audio: {path}")
+        if not np.isfinite(audio).all() or np.max(np.abs(audio)) == 0:
+            raise RuntimeError(f"invalid audio: {path}")
 PY
+```
+
+波形逐点一致不是生成式 TTS 的通过条件。必须先比较
+`original_cuda` 与 `patched_cuda`，确认 patch 后同设备指标无系统性变化；再比较
+`patched_cuda` 与 `npu`。
+
+## 6. L2 OpenMOSS/TTSD-eval
+
+对 `ttsd_eval_zh.jsonl` 和 `ttsd_eval_en.jsonl` 重复第 4 节三组生成，输出到：
+
+```text
+results/ttsd_eval/original_cuda_zh
+results/ttsd_eval/patched_cuda_zh
+results/ttsd_eval/npu_zh
+results/ttsd_eval/original_cuda_en
+results/ttsd_eval/patched_cuda_en
+results/ttsd_eval/npu_en
+```
+
+再为六组生成 manifest：
+
+```bash
+for LANG in zh en; do
+  for GROUP in original_cuda patched_cuda npu; do
+    python prepare_eval_data.py attach-output \
+      --input_jsonl "third_party/TTSD-eval/testset/ttsd_eval_${LANG}.jsonl" \
+      --output_jsonl "results/ttsd_eval/${GROUP}_${LANG}.jsonl" \
+      --output_dir "results/ttsd_eval/${GROUP}_${LANG}" \
+      --path_root third_party/TTSD-eval/testset
+  done
 done
 ```
 
-生成后必须抽查：行数与成功输出 WAV 数一致，所有 `output_audio` 和 prompt audio 路径
-都能从当前 `testset/` 目录访问。
-
-### 4.4.4 运行 ACC/SIM 与 WER
+TTSD-eval 的 prompt 路径相对 `testset/`。以下命令必须从该目录运行；输出路径使用
+绝对路径，避免切换目录后失效。对六个 manifest 逐一执行：
 
 ```bash
-# 当前目录保持为 third_party/TTSD-eval/testset，不要切回 TTSD-eval 根目录。
-conda activate ttsd_eval
+MODEL_ROOT="$PWD"
+EVAL_ROOT="$MODEL_ROOT/third_party/TTSD-eval"
+cd "$EVAL_ROOT/testset"
 
-# 修改 ../eval.sh 中 INPUT_JSONL 为：
-#   ../data/moss_ttsd_v0_5_cpu_<split>.jsonl
-#   ../data/moss_ttsd_v0_5_npu_<split>.jsonl
-bash ../eval.sh
+for LANG in zh en; do
+  for GROUP in original_cuda patched_cuda npu; do
+    INPUT="$MODEL_ROOT/results/ttsd_eval/${GROUP}_${LANG}.jsonl"
+    STEM="${GROUP}_${LANG}"
+    mkdir -p "$MODEL_ROOT/results/ttsd_eval_metrics/$STEM"
 
-# WER 需按语言分别设置 run_wer.sh 的 language=zh/en 和 input_jsonl_list；
-# ../run_wer.sh 的 input_jsonl_list 同样填：
-#   ../data/moss_ttsd_v0_5_cpu_<split>.jsonl
-#   ../data/moss_ttsd_v0_5_npu_<split>.jsonl
-bash ../run_wer.sh
+    python "$EVAL_ROOT/tools/align.py" \
+      --input_jsonl "$INPUT" \
+      --output_jsonl "$MODEL_ROOT/results/ttsd_eval_metrics/$STEM/alignment.jsonl"
+    python "$EVAL_ROOT/tools/split.py" \
+      --input_jsonl "$MODEL_ROOT/results/ttsd_eval_metrics/$STEM/alignment.jsonl" \
+      --output_jsonl "$MODEL_ROOT/results/ttsd_eval_metrics/$STEM/split.jsonl"
+    python "$EVAL_ROOT/tools/run_similarity.py" \
+      --input_jsonl "$MODEL_ROOT/results/ttsd_eval_metrics/$STEM/split.jsonl" \
+      --output_jsonl "$MODEL_ROOT/results/ttsd_eval_metrics/$STEM/sim.jsonl" \
+      --metrics_txt "$MODEL_ROOT/results/ttsd_eval_metrics/$STEM/acc_sim.txt"
+    python "$EVAL_ROOT/wer/whisper_asr.py" \
+      --input_jsonl "$INPUT" \
+      --output_jsonl "$MODEL_ROOT/results/ttsd_eval_metrics/$STEM/asr.jsonl"
+    python "$EVAL_ROOT/wer/run_wer.py" \
+      --lang "$LANG" \
+      --input_jsonl "$MODEL_ROOT/results/ttsd_eval_metrics/$STEM/asr.jsonl" \
+      --output_jsonl "$MODEL_ROOT/results/ttsd_eval_metrics/$STEM/wer.jsonl" \
+      --metrics_txt "$MODEL_ROOT/results/ttsd_eval_metrics/$STEM/wer.txt"
+  done
+done
+cd "$MODEL_ROOT"
 ```
 
-`eval.sh`/`run_wer.sh` 内部通过 `SCRIPT_DIR` 定位工具、模型和输出目录，所以可从
-`testset/` 调用；而 JSONL 内的 `audio/...` 相对路径会保留调用者当前目录语义。若从
-TTSD-eval 根目录调用，就会再次出现
-`Error opening 'audio/zh/case1_S1.wav'`。
+这些命令直接复用固定 commit 的官方评测组件，不修改 evaluator，也不使用简化指标。
 
-正式报告至少记录：TTSD-eval commit、testset 文件名/样本数/语言、MMS-FA checkpoint、WeSpeaker 模型、Whisper 模型、normalizer、CPU/CUDA ACC/SIM/WER、NPU ACC/SIM/WER、差异和失败样例。
+## 7. L2 精度与性能标准
 
-## 5. 主要指标与通过线
+由于 v0.5 没有官方数值，通过线只定义相对迁移退化：
 
-由于 v0.5 未发布正式质量指标，以下指标用于 **NPU vs 原始 CPU/CUDA 对齐**，不是对外宣称的官方 SOTA 指标。
+| 指标 | 判定 |
+|---|---|
+| 基础输出 | 每组输出数与 manifest 一致；全部 WAV 可读、非空、非全静音、无 NaN/Inf |
+| patch 同设备回归 | `patched_cuda` 相对 `original_cuda` 的 ACC/SIM/WER 无系统性退化；差异和失败样例必须归档 |
+| NPU 迁移 | `npu` 相对 `patched_cuda` 的 ACC/SIM/WER 无系统性退化 |
+| WER 建议阈值 | 绝对差不超过 1.0 个百分点或相对差不超过 10%，取较宽者；超限必须人工复核 |
+| ACC/SIM | 不预设伪造的官方阈值；报告绝对差、相对差、样本级异常和人工听感 |
+| 性能 | 三组使用同一 L2 manifest，记录 elapsed、生成音频总时长、RTF/RTFx、峰值 HBM/RSS；至少重复 3 次报告中位数 |
 
-| 维度 | 指标 | 通过线 |
-|---|---|---|
-| 基础可用 | wav 可读、采样率/声道可记录、时长 > 0、非全零、无 NaN/Inf | CPU/CUDA 与 NPU 全部通过。 |
-| 可懂度 | 固定 ASR 回识别 CER/WER；L2 使用 TTSD-eval WER | NPU 相对 CPU/CUDA 无系统性退化；建议绝对差 ≤ 1.0 或相对差 ≤ 10%，二者取宽；TTSD-eval WER 同口径记录。 |
-| 文本覆盖 | 生成语音是否覆盖输入 dialogue 主要内容 | 人工抽检不得出现批量漏读、重复、提前结束。 |
-| 说话人切换 | `[S1]` / `[S2]` turn-taking 正确率；L2 使用 TTSD-eval ACC | 固定集人工标注；NPU 错误数不得高于 CPU/CUDA；TTSD-eval ACC 不得出现系统性下降。 |
-| 音色保持 | speaker embedding cosine similarity 或人工 A/B；L2 使用 TTSD-eval SIM | NPU 不低于 CPU/CUDA 明显水平；若用自动模型，需固定模型版本；TTSD-eval SIM 不得出现系统性下降。 |
-| 自然度 | MOS/CMOS/A-B 或 DNSMOS/UTMOS 辅助 | 人工听感不出现系统性噪声、断裂、机械感退化；自动指标只作辅助。 |
-| 性能 | elapsed、RTF、峰值 HBM/RSS | 记录即可；除非用户另定性能目标，否则不作为质量对齐的替代条件。 |
+TTSD-eval 是当前可取得的 OpenMOSS 公共全量 benchmark，因此 L2 使用中英文各 50 条
+全量。v0.5 没有公开硬件性能值，不编造 speedup 线；最低性能结论是全量无失败、
+RTF/RTFx 可复现，并报告 NPU 相对 patch 后 CUDA 的比值。项目另有性能目标时按该
+目标判定。
 
-严格失败原则：官方评测组件或选定 ASR/speaker embedding 模型不可用时，应直接报告失败/缺失，不要用正则、简化指标、第三方近似包或 CPU fallback 冒充正式结果。
+若项目需要固定更严格阈值，应基于首轮三组真实结果评审后版本化写入，不能在无数据时
+宣称某阈值来自官方。
 
-## 6. 验收报告必须包含
+## 8. 最低正式验收清单
 
-正式报告建议保存到 `MOSS-TTSD-v0.5/validation_reports/YYYYMMDD_<device>.md`，至少包含：
+- [ ] 源码、模型、codec、patch 和 testset revision/SHA256 已记录。
+- [ ] 原始 CUDA、patch 后 CUDA、NPU 使用相同 manifest 和参数，输出互不覆盖。
+- [ ] 功能验证 2 条、L2 中英文各 50 条均记录实际执行结果。
+- [ ] 六份 L2 manifest 和 metadata 已归档。
+- [ ] ACC/SIM/WER 使用固定 TTSD-eval 原始脚本完成。
+- [ ] 报告同时给出原始→patch 回归差和 patch→NPU 迁移差。
+- [ ] 三组 L2 elapsed、RTF/RTFx、峰值 RSS/HBM 和相对比值已归档。
+- [ ] 日志包含 Python、CANN、torch、torch-npu、transformers、硬件和权重 SHA256。
+- [ ] 任何未执行项、依赖缺失、OOM 或指标超限均明确标为阻塞/失败。
+
+在全部完成前，当前交付状态最多为 S1 静态适配完成；不能写“迁移验收完成”或
+“正式验收通过”。
+
+## 9. 验收报告模板
+
+报告保存到 `validation_reports/YYYYMMDD_<device>.md`，至少包含：
 
 ```text
-模型：MOSS-TTSD-v0.5
-源码：OpenMOSS/MOSS-TTSD tag v0.5 / 0e078c62389922d3aa873ce182daf31142860b18
-patch：patch 文件路径 + SHA256
-模型权重：来源、revision、SHA256
-codec：来源、revision、SHA256
+状态：S1/S2/S3/S4
+源码/模型/codec/patch/testset：revision + SHA256
+环境：OS、Python、CANN、driver、torch、torch-npu、transformers、GPU/NPU
+数据：功能验证/L2 文件、样本数、manifest SHA256
 
-原始测试集：
-- 官方正式 test set：未发布 / 或填写官方名称、split、样本数
-- 当前 L0：upstream/examples/examples.jsonl，2 条，中文/英文双说话人
-- 当前 L1：固定 JSONL 路径、样本数、语言、总时长
-- 当前 L2：OpenMOSS/TTSD-eval commit、testset 文件名、split/语言、样本数、prompt 来源
+三组命令和输出：
+- original_cuda：
+- patched_cuda：
+- npu：
 
-原始官方指标：
-- 未发布 / 或填写官方指标表和来源
+结果：
+- 基础 WAV 检查：
+- original_cuda -> patched_cuda：ACC/SIM/WER 差异、失败样例
+- patched_cuda -> npu：ACC/SIM/WER 差异、失败样例
+- 人工听测：
+- elapsed、音频总时长、RTF/RTFx、峰值内存：
 
-对齐基线：
-- CPU/CUDA 命令、日志、输出目录
-- NPU 命令、日志、输出目录
-
-质量指标：
-- 固定后端记录：CPU/CUDA 与 NPU 各自实际使用的 dtype 和 attention backend
-- TTSD-eval：ACC/SIM/WER，评测 repo commit、MMS-FA/WeSpeaker/Whisper 版本、CPU/CUDA、NPU、差异
-- CER/WER：ASR 模型、normalizer、CPU/CUDA、NPU、差异
-- 说话人切换：标注规则、CPU/CUDA 错误数、NPU 错误数
-- 音色相似度：模型版本、CPU/CUDA、NPU、差异
-- 人工听测：人数、样本数、MOS/CMOS/A-B、异常样例
-
-性能记录：
-- elapsed、RTF、输入样本数、固定 dtype/attention backend、峰值 HBM/RSS
-
-结论：
-- 通过 / 不通过
-- 若不通过，列出与原始 CPU/CUDA 相比退化的样例和指标
+未执行/阻塞：
+结论：通过/不通过；不得用功能样例替代 L2 精度或性能结论
 ```
-
-## 7. 最终准入标准
-
-只有同时满足以下条件，才可说 MOSS-TTSD-v0.5 NPU 适配验收通过：
-
-1. 已明确记录原始测试集状态：v0.5 官方正式 test set/质量指标未发布，当前以官方 `examples/examples.jsonl` + 固定对齐集 + OpenMOSS/TTSD-eval 公共评测验收；
-2. 同一权重、同一输入、同一 seed 下，CPU/CUDA 基线和 NPU 输出均已归档；
-3. 官方示例 2 条全部通过基础可用检查；
-4. L1 固定对齐集上，NPU 相对 CPU/CUDA 的可懂度、说话人切换、音色和人工听感无系统性退化；
-5. L2 TTSD-eval 可取得时，已在 CPU/CUDA 与 NPU manifest 上完成 ACC/SIM/WER，并说明 v0.5 无官方公开通过线；
-6. 所有依赖缺失、评测脚本缺失或官方字段缺失均直接暴露，不使用静默 fallback；
-7. 性能、环境、命令、日志、权重 SHA256 和输出文件可复现。

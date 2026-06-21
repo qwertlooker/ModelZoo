@@ -44,13 +44,33 @@ manifest。
 - clustering 参数、speaker 上下限、median filtering；
 - batch 和音频预处理。
 
-先在 CUDA 原始路径生成 RTTM，再在 NPU 生成 RTTM，使用 vendored dscore：
+必须保留三组结果：
+
+1. 未应用 patch 的固定 upstream CUDA 原始路径；
+2. 应用 patch 后的 CUDA 回归路径，证明 CPU/CUDA 行为未改变；
+3. 应用 patch 后的 NPU 路径。
+
+三组使用同一 manifest、config 和权重。先用 `prepare_eval_data.py` 固定输入，再使用
+vendored dscore：
 
 ```bash
-python3 upstream/dscore/score.py \
-  -r reference.rttm -s system.rttm \
-  --collar 0.0 --ignore_overlaps false
+python prepare_eval_data.py \
+  --wav_scp eval_data/ami/wav.scp \
+  --reference_rttm eval_data/ami/reference.rttm \
+  --uem eval_data/ami/all.uem \
+  --output_manifest eval_data/ami/manifest.jsonl \
+  --dataset AMI --split SDM-eval
+python score_diarization.py \
+  --dscore_dir upstream/dscore \
+  --reference_rttm eval_data/ami/reference.rttm \
+  --system_rttm results/npu/*.rttm \
+  --uem eval_data/ami/all.uem \
+  --collar 0.0 \
+  --output results/npu/der.txt
 ```
+
+`--ignore_overlaps` 是 `store_true` 开关。官方口径保留 overlap 时必须完全省略该
+参数，不能写成无效的 `--ignore_overlaps false`。
 
 通过条件：
 
@@ -59,29 +79,59 @@ python3 upstream/dscore/score.py \
 - 同输入 RTTM session、时间轴范围和 speaker 数约束一致；
 - 不允许 embedding ONNX session 使用 `CPUExecutionProvider` 冒充 NPU。
 
-## 3. 分层验收
+`0.2` 个百分点是暂定迁移门禁，不是 upstream 官方容差。正式 L2 必须先测量
+原始 CUDA 与 patch 后 CUDA 的重复运行/聚类波动，再决定是否收紧或放宽。
+
+## 3. 功能验证与 L2
 
 | 层级 | 数据 | 目标 |
 |---|---|---|
-| L0 | upstream `EN2002a_30s.wav` | 生成 RTTM；不作为 DER 结论 |
-| L1 | 至少 10 个带 RTTM/UEM 的短 session | CUDA/NPU 分项 DER 对齐 |
-| L2 | AMI-SDM 或 VoxConverse 固定公开 split | 全量迁移精度、性能、稳定性 |
-| L3 | upstream 表中 8 个数据集 | 复现官方多域 DER 表 |
+| 功能验证 | upstream `EN2002a_30s.wav` | 三组生成 RTTM、输出结构和失败用例；不作为 DER 结论 |
+| L2 | 优先按 upstream 公布数据集全量和官方口径；数据许可受限时使用 AMI-SDM/VoxConverse 可取得公开 split | 全量三组 DER、RTF 和资源对齐 |
 
-## 4. 性能与稳定性
+## 4. 功能矩阵
 
-记录总音频时长、wall time、RTF、分割/embedding 阶段耗时、batch、峰值 HBM/RSS、首次编译时间。至少连续处理 1 小时音频或 30 轮 L1，无崩溃和持续内存增长。
+| 维度 | 必测值 |
+|---|---|
+| 路径 | 原始 CUDA、patch 后 CUDA、NPU |
+| 输入 | 单文件、JSONL manifest、多 session |
+| 音频 | mono、stereo/downmix、长短 session |
+| 聚类 | checkpoint 默认配置；如切换 AHC/VBx 必须独立报告 |
+| metric | collar=0、保留 overlap；其他口径单独标注 |
+| 异常 | 缺 PLDA、缺 embedding、CANN EP 缺失、RTTM/UEM ID 不匹配 |
 
-## 5. 当前验收状态
+## 5. L2 精度与性能验证
+
+精度优先选择 upstream 表中可取得的完整公开 split，并保持 `collar=0`、保留
+overlap、同 clustering 配置；许可或精确 recipe 不可取得时固定 AMI-SDM 或
+VoxConverse 公开 split，明确这是迁移对齐。
+
+`infer.py` 的 `run.meta.json` 已记录音频总时长、elapsed 和 RTF。三组正式 L2
+分别用 `/usr/bin/time -v` 补峰值 RSS，NPU 侧记录峰值 HBM；至少重复 3 次并报告
+RTF 中位数。官方未发布可比硬件性能值，因此报告 NPU/CUDA RTF 比值，不伪造
+speedup 通过线。
+
+## 6. 最低正式验收清单
+
+- [ ] 源码、patch、主模型、embedding、PLDA 和 dscore SHA 已固定。
+- [ ] 依赖导入、NPU tensor 和 CANN provider 检查通过。
+- [ ] CPU/NPU 分属独立环境，ONNX Runtime 版本分别为 1.22.1 CPU/CANN。
+- [ ] 功能 example 在原始 CUDA、patch 后 CUDA与 NPU 生成 RTTM。
+- [ ] 原始 CUDA与 patch 后 CUDA RTTM/DER 回归无非预期变化。
+- [ ] dscore 使用 collar=0 且保留 overlap，命令和原始输出归档。
+- [ ] `run.meta.json` 证明 NPU embedding provider 为 CANN。
+- [ ] L2 正式 split 完成三组 DER 对齐，数据许可已记录。
+- [ ] L2 三组 RTF、峰值 RSS/HBM 和相对比值已归档。
+
+## 7. 当前验收状态
 
 - 已通过：patch 在固定 DiariZen commit 上 `git apply --check`；应用后
   DiariZen 和修改的 pyannote 文件 `compileall`；ModelZoo `infer.py`
   语法检查。
-- 未执行：主/embedding 权重下载、example RTTM、CUDA/NPU RTTM 对齐、
-  官方数据 DER、性能和稳定性。
+- 未执行：主/embedding 权重下载、功能 RTTM 和 L2 DER/性能对齐。
 - 当前结论：源码适配静态门禁通过；NPU diarization 精度未验收。
 
-## 6. 报告模板
+## 8. 报告模板
 
 ```text
 源码、patch、模型、embedding、PLDA SHA:
@@ -90,7 +140,8 @@ python3 upstream/dscore/score.py \
 clustering/median/batch参数:
 CUDA DER(miss/fa/confusion/total):
 NPU DER(miss/fa/confusion/total):
-差异、RTF、内存、稳定性:
+差异:
+三组elapsed、RTF、峰值RSS/HBM及比值:
 provider核验:
 结论和未完成项:
 ```

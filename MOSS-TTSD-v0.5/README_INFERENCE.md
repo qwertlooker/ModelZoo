@@ -69,10 +69,10 @@ MOSS-TTSD-v0.5 是 OpenMOSS 发布的对话式双说话人文本转语音/文本
 
 | 配套 | 版本 |
 |---|---|
-| 固件与驱动 | 25.0.RC1.1+，推荐随 CANN 版本配套升级 |
-| CANN Toolkit / Kernel / NNAL | 8.2.RC1+，推荐使用目标机器统一版本 |
-| Python | 3.10 / 3.11 |
-| PyTorch / torch-npu | 与 CANN 匹配，建议 2.6.0+ |
+| 固件与驱动 | 25.5.1+ |
+| CANN Toolkit / Kernel / NNAL | 8.5.1 |
+| Python | 3.11 |
+| PyTorch / torch-npu / torchaudio | 2.9.0 |
 | transformers | 当前上游 v0.5 代码固定使用 `4.57.6`；不要安装 5.x |
 | accelerate | 按原项目依赖安装 |
 | soundfile / torchaudio | `soundfile` 用于文件读写；`torchaudio.functional.resample` 用于重采样 |
@@ -92,10 +92,13 @@ MOSS-TTSD-v0.5
 ├── NPU_ADAPTATION.md                           # NPU 适配文档与验证记录
 ├── ACCEPTANCE_PLAN.md                          # 完整验收方案
 ├── V1_0_DIFF_REFERENCE.md                      # v1.0 差异参考
+├── prepare_eval_data.py                        # evaluator manifest 工具
 ├── patches
 │   ├── README.md                               # patch 使用说明
 │   └── 0001-adapt-v0.5-inference-to-npu.patch  # v0.5 NPU 适配 patch
-├── upstream                                    # OpenMOSS/MOSS-TTSD tag v0.5 源码
+├── source                                      # 固定 tag 的 Git 管理目录
+├── upstream-original                           # 未应用 patch 的 CUDA baseline
+├── upstream-npu                                # 应用 patch 的 CUDA 回归/NPU 路径
 │   ├── inference.py                            # patch 后的推理入口
 │   ├── generation_utils.py                     # 生成和音频处理逻辑
 │   ├── modeling_asteroid.py                    # Asteroid 生成模型
@@ -128,27 +131,62 @@ MOSS-TTSD-v0.5
    cd ACL_PyTorch/built-in/audio/MOSS-TTSD-v0.5
    ```
 
-2. 准备原项目 tag `v0.5` 代码并应用 patch。
+2. 准备原项目 tag `v0.5` 的独立原始和 patch 工作树。
 
    ```bash
-   # 如已存在 upstream，可跳过 clone
-   git clone https://github.com/OpenMOSS/MOSS-TTSD.git upstream
-
-   git -C upstream fetch --depth 1 origin tag v0.5
-   git -C upstream checkout v0.5
-   git -C upstream apply --check ../patches/0001-adapt-v0.5-inference-to-npu.patch
-   git -C upstream apply ../patches/0001-adapt-v0.5-inference-to-npu.patch
+   git clone https://github.com/OpenMOSS/MOSS-TTSD.git source
+   git -C source checkout 0e078c62389922d3aa873ce182daf31142860b18
+   git -C source worktree add --detach ../upstream-original \
+     0e078c62389922d3aa873ce182daf31142860b18
+   git -C source worktree add --detach ../upstream-npu \
+     0e078c62389922d3aa873ce182daf31142860b18
+   git -C upstream-npu apply --check \
+     ../patches/0001-adapt-v0.5-inference-to-npu.patch
+   git -C upstream-npu apply \
+     ../patches/0001-adapt-v0.5-inference-to-npu.patch
    ```
 
-3. 安装依赖。
+3. 安装 NPU 环境。不得从 PyTorch CPU wheel 索引安装框架：
 
    ```bash
-   cd upstream
-   pip install torch torch-npu
-   pip install "transformers==4.57.6"
-   # patch 已从 requirements.txt 删除 CUDA/ROCm 专用的 flash-attn 依赖。
-   pip install -r requirements.txt
-   pip install -r XY_Tokenizer/requirements.txt
+   python3.11 -m venv .venv-npu
+   source .venv-npu/bin/activate
+   python -m pip install --upgrade pip
+   python -m pip install torch==2.9.0 torch-npu==2.9.0 torchaudio==2.9.0 \
+     -i https://mirrors.huaweicloud.com/repository/pypi/simple
+   python -m pip install "transformers==4.57.6"
+   python -m pip install -r upstream-npu/requirements.txt
+   python -m pip install -r upstream-npu/XY_Tokenizer/requirements.txt
+   python - <<'PY'
+   import torch
+   import torch_npu
+   print(torch.__version__, torch.randn(1).to("npu").device)
+   PY
+   deactivate
+   ```
+
+4. 原始 CUDA 和 patch 后 CUDA 使用两个独立环境，均安装相同的 PyTorch、
+   Transformers 和 CUDA `flash-attn`。以下 CUDA wheel/索引需按实际 CUDA 版本
+   选择，不能用于 NPU 环境：
+
+   ```bash
+   python3.11 -m venv .venv-cuda-original
+   source .venv-cuda-original/bin/activate
+   python -m pip install --upgrade pip
+   python -m pip install torch==2.9.0 torchaudio==2.9.0
+   python -m pip install "transformers==4.57.6" flash-attn
+   python -m pip install -r upstream-original/requirements.txt
+   python -m pip install -r upstream-original/XY_Tokenizer/requirements.txt
+   deactivate
+
+   python3.11 -m venv .venv-cuda-patched
+   source .venv-cuda-patched/bin/activate
+   python -m pip install --upgrade pip
+   python -m pip install torch==2.9.0 torchaudio==2.9.0
+   python -m pip install "transformers==4.57.6" flash-attn
+   python -m pip install -r upstream-npu/requirements.txt
+   python -m pip install -r upstream-npu/XY_Tokenizer/requirements.txt
+   deactivate
    ```
 
 ### 准备权重
@@ -161,38 +199,41 @@ MOSS-TTSD-v0.5
    - XY Tokenizer：`https://huggingface.co/fnlp/XY_Tokenizer_TTSD_V0`
 
    ```bash
-   cd upstream
+   export HF_HOME="$PWD/hf-cache"
    python -m pip install -U "huggingface_hub[cli]"
-   mkdir -p weights/MOSS-TTSD-v0.5 XY_Tokenizer/weights
+   mkdir -p assets upstream-npu/weights upstream-npu/XY_Tokenizer/weights \
+     upstream-original/XY_Tokenizer/weights
 
-   hf download fnlp/MOSS-TTSD-v0.5 \
-     --revision 8527b9136b6afefe2252ae597cecea2e80e7ebeb \
-     --local-dir weights/MOSS-TTSD-v0.5
+   MODEL_SNAPSHOT=$(python - <<'PY'
+   from huggingface_hub import snapshot_download
+   print(snapshot_download(
+       "fnlp/MOSS-TTSD-v0.5",
+       revision="8527b9136b6afefe2252ae597cecea2e80e7ebeb",
+   ))
+   PY
+   )
 
    hf download fnlp/XY_Tokenizer_TTSD_V0 xy_tokenizer.ckpt \
      --revision c83433728e698ed0698e88cb5096bc221fb8f8c5 \
-     --local-dir XY_Tokenizer/weights
+     --local-dir assets/XY_Tokenizer_TTSD_V0
+
+   ln -sfn "$MODEL_SNAPSHOT" upstream-npu/weights/MOSS-TTSD-v0.5
+   ln -sfn "$PWD/assets/XY_Tokenizer_TTSD_V0/xy_tokenizer.ckpt" \
+     upstream-npu/XY_Tokenizer/weights/xy_tokenizer.ckpt
+   ln -sfn "$PWD/assets/XY_Tokenizer_TTSD_V0/xy_tokenizer.ckpt" \
+     upstream-original/XY_Tokenizer/weights/xy_tokenizer.ckpt
    ```
 
-2. 国内环境可使用 ModelScope 镜像。
+   原始代码继续使用 repo id `fnlp/MOSS-TTSD-v0.5`，执行时设置同一个
+   `HF_HOME` 和 `HF_HUB_OFFLINE=1`，从上述固定 revision cache 加载；patch 后代码
+   通过符号链接读取同一 snapshot。
+
+2. 下载后记录 SHA256。
 
    ```bash
-   cd upstream
-   python -m pip install -U modelscope
-   mkdir -p weights/MOSS-TTSD-v0.5 XY_Tokenizer/weights
-
-   modelscope download --model openmoss/MOSS-TTSD-v0.5 \
-     --local_dir weights/MOSS-TTSD-v0.5
-
-   modelscope download --model openmoss/XY_Tokenizer_TTSD_V0 xy_tokenizer.ckpt \
-     --local_dir XY_Tokenizer/weights
-   ```
-
-3. 下载后记录 SHA256。
-
-   ```bash
-   cd upstream
-   find weights/MOSS-TTSD-v0.5 -maxdepth 1 -type f -print0 | sort -z | xargs -0 sha256sum
+   cd upstream-npu
+   find -L weights/MOSS-TTSD-v0.5 -maxdepth 1 -type f -print0 \
+     | sort -z | xargs -0 sha256sum
    sha256sum XY_Tokenizer/weights/xy_tokenizer.ckpt
    ```
 
@@ -203,67 +244,120 @@ MOSS-TTSD-v0.5
    默认示例路径：
 
    ```text
-   upstream/examples/examples.jsonl
+   upstream-original/examples/examples.jsonl
    ```
 
    该文件包含中文和英文双说话人长对话示例，并引用 `examples/` 目录下的 prompt wav。
 
-2. 正式验收时准备 `acceptance_l1.jsonl`，字段、规模和通过条件见 `ACCEPTANCE_PLAN.md`。L1 至少覆盖中文、英文、中英混合、短句、长对话、双说话人、normalize 和 prompt 切换。
+2. 下载固定 TTSD-eval 全量 testset：
 
-3. L2 公共客观评测默认使用 `OpenMOSS/TTSD-eval` testset。该评测可用于 v0.5 输出，但不代表 v0.5 已发布官方指标；正式验收需同时跑 CPU/CUDA 原始路径和 NPU，并比较 ACC/SIM/WER。
+   ```bash
+   git clone https://github.com/OpenMOSS/TTSD-eval.git third_party/TTSD-eval
+   git -C third_party/TTSD-eval checkout \
+     dea13b98529dc16dcfb5fe45779ad63ac9238337
+   curl -L --fail \
+     -o third_party/TTSD-eval/testset.zip \
+     https://media.githubusercontent.com/media/OpenMOSS/TTSD-eval/dea13b98529dc16dcfb5fe45779ad63ac9238337/testset.zip
+   echo "49ed8338f3e5323c5ffcff01f3480a9c245937256d9197d792c973cba5603e17  third_party/TTSD-eval/testset.zip" \
+     | sha256sum -c -
+   unzip -oq third_party/TTSD-eval/testset.zip -d third_party/TTSD-eval
+
+   wc -l \
+     third_party/TTSD-eval/testset/ttsd_eval_zh.jsonl \
+     third_party/TTSD-eval/testset/ttsd_eval_en.jsonl
+   ```
+
+   L2 使用上述中文和英文全量各 50 条。
+
+3. 功能验证使用官方 `examples/examples.jsonl` 2 条；L2 使用
+   `OpenMOSS/TTSD-eval` 全量。该评测可用于 v0.5 输出，但不代表 v0.5 已发布官方
+   指标；正式验收需同时比较 ACC/SIM/WER 和 RTF/RTFx。
 
 ### 模型推理
 
-1. 执行 NPU smoke 推理。
+1. 执行未应用 patch 的原始 CUDA baseline。
 
    ```bash
-   cd upstream
-   ASCEND_RT_VISIBLE_DEVICES=0 python inference.py \
+   source .venv-cuda-original/bin/activate
+   export HF_HOME="$(pwd)/hf-cache"
+   export HF_HUB_OFFLINE=1
+   cd upstream-original
+   CUDA_VISIBLE_DEVICES=0 python inference.py \
      --jsonl examples/examples.jsonl \
-     --output_dir outputs_npu \
-     --device npu \
+     --output_dir outputs_original_cuda \
      --seed 42 \
      --use_normalize
+   cd ..
+   deactivate
    ```
 
    参数说明：
 
    - `jsonl`：输入 JSONL 文件路径。
    - `output_dir`：输出 WAV 保存目录。
-   - `device`：推理设备，支持 `npu`、`cpu`、`cuda`。
+   - `device`：仅 patch 后入口提供，支持 `npu`、`cpu`、`cuda`。
    - `seed`：随机种子。
    - `use_normalize`：启用原项目文本归一化路径。
 
    模型权重、codec 配置和 checkpoint 按本文约定的目录读取。NPU 固定使用 BF16 + torch-npu Flash Attention，CPU 固定使用 FP32 + SDPA，CUDA 保持 BF16 + `flash_attention_2`，不额外暴露注意力参数。
 
-2. 执行 CPU 功能/质量基线。
+2. 执行应用 patch 后的同设备 CUDA 回归。
 
    ```bash
-   cd upstream
+   source .venv-cuda-patched/bin/activate
+   cd upstream-npu
    python inference.py \
      --jsonl examples/examples.jsonl \
-     --output_dir outputs_cpu \
-     --device cpu \
+     --output_dir outputs_patched_cuda \
+     --device cuda \
      --seed 42 \
      --use_normalize
+   cd ..
+   deactivate
    ```
 
-3. 检查输出 WAV。
+3. 执行 NPU candidate。
 
    ```bash
-   cd upstream
+   source .venv-npu/bin/activate
+   cd upstream-npu
+   python inference.py \
+     --jsonl examples/examples.jsonl \
+     --output_dir outputs_npu \
+     --device npu \
+     --seed 42 \
+     --use_normalize
+   cd ..
+   ```
+
+4. 检查三组输出 WAV。原始与 patch 后 CUDA 先做同设备回归，再比较 patch 后
+   CUDA 与 NPU。
+
+   ```bash
    python - <<'PY'
-   import glob, soundfile as sf
-   paths = sorted(glob.glob('outputs_npu/output_*.wav'))
-   print('wav_count=', len(paths))
-   for p in paths:
-       data, sr = sf.read(p, always_2d=True)
-       dur = len(data) / sr
-       print(p, 'sr=', sr, 'shape=', data.shape, 'duration=', round(dur, 3), 'peak=', float(abs(data).max()))
+   from pathlib import Path
+   import soundfile as sf
+
+   groups = {
+       "original_cuda": Path("upstream-original/outputs_original_cuda"),
+       "patched_cuda": Path("upstream-npu/outputs_patched_cuda"),
+       "npu": Path("upstream-npu/outputs_npu"),
+   }
+   for name, directory in groups.items():
+       paths = sorted(directory.glob("output_*.wav"))
+       if len(paths) != 2:
+           raise RuntimeError(f"{name}: expected 2 wav files, got {len(paths)}")
+       for path in paths:
+           data, sr = sf.read(path, always_2d=True)
+           if not sr or not len(data) or not (abs(data).max() > 0):
+               raise RuntimeError(f"invalid output: {path}")
+           print(name, path, sr, len(data) / sr, float(abs(data).max()))
    PY
    ```
 
-   L0 通过条件：输出 WAV 数量与输入有效样本一致、WAV 可读、时长大于 0、非全静音、无设备不一致、无 CUDA 硬编码、无 TorchCodec 报错、无 NPU attention mask 形状错误。
+   功能验证通过条件：输出 WAV 数量与输入有效样本一致、WAV 可读、时长大于 0、
+   非全静音、无设备不一致、无 CUDA 硬编码、无 TorchCodec 报错、无 NPU
+   attention mask 形状错误。
 
 
 ## OpenMOSS/TTSD-eval 测评
@@ -276,69 +370,111 @@ MOSS-TTSD-v0.5
 
 使用口径：v0.5 官方正式质量指标仍为“未发布”；TTSD-eval 结果用于公共评测和 NPU 迁移对齐，不得挪用 v1.0 论文指标作为 v0.5 通过线。
 
-基本流程：
+以下命令对中文和英文各 50 条执行三组生成。TTSD-eval JSONL 中的 prompt 路径相对
+`testset/`，而 v0.5 codec checkpoint 相对模型工作树；因此先把同一个 testset
+`audio/` 链接到两个工作树，再分别从工作树执行。三组输出不能覆盖：
 
 ```bash
 cd ACL_PyTorch/built-in/audio/MOSS-TTSD-v0.5
+MODEL_ROOT="$PWD"
 
-# 1. 准备 TTSD-eval
-git clone https://github.com/OpenMOSS/TTSD-eval.git third_party/TTSD-eval
-cd third_party/TTSD-eval
-git rev-parse HEAD
-git lfs install && git lfs pull
-unzip -oq testset.zip -d .
-pip install -r requirements.txt
-# 按 TTSD-eval README 准备 MMS-FA checkpoint、WeSpeaker 权重和 Whisper 依赖。
+ln -sfn "$MODEL_ROOT/third_party/TTSD-eval/testset/audio" \
+  "$MODEL_ROOT/upstream-original/audio"
+ln -sfn "$MODEL_ROOT/third_party/TTSD-eval/testset/audio" \
+  "$MODEL_ROOT/upstream-npu/audio"
+mkdir -p results/ttsd_eval
 
-# 2. 回到 v0.5，分别对 TTSD-eval testset 生成 CPU/CUDA 与 NPU 音频
-cd ../..
-cd upstream
-python inference.py \
-  --jsonl ../third_party/TTSD-eval/testset/<split>.jsonl \
-  --output_dir outputs_ttsd_eval_cpu_<split> \
-  --device cpu \
-  --seed 42 \
-  --use_normalize
+for LANG in zh en; do
+  MANIFEST="$MODEL_ROOT/third_party/TTSD-eval/testset/ttsd_eval_${LANG}.jsonl"
 
-ASCEND_RT_VISIBLE_DEVICES=0 python inference.py \
-  --jsonl ../third_party/TTSD-eval/testset/<split>.jsonl \
-  --output_dir outputs_ttsd_eval_npu_<split> \
-  --device npu \
-  --seed 42 \
-  --use_normalize
+  source "$MODEL_ROOT/.venv-cuda-original/bin/activate"
+  (
+    cd "$MODEL_ROOT/upstream-original"
+    HF_HOME="$MODEL_ROOT/hf-cache" HF_HUB_OFFLINE=1 CUDA_VISIBLE_DEVICES=0 \
+      python inference.py \
+        --jsonl "$MANIFEST" \
+        --output_dir "$MODEL_ROOT/results/ttsd_eval/original_cuda_${LANG}" \
+        --seed 42 \
+        --use_normalize
+  )
+  deactivate
+
+  source "$MODEL_ROOT/.venv-cuda-patched/bin/activate"
+  (
+    cd "$MODEL_ROOT/upstream-npu"
+    CUDA_VISIBLE_DEVICES=0 python inference.py \
+      --jsonl "$MANIFEST" \
+      --output_dir "$MODEL_ROOT/results/ttsd_eval/patched_cuda_${LANG}" \
+      --device cuda \
+      --seed 42 \
+      --use_normalize
+  )
+  deactivate
+
+  source "$MODEL_ROOT/.venv-npu/bin/activate"
+  (
+    cd "$MODEL_ROOT/upstream-npu"
+    ASCEND_RT_VISIBLE_DEVICES=0 python inference.py \
+      --jsonl "$MANIFEST" \
+      --output_dir "$MODEL_ROOT/results/ttsd_eval/npu_${LANG}" \
+      --device npu \
+      --seed 42 \
+      --use_normalize
+  )
+  deactivate
+done
 ```
 
-推理完成后，按 `ACCEPTANCE_PLAN.md` 将 `output_*.wav` 回填为 TTSD-eval manifest 的 `output_audio`，然后运行：
+推理完成后生成六份互不覆盖的 evaluator manifest。工具会检查每个
+`output_N.wav` 是否存在，并写入 manifest SHA256：
 
 ```bash
-cd ../third_party/TTSD-eval
-bash eval.sh      # ACC / SIM
-bash run_wer.sh   # WER；中英文需分别设置 language=zh/en
+for LANG in zh en; do
+  for GROUP in original_cuda patched_cuda npu; do
+    python prepare_eval_data.py attach-output \
+      --input_jsonl "third_party/TTSD-eval/testset/ttsd_eval_${LANG}.jsonl" \
+      --output_jsonl "results/ttsd_eval/${GROUP}_${LANG}.jsonl" \
+      --output_dir "results/ttsd_eval/${GROUP}_${LANG}" \
+      --path_root third_party/TTSD-eval/testset
+  done
+done
 ```
 
-报告中记录 TTSD-eval commit、testset 文件名/样本数/语言、MMS-FA/WeSpeaker/Whisper 版本、CPU/CUDA ACC/SIM/WER、NPU ACC/SIM/WER 和差异。
+正式 ACC/SIM/WER 继续使用固定 commit 的 TTSD-eval 原始
+`tools/align.py`、`tools/split.py`、`tools/run_similarity.py`、
+`wer/whisper_asr.py` 和 `wer/run_wer.py`。逐份运行的精确命令见
+`ACCEPTANCE_PLAN.md`；不得用简化相似度或其他 ASR 替代。
 
 ## 模型推理性能
 
-MOSS-TTSD-v0.5 属自回归生成式 TTS/TTSD 模型，性能以生成音频总时长和端到端墙钟时间计算。
+MOSS-TTSD-v0.5 属自回归生成式 TTS/TTSD 模型，L2 性能以中英文全量生成音频总时长
+和端到端墙钟时间计算。以下展示 NPU 中文命令；原始 CUDA、patch 后 CUDA、英文
+split 使用相同参数和独立日志/输出目录：
 
 ```bash
 cd ACL_PyTorch/built-in/audio/MOSS-TTSD-v0.5
-cd upstream
-/usr/bin/time -v bash -lc 'ASCEND_RT_VISIBLE_DEVICES=0 python inference.py \
-  --jsonl ../third_party/TTSD-eval/testset/<split>.jsonl \
-  --output_dir outputs_ttsd_eval_npu_<split> \
+MODEL_ROOT="$PWD"
+source .venv-npu/bin/activate
+mkdir -p results/performance
+cd upstream-npu
+/usr/bin/time -v -o "$MODEL_ROOT/results/performance/npu_zh.time.txt" \
+  env ASCEND_RT_VISIBLE_DEVICES=0 python inference.py \
+  --jsonl "$MODEL_ROOT/third_party/TTSD-eval/testset/ttsd_eval_zh.jsonl" \
+  --output_dir "$MODEL_ROOT/results/performance/npu_zh" \
   --device npu \
   --seed 42 \
-  --use_normalize'
+  --use_normalize
+cd "$MODEL_ROOT"
 ```
 
 统计输出时长：
 
 ```bash
 python - <<'PY'
-import glob, soundfile as sf
-paths = sorted(glob.glob('outputs_ttsd_eval_npu_<split>/output_*.wav'))
+from pathlib import Path
+import soundfile as sf
+
+paths = sorted(Path("results/performance/npu_zh").glob("output_*.wav"))
 total = 0.0
 for p in paths:
     data, sr = sf.read(p, always_2d=True)
@@ -348,7 +484,10 @@ print('generated_audio_seconds=', total)
 PY
 ```
 
-报告中至少记录：输入样本数、成功输出数、输出 WAV 总时长、elapsed seconds、`RTF=elapsed/generated_audio_seconds`、`RTFx=generated_audio_seconds/elapsed`、固定 dtype/attention 路径、峰值 HBM、CPU RSS、首次加载/编译耗时和稳定推理耗时。完整性能与质量验收口径见 `ACCEPTANCE_PLAN.md`。
+报告中至少记录三组输入样本数、成功输出数、输出 WAV 总时长、elapsed seconds、
+`RTF=elapsed/generated_audio_seconds`、`RTFx=generated_audio_seconds/elapsed`、
+固定 dtype/attention 路径、峰值 HBM 和 CPU RSS。每组至少重复 3 次并报告中位数。
+完整性能与质量验收口径见 `ACCEPTANCE_PLAN.md`。
 
 ## NPU GQA FlashAttention 与显存说明
 
@@ -385,8 +524,8 @@ PY
 
 ```bash
 ASCEND_RT_VISIBLE_DEVICES=0 python inference.py \
-  --jsonl <eval.jsonl> \
-  --output_dir <output_dir> \
+  --jsonl ../third_party/TTSD-eval/testset/ttsd_eval_zh.jsonl \
+  --output_dir ../results/ttsd_eval/npu_zh \
   --device npu \
   --seed 42 \
   --use_normalize

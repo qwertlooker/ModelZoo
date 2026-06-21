@@ -29,6 +29,11 @@ vllm-ascend 不需要源码修改，由现有 Ascend attention、MoE、EP/HCCL �
 - MTP 属于推测解码。精度对齐先关闭 MTP 建立 baseline，再开启并验证输出质量与性能。
 - tool/reasoning parser 是服务接口的一部分，必须单独测试流式/非流式、多个工具参数和 `reasoning_effort`。
 - 32K/bs8 只是当前可行配置，不等同于 256K 能力验收。
+- CUDA baseline 和 NPU 功能验证必须使用同一 `test_data/service_prompts.jsonl`；
+  L2 服务精度回归由 `tools/prepare_service_prompts.py` 生成同一 100 条 manifest，再由
+  `tools/openai_service_eval.py` 写入不同结果文件；单条 curl 不构成迁移对齐。
+- 未应用 patch 的 vLLM 不支持 HyV3，原始 baseline 是可审计的注册/加载失败；
+  数值 baseline 使用应用相同 patch 的 CUDA vLLM，candidate 使用 NPU。
 
 ## 4. 验证事实
 
@@ -40,6 +45,14 @@ vllm-ascend 不需要源码修改，由现有 Ascend attention、MoE、EP/HCCL �
 - 官方模型卡指标和启动参数核对。
 
 当前主机没有 A3/NPU、镜像和约 590GB 权重，未执行加载、服务、精度或性能测试。参考 README 中基于日志推导的 KV 容量不能作为本次实测结论。
+
+已补充容器设备挂载、精确 commit 门禁、MTP 开关两阶段启动、固定功能/L2 prompt、
+服务结果比较和 `vllm bench serve` 性能入口。当前状态仍是 **S1：patch 静态门禁
+通过；升级到 S2/S3 仍缺 16 卡模型加载和 CUDA/NPU 功能、精度、性能对齐**。
+
+公共服务评测工具已通过本地 mock OpenAI endpoint 验证：4 条 prompt 覆盖中英文、
+JSON 和 tool call，JSON/tool schema 校验通过；相同结果比较的 content/tool/token
+agreement 均为 `1.0`。这只证明评测工具链，不证明 Hy3 模型服务。
 
 用户推理和补丁应用见 [README_INFERENCE.md](README_INFERENCE.md)，数据集与
 CPU/CUDA/NPU 对齐要求见 [ACCEPTANCE_PLAN.md](ACCEPTANCE_PLAN.md)。

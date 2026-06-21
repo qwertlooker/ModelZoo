@@ -2,12 +2,14 @@ accelerate==1.6.0
 einops
 h5py
 huggingface-hub
+intervaltree
 joblib
 librosa
 numpy==1.26.4
 pandas
 scipy
 soundfile
+tabulate
 toml
 torchinfo
 tqdm

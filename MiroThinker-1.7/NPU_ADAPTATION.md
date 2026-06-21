@@ -24,6 +24,8 @@ vLLM `v0.17.0rc1` 已有 `Qwen3MoeForCausalLM` 支持，vllm-ascend 提供 NPU a
 - `--trust-remote-code` 只针对固定、已校验的本地权重目录；
 - 当前 8K/128 并发是参考服务配置，不等同于 256K 长上下文验收；
 - agent 质量依赖外部 search/scrape/code tools，模型服务 smoke 不能替代官方 agent benchmark。
+- 服务注册名、评测 `LLM_MODEL` 和请求 model 必须统一；8K smoke 与 256K
+  benchmark 使用两套明确的启动配置。
 
 ## 3. 验证事实
 
@@ -32,6 +34,16 @@ vLLM `v0.17.0rc1` 已有 `Qwen3MoeForCausalLM` 支持，vllm-ascend 提供 NPU a
 BrowseComp-ZH 289 条、GAIA-Val 165 条、HLE-Text-2158 2,158 条。
 
 当前主机没有 A3/NPU、vLLM-Ascend 镜像和 235B 权重，未执行服务、CUDA/NPU 对齐、官方 agent benchmark 或性能测试。Ascend-SACT README 中的吞吐表是参考来源结果，不作为本次交付实测。
+
+已补充容器设备挂载、Agent `uv sync --frozen`、`.env` 前置条件、固定服务
+prompt 的 4 条功能集、100 条确定性 L2 服务回归、CUDA/NPU 比较入口、服务性能
+命令和四项 benchmark 命令，并修正原文中服务名与评测模型名不一致以及 8K
+服务直接用于 256K benchmark 的矛盾。当前状态仍是 **S1：部署和验收流程已固定；
+升级到 S2/S3 仍缺 235B NPU 功能验证和同 endpoint 的 L2 agent 精度/性能对齐**。
+
+公共服务评测工具已用本地 mock OpenAI endpoint 完成 JSONL 请求、原子输出、
+metadata 和 token 对齐自测试；该结果只验证工具，不替代 235B 模型服务或 agent
+benchmark。
 
 用户部署见 [README_INFERENCE.md](README_INFERENCE.md)，官方 agent 验收参数和
 报告模板见 [ACCEPTANCE_PLAN.md](ACCEPTANCE_PLAN.md)。

@@ -9,6 +9,9 @@
 - embedding：`wespeaker-voxceleb-resnet34-LM` commit `837717ddb9ff5507820346191109dc79c958d614`
 - Ascend-SACT 参考：`7961b5ab79b1232b9da367f14f8cd4f592694465`
 - 检查日期：2026-06-20。
+- 目标 NPU 组合：Python 3.10、CANN 8.2.0、PyTorch/torchaudio/torch-npu
+  2.5.1、`onnxruntime-cann==1.22.1`；CPU baseline 使用独立环境中的
+  `onnxruntime==1.22.1`。
 
 ## 2. 适配分析
 
@@ -24,6 +27,12 @@ upstream `DiariZenPipeline` 将设备写为 `cuda:0`（CUDA 可用时）否则 C
 
 分割网络运行在 PyTorch NPU，speaker embedding 模型运行在 ONNX Runtime CANN。CPU fbank 只是前处理，不是模型推理回退。
 
+`infer.py` 现在支持固定 JSONL manifest，运行时读取
+`pipeline._embedding.session_.get_providers()` 并在 NPU 路径强制首 provider 为
+`CANNExecutionProvider`，同时写出 `run.meta.json`。`prepare_eval_data.py`
+固定 wav/RTTM/UEM，`score_diarization.py` 封装固定 dscore 参数，避免误写
+`--ignore_overlaps false`。
+
 ## 3. 验证事实与限制
 
 2026-06-20 已完成 upstream/reference/model revision 取证、CUDA/NPU 节点扫描、patch 静态检查和脚本语法检查。
@@ -32,9 +41,23 @@ upstream `DiariZenPipeline` 将设备写为 `cuda:0`（CUDA 可用时）否则 C
 
 - example RTTM CPU/NPU 对齐；
 - 官方数据 DER；
-- 性能和稳定性。
+- L2 性能：三组 RTF、峰值 RSS/HBM 和相对比值。
 
 这些状态必须保留为“待验收”，不能使用参考 README 的运行描述代替本次实测。
+
+当前状态是 **S1：源码适配和验收工具链已形成；升级到 S2/S3 仍缺模型功能 RTTM
+实测及 L2 CPU/CUDA/NPU DER、RTF 和资源对齐**。
+
+独立重放使用 `upstream-original`、`upstream-npu` 和 NPU 三组结果；原始与 patch
+后的 editable 安装不能位于同一环境。
+
+新增工具已做轻量 fixture 验证：
+
+- `prepare_eval_data.py` 成功读取 30 秒上游样例、wav.scp、reference RTTM 和 UEM，
+  生成 manifest/meta；
+- `score_diarization.py` 使用固定 dscore commit、`collar=0`、保留 overlap，
+  对相同 reference/system RTTM 得到 DER/JER `0.00`；
+- 该测试证明此前错误的 `--ignore_overlaps false` 已被消除，但不包含模型推理。
 
 安装和推理见 [README_INFERENCE.md](README_INFERENCE.md)，DER 数据口径和
 CPU/CUDA/NPU 对齐标准见 [ACCEPTANCE_PLAN.md](ACCEPTANCE_PLAN.md)。

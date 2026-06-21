@@ -54,12 +54,34 @@ benchmark 的实际 decode/agent 参数；benchmark-specific 参数官方未发�
 2. 记录逐 token top-1、可用时记录 logprob。
 3. 再开启 MTP，比较相同任务集。
 
+可执行入口：
+
+```bash
+python ../tools/openai_service_eval.py \
+  --base_url http://127.0.0.1:8000/v1 \
+  --model hy3-preview \
+  --prompts test_data/service_prompts.jsonl \
+  --request_logprobs \
+  --output results/npu.jsonl
+python ../tools/compare_openai_service_results.py \
+  --baseline results/cuda.jsonl \
+  --candidate results/npu.jsonl \
+  --require_logprobs \
+  --require_exact_tool_calls \
+  --output results/cuda_vs_npu.json
+```
+
 通过条件：
 
 - 请求成功率 100%，无权重缺失、rank/device、parser 错误；
 - greedy top-1 token agreement `>= 99.5%`；
 - 结构化 JSON/tool call schema 有效率 100%；
 - MTP 开关后的任务级正确率不低于关闭 MTP 超过 0.5 个百分点。
+
+逐 token 一致率会在首个分叉后级联下降，因此它只能和首个分叉位置、logprob、
+结构化输出有效率及任务正确率一起解释，不能单独作为生成质量结论。
+这些阈值是迁移初始门禁，必须用固定 CUDA/NPU baseline 的实测分布校准，不是官方
+发布容差。
 
 ### 2.2 官方任务对齐
 
@@ -70,35 +92,59 @@ benchmark 的实际 decode/agent 参数；benchmark-specific 参数官方未发�
 - NPU 相对 CUDA 下降 `<= 1.0` 个百分点；
 - 只有官方未公开字段补齐且配置一致时，才与官方表比较。
 
-## 3. 分层验收
+## 3. 功能验证与 L2
 
 | 层级 | 范围 |
 |---|---|
-| L0 | 模型加载、`/v1/models`、单轮 chat |
-| L1 | 100 条固定 prompt；tool/reasoning/streaming/JSON |
-| L2 | 固定公开 benchmark 子集和 32K 长上下文 |
-| L3 | 官方四项 benchmark 完整 recipe；256K context |
+| 功能验证 | 仓内 4 条固定 prompt；模型加载、`/v1/models`、chat、tool/reasoning/JSON，streaming 单独检查 |
+| L2 | 优先按官方四项 benchmark 全量和已公开配置；recipe 不完整时固定公开子集，并使用确定性 100 条性能请求 | 任务精度、服务 TTFT/TPOT/吞吐和资源 |
 
-L0/L1 不构成官方质量指标验收。
+功能验证不构成官方质量指标验收。
 
-## 4. 性能与稳定性
+## 4. 功能矩阵
 
-分别报告关闭/开启 MTP，输入/输出长度 1K/1K、1K/4K、10K/1K，concurrency 1/8/64：
+| 维度 | 必测值 |
+|---|---|
+| MTP | 关闭 baseline、开启 1 token |
+| 输出模式 | 非流式、流式 |
+| parser | no-think、high reasoning、单/多 tool call |
+| 结构化输出 | JSON object、非法 schema 失败 |
+| 上下文 | 短输入、8K；L2 使用 32K |
+| 并发 | 功能验证使用 1；L2 按固定 benchmark 配置 |
+| 异常 | 错模型名、超长输入、缺 shard、rank/HCCL 故障 |
 
-- TTFT、TPOT、ITL、E2E P50/P90/P99；
-- input/output/total tokens/s、QPS、tok/s/NPU；
-- 权重加载时间、峰值 HBM/host memory；
-- 连续 2 小时服务成功率和内存趋势。
+## 5. L2 精度与性能验证
 
-## 5. 当前验收状态
+精度优先执行 SWE-bench Verified、Terminal-Bench 2.0、BrowseComp、WideSearch
+全量官方数据和官方 harness。缺失 agent/tool/judge/decode 字段时，固定能取得的
+公开子集、harness commit 和环境，并明确结果仅为迁移对齐。
+
+性能使用 `vllm bench serve --dataset-name random --seed 42` 生成的确定性 100 条
+固定长度请求，CUDA/NPU 分别执行相同配置，记录成功率、TTFT、TPOT、ITL、E2E、
+request/output/total throughput 和峰值 HBM。关闭与开启 MTP 分别报告，结果写入
+独立 JSON。官方未发布同硬件性能值，不伪造 speedup 线；必须报告 NPU/CUDA 比值和
+是否达到项目另行给定的目标。
+
+## 6. 最低正式验收清单
+
+- [ ] 镜像 digest、vLLM/vllm-ascend/patch SHA 已记录。
+- [ ] 仓内 4 条功能 prompt 的 SHA 已记录，CUDA/NPU 使用同一文件。
+- [ ] 未应用 patch 的原始 vLLM 不支持 HyV3 的失败日志已归档；patched CUDA 作为数值 baseline。
+- [ ] 全部权重 shard、config、tokenizer 文件清单和 SHA 已归档。
+- [ ] 16 卡可见性、HCCL 和模型加载通过。
+- [ ] 关闭和开启 MTP 的 CUDA/NPU 功能验证通过。
+- [ ] tool/reasoning/streaming/JSON 功能矩阵通过。
+- [ ] 至少一个固定公开 benchmark 子集完成同 harness 的 CUDA/NPU 对齐。
+- [ ] L2 CUDA/NPU 的确定性 100 条服务性能 JSON、TTFT/TPOT/吞吐/HBM 和比值已归档。
+
+## 7. 当前验收状态
 
 - 已通过：patch SHA 固定；在 vLLM `v0.18.0rc1` 精确 commit 上
   `git apply --check`；新增/修改 Python 文件 `compileall`。
-- 未执行：295B 权重下载、16 卡加载、API/parser、CUDA/NPU token 对齐、
-  四项 benchmark 和性能稳定性。
+- 未执行：295B 权重下载、16 卡功能验证、CUDA/NPU token 对齐和 L2 精度/性能。
 - 当前结论：patch 静态门禁通过；模型 NPU 验收未完成。
 
-## 6. 报告模板
+## 8. 报告模板
 
 ```text
 模型/vLLM/vllm-ascend/patch SHA:
@@ -107,7 +153,7 @@ L0/L1 不构成官方质量指标验收。
 prompt/benchmark revision和规模:
 CUDA/NPU token agreement与任务指标:
 tool/reasoning/streaming矩阵:
-TTFT/TPOT/throughput/HBM/稳定性:
+L2 TTFT/TPOT/ITL/throughput/HBM及比值:
 官方未发布字段与未完成项:
 结论:
 ```

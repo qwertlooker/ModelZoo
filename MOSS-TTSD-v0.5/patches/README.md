@@ -16,16 +16,27 @@
   - 将 quantizer 的 autocast device 从硬编码 `cuda` 改为当前 tensor device。
   - 修正自定义生成循环裁剪 shifted speech channels 后未同步 `cur_len` 的问题，避免 NPU SDPA 路径下 `aclnnFlashAttentionScore` 收到 `[B, 1, L+7, L]` 形状的 attention mask。
 
+Patch SHA256：
+
+```text
+426303406d9289c0f981ca333604107af323a56a576c5129a844aacc83962056
+```
+
 应用方式（在 `ACL_PyTorch/built-in/audio/MOSS-TTSD-v0.5` 目录下执行）：
 
 ```bash
-git -C upstream checkout v0.5
-git -C upstream apply ../patches/0001-adapt-v0.5-inference-to-npu.patch
+git clone https://github.com/OpenMOSS/MOSS-TTSD.git source
+git -C source checkout 0e078c62389922d3aa873ce182daf31142860b18
+git -C source worktree add --detach ../upstream-npu \
+  0e078c62389922d3aa873ce182daf31142860b18
+git -C upstream-npu apply ../patches/0001-adapt-v0.5-inference-to-npu.patch
 ```
 
 校验方式（在 `ACL_PyTorch/built-in/audio/MOSS-TTSD-v0.5` 目录下执行）：
 
 ```bash
-git -C upstream reset --hard v0.5
-git -C upstream apply --check ../patches/0001-adapt-v0.5-inference-to-npu.patch
+git -C upstream-npu reset --hard \
+  0e078c62389922d3aa873ce182daf31142860b18
+git -C upstream-npu apply --check \
+  ../patches/0001-adapt-v0.5-inference-to-npu.patch
 ```

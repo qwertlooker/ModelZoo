@@ -582,3 +582,6 @@ ASCEND_RT_VISIBLE_DEVICES=0 python Canary-1B/infer.py \
 - 性能：RTF/RTFx、加载时间、峰值内存/HBM、连续运行稳定性。
 
 正式验收报告建议保存到 `Canary-1B/validation_reports/`，模板见 `ACCEPTANCE_PLAN.md`。
+
+当前交付状态：**S2，固定权重的 CPU L0 端到端链路通过；升级到 S3 仍缺同
+manifest 的 NPU 精度对齐，升级到 S4 仍缺最低正式验收清单全部结果**。

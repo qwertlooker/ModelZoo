@@ -44,10 +44,12 @@ DNSMOS P.835 论文记录：
 固定同一组三个 ONNX 文件、同一 WAV manifest、同一 `infer.py` 和参数，分别运行：
 
 ```bash
-python3 infer.py --audio <manifest_paths...> --model_root weights \
-  --device cpu --output_csv cpu.csv
-ASCEND_RT_VISIBLE_DEVICES=0 python3 infer.py --audio <manifest_paths...> \
-  --model_root weights --device npu --output_csv npu.csv
+python3 infer.py --manifest eval_data/vcc2018.jsonl --model_root weights \
+  --device cpu --output_csv results/cpu.csv
+python3 infer.py --manifest eval_data/vcc2018.jsonl \
+  --model_root weights --device npu --output_csv results/npu.csv
+python3 compare_results.py --baseline results/cpu.csv \
+  --candidate results/npu.csv --output results/cpu_vs_npu.json
 ```
 
 逐文件比较 `SIG_raw/BAK_raw/OVRL_raw`、校正后 `SIG/BAK/OVRL` 和 `P808_MOS`：
@@ -58,31 +60,59 @@ ASCEND_RT_VISIBLE_DEVICES=0 python3 infer.py --audio <manifest_paths...> \
 - 文件数、窗口数和输入时长完全一致。
 
 若 CANN/ONNX Runtime 的算子精度导致阈值不满足，应报告真实差异，不得改用 CPU provider 生成 NPU 结果。
+上述数值是初始工程门禁；首次获得不少于 20 条多样音频的原始 CPU/CANN 重复运行
+分布后必须校准并记录依据，不能把暂定阈值描述为官方容差。
 
-## 3. 分层验收
+## 3. 功能验证与 L2
 
 | 层级 | 数据 | 目标 |
 |---|---|---|
-| L0 | 1 条短于 9.01 秒 WAV | 短音频重复、两个 ONNX 会话、CSV 链路 |
-| L1 | 至少 20 条，覆盖单/双声道、16 kHz/其他采样率、长短音频 | CPU/NPU 逐字段对齐 |
-| L2 | 固定 VCC2018 子集或内部带人工 MOS 集，至少 1 小时 | 数值对齐、相关性、RTF、稳定性 |
-| L3 | 获得论文原始测试音频和 P.835 标签后 | 按论文口径复现 Pearson/Spearman |
+| 功能验证 | 1 条短于 9.01 秒 WAV，并补单/双声道、16 kHz/其他采样率、长短音频 | 两个 ONNX 会话、CSV、重采样和失败用例 |
+| L2 | 优先使用可取得的原始公开 benchmark 全量；否则固定 VCC2018 或内部带人工 MOS 集，至少 1 小时 | CPU/NPU 逐字段精度对齐、相关性和 RTF |
 
-dummy 和 L0 只能证明链路可运行，不能作为精度结论。
+功能样例只能证明链路可运行，不能作为 L2 精度结论。
 
-## 4. 性能与稳定性
+## 4. 功能矩阵
 
-记录 CANN、驱动、ONNX Runtime、NPU 型号、ONNX SHA256、样本数、音频时长、首次/稳定运行耗时和 RTF。L2 连续运行 30 次，结果应稳定在数值阈值内且无内存持续增长。
+| 维度 | 必测值 |
+|---|---|
+| 模型 | 常规、personalized |
+| 输入时长 | `<9.01s`、`=9.01s`、长音频 |
+| 采样率 | 16 kHz、非 16 kHz |
+| 声道 | mono、stereo |
+| 输入方式 | 单文件、目录、固定 JSONL manifest |
+| 异常 | 空 WAV、非 WAV、缺模型、NPU provider 缺失 |
 
-## 5. 当前验收状态
+## 5. L2 性能验证
+
+CPU 和 NPU 使用同一 L2 manifest，分别保留 `*.csv.meta.json`。该 sidecar 已记录
+音频总时长、elapsed 和 RTF。常规与 personalized 各执行至少 1 次冷启动和 3 次
+稳定运行，报告中位数；同时用 `/usr/bin/time -v` 记录峰值 RSS，NPU 侧补峰值 HBM。
+
+官方未发布可直接对齐的硬件性能值，因此不编造 speedup 通过线。最低性能结论为：
+全量 L2 无 OOM/失败、输出数完整、RTF 可复现，并报告 NPU/CPU RTF 比值；若项目另有
+目标 RTF，再按目标判定通过或不通过。
+
+## 6. 最低正式验收清单
+
+- [ ] 三个 ONNX SHA256 与固定版本一致。
+- [ ] CPU/NPU 分属独立环境；版本分别为 `onnxruntime==1.22.1` 和
+  `onnxruntime-cann==1.22.1`，NPU 实际 session 首 provider 为 CANN。
+- [ ] 同一 manifest 完成 CPU 和 NPU 常规模型推理。
+- [ ] 同一 manifest 完成 CPU 和 NPU personalized 推理。
+- [ ] `compare_results.py` 两组比较均通过。
+- [ ] 覆盖功能矩阵中的时长、采样率、声道及失败用例。
+- [ ] L2 常规/personalized 的 CPU/NPU RTF、峰值 RSS/HBM 和相对比值已归档。
+- [ ] 报告明确区分论文隐藏集指标与非官方 VCC2018 回归。
+
+## 7. 当前验收状态
 
 - 已通过：固定权重 CPU 路径与官方 `dnsmos_local.py` 在同一 30 秒音频上，
   常规/personalized 全字段最大和平均绝对误差均为 `0.0`。
-- 未执行：CANN provider NPU 推理、L1 多样音频矩阵、L2/L3 数据集相关性、
-  NPU 性能和稳定性。
+- 未执行：CANN provider NPU 功能验证和 L2 精度/性能对齐。
 - 当前结论：CPU 算法等价性通过；NPU 迁移验收未完成。
 
-## 6. 报告模板
+## 8. 报告模板
 
 ```text
 日期/硬件/CANN/ONNX Runtime:
@@ -92,7 +122,6 @@ personalized:
 CPU provider / NPU provider:
 最大/平均绝对误差:
 Spearman:
-CPU/NPU elapsed、RTF:
-30 轮稳定性:
+CPU/NPU elapsed、RTF、峰值RSS/HBM、RTF比值:
 结论与未完成项:
 ```

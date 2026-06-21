@@ -59,9 +59,35 @@ normalizer；后处理和正确性判定必须使用固定 framework 的 evaluat
 - JSON/tool schema 有效率 100%；
 - 无 device/rank/stream/graph capture 错误。
 
+`99.5%` 是暂定数值诊断门禁，需根据固定 CUDA/NPU prompt baseline 校准；它不是
+官方质量容差，也不能替代 agent 任务指标。
+
+使用固定入口：
+
+```bash
+python ../tools/openai_service_eval.py \
+  --base_url http://127.0.0.1:8002/v1 \
+  --model MiroThinker-1.7 \
+  --prompts test_data/service_prompts.jsonl \
+  --request_logprobs \
+  --output results/npu.jsonl
+python ../tools/compare_openai_service_results.py \
+  --baseline results/cuda.jsonl \
+  --candidate results/npu.jsonl \
+  --require_logprobs \
+  --output results/cuda_vs_npu.json
+```
+
+逐 token 一致率是数值差异定位手段；首个 token 分叉会导致后续级联不同，因此
+还必须报告首个分叉位置、结构化输出有效率和任务级正确率。
+
 ### 2.2 Agent benchmark
 
 固定 MiroThinker official commit、`.env` 所指工具服务版本、benchmark revision、网站访问策略、judge 模型和运行次数。CUDA 与 NPU 只替换模型 endpoint。
+
+服务的 `--served-model-name`、脚本的 `LLM_MODEL` 必须统一为
+`MiroThinker-1.7`。官方 benchmark 的 `MAX_CONTEXT_LENGTH=262144` 要求模型服务
+也以 `--max-model-len 262144` 启动；8K smoke 服务不得直接用于该评测。
 
 通过条件：
 
@@ -69,28 +95,63 @@ normalizer；后处理和正确性判定必须使用固定 framework 的 evaluat
 - 报告每题轨迹成功、tool error、超时和 judge 结果；
 - 只有所有官方条件一致时才比较官方表。
 
-## 3. 分层验收
+`1.0` 个百分点同样是暂定非劣化线。正式报告需结合多次运行方差/置信区间判断，
+不能用一次随机采样差异直接判定 NPU 退化。
+
+## 3. 功能验证与 L2
 
 | 层级 | 范围 |
 |---|---|
-| L0 | 服务加载、单轮 chat |
-| L1 | 100 条固定 prompt、tool schema、8K context |
-| L2 | 官方 benchmark 固定小子集，完整 agent/tools |
-| L3 | 四项完整 benchmark、256K 和长链 300 tools |
+| 功能验证 | 仓内 4 条固定 prompt；服务加载、chat、JSON、streaming |
+| L2 | 优先执行四项官方 benchmark 全量和官方配置；外部状态无法冻结时使用固定公开子集 | agent 精度、服务性能和工具运行性能 |
 
-## 4. 性能与稳定性
+## 4. 功能矩阵
 
-复测参考场景 1K/4K 和 10K/1K、concurrency 64、requests 256，并补 concurrency 1/8。记录 TTFT、TPOT、ITL、E2E、output/total tok/s、QPS、tok/s/NPU、HBM、加载时间和 2 小时稳定性。
+| 维度 | 必测值 |
+|---|---|
+| 服务 | `/v1/models`、非流式、流式、JSON |
+| 上下文 | 功能验证 8K；L2 按 benchmark 需要使用 256K 服务 |
+| Agent | max200、BrowseComp/BrowseComp-ZH max300 |
+| 工具 | search、scrape/summary、E2B code、judge |
+| Benchmark | BrowseComp、BrowseComp-ZH、GAIA-Val-165、HLE-Text |
+| 异常 | API key 缺失、工具配额、网页超时、judge 失败、模型超长输入 |
 
-## 5. 当前验收状态
+## 5. L2 精度与性能验证
+
+精度优先执行固定 archive 中 BrowseComp、BrowseComp-ZH、GAIA-Val-165、
+HLE-Text 全量，并保持官方 agent set、run 数、judge、context 和工具配置。动态网页
+或 API 版本无法冻结时，固定公开子集和运行窗口，明确结果不是官方精确复现。
+
+性能分两部分：
+
+- 模型服务：用 `vllm bench serve --dataset-name random --seed 42` 的确定性 100 条
+  固定长度请求，在 CUDA/NPU 执行相同配置，记录 TTFT、TPOT、ITL、E2E、
+  request/output/total throughput
+  和峰值 HBM；
+- Agent：记录每项 benchmark wall time、题/小时、平均 tool calls、tool error、
+  timeout 和 judge failure。
+
+官方未发布同硬件性能表，因此报告相对比值，不编造官方 speedup 通过线。
+
+## 6. 最低正式验收清单
+
+- [ ] 模型、框架、benchmark archive、vLLM/vllm-ascend 版本和 SHA 已固定。
+- [ ] NPU 镜像 digest 和仓内 4 条功能 prompt SHA 已记录，CUDA/NPU 共用同一文件。
+- [ ] Agent `uv sync --frozen`、`.env` 必需工具和 judge 连通性检查通过。
+- [ ] 8K 功能验证的 CUDA/NPU 服务对齐通过，结果写入独立目录。
+- [ ] 256K 服务实际启动并通过长上下文请求；不能以配置声明替代。
+- [ ] 至少一个固定 benchmark 子集完成相同工具环境的 CUDA/NPU 对齐。
+- [ ] 四项完整 benchmark 的未执行项、动态网页和 API 版本风险已报告。
+- [ ] L2 服务性能 JSON及 agent wall time、题/小时、工具错误/超时已归档。
+
+## 7. 当前验收状态
 
 - 已通过：源码/model/vLLM/vllm-ascend 版本取证；固定 benchmark archive
   SHA256；解压并核对四项原始数据规模和官方评测脚本参数。
-- 未执行：235B/16 卡服务、CUDA/NPU token 对齐、外部工具 agent 评测、
-  性能和稳定性。
+- 未执行：235B/16 卡功能验证、CUDA/NPU token 对齐和 L2 agent 精度/性能。
 - 当前结论：验收输入和口径已固定；模型及 agent 的 NPU 验收未完成。
 
-## 6. 报告模板
+## 8. 报告模板
 
 ```text
 模型/官方框架/vLLM/vllm-ascend SHA:
@@ -98,7 +159,7 @@ normalizer；后处理和正确性判定必须使用固定 framework 的 evaluat
 benchmark revision、工具、judge、网页策略:
 CUDA/NPU token和agent指标:
 tool error/超时/污染检查:
-TTFT/TPOT/throughput/HBM/稳定性:
+服务TTFT/TPOT/throughput/HBM；agent wall time和题/小时:
 官方未发布字段:
 结论:
 ```
