@@ -6,6 +6,36 @@
 
 ---
 
+## 日常快速 checklist
+
+本清单只用于启动和收尾导航，不替代正文硬规则。文档命令默认按 Linux/bash 编写；
+其他平台执行时必须记录等价命令和差异。
+
+- [ ] 重新查询目标仓 `master` HEAD，不复用历史快照；
+- [ ] 确认拟合入路径 `ACL_PyTorch/built-in/<领域>/<模型目录>`；
+- [ ] 若目标路径已存在，先判定新增、替换或增量更新；
+- [ ] 按最后实质变更时间选择同领域、同推理形态参考目录；
+- [ ] 固定 upstream 源码 commit、权重 revision/SHA 和辅助模型版本；
+- [ ] 盘点原始官方/公开 dataset、split、样本规模、metric 和推理参数；
+- [ ] 明确非目标模型变体和不可比指标；
+- [ ] 区分上游源码 patch、当前新增入口、工作证据和正式候选文件；
+- [ ] NPU 差异限制在必要边界，保持 CPU/CUDA 行为不变；
+- [ ] 避免静默 fallback、site-packages 修改、运行时 monkey patch 和未记录手工覆盖；
+- [ ] 权重下载支持固定版本、完整性检查和离线复用；
+- [ ] 数据准备生成固定 manifest/meta，样本数和文档声明一致；
+- [ ] 推理、评测、比较入口可以独立执行，并写入独立输出目录；
+- [ ] NPU 环境使用 CANN 配套 wheel 或基础镜像，不混装 CPU-only PyTorch；
+- [ ] ONNX Runtime CANN EP 写明可执行安装版本/命令或内部 wheel 文件名与 SHA；
+- [ ] vLLM 嵌套配置按固定版本 `--help` 的真实 JSON/CLI 语法书写；
+- [ ] `README.md`、`NPU_ADAPTATION.md`、`ACCEPTANCE_PLAN.md` 职责分离且互相一致；
+- [ ] 正式 `README.md` 自包含，不依赖默认排除的内部证据；
+- [ ] 执行 `python3 tools/audit_model_delivery.py <model_dir>`；
+- [ ] 准备上库时追加 `--target-readiness --target-path ACL_PyTorch/built-in/<领域>/<模型目录>`；
+- [ ] 从独立候选目录完成最低正式路径 clean-room 重放；
+- [ ] 文末只按实际证据标记 S0-S4，未达 S3 不写“适配和验证完成”。
+
+---
+
 ## 目标仓基线与上库就绪定义
 
 目标仓是 `https://gitcode.com/Ascend/ModelZoo-PyTorch.git` 的
@@ -299,10 +329,17 @@ scripts/download_test_data.sh
 
 #### C. upstream 克隆目录
 
-只用于对比和验证，不提交。应加入根目录 `.gitignore`：
+只用于对比和验证，不提交。根目录 `.gitignore` 统一使用通配模式覆盖此类目录，
+不要按模型逐项枚举：
 
 ```text
-<model_dir>/upstream/
+**/upstream/
+**/.venv*/
+**/weights/
+**/eval_data/
+**/eval_results/
+**/results*/
+**/outputs*/
 ```
 
 #### D. 内部证据与正式候选文件
@@ -1207,12 +1244,15 @@ ACCEPTANCE_PLAN.md
 - 不再默认新增 `ANALYSIS.md`、`NPU_VALIDATION.md`、`EVAL_*.md`、`ADAPTATION_CASE_SUMMARY.md` 等分散文档；存量内容应无损合并到上述三类主文档后再清理。
 - 同一环境、命令、指标或结论只在职责所属文档完整维护，其他文档使用简短摘要和链接引用。
 - 根目录 `NPU_ADAPTATION_ANALYSIS.md` 如继续维护，只保留项目级盘点、优先级和版本索引，不复制模型级详细内容。
+- 新模型可用 `python3 tools/init_model.py <model_dir> --name <模型名> --domain <领域>` 生成三类主文档骨架；模板位于 `tools/TEMPLATE_README.md`、`tools/TEMPLATE_NPU_ADAPTATION.md` 和 `tools/TEMPLATE_ACCEPTANCE_PLAN.md`。
+- 模板只提供结构，不代表验收事实；所有占位符必须在进入上库候选审计前替换为可执行命令、固定版本和实测结果。
 
 ---
 
 ### Step 14：最终验证清单
 
-提交前至少执行：
+`tools/audit_model_delivery.py` 是结构门禁主入口；下面命令用于产生审计无法自动证明的
+运行证据和 clean-room 记录。提交前至少执行：
 
 ```bash
 # 1. 文件检查

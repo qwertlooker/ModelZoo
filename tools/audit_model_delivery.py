@@ -288,6 +288,17 @@ def invalid_commands(text: str) -> list[str]:
     return failures
 
 
+def unfinished_placeholders(text: str) -> list[str]:
+    patterns = (
+        r"<[A-Z0-9_ /.-]+>",
+        r"待补充",
+        r"待验收",
+        r"\bTODO\b",
+        r"\bTBD\b",
+    )
+    return [pattern for pattern in patterns if re.search(pattern, text, re.IGNORECASE)]
+
+
 def count_claim_failures(model_dir: Path, acceptance_text: str) -> list[str]:
     failures = []
     service_prompts = model_dir / "test_data" / "service_prompts.jsonl"
@@ -436,8 +447,13 @@ def target_readiness_failures(
     if not commit_ids:
         failures.append("README.md does not declare a commit_id")
 
-    if re.search(r"(?:待补充|待验收|TODO|TBD)", readme_text, re.IGNORECASE):
-        failures.append("README.md contains unfinished target-delivery placeholders")
+    for filename, text in document_text.items():
+        placeholders = unfinished_placeholders(text)
+        if placeholders:
+            failures.append(
+                f"{filename} contains unfinished target-delivery placeholders: "
+                f"{placeholders}"
+            )
 
     candidate_files = target_candidate_files(repo_root, model_dir)
     candidate_set = {path.as_posix() for path in candidate_files}

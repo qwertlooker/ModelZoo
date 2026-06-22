@@ -137,6 +137,53 @@ modelzoo_level.txt
             self.assertEqual(failures, [])
             self.assertEqual(actual_candidates, candidate_files)
 
+    def test_target_readiness_rejects_template_placeholders(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory)
+            model_dir = repo_root / "Demo"
+            model_dir.mkdir()
+            documents = {
+                "README.md": """# Demo 推理指导
+
+commit_id=0123456789abcdef0123456789abcdef01234567
+""",
+                "NPU_ADAPTATION.md": """## 目标仓快照
+## 拟合入路径
+## 最新参考目录
+最后实质变更 commit/date
+## 上库文件清单
+## 许可证
+## PR 门禁
+modelzoo_level.txt
+当前状态: S3
+""",
+                "ACCEPTANCE_PLAN.md": "## NPU\n<DATASET>\n",
+            }
+            candidate_files = [Path("README.md"), Path("infer.py")]
+
+            with (
+                mock.patch.object(
+                    audit_model_delivery,
+                    "target_candidate_files",
+                    return_value=candidate_files,
+                ),
+                mock.patch.object(
+                    audit_model_delivery,
+                    "tracked_model_files",
+                    return_value=candidate_files,
+                ),
+            ):
+                failures, _ = audit_model_delivery.target_readiness_failures(
+                    repo_root,
+                    model_dir,
+                    "ACL_PyTorch/built-in/audio/Demo",
+                    documents,
+                )
+
+            self.assertTrue(
+                any("ACCEPTANCE_PLAN.md contains unfinished" in item for item in failures)
+            )
+
 
 if __name__ == "__main__":
     unittest.main()
