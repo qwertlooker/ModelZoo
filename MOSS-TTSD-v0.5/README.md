@@ -148,7 +148,7 @@ MOSS-TTSD-v0.5
    deactivate
    ```
 
-4. 原始 CUDA 和 patch 后 CUDA 使用两个独立环境，均安装相同的 PyTorch、Transformers 和 CUDA `flash-attn`。CUDA wheel/索引需按实际 CUDA 版本选择，不能用于 NPU 环境：
+4. （可选）原始 CUDA 和 patch 后 CUDA 对照组使用两个独立环境，均安装相同的 PyTorch、Transformers 和 CUDA `flash-attn`。本地不具备 CUDA 时可跳过本步，仅运行 NPU 组完成迁移验收。CUDA wheel/索引需按实际 CUDA 版本选择，不能用于 NPU 环境：
 
    ```bash
    python3.11 -m venv .venv-cuda-original
@@ -489,7 +489,10 @@ deactivate
 
 ### 模型推理
 
-1. 执行未应用 patch 的原始 CUDA baseline。
+迁移验收以 NPU 推理为必跑项；下方步骤 1、2 为可选 CUDA 对照组，本地不具备 CUDA
+时可跳过，仅执行步骤 3 的 NPU 推理即可完成功能验证。
+
+1. （可选）执行未应用 patch 的原始 CUDA baseline。
 
    ```bash
    source .venv-cuda-original/bin/activate
@@ -516,7 +519,7 @@ deactivate
 
    模型权重、codec 配置和 checkpoint 按本文约定的目录读取。NPU 固定使用 BF16 + torch-npu Flash Attention，CPU 固定使用 FP32 + SDPA，CUDA 保持 BF16 + `flash_attention_2`，不额外暴露注意力参数。
 
-2. 执行应用 patch 后的同设备 CUDA 回归。
+2. （可选）执行应用 patch 后的同设备 CUDA 回归。
 
    ```bash
    source .venv-cuda-patched/bin/activate
@@ -532,7 +535,7 @@ deactivate
    deactivate
    ```
 
-3. 执行 NPU candidate。
+3. 执行 NPU 推理（必跑）。
 
    ```bash
    source .venv-npu/bin/activate
@@ -547,7 +550,7 @@ deactivate
    cd ..
    ```
 
-4. 检查三组输出 WAV。原始与 patch 后 CUDA 先做同设备回归，再比较 patch 后 CUDA 与 NPU。
+4. 检查已生成组的输出 WAV。NPU 组必查；若运行了 CUDA 对照组，再比较原始与 patch 后 CUDA 的同设备回归，以及 patch 后 CUDA 与 NPU。
 
    ```bash
    python - <<'PY'
@@ -559,7 +562,11 @@ deactivate
        "patched_cuda": Path("upstream-npu/outputs_patched_cuda"),
        "npu": Path("upstream-npu/outputs_npu"),
    }
+   if not groups["npu"].exists():
+       raise RuntimeError("npu output is required but missing")
    for name, directory in groups.items():
+       if not directory.exists():
+           continue
        paths = sorted(directory.glob("output_*.wav"))
        if len(paths) != 2:
            raise RuntimeError(f"{name}: expected 2 wav files, got {len(paths)}")
@@ -581,7 +588,7 @@ deactivate
 - `output_audio`：待评测的生成音频；
 - `prompt_audio_speaker1` / `prompt_audio_speaker2`：两位说话人的参考音频。
 
-以下命令对中文和英文各 50 条执行三组生成。TTSD-eval JSONL 中的 prompt 路径相对 `testset/`，而 v0.5 codec checkpoint 相对模型工作树；因此先把同一个 testset `audio/` 链接到两个工作树，再分别从工作树执行。三组输出不能覆盖：
+以下命令对中文和英文各 50 条生成 NPU 音频（必跑），并在本地具备 CUDA 时额外生成两组对照。TTSD-eval JSONL 中的 prompt 路径相对 `testset/`，而 v0.5 codec checkpoint 相对模型工作树；因此先把同一个 testset `audio/` 链接到两个工作树，再分别从工作树执行。NPU 输出与 CUDA 对照组输出互不覆盖：
 
 ```bash
 cd ACL_PyTorch/built-in/audio/MOSS-TTSD-v0.5
@@ -596,31 +603,38 @@ mkdir -p results/ttsd_eval
 for LANG in zh en; do
   MANIFEST="$MODEL_ROOT/third_party/TTSD-eval/testset/ttsd_eval_${LANG}.jsonl"
 
-  source "$MODEL_ROOT/.venv-cuda-original/bin/activate"
-  (
-    cd "$MODEL_ROOT/upstream-original"
-    HF_HOME="$MODEL_ROOT/hf-cache" HF_HUB_OFFLINE=1 CUDA_VISIBLE_DEVICES=0 \
-      python inference.py \
+  # 可选：未应用 patch 的原始 CUDA 对照组
+  if [ -d "$MODEL_ROOT/.venv-cuda-original" ]; then
+    source "$MODEL_ROOT/.venv-cuda-original/bin/activate"
+    (
+      cd "$MODEL_ROOT/upstream-original"
+      HF_HOME="$MODEL_ROOT/hf-cache" HF_HUB_OFFLINE=1 CUDA_VISIBLE_DEVICES=0 \
+        python inference.py \
+          --jsonl "$MANIFEST" \
+          --output_dir "$MODEL_ROOT/results/ttsd_eval/original_cuda_${LANG}" \
+          --seed 42 \
+          --use_normalize
+    )
+    deactivate
+  fi
+
+  # 可选：应用 patch 后的 CUDA 回归对照组
+  if [ -d "$MODEL_ROOT/.venv-cuda-patched" ]; then
+    source "$MODEL_ROOT/.venv-cuda-patched/bin/activate"
+    (
+      cd "$MODEL_ROOT/upstream-npu"
+      CUDA_VISIBLE_DEVICES=0 python inference.py \
         --jsonl "$MANIFEST" \
-        --output_dir "$MODEL_ROOT/results/ttsd_eval/original_cuda_${LANG}" \
+        --output_dir "$MODEL_ROOT/results/ttsd_eval/patched_cuda_${LANG}" \
+        --device cuda \
+        --batch_size 1 \
         --seed 42 \
         --use_normalize
-  )
-  deactivate
+    )
+    deactivate
+  fi
 
-  source "$MODEL_ROOT/.venv-cuda-patched/bin/activate"
-  (
-    cd "$MODEL_ROOT/upstream-npu"
-    CUDA_VISIBLE_DEVICES=0 python inference.py \
-      --jsonl "$MANIFEST" \
-      --output_dir "$MODEL_ROOT/results/ttsd_eval/patched_cuda_${LANG}" \
-      --device cuda \
-      --batch_size 1 \
-      --seed 42 \
-      --use_normalize
-  )
-  deactivate
-
+  # 必跑：NPU 推理
   source "$MODEL_ROOT/.venv-npu/bin/activate"
   (
     cd "$MODEL_ROOT/upstream-npu"
@@ -636,11 +650,12 @@ for LANG in zh en; do
 done
 ```
 
-推理完成后生成六份互不覆盖的 evaluator manifest。工具会检查每个 `output_N.wav` 是否存在，并写入 manifest SHA256：
+推理完成为已生成的组生成 evaluator manifest（仅处理实际存在的输出目录）。工具会检查每个 `output_N.wav` 是否存在，并写入 manifest SHA256：
 
 ```bash
 for LANG in zh en; do
   for GROUP in original_cuda patched_cuda npu; do
+    [ -d "results/ttsd_eval/${GROUP}_${LANG}" ] || continue
     python prepare_eval_data.py attach-output \
       --input_jsonl "third_party/TTSD-eval/testset/ttsd_eval_${LANG}.jsonl" \
       --output_jsonl "results/ttsd_eval/${GROUP}_${LANG}.jsonl" \
@@ -652,7 +667,7 @@ done
 
 ### ACC/SIM/WER 逐份评测
 
-TTSD-eval 的 prompt 路径相对 `testset/`，以下命令必须从该目录运行；输出路径使用绝对路径，避免切换目录后失效。以下固定为单卡 CUDA evaluator；三种 profile 均须对六组结果保持一致，每组显式指定所有中间目录，避免 evaluator 默认目录互相污染。
+TTSD-eval 的 prompt 路径相对 `testset/`，以下命令必须从该目录运行；输出路径使用绝对路径，避免切换目录后失效。以下固定为单卡 CUDA evaluator；所选 profile 须对所有已生成组结果保持一致，每组显式指定所有中间目录，避免 evaluator 默认目录互相污染。
 
 - **CUDA profile**（默认）：`CUDA_VISIBLE_DEVICES=0`、`ALIGN_DEVICE=cuda:0`、`SIM_NUM_GPUS=1`、`WHISPER_NUM_GPUS=1`，使用 `.venv-ttsd-eval`。
 - **CPU profile**：设置 `CUDA_VISIBLE_DEVICES=""`、`ALIGN_DEVICE=cpu`、`WHISPER_NUM_GPUS=0`，并将 `run_similarity.py` 的 `--num_gpus` 改为 `--device cpu`、`whisper_asr.py` 的 `--num_gpus` 改为 `--device cpu`。
@@ -674,6 +689,7 @@ cd "$EVAL_ROOT/testset"
 for LANG in zh en; do
   for GROUP in original_cuda patched_cuda npu; do
     INPUT="$MODEL_ROOT/results/ttsd_eval/${GROUP}_${LANG}.jsonl"
+    [ -f "$INPUT" ] || continue
     STEM="${GROUP}_${LANG}"
     RUN_ROOT="$MODEL_ROOT/results/ttsd_eval_metrics/$STEM"
     mkdir -p \
@@ -732,7 +748,7 @@ TTSD-eval 的部分工具会记录 warning 后跳过失败样本并以 0 退出�
 
 ## 模型推理性能
 
-MOSS-TTSD-v0.5 属自回归生成式 TTS/TTSD 模型，L2 性能以中英文全量生成音频总时长和端到端墙钟时间计算。以下展示 NPU 中文命令；原始 CUDA、patch 后 CUDA、英文 split 使用相同参数和独立日志/输出目录：
+MOSS-TTSD-v0.5 属自回归生成式 TTS/TTSD 模型，L2 性能以中英文全量生成音频总时长和端到端墙钟时间计算。以下展示 NPU 中文命令（必跑）；英文 split 使用相同参数和独立日志/输出目录。本地具备 CUDA 时可额外运行原始 CUDA、patch 后 CUDA 对照组，但不作为强制要求：
 
 ```bash
 cd ACL_PyTorch/built-in/audio/MOSS-TTSD-v0.5

@@ -53,7 +53,7 @@
 - `requirements_eval.txt`：固定 TTSD-eval 直接依赖和 WeSpeaker commit；框架
   `torch/torchaudio==2.8.0` 按 CPU/CUDA profile 单独安装。
 - `source/`、`upstream-original/`、`upstream-npu/`：分别用于 Git 管理、
-  原始 CUDA baseline 和 patch 后 CUDA/NPU。
+  可选原始 CUDA baseline 和 patch 后 CUDA/NPU。
 
 本次适配不新增独立推理代码文件；所有代码改动均进入 patch 并作用于原项目已有文件。
 
@@ -110,7 +110,7 @@
 - 当前环境缺少 `torch`、`torch-npu`、模型权重和 NPU/CANN，未在本机执行 CPU/NPU 实推。
 - 权重 SHA256 尚未记录；正式验收前必须补充。
 - 原项目 v0.5 中仍存在若干宽泛 `try/except` 和失败后继续处理的逻辑；本次 patch 以 NPU 设备适配为目标，没有重构原项目整体错误处理。
-- NPU Flash Attention 依赖目标 `torch-npu` 的 PFA/IFA GQA 接口；当前本地环境无 NPU，尚未完成真实算子精度/性能验证，正式验收必须补齐与 CPU/CUDA 原始路径的结果对齐。
+- NPU Flash Attention 依赖目标 `torch-npu` 的 PFA/IFA GQA 接口；当前本地环境无 NPU，尚未完成真实算子精度/性能验证，正式验收必须补齐 NPU 实推结果与可取得的公开参考对齐。对齐基准优先使用公开/官方数据，不强制同环境重跑 CPU/CUDA；本地具备 CUDA 时可额外运行三组对照做自洽验证。
 - 即使消除 `repeat_kv`，过大的 `--batch_size` 仍可能因输入 embedding、logits、
   KV cache 或 codec 中间张量超过 HBM；TTSD-eval 默认保持 `1`，不得用 CPU 回退
   掩盖 NPU 问题。
@@ -246,7 +246,7 @@ MOSS-TTSD-v0.5 的正式质量/性能验收口径统一维护在 `ACCEPTANCE_PLA
 - 功能：中文、英文、中英混合、双说话人、prompt 切换、normalize、长短文本和异常暴露。
 - 可懂度：固定 ASR 模型和 normalizer，统计 CER/WER。
 - 音色：固定 speaker embedding 模型，统计 speaker similarity / EER。
-- 公共客观评测：默认使用 `OpenMOSS/TTSD-eval`，记录 ACC、SIM、WER；该流程可测评 v0.5 输出，但不是 v0.5 已发布官方指标，必须与 CPU/CUDA 原始路径做同口径对齐。
+- 公共客观评测：默认使用 `OpenMOSS/TTSD-eval`，记录 ACC、SIM、WER；该流程可测评 v0.5 输出，但不是 v0.5 已发布官方指标。NPU 结果作为迁移结果记录并与可取得的公开参考对比；本地具备 CUDA 时可额外与 CPU/CUDA 原始路径做同口径对照，但不作为强制要求。
 - 自然度：DNSMOS / UTMOS / NISQA 等作为客观参考，不替代人工听测。
 - 主观：MOS / CMOS / A-B preference，记录人数、样本数和置信区间。
 - 性能：记录 `elapsed_seconds`、`RTF`、`RTFx`、dtype、attention backend、峰值 HBM/RSS、首次加载/编译耗时和稳定推理耗时。
@@ -258,7 +258,7 @@ MOSS-TTSD-v0.5 的正式质量/性能验收口径统一维护在 `ACCEPTANCE_PLA
 使用边界：
 
 - v0.5 README/技术报告未发布 v0.5 在 TTSD-eval 上的官方数值；因此验收报告中仍写“v0.5 官方指标未发布”。
-- TTSD-eval 结果用于 L2 公共评测和 NPU 迁移对齐：同一 testset、同一 v0.5 checkpoint、同一输入参数，分别生成 CPU/CUDA 与 NPU 音频，再比较 ACC/SIM/WER。
+- TTSD-eval 结果用于 L2 公共评测和 NPU 迁移结果记录：同一 testset、同一 v0.5 checkpoint、同一输入参数生成 NPU 音频并计算 ACC/SIM/WER；本地具备 CUDA 时可额外生成 CPU/CUDA 音频做同口径对照，但不作为强制要求。
 - TTSD-eval 输入 manifest 必须包含 `text`、`output_audio`、`prompt_audio_speaker1`、`prompt_audio_speaker2`。v0.5 推理完成后，需要把 `output_*.wav` 回填为 `output_audio`。
 - 若 `git lfs` testset、MMS-FA checkpoint、WeSpeaker 权重或 Whisper 依赖不可用，直接记录失败原因，不用简化指标替代。
 
@@ -266,15 +266,15 @@ MOSS-TTSD-v0.5 的正式质量/性能验收口径统一维护在 `ACCEPTANCE_PLA
 
 ### 2.7 推理和评测边界
 
-正式迁移验收固定三组：
+正式迁移验收以 NPU 组为必跑项；本地具备 CUDA 时可额外运行两组对照做自洽验证：
 
-- `upstream-original` + `.venv-cuda-original`：未应用 patch 的原始 CUDA；
-- `upstream-npu` + `.venv-cuda-patched`：应用 patch 后的 CUDA 回归；
-- `upstream-npu` + `.venv-npu`：NPU candidate。
+- `upstream-npu` + `.venv-npu`：应用 patch 后的 NPU（必跑）；
+- `upstream-original` + `.venv-cuda-original`：未应用 patch 的原始 CUDA（可选对照）；
+- `upstream-npu` + `.venv-cuda-patched`：应用 patch 后的 CUDA 回归（可选对照）。
 
-三组完整命令、输出目录、功能/L2 manifest 和 TTSD-eval evaluator 命令统一维护在
-`README.md` 与 `ACCEPTANCE_PLAN.md`。本文件不复制第二套易漂移的操作
-手册。
+NPU 组与可选 CUDA 对照组的完整命令、输出目录、功能/L2 manifest 和 TTSD-eval
+evaluator 命令统一维护在 `README.md` 与 `ACCEPTANCE_PLAN.md`。本文件不复制第二套
+易漂移的操作手册。
 
 ### 2.8 上游更新处理
 
@@ -419,9 +419,9 @@ sha256sum XY_Tokenizer/weights/xy_tokenizer.ckpt
 
 当前状态：**S1 静态适配完成**。
 
-已具备版本取证、patch、静态 apply/compile 证据、manifest 工具和三组验收命令。
-尚缺模型与 codec 实际权重、三组功能输出以及 TTSD-eval 全量 ACC/SIM/WER 和
-RTF/RTFx，因此未达到 S2 或 S3。
+已具备版本取证、patch、静态 apply/compile 证据、manifest 工具和 NPU 验收命令
+（含可选 CUDA 对照命令）。尚缺模型与 codec 实际权重、NPU 功能输出以及 TTSD-eval
+全量 ACC/SIM/WER 和 RTF/RTFx，因此未达到 S2 或 S3。
 
 ## 补充说明（来自 README.md）
 
@@ -493,9 +493,10 @@ Flash Attention 消除的是 `repeat_kv` 造成的 KV head 实体展开，不保
    用 `--batch_size 1` 和单条 manifest 重跑。单条仍卡住时再保留完整 Python
    栈、`npu-smi info`、CANN 日志和依赖版本排查，不能静默切到 CPU。
 
-CPU/CUDA/NPU 候选对齐必须使用相同 `--batch_size`。未应用 patch 的原始入口不支持
-该参数，仍保留其原生完整 JSONL batch 作为 upstream baseline；报告中必须明确记录
-这一运行参数差异，不能把不同 batch 口径写成严格逐样本数值等价。
+当运行 CUDA 对照组时，CPU/CUDA/NPU 候选对齐应使用相同 `--batch_size`。未应用
+patch 的原始入口不支持该参数，仍保留其原生完整 JSONL batch 作为 upstream
+baseline；报告中必须明确记录这一运行参数差异，不能把不同 batch 口径写成严格逐样本
+数值等价。仅运行 NPU 时无此对齐要求。
 
 ### 已知问题：Transformers 5.x 不兼容
 
@@ -525,4 +526,4 @@ python -c "import transformers; print(transformers.__version__)"
 - **TorchCodec**：TorchAudio 2.9+ 的 `torchaudio.load` / `torchaudio.save` 会进入 TorchCodec 路径。本适配通过 patch 将 prompt 音频读取和 WAV 写出改为 `soundfile`，不要求额外安装 `torchcodec`。如果仍看到 `TorchCodec is required for load_with_torchcodec` 或 `save_with_torchcodec`，说明 patch 未应用或路径未覆盖。
 - **Transformers 5.x `_tied_weights_keys`**：Transformers 5.x 改变了 `_tied_weights_keys` 的数据结构和 `tie_weights()` 接口，而 MOSS-TTSD-v0.5 上游代码仍使用 Transformers 4.x 接口。当前项目不修改该模型定义，因此必须固定 `transformers==4.57.6`。
 - **HF_HOME 与符号链接**：原始代码继续使用 repo id `fnlp/MOSS-TTSD-v0.5`，执行时设置同一个 `HF_HOME` 和 `HF_HUB_OFFLINE=1`，从上述固定 revision cache 加载；patch 后代码通过符号链接读取同一 snapshot。
-- **batch_size 对齐**：CPU/CUDA/NPU 候选对齐必须使用相同 `--batch_size`。未应用 patch 的原始入口不支持该参数，仍保留其原生完整 JSONL batch 作为 upstream baseline；报告中必须明确记录这一运行参数差异，不能把不同 batch 口径写成严格逐样本数值等价。
+- **batch_size 对齐**：当运行 CUDA 对照组时，CPU/CUDA/NPU 候选对齐应使用相同 `--batch_size`。未应用 patch 的原始入口不支持该参数，仍保留其原生完整 JSONL batch 作为 upstream baseline；报告中必须明确记录这一运行参数差异，不能把不同 batch 口径写成严格逐样本数值等价。仅运行 NPU 时无此对齐要求。
