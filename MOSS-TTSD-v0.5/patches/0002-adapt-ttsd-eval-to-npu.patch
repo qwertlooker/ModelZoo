@@ -9,7 +9,7 @@ index 94abfb7..1398385 100644
 +
 +def _npu_available() -> bool:
 +    try:
-+        import torch_npu  # noqa: F401
++        import torch_npu
 +        return torch.npu.is_available()
 +    except Exception:
 +        return False
@@ -114,7 +114,7 @@ index da60b92..2c28675 100644
 +
 +def _npu_available() -> bool:
 +    try:
-+        import torch_npu  # noqa: F401
++        import torch_npu
 +        return torch.npu.is_available()
 +    except Exception:
 +        return False
@@ -251,7 +251,7 @@ index 167c8a7..3babe9f 100644
 -def _init_worker(device_id, model_id: str):
 +def _npu_available() -> bool:
 +    try:
-+        import torch_npu  # noqa: F401
++        import torch_npu
 +        return torch.npu.is_available()
 +    except Exception:
 +        return False
@@ -267,7 +267,7 @@ index 167c8a7..3babe9f 100644
          device = "cpu"
          torch_dtype = torch.float32
 +    elif device_type == "npu":
-+        import torch_npu  # noqa: F401
++        import torch_npu
 +        device = f"npu:{device_id}"
 +        torch_dtype = torch.float16
      else:
