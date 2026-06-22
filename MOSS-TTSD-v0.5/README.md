@@ -228,7 +228,7 @@ MOSS-TTSD-v0.5
 
 ### 准备 TTSD-eval 工程
 
-TTSD-eval 支持三种评测 profile：CPU、CUDA、NPU。CPU/CUDA profile 使用独立 venv（`torch/torchaudio==2.8.0`）；NPU profile 复用推理环境 `.venv-npu`（`torch/torchaudio==2.9.0 + torch-npu==2.9.0`），并需对 TTSD-eval 工作树应用 `patches/0002-adapt-ttsd-eval-to-npu.patch`。以下命令均从 `ACL_PyTorch/built-in/audio/MOSS-TTSD-v0.5` 执行。
+TTSD-eval 支持三种评测 profile，NPU 为必跑项，CUDA/CPU 为可选对照。NPU profile 复用推理环境 `.venv-npu`（`torch/torchaudio==2.9.0 + torch-npu==2.9.0`），并需对 TTSD-eval 工作树应用 `patches/0002-adapt-ttsd-eval-to-npu.patch`；CUDA/CPU profile 使用独立 venv（`torch/torchaudio==2.8.0`）。以下命令均从 `ACL_PyTorch/built-in/audio/MOSS-TTSD-v0.5` 执行。
 
 #### 获取固定源码和 testset
 
@@ -281,7 +281,19 @@ TTSD-eval 支持三种评测 profile：CPU、CUDA、NPU。CPU/CUDA profile 使�
 sudo apt-get install -y python3.11-venv git ffmpeg libsndfile1
 ```
 
-**CUDA profile**（默认，CUDA 12.8 wheel）：
+**NPU profile**（必跑）复用推理环境，无需独立 venv；先对 TTSD-eval 工作树应用设备适配补丁，再安装评测直接依赖（不安装 torch/torchaudio）：
+
+```bash
+source .venv-npu/bin/activate
+git -C "$EVAL_ROOT" apply "$PWD/patches/0002-adapt-ttsd-eval-to-npu.patch"
+python -m pip install -r requirements_eval.txt
+python -m pip check
+python -m pip freeze > results/ttsd_eval_setup/evaluator-pip-freeze.txt
+python -c 'import torch, torch_npu; print(torch.__version__, torch.npu.is_available(), torch.npu.device_count())'
+deactivate
+```
+
+**CUDA profile**（可选对照，CUDA 12.8 wheel）：
 
 ```bash
 python3.11 -m venv .venv-ttsd-eval
@@ -296,23 +308,11 @@ python -c 'import torch; print(torch.__version__, torch.cuda.is_available(), tor
 deactivate
 ```
 
-**CPU profile** 只替换框架安装命令（必须在报告中记录 evaluator 为 CPU/FP32）：
+**CPU profile**（可选对照）只替换框架安装命令（必须在报告中记录 evaluator 为 CPU/FP32）：
 
 ```bash
 python -m pip install torch==2.8.0 torchaudio==2.8.0 \
   --index-url https://download.pytorch.org/whl/cpu
-```
-
-**NPU profile** 复用推理环境，无需独立 venv；先对 TTSD-eval 工作树应用设备适配补丁，再安装评测直接依赖（不安装 torch/torchaudio）：
-
-```bash
-source .venv-npu/bin/activate
-git -C "$EVAL_ROOT" apply "$PWD/patches/0002-adapt-ttsd-eval-to-npu.patch"
-python -m pip install -r requirements_eval.txt
-python -m pip check
-python -m pip freeze > results/ttsd_eval_setup/evaluator-pip-freeze.txt
-python -c 'import torch, torch_npu; print(torch.__version__, torch.npu.is_available(), torch.npu.device_count())'
-deactivate
 ```
 
 `requirements_eval.txt` 固定 TTSD-eval 的直接依赖和 WeSpeaker commit，避免原 `requirements.txt` 中版本范围及 `wespeaker.git` HEAD 漂移。
@@ -373,10 +373,10 @@ deactivate
    test "$(stat -c %s "$EVAL_ROOT/model/checkpoints/model.pt")" = "1262047414"
    ```
 
-3. 下载固定 revision 的 Whisper-large-v3，并写入 revision marker。正式评测只从本地目录离线加载：
+3. 下载固定 revision 的 Whisper-large-v3，并写入 revision marker。正式评测只从本地目录离线加载。以下使用 NPU 环境（必跑）；CUDA/CPU profile 改用 `.venv-ttsd-eval`：
 
    ```bash
-   source .venv-ttsd-eval/bin/activate
+   source .venv-npu/bin/activate
    EVAL_ROOT="$PWD/third_party/TTSD-eval"
    export EVAL_ROOT
    python - <<'PY'
@@ -415,16 +415,16 @@ deactivate
 
 #### 完整预检
 
-1. 在离线模式下执行完整结构、hash、依赖版本和 import 门禁，并保存机器可读证据。CPU profile 将 `--expected_device cuda` 改为 `--expected_device cpu`；NPU profile 改为 `--expected_device npu` 并改用 `.venv-npu`。
+1. 在离线模式下执行完整结构、hash、依赖版本和 import 门禁，并保存机器可读证据。以下为 NPU profile（必跑）；CUDA profile 改用 `.venv-ttsd-eval` 和 `--expected_device cuda`，CPU profile 改用 `.venv-ttsd-eval` 和 `--expected_device cpu`，二者均为可选对照。
 
    ```bash
-   source .venv-ttsd-eval/bin/activate
+   source .venv-npu/bin/activate
    export HF_HUB_OFFLINE=1
    export TRANSFORMERS_OFFLINE=1
    python prepare_eval_data.py verify-ttsd-eval \
      --eval_root "$EVAL_ROOT" \
      --scope full \
-     --expected_device cuda \
+     --expected_device npu \
      --report results/ttsd_eval_setup/full.json
 
    for ENTRY in \
@@ -446,10 +446,10 @@ deactivate
    deactivate
    ```
 
-2. 在正式全量评测前逐个加载三类权重（占用约 5 GiB 以上主机内存）：
+2. 在正式全量评测前逐个加载三类权重（占用约 5 GiB 以上主机内存）。以下为 NPU profile（必跑）；CUDA/CPU profile 改用 `.venv-ttsd-eval`：
 
    ```bash
-   source .venv-ttsd-eval/bin/activate
+   source .venv-npu/bin/activate
    export HF_HUB_OFFLINE=1
    export TRANSFORMERS_OFFLINE=1
    export EVAL_ROOT="$PWD/third_party/TTSD-eval"
@@ -667,11 +667,80 @@ done
 
 ### ACC/SIM/WER 逐份评测
 
-TTSD-eval 的 prompt 路径相对 `testset/`，以下命令必须从该目录运行；输出路径使用绝对路径，避免切换目录后失效。以下固定为单卡 CUDA evaluator；所选 profile 须对所有已生成组结果保持一致，每组显式指定所有中间目录，避免 evaluator 默认目录互相污染。
+TTSD-eval 的 prompt 路径相对 `testset/`，以下命令必须从该目录运行；输出路径使用绝对路径，避免切换目录后失效。NPU evaluator 为必跑项；CUDA、CPU evaluator 为可选对照，仅在本地具备对应环境且需要同口径对照时运行。所选 profile 须对所有已生成组结果保持一致，每组显式指定所有中间目录，避免 evaluator 默认目录互相污染。
 
-- **CUDA profile**（默认）：`CUDA_VISIBLE_DEVICES=0`、`ALIGN_DEVICE=cuda:0`、`SIM_NUM_GPUS=1`、`WHISPER_NUM_GPUS=1`，使用 `.venv-ttsd-eval`。
-- **CPU profile**：设置 `CUDA_VISIBLE_DEVICES=""`、`ALIGN_DEVICE=cpu`、`WHISPER_NUM_GPUS=0`，并将 `run_similarity.py` 的 `--num_gpus` 改为 `--device cpu`、`whisper_asr.py` 的 `--num_gpus` 改为 `--device cpu`。
-- **NPU profile**：改用 `.venv-npu`、`ASCEND_RT_VISIBLE_DEVICES=0`、`ALIGN_DEVICE=npu:0`，并将 `run_similarity.py` 的 `--num_gpus "$SIM_NUM_GPUS"` 改为 `--device npu:0`、`whisper_asr.py` 的 `--num_gpus "$WHISPER_NUM_GPUS"` 改为 `--device npu`。
+#### NPU evaluator（必跑）
+
+```bash
+set -o pipefail
+MODEL_ROOT="$PWD"
+EVAL_ROOT="$MODEL_ROOT/third_party/TTSD-eval"
+source "$MODEL_ROOT/.venv-npu/bin/activate"
+export HF_HUB_OFFLINE=1
+export TRANSFORMERS_OFFLINE=1
+export ASCEND_RT_VISIBLE_DEVICES=0
+ALIGN_DEVICE=npu:0
+cd "$EVAL_ROOT/testset"
+
+for LANG in zh en; do
+  for GROUP in original_cuda patched_cuda npu; do
+    INPUT="$MODEL_ROOT/results/ttsd_eval/${GROUP}_${LANG}.jsonl"
+    [ -f "$INPUT" ] || continue
+    STEM="${GROUP}_${LANG}"
+    RUN_ROOT="$MODEL_ROOT/results/ttsd_eval_metrics/$STEM"
+    mkdir -p \
+      "$RUN_ROOT/alignment_files" \
+      "$RUN_ROOT/split_res" \
+      "$RUN_ROOT/audio_segments"
+
+    {
+      python "$EVAL_ROOT/tools/align.py" \
+        --input_jsonl "$INPUT" \
+        --output_dir "$RUN_ROOT/alignment_files" \
+        --output_jsonl "$RUN_ROOT/alignment.jsonl" \
+        --cache_dir "$EVAL_ROOT/model" \
+        --device "$ALIGN_DEVICE"
+      test "$(wc -l < "$RUN_ROOT/alignment.jsonl")" -eq 50
+
+      python "$EVAL_ROOT/tools/split.py" \
+        --input_jsonl "$RUN_ROOT/alignment.jsonl" \
+        --split_res_dir "$RUN_ROOT/split_res" \
+        --segment_dir "$RUN_ROOT/audio_segments" \
+        --output_jsonl "$RUN_ROOT/split.jsonl" \
+        --num_workers 8
+      test "$(wc -l < "$RUN_ROOT/split.jsonl")" -eq 50
+
+      python "$EVAL_ROOT/tools/run_similarity.py" \
+        --input_jsonl "$RUN_ROOT/split.jsonl" \
+        --output_jsonl "$RUN_ROOT/sim.jsonl" \
+        --metrics_txt "$RUN_ROOT/acc_sim.txt" \
+        --model_dir "$EVAL_ROOT/model/voxblink2_samresnet100_ft" \
+        --device npu:0
+      test "$(wc -l < "$RUN_ROOT/sim.jsonl")" -eq 50
+      test -s "$RUN_ROOT/acc_sim.txt"
+
+      python "$EVAL_ROOT/wer/whisper_asr.py" \
+        --input_jsonl "$INPUT" \
+        --output_jsonl "$RUN_ROOT/asr.jsonl" \
+        --model_id "$EVAL_ROOT/model/whisper-large-v3" \
+        --device npu
+      test "$(wc -l < "$RUN_ROOT/asr.jsonl")" -eq 50
+
+      python "$EVAL_ROOT/wer/run_wer.py" \
+        --lang "$LANG" \
+        --input_jsonl "$RUN_ROOT/asr.jsonl" \
+        --output_jsonl "$RUN_ROOT/wer.jsonl" \
+        --metrics_txt "$RUN_ROOT/wer.txt"
+      test "$(wc -l < "$RUN_ROOT/wer.jsonl")" -eq 50
+      test -s "$RUN_ROOT/wer.txt"
+    } 2>&1 | tee "$RUN_ROOT/evaluator.log"
+  done
+done
+cd "$MODEL_ROOT"
+deactivate
+```
+
+#### CUDA evaluator（可选对照）
 
 ```bash
 set -o pipefail
@@ -728,6 +797,77 @@ for LANG in zh en; do
         --output_jsonl "$RUN_ROOT/asr.jsonl" \
         --model_id "$EVAL_ROOT/model/whisper-large-v3" \
         --num_gpus "$WHISPER_NUM_GPUS"
+      test "$(wc -l < "$RUN_ROOT/asr.jsonl")" -eq 50
+
+      python "$EVAL_ROOT/wer/run_wer.py" \
+        --lang "$LANG" \
+        --input_jsonl "$RUN_ROOT/asr.jsonl" \
+        --output_jsonl "$RUN_ROOT/wer.jsonl" \
+        --metrics_txt "$RUN_ROOT/wer.txt"
+      test "$(wc -l < "$RUN_ROOT/wer.jsonl")" -eq 50
+      test -s "$RUN_ROOT/wer.txt"
+    } 2>&1 | tee "$RUN_ROOT/evaluator.log"
+  done
+done
+cd "$MODEL_ROOT"
+deactivate
+```
+
+#### CPU evaluator（可选对照）
+
+```bash
+set -o pipefail
+MODEL_ROOT="$PWD"
+EVAL_ROOT="$MODEL_ROOT/third_party/TTSD-eval"
+source "$MODEL_ROOT/.venv-ttsd-eval/bin/activate"
+export HF_HUB_OFFLINE=1
+export TRANSFORMERS_OFFLINE=1
+export CUDA_VISIBLE_DEVICES=""
+ALIGN_DEVICE=cpu
+cd "$EVAL_ROOT/testset"
+
+for LANG in zh en; do
+  for GROUP in original_cuda patched_cuda npu; do
+    INPUT="$MODEL_ROOT/results/ttsd_eval/${GROUP}_${LANG}.jsonl"
+    [ -f "$INPUT" ] || continue
+    STEM="${GROUP}_${LANG}"
+    RUN_ROOT="$MODEL_ROOT/results/ttsd_eval_metrics/$STEM"
+    mkdir -p \
+      "$RUN_ROOT/alignment_files" \
+      "$RUN_ROOT/split_res" \
+      "$RUN_ROOT/audio_segments"
+
+    {
+      python "$EVAL_ROOT/tools/align.py" \
+        --input_jsonl "$INPUT" \
+        --output_dir "$RUN_ROOT/alignment_files" \
+        --output_jsonl "$RUN_ROOT/alignment.jsonl" \
+        --cache_dir "$EVAL_ROOT/model" \
+        --device "$ALIGN_DEVICE"
+      test "$(wc -l < "$RUN_ROOT/alignment.jsonl")" -eq 50
+
+      python "$EVAL_ROOT/tools/split.py" \
+        --input_jsonl "$RUN_ROOT/alignment.jsonl" \
+        --split_res_dir "$RUN_ROOT/split_res" \
+        --segment_dir "$RUN_ROOT/audio_segments" \
+        --output_jsonl "$RUN_ROOT/split.jsonl" \
+        --num_workers 8
+      test "$(wc -l < "$RUN_ROOT/split.jsonl")" -eq 50
+
+      python "$EVAL_ROOT/tools/run_similarity.py" \
+        --input_jsonl "$RUN_ROOT/split.jsonl" \
+        --output_jsonl "$RUN_ROOT/sim.jsonl" \
+        --metrics_txt "$RUN_ROOT/acc_sim.txt" \
+        --model_dir "$EVAL_ROOT/model/voxblink2_samresnet100_ft" \
+        --device cpu
+      test "$(wc -l < "$RUN_ROOT/sim.jsonl")" -eq 50
+      test -s "$RUN_ROOT/acc_sim.txt"
+
+      python "$EVAL_ROOT/wer/whisper_asr.py" \
+        --input_jsonl "$INPUT" \
+        --output_jsonl "$RUN_ROOT/asr.jsonl" \
+        --model_id "$EVAL_ROOT/model/whisper-large-v3" \
+        --device cpu
       test "$(wc -l < "$RUN_ROOT/asr.jsonl")" -eq 50
 
       python "$EVAL_ROOT/wer/run_wer.py" \
