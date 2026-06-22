@@ -61,7 +61,7 @@ MolFormer
 ├── compare_embeddings.py
 ├── test_data/smiles_functional.txt          # 10 条功能验证输入
 ├── requirements.txt
-├── README_INFERENCE.md
+├── README.md
 ├── NPU_ADAPTATION.md
 └── ACCEPTANCE_PLAN.md
 ```

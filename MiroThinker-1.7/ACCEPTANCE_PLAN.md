@@ -164,7 +164,7 @@ tool error/超时/污染检查:
 结论:
 ```
 
-## 补充说明（来自 README_INFERENCE.md）
+## 补充说明（来自 README.md）
 
 ### 完整官方结果输入
 

@@ -1,259 +1,227 @@
----
-license: other
-hardware: NPU
----
+# MMAudio 推理适配指导
 
-# 引言
-
-本案例介绍在x86环境的昇腾硬件上，采用torch-npu直接推理方式部署MMAudio模型，并进行推理任务生成音频的迁移实践。
-
-# 一、容器环境准备
-
-## 1.1 创建环境
-
-MMAudio模型部署所需环境的相关版本如下：
-
-**使用约束**
-|依赖软件|版本|
-| ----------- | ----------- |
-|昇腾NPU驱动|>=25.0.RC1.1商发版本|
-|昇腾NPU固件|>=25.0.RC1.1商发版本|
-|CANN Toolkit|>=8.2.RC1商发版本|
-|CANN Kernel|>=8.2.RC1商发版本|
-|CANN NNAL|>=8.2.RC1商发版本|
-|Python	|>=3.10|
-|PyTorch|>=2.6.0|
-|torch_npu插件|>=2.6.0|
+- [概述](#概述)
+- [推理环境准备](#推理环境准备)
+- [快速上手](#快速上手)
+  - [获取源码](#获取源码)
+  - [应用适配补丁](#应用适配补丁)
+  - [安装依赖](#安装依赖)
+  - [下载模型权重](#下载模型权重)
+  - [调用推理接口](#调用推理接口)
+- [性能](#性能)
+- [适配修改说明](#适配修改说明)
 
 
- **硬件设备**
-|设备型号|NPU配置|
-|---|---|
-|G8600（910B2C）|	2卡|
+******
 
 
-# 二、代码和模型下载
+# 概述
+
+&emsp;MMAudio 是一款 AI 音频生成模型，它能够根据文字描述和/或视频内容，自动生成同步的高质量音效与音频。它通过多模态联合训练，能根据文本或视频快速生成高契合度的音效与音频。该模型基于流匹配目标，凭借条件同步模块实现了帧级别的视音频精准对齐。本文档介绍该模型基于昇腾底座的推理指导。
+
+- 版本说明：
+
+  ```
+  url=https://github.com/hkchengrex/MMAudio
+  commit_id=974010a
+  model_name=MMAudio
+  ```
+
+# 推理环境准备
+
+- 该模型需要以下插件与驱动
+
+  **表 1**  版本配套表
+
+  | 配套                | 版本    |
+  | ------------------- | ------- |
+  | 固件与驱动          | 25.5.1+ |
+  | CANN                | 8.5.1   |
+  | Python              | 3.11.14 |
+  | PyTorch / torch_npu | 2.9.0   |
+  | torchaudio          | 2.9.0   |
+  | soundfile           | 0.13.1  |
+
+  说明：Atlas 800I A2 推理卡请以 CANN 版本选择实际固件与驱动版本。
+
+# 快速上手
+
+## 获取源码
+
+1. 获取MMAudio 源码
+
+   ```bash
+   git clone https://github.com/hkchengrex/MMAudio.git
+   cd MMAudio
+   git reset --hard 974010a
+
+   ```
+
+2. 获取本仓适配补丁
+
+   ```bash
+   git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
+   cp ModelZoo-PyTorch/ACL_PyTorch/built-in/audio/MMAudio/diff_mmuaudio.patch .
+   cp ModelZoo-PyTorch/ACL_PyTorch/built-in/audio/MMAudio/diff_torchaudio_kaldi.patch .
+   cp ModelZoo-PyTorch/ACL_PyTorch/built-in/audio/MMAudio/diff_ViT_model.patch .
+   ```
 
 
-## 2.1 下载代码和模型
 
-MMAudio在Github上的工程地址：https://github.com/hkchengrex/MMAudio
+## 应用适配补丁
 
-执行命令进行下载：
-```shell
-git clone https://github.com/hkchengrex/MMAudio.git
-```
-如果Github下载不了也可以下载Gitee上的工程代码，地址：https://gitee.com/MufcLiuKai/MMAudio
-```shell
-git clone https://gitee.com/MufcLiuKai/MMAudio.git
-```
-安装Git LFS为后续模型下载做准备：
-```shell
-# 安装 Git LFS
-apt-get update
-apt-get install git-lfs
+### 1. 应用MMAudio 主仓补丁
 
-# 初始化 Git LFS
-git lfs install
-
-# 
-pip install huggingface_hub==0.36.2
-```
-在运行demo时有些模型会自动下载，有些模型需要额外手动下载。
-
-修改/etc/hosts，添加github的IP地址：
-
-![alt text](hosts修改.png)
-
-如果IP变了可以去ipaddress.com查询。后续运行Demo时有些模型会从github自动下载。
-
-需要手动下载的模型：
-
-apple/DFN5B-CLIP-ViT-H-14-378：
-
-从GitCode上下载：
-```shell
-git clone https://gitcode.com/mirrors/apple/DFN5B-CLIP-ViT-H-14-378.git
-
-# 或者
-modelscope download --model apple/DFN5B-CLIP-ViT-H-14-378  --local_dir DFN5B-CLIP-ViT-H-14-378
-```
-nvidia/bigvgan_v2_44khz_128band_512x：
-
-首先新建一个保存模型的路径：
-```shell
-mkdir nvidia
-cd nvidia
-mkdir bigvgan_v2_44khz_128band_512x
-```
-如果pip安装较慢或者报错，可以添加国内镜像源代理，比如阿里、清华、中科大等：
-```shell
-pip install modelscope -i http://mirrors.aliyun.com/pypi/simple/
-pip install modelscope -i https://pypi.tuna.tsinghua.edu.cn/simple/
-pip install modelscope -i http://pypi.mirrors.ustc.edu.cn/simple/
-```
-在nvidia目录下新建一个python脚本（如download.py）：
-
-```shell
-import os
-os.environ["HF_HOME"] = "~/.cache/gitee-ai"
-os.environ["HF_ENDPOINT"] = "https://hf-api.gitee.com"
-
-from huggingface_hub import snapshot_download
-snapshot_download("nvidia/bigvgan_v2_44khz_128band_512x", local_dir="./bigvgan_v2_44khz_128band_512x/")
-```
-执行python脚本即可下载模型：
-```shell
-python download.py
+```bash
+git apply ./diff_mmuaudio.patch
 ```
 
-# 三、模型推理
+### 2. 应用 torchaudio 补丁
 
-## 3.1 依赖包安装
+NPU 不支持 `torch.fft.rfft()` 返回复数张量直接调用 `.abs()`，需要将复数取模运算手动拆分为实部虚部计算。
 
-安装torch相关的包，比如torchaudio、torchvision等：
-```shell
-pip install torchvision torchaudio
+```bash
+# 找到 torchaudio 安装路径
+TORCHAUDIO_PATH=$(python3 -c "import torchaudio; import os; print(os.path.dirname(torchaudio.__file__))")
+# 应用补丁
+cd ${TORCHAUDIO_PATH}/../
+patch -p1 < /path/to/diff_torchaudio_kaldi.patch
 ```
-最终效果如下：
 
-![alt text](torch版本.png)
+如 patch 命令不可用，也可手动修改 `${TORCHAUDIO_PATH}/compliance/kaldi.py` 第616行：
 
-安装其他依赖包：
-```shell
-cd MMAudio
+```python
+# 原始代码：
+spectrum = torch.fft.rfft(strided_input).abs()
+
+# 修改为：
+#spectrum = torch.fft.rfft(strided_input).abs()
+spectrum = torch.fft.rfft(strided_input)
+real_view = torch.view_as_real(spectrum)
+spectrum = torch.sqrt(real_view[...,0].pow(2) + real_view[...,1].pow(2))
+```
+
+## 安装依赖
+
+```bash
 pip install -e .
 ```
 
-## 3.2 修改代码和推理脚本
+## 获取权重数据
 
-修改MMAudio/demo.py
+本案例中，从modelscope.cn下载DFN5B-CLIP-ViT-H-14-378。其他权重或其他下载方法，请自行适配。
 
-![alt text](code01.png)
-
-添加torch_npu，注释掉torch.backends.cuda.matmul.allow_tf32 = True。
-
-![alt text](code02.png)
-
-![alt text](code03.png)
-
-修改调用cuda为调用npu。
-
-修改MMAudio/mmaudio/model/utils/features_utils.py：
-
-![alt text](code04_2.PNG)
-
-原代码
-```python
-self.clip_model = create_model_from_pretrained('hf-hub:apple/DFN5B-CLIP-ViT-H-14-384',
-                                                           return_transform=False)
+```bash
+modelscope download --model apple/DFN5B-CLIP-ViT-H-14-378  --local_dir DFN5B-CLIP-ViT-H-14-378
 ```
-改为
-```python
-self.clip_model = create_model_from_pretrained(model_name='ViT-H-14-378',
-                                                           pretrained='/path/to/DFN5B-CLIP-ViT-H-14-378/open_clip_pytorch_model.bin',
-                                                           return_transform=False)
-```
-调用下载到本地的模型。
-
-修改MMAudio/mmaudio/ext/autoencoder/vae.py：
-
-![alt text](code05.png)
-
-
-将调用cuda改为调用npu。
-
-接下来时数据格式的修改，因为torch_npu对于BF16格式的数据的支持较少，所以要在代码中转换数据格式为Float32，不损失精度。
-
-修改MMAudio/mmaudio/ext/bigvgan_v2/alias_free_activation/torch/filter.py：
-
-![alt text](code06.png)
-
-```python
-        if self.padding:
-            x = F.pad(x, (self.pad_left, self.pad_right), mode=self.padding_mode)
-        filter_converted = self.filter.to(dtype=torch.float32).expand(C, -1, -1)
-        # out = F.conv1d(x, self.filter.expand(C, -1, -1), stride=self.stride, groups=C)
-        out = F.conv1d(x, filter_converted, stride=self.stride, groups=C)
-```
-修改MMAudio/mmaudio/ext/bigvgan_v2/alias_free_activation/torch/resample.py：
-
-![alt text](code07.png)
-
-![alt text](code08.png)
-
-```python
-def forward(self, x):
-        _, C, _ = x.shape
-
-        x = x.to(dtype=torch.float32)
-        x = F.pad(x, (self.pad, self.pad), mode="replicate")
-        filter_converted = self.filter.to(dtype=torch.float32).expand(C, -1, -1)
-        # x = self.ratio * F.conv_transpose1d(
-        #     x, self.filter.expand(C, -1, -1), stride=self.stride, groups=C)
-        x = self.ratio * F.conv_transpose1d(
-            x, filter_converted, stride=self.stride, groups=C)
-        x = x[..., self.pad_left:-self.pad_right]
-
-        return x
-```
-修改MMAudio/mmaudio/ext/bigvgan_v2/bigvgan.py：
-
-![alt text](code09.png)
-
-```python
- def forward(self, x):
-        acts1, acts2 = self.activations[::2], self.activations[1::2]
-        for c1, c2, a1, a2 in zip(self.convs1, self.convs2, acts1, acts2):
-            xt = a1(x)
-            c1 = c1.to(dtype=torch.float32)
-            xt = c1(xt)
-            xt = a2(xt)
-            c2 = c2.to(dtype=torch.float32)
-            xt = c2(xt)
-            x = xt + x
-
-        return x
+使用DFN5B-CLIP-ViT-H-14-378需要修改适配本地路径
+```bash
+git apply ./diff_ViT_model.patch
 ```
 
-![alt text](code10.png)
 
-```python
- def forward(self, x):
-        # Pre-conv
-        x = self.conv_pre(x)
+# 推理验证
 
-        for i in range(self.num_upsamples):
-            # Upsampling
-            for i_up in range(len(self.ups[i])):
-                self.ups[i][i_up] = self.ups[i][i_up].to(dtype=x.dtype)
-                x = self.ups[i][i_up](x)
-            # AMP blocks
-            xs = None
-            for j in range(self.num_kernels):
-                if xs is None:
-                    xs = self.resblocks[i * self.num_kernels + j](x)
-                else:
-                    xs += self.resblocks[i * self.num_kernels + j](x)
-            x = xs / self.num_kernels
+```bash
+python3 demo.py --duration=8 --prompt "your prompt" --video=<path to video>
 
-        # Post-conv
-        x = self.activation_post(x)
-        self.conv_post = self.conv_post.to(dtype=torch.float32)
-        x = self.conv_post(x)
-        # Final tanh activation
-        if self.use_tanh_at_final:
-            x = torch.tanh(x)
-        else:
-            x = torch.clamp(x, min=-1.0, max=1.0)  # Bound the output to [-1, 1]
-
-        return x
 ```
 
-## 3.3 执行推理
-使用以下命令执行推理脚本（文生音频模式）：
-```shell
-python demo.py --duration=8 --prompt "your prompt" 
+## 启动参数说明
+
+| 参数             | 说明                                                         | 默认值 |
+| ---------------- | ------------------------------------------------------------ | ------ |
+| **`--duration`** | **生成音频的持续时间（秒）。**                               | `8`    |
+| **`--prompt`**   | **文本提示词（String）**。用于描述你期望生成的音频内容、环境音效或音乐风格。。 |        |
+| **`--video`**    | **输入视频的文件路径**。用于“视频转音频”或“视频+文本转音频”任务。如果**省略此参数**，模型将直接进入**“纯文本转音频（Text-to-Audio）”**合成模式。 |     可选参数 |
+
+# 性能
+数据集下载
+```bash
+mkdir -p ../data/AudioCaps-test-audioldm-ver/
+curl -L -o ../data/AudioCaps-test-audioldm-ver/data.csv  https://github.com/hkchengrex/MMAudio/releases/download/v0.1/AudioCaps_audioldm_data.csv
+
 ```
 
-生成的音频文件在MMAudio/demo.py设置的目录下，默认为./output。
+测试命令
+```bash
+torchrun --nnodes=1 --nproc_per_node=8 --node_rank=0 batch_eval.py model=large_44k_v2   dataset
+=audiocaps duration_s=8 batch_size=16 num_workers=4 compile=False amp=False exp_id=npu8_large44k_v2_audiocaps
+```
+
+RTF（Real-Time Factor，实时率）= 推理耗时 / 生成音频时长，衡量合成速度。RTF < 1 表示合成速度优于实时，值越小性能越好。
+
+| 硬件    | 生成音频时长           | 推理耗时 | RTF    |
+| ------- | ---------------------- | -------- | ------ |
+| 800I A2 | 8s (Text-to-Audio模式) | 1.59s    | 0.1988 |
+
+
+
+# 适配修改说明
+
+本项目对原始 MMAudio做了以下 NPU 适配修改：
+
+## 1) 关闭 Transformer/Nested Tensor 快速路径
+
+**修改原因**  
+aten::_transformer_encoder_layer_fwd在 Ascend NPU 上不支持，否则触发 CPU fallback 
+
+**修改内容**
+- `demo.py`、`gradio_demo.py`、`batch_eval.py`
+  - 增加：`torch.backends.mha.set_fastpath_enabled(False)`
+- `mmaudio/ext/synchformer/motionformer.py`
+  - 在 `BaseEncoderLayer` 中设置：`self.enable_nested_tensor = False`
+
+---
+
+## 2) 将音频保存路径从 torchaudio.save 切到 soundfile.write
+
+**修改原因**  
+torchaudio 2.9 默认使用 torchcodec 保存音频，torchcodec 依赖 CUDA 库无法在 NPU 运行。 替换为 soundfile 实现：
+
+**修改内容**
+- `demo.py`、`gradio_demo.py`、`batch_eval.py`
+  - 新增 `safe_torchaudio_save(...)`
+
+---
+
+## 3) 增加 NPU 设备分支与对应分布式后端
+
+**修改原因**  
+Ascend 多卡必须使用 NPU 设备选择与 HCCL 后端才能正确初始化分布式。
+
+**修改内容**
+- `demo.py`、`gradio_demo.py`
+  - 设备优先级改为：`npu > cuda > mps > cpu`
+- `batch_eval.py`
+  - 增加 NPU 设备设置：`torch.npu.set_device(local_rank)`
+  - 分布式后端按设备选择：`hccl (npu) / nccl (cuda) / gloo (cpu)`
+- `demo.py`
+  - NPU 路径显存统计改用：`torch.npu.max_memory_allocated()`
+
+---
+
+## 4) 去掉CUDA 专属配置
+
+**修改原因**  
+`allow_tf32` 是 CUDA 专属开关，NPU下关闭。
+
+**修改内容**
+
+- `demo.py`、`gradio_demo.py`
+  - 关闭 CUDA TF32 相关设置
+- `batch_eval.py`
+  - 仅在 `torch.cuda.is_available()` 时启用 TF32
+
+---
+
+## 5) BigVGANv2 统一保持 FP32 推理
+
+**修改原因**  
+为避免 torch_npu 在 BigVGANv2 BF16 卷积链路上的数值不稳定。
+**修改内容**
+
+- `mmaudio/ext/bigvgan_v2/bigvgan.py`
+  - 加载权重后通过 keep_fp32() 将 BigVGANv2 的参数和 buffer 统一保持为 float32
+- `mmaudio/ext/autoencoder/autoencoder.py`
+  - 在 vocoder 调用边界对 BigVGANv2 输入统一做一次 float32 对齐

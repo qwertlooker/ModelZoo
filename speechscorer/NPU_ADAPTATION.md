@@ -63,12 +63,12 @@ checkpoint 下载、fairseq 导入和 CPU/NPU 全量运行前，交付状态仍�
 
 独立重放必须使用未应用 patch 的 `upstream-original`、应用 patch 的
 `upstream-npu` 和 NPU candidate 三组输出。NPU 环境不得复用 PyTorch CPU 索引
-wheel；完整安装和比较命令见 `README_INFERENCE.md`。
+wheel；完整安装和比较命令见 `README.md`。
 
-安装和推理见 [README_INFERENCE.md](README_INFERENCE.md)，SpeechOcean762
+安装和推理见 [README.md](README.md)，SpeechOcean762
 对齐和相关性报告口径见 [ACCEPTANCE_PLAN.md](ACCEPTANCE_PLAN.md)。
 
-## 补充说明（来自 README_INFERENCE.md）
+## 补充说明（来自 README.md）
 
 ### 两条评分路径
 

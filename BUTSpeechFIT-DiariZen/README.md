@@ -1,196 +1,320 @@
----
-license: mit
-language:
-  - zh
-pipeline_tag: voice-activity-detection
-tags:
-  - 部署指南
-hardware: NPU
----
+# DiariZen 推理指导
 
-# 引言
-DiariZen 是一款由 AudioZen 与 Pyannote 3.1 驱动的说话人分轨工具包。
-github中的地址为：https://github.com/BUTSpeechFIT/DiariZen
+- [概述](#概述)
+- [输入输出数据](#输入输出数据)
+- [推理环境准备](#推理环境准备)
+- [文件目录](#文件目录)
+- [快速上手](#快速上手)
+  - [获取源码](#获取源码)
+  - [准备权重](#准备权重)
+  - [准备数据集](#准备数据集)
+  - [模型推理](#模型推理)
+- [模型推理性能](#模型推理性能)
+- [公网地址说明](#公网地址说明)
 
-# 一、运行环境准备
+## 概述
 
-## 表 1 版本配套表
-|配套|版本 |环境准备指导 |
-|--|--|--|
-|Python|3.10.12|-|
-|torch|2.5.1+cpu|-|
-|torch_npu|2.5.1|-|
+DiariZen 是 BUT-FIT 发布的说话人日志分轨模型，基于 WavLM 分割网络与 WeSpeaker embedding，输出 RTTM。本文档介绍该模型基于昇腾 NPU 的推理指导。
 
- **硬件设备**
-|设备型号|NPU配置|
-|---|---|
-|Atlas 800I A2 910B|	1卡| 
+> 说明：本文档适配对象为 `BUT-FIT/diarizen-wavlm-large-s80-md` checkpoint，不包含 `large-s80-md-v2`、base 或 pruning checkpoint。
 
-# 二、下载模型权重
-## 1 从github中下载DiariZen文件
-```
-git clone https://github.com/BUTSpeechFIT/DiariZen.git
-```
-或者
-```
-git clone https://githubfast.com/BUTSpeechFIT/DiariZen.git
-```
+- 版本说明：
 
-## 2 从huggingface.co中下载diarizen-wavlm-large-s80-md文件
-```
-export HF_ENDPOINT=https://hf-mirror.com
-git clone https://huggingface.co/BUT-FIT/diarizen-wavlm-large-s80-md.git
-```
+  ```text
+  url=https://github.com/BUTSpeechFIT/DiariZen
+  commit_id=a60b18151dbbe246e4199d8ef5cd2ece3872ea94
+  model_name=DiariZen
+  model=BUT-FIT/diarizen-wavlm-large-s80-md@a9b1b0e7974d96dcfd63af417e9da7ad8714040f
+  embedding=pyannote/wespeaker-voxceleb-resnet34-LM@837717ddb9ff5507820346191109dc79c958d614
+  dscore=nryant/dscore@e02f949ac6592279300a2c33d03daf9e0c12fd27
+  reference=Ascend-SACT/BUTSpeechFIT-DiariZen@7961b5ab79b1232b9da367f14f8cd4f592694465
+  ```
 
-## 3 下载dscore子目录
-```
-git submodule init
-git submodule update
-```
-如果下载不成功，则使用下列命令：
-```
-rm -rf dscore
-git clone https://githubfast.com/nryant/dscore.git dscore
-```
+## 输入输出数据
 
-# 三、安装python虚拟环境和pyannote软件
-## 1	conda创建python虚拟环境
-```
-conda create --name diarizen python=3.10
-conda activate diarizen
-```
-如果conda软件不存在，则下载Miniconda3-py311_24.1.2-0-Linux-x86_64.sh，并安装
-```
-bash Miniconda3-py311_24.1.2-0-Linux-x86_64.sh
-```
+- 输入数据
 
-## 2	进入虚拟环境diarizen,并安装基础torch软件
-```
-pip3 install torch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 --index-url https://download.pytorch.org/whl/cpu
-pip install -r requirements.txt && pip install -e .
-pip install ml-dtypes cloudpickle
-```
+  支持一个或多个音频文件，或包含 `id`/`audio_path` 字段的 JSONL manifest。
 
-## 3	安装torch_npu软件以及其他依赖
-```
-pip install torch-npu==2.5.1 -i https://mirrors.huaweicloud.com/repository/pypi/simple --no-cache-dir
-```
-注意，这里一定要保证torch-npu与torch版本匹配，否则后面就容易出现各种错误；
-```
-(diarizen) [root:DiariZen]$ pip list | grep torch
-torch                     2.5.1+cpu
-torch-npu                 2.5.1
-torchaudio                2.5.1+cpu
-torchinfo                 1.8.0
-torchvision               0.20.1+cpu
+- 输出数据
+
+  输出为每个 session 一个 RTTM 文件，以及 `run.meta.json`。
+
+## 推理环境准备
+
+- 该模型需要以下插件与驱动。
+
+  **表 1** 版本配套表
+
+  | 配套 | 版本/要求 |
+  |---|---|
+  | 硬件 | 支持目标 CANN 的 Atlas 推理服务器 |
+  | CANN、驱动、固件 | CANN 8.2.0 及其配套驱动/固件 |
+  | Python | 3.10 |
+  | PyTorch / torchaudio / torch-npu | 2.5.1 |
+  | ONNX Runtime | CPU：`onnxruntime==1.22.1`；NPU：`onnxruntime-cann==1.22.1` |
+  | NumPy | 1.26.4 |
+
+  说明：Atlas 800I A2 推理卡请以 CANN 版本选择实际固件与驱动版本。
+
+## 文件目录
+
+```text
+BUTSpeechFIT-DiariZen
+├── infer.py                            # 推理脚本
+├── prepare_eval_data.py                # 评测数据准备脚本
+├── score_diarization.py                # DER 评测脚本
+├── patches/0001-add-explicit-npu-pipeline-device.patch
+├── requirements.txt
+├── README.md                           # 推理指导文档
+├── README_old.md                       # 原始部署说明
+├── NPU_ADAPTATION.md                   # NPU 适配文档
+└── ACCEPTANCE_PLAN.md                  # 验收计划
 ```
 
-## 4	下载并安装pyannote所有相关的软件
-1，安装缺省的pyannote.audio=3.1.1版本
-```
-cd pyannote-audio && pip install -e .[dev,testing]
-cd ../
+## 快速上手
+
+### 获取源码
+
+1. 获取源码并应用适配补丁。
+
+   ```bash
+   git clone --recurse-submodules https://github.com/BUTSpeechFIT/DiariZen.git source
+   git -C source checkout a60b18151dbbe246e4199d8ef5cd2ece3872ea94
+   git -C source submodule update --init --recursive
+   git -C source worktree add --detach ../upstream-original \
+     a60b18151dbbe246e4199d8ef5cd2ece3872ea94
+   git -C source worktree add --detach ../upstream-npu \
+     a60b18151dbbe246e4199d8ef5cd2ece3872ea94
+   git -C upstream-original submodule update --init --recursive
+   git -C upstream-npu submodule update --init --recursive
+   git -C upstream-npu apply --check \
+     ../patches/0001-add-explicit-npu-pipeline-device.patch
+   git -C upstream-npu apply \
+     ../patches/0001-add-explicit-npu-pipeline-device.patch
+   ```
+
+2. 创建并安装 CPU 原始环境。
+
+   ```bash
+   python3.10 -m venv .venv-cpu-original
+   source .venv-cpu-original/bin/activate
+   python -m pip install --upgrade pip
+   python -m pip install torch==2.5.1 torchaudio==2.5.1 \
+     --index-url https://download.pytorch.org/whl/cpu
+   python -m pip install onnxruntime==1.22.1
+   python -m pip install -r upstream-original/pyannote-audio/requirements.txt
+   python -m pip install -r upstream-original/dscore/requirements.txt
+   python -m pip install -r requirements.txt
+   python -m pip install -e upstream-original/pyannote-audio --no-deps
+   python -m pip install -e upstream-original --no-deps
+   deactivate
+   ```
+
+3. 创建并安装 CPU patch 后环境。
+
+   ```bash
+   python3.10 -m venv .venv-cpu-patched
+   source .venv-cpu-patched/bin/activate
+   python -m pip install --upgrade pip
+   python -m pip install torch==2.5.1 torchaudio==2.5.1 \
+     --index-url https://download.pytorch.org/whl/cpu
+   python -m pip install onnxruntime==1.22.1
+   python -m pip install -r upstream-npu/pyannote-audio/requirements.txt
+   python -m pip install -r upstream-npu/dscore/requirements.txt
+   python -m pip install -r requirements.txt
+   python -m pip install -e upstream-npu/pyannote-audio --no-deps
+   python -m pip install -e upstream-npu --no-deps
+   deactivate
+   ```
+
+4. 创建并安装 NPU 环境。
+
+   ```bash
+   python3.10 -m venv .venv-npu
+   source .venv-npu/bin/activate
+   python -m pip install --upgrade pip
+   python -m pip install torch==2.5.1 torchaudio==2.5.1 torch-npu==2.5.1 \
+     -i https://mirrors.huaweicloud.com/repository/pypi/simple
+   python -m pip install onnxruntime-cann==1.22.1
+   python -m pip install -r upstream-npu/pyannote-audio/requirements.txt
+   python -m pip install -r upstream-npu/dscore/requirements.txt
+   python -m pip install -r requirements.txt
+   python -m pip install -e upstream-npu/pyannote-audio --no-deps
+   python -m pip install -e upstream-npu --no-deps
+   ```
+
+5. 执行 NPU 导入门禁检查。
+
+   ```bash
+   python - <<'PY'
+   import onnxruntime as ort
+   import torch
+   import torch_npu
+   from diarizen.pipelines.inference import DiariZenPipeline
+   assert "CANNExecutionProvider" in ort.get_available_providers()
+   print(torch.__version__, ort.__version__, torch.randn(1).to("npu").device)
+   PY
+   ```
+
+### 准备权重
+
+1. 下载主模型和 embedding 权重。
+
+   主模型地址：`https://huggingface.co/BUT-FIT/diarizen-wavlm-large-s80-md`
+   embedding 地址：`https://huggingface.co/pyannote/wespeaker-voxceleb-resnet34-LM`
+
+   ```bash
+   huggingface-cli download BUT-FIT/diarizen-wavlm-large-s80-md \
+     --revision a9b1b0e7974d96dcfd63af417e9da7ad8714040f \
+     --local-dir weights/diarizen-wavlm-large-s80-md
+   huggingface-cli download pyannote/wespeaker-voxceleb-resnet34-LM \
+     pytorch_model.bin \
+     --revision 837717ddb9ff5507820346191109dc79c958d614 \
+     --local-dir weights/wespeaker-voxceleb-resnet34-LM
+
+   find weights -type f -print0 | sort -z | xargs -0 sha256sum
+   ```
+
+   主模型目录必须包含 `config.toml`、`pytorch_model.bin` 和 `plda/`。
+
+### 准备数据集
+
+1. 准备功能验证样例。
+
+   ```bash
+   mkdir -p eval_data/functional
+   printf 'EN2002a %s\n' "$PWD/source/example/EN2002a_30s.wav" \
+     > eval_data/functional/wav.scp
+   python prepare_eval_data.py \
+     --wav_scp eval_data/functional/wav.scp \
+     --output_manifest eval_data/functional/manifest.jsonl \
+     --dataset upstream-example \
+     --split functional
+   ```
+
+   参数说明：
+
+   - `wav_scp`：`<session_id> <audio_path>` 格式的音频列表文件。
+   - `output_manifest`：生成的 JSONL manifest 路径。
+   - `dataset`：数据集名称标签。
+   - `split`：数据集 split 标签。
+
+2. 准备 L2 正式评测数据。
+
+   ```bash
+   python prepare_eval_data.py \
+     --wav_scp eval_data/ami/wav.scp \
+     --reference_rttm eval_data/ami/reference.rttm \
+     --uem eval_data/ami/all.uem \
+     --output_manifest eval_data/ami/manifest.jsonl \
+     --dataset AMI \
+     --split SDM-eval
+   ```
+
+   参数说明：
+
+   - `reference_rttm`：reference RTTM 文件路径。
+   - `uem`：UEM 文件路径，可选。
+
+### 模型推理
+
+1. 执行未应用 patch 的原始 CPU baseline 推理。
+
+   ```bash
+   source .venv-cpu-original/bin/activate
+   mkdir -p results/original_cpu
+   python - <<'PY'
+   from pathlib import Path
+   from diarizen.pipelines.inference import DiariZenPipeline
+
+   pipeline = DiariZenPipeline(
+       diarizen_hub=Path("weights/diarizen-wavlm-large-s80-md"),
+       embedding_model="weights/wespeaker-voxceleb-resnet34-LM/pytorch_model.bin",
+       rttm_out_dir="results/original_cpu",
+   )
+   pipeline("source/example/EN2002a_30s.wav", sess_name="EN2002a")
+   PY
+   deactivate
+   ```
+
+2. 执行应用 patch 后的 CPU 回归推理。
+
+   ```bash
+   source .venv-cpu-patched/bin/activate
+   python infer.py \
+     --manifest eval_data/functional/manifest.jsonl \
+     --model_dir weights/diarizen-wavlm-large-s80-md \
+     --embedding_model weights/wespeaker-voxceleb-resnet34-LM/pytorch_model.bin \
+     --device cpu \
+     --output_dir results/patched_cpu
+   deactivate
+   ```
+
+3. 执行 NPU 推理。
+
+   ```bash
+   source .venv-npu/bin/activate
+   python infer.py \
+     --manifest eval_data/functional/manifest.jsonl \
+     --model_dir weights/diarizen-wavlm-large-s80-md \
+     --embedding_model weights/wespeaker-voxceleb-resnet34-LM/pytorch_model.bin \
+     --device npu \
+     --output_dir results/npu
+   ```
+
+   参数说明：
+
+   - `manifest`：JSONL manifest 路径。
+   - `model_dir`：主模型权重目录。
+   - `embedding_model`：WeSpeaker embedding 权重文件路径。
+   - `device`：推理设备，支持 `npu`、`cpu`。
+   - `output_dir`：RTTM 和 `run.meta.json` 输出目录。
+
+4. 执行正式 DER 评测。
+
+   ```bash
+   python score_diarization.py \
+     --dscore_dir source/dscore \
+     --reference_rttm eval_data/ami/reference.rttm \
+     --system_rttm results/npu/*.rttm \
+     --uem eval_data/ami/all.uem \
+     --collar 0.0 \
+     --output results/npu/der.txt
+   ```
+
+   参数说明：
+
+   - `dscore_dir`：vendored dscore 目录路径。
+   - `reference_rttm`：reference RTTM 文件路径。
+   - `system_rttm`：待评测的 system RTTM 文件，支持 glob。
+   - `uem`：UEM 文件路径。
+   - `collar`：DER collar（秒），官方口径使用 `0.0`。
+   - `output`：DER 报告输出路径。
+
+## 模型推理性能
+
+NPU L2 性能测试示例：
+
+```bash
+mkdir -p results/npu
+/usr/bin/time -v -o results/npu/l2.time.txt python infer.py \
+  --manifest eval_data/ami/manifest.jsonl \
+  --model_dir weights/diarizen-wavlm-large-s80-md \
+  --embedding_model weights/wespeaker-voxceleb-resnet34-LM/pytorch_model.bin \
+  --device npu \
+  --output_dir results/npu
 ```
 
-2，下载除pyannote.audio外其他pyannote软件(与pyannote.audio=3.1.1配套的版本)
-```
-wget https://githubfast.com/pyannote/pyannote-core/archive/refs/tags/5.0.0.tar.gz
-wget https://githubfast.com/pyannote/pyannote-database/archive/refs/tags/5.0.1.tar.gz
-wget https://githubfast.com/pyannote/pyannote-metrics/archive/refs/tags/3.2.tar.gz
-wget https://githubfast.com/pyannote/pyannote-pipeline/archive/refs/tags/3.0.1.tar.gz
-```
+`results/npu/run.meta.json` 提供 elapsed/RTF/provider。性能数据待正式验收，详见 [ACCEPTANCE_PLAN.md](ACCEPTANCE_PLAN.md)。
 
-3，修改名称并解压文件：
-```
-mv 5.0.0.tar.gz pyannote-core5.0.0.tar.gz
-mv 5.0.1.tar.gz pyannote-database5.0.1.tar.gz
-mv 3.2.tar.gz pyannote-metrics3.2.tar.gz
-mv 3.0.1.tar.gz pyannote.pipeline3.0.1.tar.gz
-tar -zxvf pyannote-core5.0.0.tar.gz
-tar -zxvf pyannote-database5.0.1.tar.gz
-tar -zxvf pyannote-metrics3.2.tar.gz
-tar -zxvf pyannote.pipeline3.0.1.tar.gz
+## 公网地址说明
 
- ```
- 
- 4，安装其他pyannote软件
-```
-pip uninstall pyannote-database pyannote-metrics pyannote-pipeline pyannote-core
-cd pyannote-metrics-3.2 && pip install -e .
-cd ../pyannote-pipeline-3.0.1 && pip install -e .
-cd ../pyannote-database-5.0.1 && pip install -e .
-cd ../pyannote-core-5.0.0 && pip install -e .
-cd ../
+| 类型 | 说明 | 公网地址 |
+|---|---|---|
+| 开源代码仓 | DiariZen 官方源码 | https://github.com/BUTSpeechFIT/DiariZen |
+| 模型权重 | BUT-FIT/diarizen-wavlm-large-s80-md | https://huggingface.co/BUT-FIT/diarizen-wavlm-large-s80-md |
+| 模型权重 | pyannote/wespeaker-voxceleb-resnet34-LM | https://huggingface.co/pyannote/wespeaker-voxceleb-resnet34-LM |
+| 参考适配 | Ascend-SACT/BUTSpeechFIT-DiariZen | https://gitcode.com/Ascend-SACT/BUTSpeechFIT-DiariZen |
 
- ```
- 说明：如果不安装pyannote-core、pyannote-database等软件，推理运行会出现错误；
-
-# 四、安装其他依赖
-## 1安装ffmpeg
-```
-apt update && apt install ffmpeg
-```
-## 2安装numpy==1.26.4
-```
-pip install numpy==1.26.4
-```
-
-# 五、运行指导
-## 1 代码修改
-File "/root/miniconda3/envs/diarizen/lib/python3.10/site-packages/torchaudio/compliance/kaldi.py", line 616，修改为：
-```
- #spectrum = torch.fft.rfft(strided_input).abs()
-c = torch.fft.rfft(strided_input)
-spectrum = torch.hypot(c.real, c.imag)
-```
-不修改会出现torch.fft.rfft(strided_input).abs()不支持DT_COMPLEX64的错误
-
-## 2	创建infer.py进行推理
-回到目录(diarizen) [root:DiariZen]下，参考https://huggingface.co/BUT-FIT/diarizen-wavlm-large-s80-md使用说明，创建infer.py进行推理
-```
-from diarizen.pipelines.inference import DiariZenPipeline
-
-
-# load pre-trained model
-diar_pipeline = DiariZenPipeline.from_pretrained("BUT-FIT/diarizen-wavlm-large-s80-md")
-# apply diarization pipeline
-diar_results = diar_pipeline('./example/EN2002a_30s.wav')
-
-# print results
-for turn, _, speaker in diar_results.itertracks(yield_label=True):
-    print(f"start={turn.start:.1f}s stop={turn.end:.1f}s speaker_{speaker}")
-
-# load pre-trained model and save RTTM result
-diar_pipeline = DiariZenPipeline.from_pretrained(
-        "BUT-FIT/diarizen-wavlm-large-s80-md",
-        rttm_out_dir='.'
-)
-# apply diarization pipeline
-diar_results = diar_pipeline('./example/EN2002a_30s.wav', sess_name='session_name')
-```
-
-## 3	其他问题
-### 1 推理时出现连接huggingface.co失败， 则设置镜像
-```
-export HF_ENDPOINT=https://hf-mirror.com
-```
-### 2 加载本地模型出现“多余1个/”失败， 则创建一个软链接
-```
-ln -s /inspire/sj-ssd/project/embodied-multimodality-ascend/public/xxx/DiariZen/but-fit/models--but-fit--diarizen-wavlm-large-s80-md ~/.cache/huggingface/hub/models--but-fit-- diarizen-wavlm-large-s80-md
-```
-## 3 numpy中出现np.NaN不支持的错误
-修改方式1：安装numpy==1.26.4版本
-```
- pip install ==1.26.4
-```
-修改方式2：
-在对应的安装目录pyannote/audio/pipelines/speaker_diarization.py 和inference.py中，修改为：
-```
-np_version=version.parse(np.__version__)
-if np_version >= version.parse("2.0"):
-    np_value = np.nan
-else:
-    np_value = np.NaN
-...
-```
-用np_value替换np.nan.
+DER 口径见 [ACCEPTANCE_PLAN.md](ACCEPTANCE_PLAN.md)，设备边界见 [NPU_ADAPTATION.md](NPU_ADAPTATION.md)。

@@ -59,7 +59,7 @@ MiroThinker-1.7 是 MiroMind 发布的 235B MoE 推理模型，架构为 `Qwen3M
 MiroThinker-1.7
 ├── test_data/service_prompts.jsonl
 ├── patches/README.md
-├── README_INFERENCE.md
+├── README.md
 ├── NPU_ADAPTATION.md
 └── ACCEPTANCE_PLAN.md
 tools

@@ -44,7 +44,7 @@ TTSD-eval commit、语言、样本数、MMS-FA、WeSpeaker 和 Whisper 版本，
 
 ## 3. TTSD-eval 工程准备硬门禁
 
-完整准备命令统一维护在 `README_INFERENCE.md` 的“准备 TTSD-eval 工程”，包括：
+完整准备命令统一维护在 `README.md` 的“准备 TTSD-eval 工程”，包括：
 
 1. evaluator 固定 commit，且受版本控制文件未修改；
 2. 直接下载固定 Git LFS 对象并校验 50+50 manifest、200 个 prompt WAV；
@@ -83,7 +83,7 @@ deactivate
 
 ## 4. 三组推理
 
-环境、源码工作树和权重按 `README_INFERENCE.md` 执行。功能验证使用官方示例：
+环境、源码工作树和权重按 `README.md` 执行。功能验证使用官方示例：
 
 ```bash
 MODEL_ROOT="$PWD"
@@ -338,9 +338,9 @@ Evaluator：TTSD-eval/WeSpeaker commit、CPU/CUDA profile、pip freeze、三类�
 结论：通过/不通过；不得用功能样例替代 L2 精度或性能结论
 ```
 
-## 补充说明（来自 README_INFERENCE.md）
+## 补充说明（来自 README.md）
 
-以下内容原位于 `README_INFERENCE.md`，因偏重验收口径与数据准备要求，迁移至此。
+以下内容原位于 `README.md`，因偏重验收口径与数据准备要求，迁移至此。
 
 ### 使用口径
 

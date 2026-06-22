@@ -63,10 +63,10 @@ IBM Box 数据需要人工下载，11 项指标必须走独立 fine-tuning 路�
 CPU 与 NPU 使用独立环境；NPU 环境不得复用
 `https://download.pytorch.org/whl/cpu` 安装的 CPU wheel。
 
-用户推理见 [README_INFERENCE.md](README_INFERENCE.md)，官方 11 项下游指标和
+用户推理见 [README.md](README.md)，官方 11 项下游指标和
 迁移对齐方案见 [ACCEPTANCE_PLAN.md](ACCEPTANCE_PLAN.md)。
 
-## 补充说明（来自 README_INFERENCE.md）
+## 补充说明（来自 README.md）
 
 ### 独立 fine-tuning 环境与 L2 对齐策略
 

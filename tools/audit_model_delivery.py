@@ -200,7 +200,7 @@ def main() -> None:
     failures = []
 
     documents = {
-        "README_INFERENCE.md": tuple((term,) for term in README_HEADINGS),
+        "README.md": tuple((term,) for term in README_HEADINGS),
         "NPU_ADAPTATION.md": ADAPTATION_GROUPS,
         "ACCEPTANCE_PLAN.md": ACCEPTANCE_GROUPS,
     }
@@ -228,7 +228,7 @@ def main() -> None:
     if patch_dir.is_dir() and not (patch_dir / "README.md").is_file():
         failures.append("patches/ exists without patches/README.md")
 
-    readme_text = document_text.get("README_INFERENCE.md", "")
+    readme_text = document_text.get("README.md", "")
     acceptance_text = document_text.get("ACCEPTANCE_PLAN.md", "")
     for failure in external_clones_without_pin(readme_text + "\n" + acceptance_text):
         failures.append(failure)

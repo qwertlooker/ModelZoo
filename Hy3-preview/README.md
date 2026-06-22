@@ -60,7 +60,7 @@ Hy3-preview 是 295B total / 21B active 的 BF16 MoE 模型，包含一层 3.8B 
 Hy3-preview
 ├── patches/0001-add-hy3-preview-support.patch
 ├── test_data/service_prompts.jsonl
-├── README_INFERENCE.md
+├── README.md
 ├── NPU_ADAPTATION.md
 └── ACCEPTANCE_PLAN.md
 tools

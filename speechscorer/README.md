@@ -58,7 +58,7 @@ speechscorer
 ├── prepare_eval_data.py
 ├── evaluate_results.py
 ├── requirements.txt
-├── README_INFERENCE.md
+├── README.md
 ├── NPU_ADAPTATION.md
 └── ACCEPTANCE_PLAN.md
 ```

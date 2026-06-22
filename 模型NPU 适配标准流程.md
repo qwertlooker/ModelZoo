@@ -2,7 +2,7 @@
 
 ## 一句话指令
 
-> 先克隆 upstream，确认远端最新 commit，并明确“当前适配的精确版本边界”：源码 repo/分支/commit、模型权重 repo/文件/commit 或校验值、辅助模型版本，以及明确排除同系列其他变体。区分上游源码改动和当前适配脚本。上游已有文件的修改必须生成 patch；新增 `infer.py` 不放进 patch，直接放当前模型目录。`infer.py` 只保留一个，默认 `--device npu`，CPU 验证用 `--device cpu`，不要使用 `auto/use_gpu`，不要写死 `npu:0/cuda:0`，实际设备由环境变量控制。适配/评测脚本必须按项目级“严格失败”原则实现：必需依赖统一前置 import，缺依赖、缺官方预期字段或版本不匹配时直接暴露原始错误，不添加不必要的 `try/except`、`hasattr/getattr`、regex/basic 替代、CPU/远端 fallback 等静默兼容。必须补全环境搭建、权重下载、测试数据下载、CPU 当前环境验证、NPU 验证说明。还必须生成 `ACCEPTANCE_PLAN.md`，先写清“原始测试集是什么、原始指标是多少、NPU 如何对齐原始模型结果”。当前最低验收只保留两层：功能验证和 L2 正式对齐；L2 必须同时包含主要精度/质量与性能指标，并尽量使用原始公开 benchmark 全量数据和官方配置，否则使用公开数据或内部固定集并说明降级口径。L1/L3 和长稳扩展项可选。模型目录默认维护 `README_INFERENCE.md`、`NPU_ADAPTATION.md`、`ACCEPTANCE_PLAN.md` 三类主文档；最后验证 `git apply --check`、`py_compile`、下载 URL/脚本可用性、测试数据可用性和可执行入口，不能只补文档不做验证。
+> 先克隆 upstream，确认远端最新 commit，并明确“当前适配的精确版本边界”：源码 repo/分支/commit、模型权重 repo/文件/commit 或校验值、辅助模型版本，以及明确排除同系列其他变体。区分上游源码改动和当前适配脚本。上游已有文件的修改必须生成 patch；新增 `infer.py` 不放进 patch，直接放当前模型目录。`infer.py` 只保留一个，默认 `--device npu`，CPU 验证用 `--device cpu`，不要使用 `auto/use_gpu`，不要写死 `npu:0/cuda:0`，实际设备由环境变量控制。适配/评测脚本必须按项目级“严格失败”原则实现：必需依赖统一前置 import，缺依赖、缺官方预期字段或版本不匹配时直接暴露原始错误，不添加不必要的 `try/except`、`hasattr/getattr`、regex/basic 替代、CPU/远端 fallback 等静默兼容。必须补全环境搭建、权重下载、测试数据下载、CPU 当前环境验证、NPU 验证说明。还必须生成 `ACCEPTANCE_PLAN.md`，先写清“原始测试集是什么、原始指标是多少、NPU 如何对齐原始模型结果”。当前最低验收只保留两层：功能验证和 L2 正式对齐；L2 必须同时包含主要精度/质量与性能指标，并尽量使用原始公开 benchmark 全量数据和官方配置，否则使用公开数据或内部固定集并说明降级口径。L1/L3 和长稳扩展项可选。模型目录默认维护 `README.md`、`NPU_ADAPTATION.md`、`ACCEPTANCE_PLAN.md` 三类主文档；最后验证 `git apply --check`、`py_compile`、下载 URL/脚本可用性、测试数据可用性和可执行入口，不能只补文档不做验证。
 
 ---
 
@@ -157,7 +157,7 @@ git -C <model_dir>/upstream ls-remote origin <default_branch>
 
 每个模型在开始适配、补验或提交前，都必须明确“当前适配的到底是哪一个版本”。同一模型系列常见有多个变体，例如 `canary-1b` / `canary-1b-flash` / `canary-1b-v2`、`whisper-large-v3` / `large-v3-turbo`、`MossFormer2_SE_48K` / `SS_16K` / `SR_48K`。不能只写模型系列名。
 
-必须记录到该模型的 `NPU_ADAPTATION.md`，并在 `README_INFERENCE.md` 和 `ACCEPTANCE_PLAN.md` 中按各自用途保留必要的版本边界；如维护根目录 `NPU_ADAPTATION_ANALYSIS.md`，只同步项目级索引信息，避免复制完整内容：
+必须记录到该模型的 `NPU_ADAPTATION.md`，并在 `README.md` 和 `ACCEPTANCE_PLAN.md` 中按各自用途保留必要的版本边界；如维护根目录 `NPU_ADAPTATION_ANALYSIS.md`，只同步项目级索引信息，避免复制完整内容：
 
 - 源码来源：repo URL、默认分支、commit；如果使用子目录，写明子目录；
 - 权重来源：Hugging Face / ModelScope / GitHub Release / 网盘 URL、repo HEAD 或发布版本、具体文件名或目录；
@@ -205,7 +205,7 @@ nemo/collections/asr/...
 
 ```text
 infer.py
-README_INFERENCE.md
+README.md
 NPU_ADAPTATION.md
 ACCEPTANCE_PLAN.md
 patches/README.md
@@ -345,7 +345,7 @@ CUDA_VISIBLE_DEVICES=0
 
 ### Step 6：环境搭建必须补全
 
-每个模型必须在 `README_INFERENCE.md` 和 `NPU_ADAPTATION.md` 中按文档用途说明环境搭建方式。
+每个模型必须在 `README.md` 和 `NPU_ADAPTATION.md` 中按文档用途说明环境搭建方式。
 
 至少包含：
 
@@ -433,7 +433,7 @@ ONNX Runtime 官方 CANN EP 文档给出的公开配套包括
 
 #### 6.2 上库推理指导文档编写规范
 
-面向 ModelZoo 上库的推理指导文档应与模型目录中的可执行入口、数据准备方式和性能结果保持一致。生成或修改 `README_INFERENCE.md` / 上库 README 时遵守以下通用规则：
+面向 ModelZoo 上库的推理指导文档应与模型目录中的可执行入口、数据准备方式和性能结果保持一致。生成或修改 `README.md` / 上库 README 时遵守以下通用规则：
 
 **标题和章节**
 
@@ -1052,15 +1052,15 @@ agreement 判定质量。
 
 ### Step 13：文档组织与内容
 
-除非用户明确要求，不修改模型原始 `README.md`。每个模型默认维护以下三类主文档：
+除非用户明确要求，不修改模型原始 `README_old.md`。每个模型默认维护以下三类主文档：
 
 ```text
-README_INFERENCE.md
+README.md
 NPU_ADAPTATION.md
 ACCEPTANCE_PLAN.md
 ```
 
-#### README_INFERENCE.md：上库推理指导
+#### README.md：上库推理指导
 
 - 面向正式仓用户，包含模型概述、版本边界、输入输出、环境配套表、交付目录、权重和数据准备、推理/评测命令、性能与精度表、公网地址；
 - 只保留可直接执行的正式使用说明，路径、脚本名和参数必须与交付文件一致；
@@ -1133,7 +1133,7 @@ python <model_dir>/infer.py --device cpu <model_args> <input_args>
 ASCEND_RT_VISIBLE_DEVICES=0 python <model_dir>/infer.py --device npu <model_args> <input_args>
 
 # 9. 三类主文档和完整验收方案检查
-test -f <model_dir>/README_INFERENCE.md
+test -f <model_dir>/README.md
 test -f <model_dir>/NPU_ADAPTATION.md
 test -f <model_dir>/ACCEPTANCE_PLAN.md
 grep -E "功能验证|L2|精度|质量|性能|数据集" <model_dir>/ACCEPTANCE_PLAN.md
@@ -1153,7 +1153,7 @@ python tools/audit_model_delivery.py <model_dir>
 ### Step 14.1：clean-room 重放是最终硬门禁
 
 在提交前由未参与实现的人，或至少在新的临时目录/venv/容器中，从
-`README_INFERENCE.md` 开始执行。不得读取 `.codex-reference`、历史 shell 状态、
+`README.md` 开始执行。不得读取 `.codex-reference`、历史 shell 状态、
 用户 home cache 或未记录环境变量。
 
 最小重放记录：
@@ -1221,5 +1221,5 @@ clean-room 审查必须特别寻找：
 - [ ] 已记录本地实际验证权重 SHA256；如未下载，已记录 metadata 检查结果和原因；
 - [ ] 已记录 tokenizer / codec / vocoder / embedding / segmentation 等辅助模型版本；
 - [ ] 已明确排除同系列其他变体；
-- [ ] `README_INFERENCE.md`、`NPU_ADAPTATION.md`、`ACCEPTANCE_PLAN.md` 中的版本边界一致；
+- [ ] `README.md`、`NPU_ADAPTATION.md`、`ACCEPTANCE_PLAN.md` 中的版本边界一致；
 - [ ] `ACCEPTANCE_PLAN.md` 已参考原始模型功能、精度和性能，列出功能验证与 L2 的数据、命令和通过标准。

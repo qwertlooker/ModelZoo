@@ -137,7 +137,7 @@ CPU/CUDA vs NPU排序Spearman:
 结论/未完成项:
 ```
 
-## 补充说明（来自 README_INFERENCE.md）
+## 补充说明（来自 README.md）
 
 ### 性能报告口径
 

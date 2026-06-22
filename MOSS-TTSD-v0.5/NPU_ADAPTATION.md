@@ -4,7 +4,7 @@
 
 文档分工：
 
-- `README_INFERENCE.md`：面向上库/用户的推理指导，单独保留，不在此处重复完整操作手册。
+- `README.md`：面向上库/用户的推理指导，单独保留，不在此处重复完整操作手册。
 - `NPU_ADAPTATION.md`：只记录适配实现、上游分析、迁移说明和验证事实。
 - `ACCEPTANCE_PLAN.md`：记录分层验收、数据集/JSONL 规范、质量/性能指标、通过条件和报告模板。
 
@@ -40,8 +40,8 @@
 
 当前 `MOSS-TTSD-v0.5/` 主要文件：
 
-- `README_INFERENCE.md`：推理指导文档。
-- `README.md`：模型适配说明；按项目约束不修改原始 README。
+- `README.md`：推理指导文档。
+- `README_old.md`：模型适配说明；按项目约束不修改原始 README。
 - `NPU_ADAPTATION.md`：整合后的适配分析、迁移说明和验证记录。
 - `ACCEPTANCE_PLAN.md`：完整验收方案。
 - `V1_0_DIFF_REFERENCE.md`：v1.0 差异参考。
@@ -224,7 +224,7 @@ deactivate
 | XY Tokenizer checkpoint | HF <https://huggingface.co/fnlp/XY_Tokenizer_TTSD_V0>；ModelScope <https://modelscope.cn/models/openmoss/XY_Tokenizer_TTSD_V0> | HF `c83433728e698ed0698e88cb5096bc221fb8f8c5`；ModelScope `79082154409f5e883d9487c4d4b4be363323b039` | `XY_Tokenizer/weights/xy_tokenizer.ckpt` |
 | XY Tokenizer config | 原项目 tag `v0.5` 自带 | `0e078c62389922d3aa873ce182daf31142860b18` | `XY_Tokenizer/config/xy_tokenizer_config.yaml` |
 
-下载命令见 `README_INFERENCE.md`。正式验收只使用固定 HF revision 的同一份 cache/
+下载命令见 `README.md`。正式验收只使用固定 HF revision 的同一份 cache/
 snapshot；原始 CUDA 通过 `HF_HOME` 离线读取，patch 后 CUDA/NPU 通过符号链接读取。
 正式验收前记录模型核心权重和 `xy_tokenizer.ckpt` SHA256。
 
@@ -236,7 +236,7 @@ TTSD-eval 还需要独立评测权重，不能只准备主模型和 codec：
 | MMS-FA | S3 version ID `dZWoHyjLHoCxDn.KL1FPSlVCD3CPRtOL`，SHA256 `20ef12963ab4924bef49ac4fc7f58ad5da2ee43b2c11bc8c853c9b90ecdbc680` | `third_party/TTSD-eval/model/checkpoints/model.pt` |
 | Whisper-large-v3 | HF revision `06f233fe06e710322aca913c1bc4249a0d71fce1`，`model.safetensors` SHA256 `a8e94b85976e5864ba3e9525c7e6c83b2a1eca42d4b797a0c7c24d778e40fd95` | `third_party/TTSD-eval/model/whisper-large-v3/` |
 
-完整源码、testset、独立环境、下载、校验和离线加载命令见 `README_INFERENCE.md`
+完整源码、testset、独立环境、下载、校验和离线加载命令见 `README.md`
 的“准备 TTSD-eval 工程”。缺少任一环节时，ACC/SIM/WER 闭环未完成。
 
 ### 2.5 评测口径摘要
@@ -273,7 +273,7 @@ MOSS-TTSD-v0.5 的正式质量/性能验收口径统一维护在 `ACCEPTANCE_PLA
 - `upstream-npu` + `.venv-npu`：NPU candidate。
 
 三组完整命令、输出目录、功能/L2 manifest 和 TTSD-eval evaluator 命令统一维护在
-`README_INFERENCE.md` 与 `ACCEPTANCE_PLAN.md`。本文件不复制第二套易漂移的操作
+`README.md` 与 `ACCEPTANCE_PLAN.md`。本文件不复制第二套易漂移的操作
 手册。
 
 ### 2.8 上游更新处理
@@ -423,13 +423,13 @@ sha256sum XY_Tokenizer/weights/xy_tokenizer.ckpt
 尚缺模型与 codec 实际权重、三组功能输出以及 TTSD-eval 全量 ACC/SIM/WER 和
 RTF/RTFx，因此未达到 S2 或 S3。
 
-## 补充说明（来自 README_INFERENCE.md）
+## 补充说明（来自 README.md）
 
-以下内容原位于 `README_INFERENCE.md`，因偏重适配实现与技术解释，迁移至此以便终端用户文档保持简洁。
+以下内容原位于 `README.md`，因偏重适配实现与技术解释，迁移至此以便终端用户文档保持简洁。
 
 ### 适配原则
 
-- 不修改原始 `README.md`。
+- 不修改原始 `README_old.md`。
 - 不新增旁路推理脚本；继续使用原项目已有 `inference.py`，通过 patch 适配 NPU。
 - NPU 默认显式使用 `--device npu`，实际卡号由 `ASCEND_RT_VISIBLE_DEVICES` 控制。
 - NPU 路径内部固定使用 torch-npu Flash Attention：prefill 调用 `npu_prompt_flash_attention`，decode 调用 `npu_incre_flash_attention`，直接传递 GQA 的 KV head 数，不执行 `repeat_kv`。
