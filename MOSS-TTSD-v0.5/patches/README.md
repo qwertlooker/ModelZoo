@@ -42,3 +42,45 @@ git -C upstream-npu reset --hard \
 git -C upstream-npu apply --check \
   ../patches/0001-adapt-v0.5-inference-to-npu.patch
 ```
+
+---
+
+- `0002-adapt-ttsd-eval-to-npu.patch`
+  - 基于 `OpenMOSS/TTSD-eval` commit `dea13b98529dc16dcfb5fe45779ad63ac9238337`。
+  - 修改 `tools/align.py`、`tools/run_similarity.py`、`wer/whisper_asr.py` 三个评测器的设备路由，使其支持 NPU（`--device npu:0` / `--device npu`）。不修改任何指标计算逻辑。
+  - `align.py`：默认设备自动检测增加 NPU 分支；`_worker_run_bucket` 增加 `device_type` 参数，NPU 路径用 `ASCEND_RT_VISIBLE_DEVICES` 隔离卡。
+  - `run_similarity.py`：新增 `--device` 参数；`_worker_init` 增加 `device_type` 参数，NPU 路径用 `torch.npu.set_device`。
+  - `whisper_asr.py`：`_init_worker` 增加 `device_type` 参数，NPU 路径构造 `npu:{id}` 设备字符串；新增 `--device` 参数覆盖 `--num_gpus` 自动检测。
+  - 三个文件均增加 `_npu_available()` 辅助函数（条件导入 `torch_npu`），CPU/CUDA 原有路径行为不变。
+  - 仅在 NPU 评测 profile 下应用；CPU/CUDA profile 保持上游原文件不变。
+
+Patch SHA256：
+
+```text
+5dd9c5ab357d64e5d43543821ee3324f32b9c1210bb4ba63e9fe9dcaa7438607
+```
+
+应用方式（在 `third_party/TTSD-eval` 工作树根目录下执行）：
+
+```bash
+git -C third_party/TTSD-eval checkout dea13b98529dc16dcfb5fe45779ad63ac9238337
+git -C third_party/TTSD-eval apply ../../patches/0002-adapt-ttsd-eval-to-npu.patch
+```
+
+校验方式：
+
+```bash
+git -C third_party/TTSD-eval checkout dea13b98529dc16dcfb5fe45779ad63ac9238337
+git -C third_party/TTSD-eval apply --check ../../patches/0002-adapt-ttsd-eval-to-npu.patch
+sha256sum third_party/TTSD-eval/tools/align.py \
+         third_party/TTSD-eval/tools/run_similarity.py \
+         third_party/TTSD-eval/wer/whisper_asr.py
+```
+
+patch 后文件 SHA256（`prepare_eval_data.py` 的 NPU profile 门禁按此校验）：
+
+```text
+722028e9a7adbc90dfad3eb74cb1ab307cd6919bbc2969134f52175c0c2c49f2  tools/align.py
+65ccfb613a5248f9f40efe9a09fadaa2ebcf4aa05df6a9331bf7a619fdc6dc66  tools/run_similarity.py
+b7a62bf6504ddf8a9fdf3c86f66ca4488608caf10ae5456901d4b275bf917194  wer/whisper_asr.py
+```
