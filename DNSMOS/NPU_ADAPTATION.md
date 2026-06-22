@@ -68,3 +68,15 @@ CPU 实测环境和结果：
 当前交付状态：**S2，CPU 算法等价性已验证；升级到 S3 仍缺 NPU 同 manifest
 精度和性能对齐**。不能仅凭
 静态检查或本文档将状态标记为“适配验收完成”。
+
+## 补充说明（来自 README_INFERENCE.md）
+
+### ONNX Runtime 与 CANN 版本配套
+
+ONNX Runtime 官方 CANN EP 配套表将 1.22.1 对应到 CANN 8.2.0。CPU 和 NPU
+环境必须分开创建，避免 CPU `onnxruntime` 覆盖 CANN 构建。
+
+### 内部构建 CANN EP 的替换要求
+
+如果目标基础镜像使用内部构建的 CANN EP，应以对应 wheel 替换上述 PyPI 包，并在
+验收报告中记录 wheel 文件名和 SHA256；不得同时安装 `onnxruntime`。

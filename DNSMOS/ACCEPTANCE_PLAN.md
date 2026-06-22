@@ -125,3 +125,32 @@ Spearman:
 CPU/NPU elapsed、RTF、峰值RSS/HBM、RTF比值:
 结论与未完成项:
 ```
+
+## 补充说明（来自 README_INFERENCE.md）
+
+### VCC2018 数据集定位
+
+VCC2018 只能作为非官方迁移回归集，不能冒充论文隐藏测试集。论文测试音频及
+P.835 主观标签没有公开，因此不得用 VCC2018 或随机音频冒充官方相关性复现。
+
+### 性能报告方法学
+
+论文未发布可直接作为当前 NPU 通过线的硬件性能数值。正式报告至少记录样本数、
+总音频时长、首次和稳定运行耗时、RTF、NPU 型号及 CANN/ONNX Runtime 版本。
+
+### L2 性能测量方法
+
+对 L2 同一 manifest 分别在两个环境执行，并保留独立资源日志：
+
+```bash
+mkdir -p results
+/usr/bin/time -v -o results/cpu.time.txt python infer.py \
+  --manifest eval_data/vcc2018.jsonl --model_root weights \
+  --device cpu --output_csv results/cpu_perf.csv
+/usr/bin/time -v -o results/npu.time.txt python infer.py \
+  --manifest eval_data/vcc2018.jsonl --model_root weights \
+  --device npu --output_csv results/npu_perf.csv
+```
+
+`*.csv.meta.json` 提供 elapsed/RTF/provider，`*.time.txt` 提供峰值 RSS；NPU 峰值 HBM
+另由现场监控记录。常规和 personalized 均执行，正式轮次至少重复 3 次。

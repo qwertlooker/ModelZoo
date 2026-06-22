@@ -422,3 +422,107 @@ sha256sum XY_Tokenizer/weights/xy_tokenizer.ckpt
 已具备版本取证、patch、静态 apply/compile 证据、manifest 工具和三组验收命令。
 尚缺模型与 codec 实际权重、三组功能输出以及 TTSD-eval 全量 ACC/SIM/WER 和
 RTF/RTFx，因此未达到 S2 或 S3。
+
+## 补充说明（来自 README_INFERENCE.md）
+
+以下内容原位于 `README_INFERENCE.md`，因偏重适配实现与技术解释，迁移至此以便终端用户文档保持简洁。
+
+### 适配原则
+
+- 不修改原始 `README.md`。
+- 不新增旁路推理脚本；继续使用原项目已有 `inference.py`，通过 patch 适配 NPU。
+- NPU 默认显式使用 `--device npu`，实际卡号由 `ASCEND_RT_VISIBLE_DEVICES` 控制。
+- NPU 路径内部固定使用 torch-npu Flash Attention：prefill 调用 `npu_prompt_flash_attention`，decode 调用 `npu_incre_flash_attention`，直接传递 GQA 的 KV head 数，不执行 `repeat_kv`。
+- 推理入口只新增一个 `--device` 参数，不向用户暴露 dtype、attention backend、batch size 或权重路径等额外开关。
+
+### NPU GQA FlashAttention 与显存说明
+
+如果 TTSD-eval 或其他多样本 JSONL 在以下位置报 NPU OOM：
+
+```text
+transformers/integrations/sdpa_attention.py
+value = repeat_kv(value, module.num_key_value_groups)
+RuntimeError: NPU out of memory
+```
+
+原因是 Transformers 4.57.6 的 NPU SDPA 路径暂不使用原生 GQA，会把 Qwen3 的 key/value heads 通过 `repeat_kv` 实体扩展到全部 attention heads。`eager` 也会执行相同展开，并额外显式构造 attention weights，因此不是该问题的性能修复。
+
+当前 patch 在 NPU 设备路径内部固定选择 Flash Attention backend：
+
+- prefill：`torch_npu.npu_prompt_flash_attention`；
+- 单 token decode：`torch_npu.npu_incre_flash_attention`；
+- Q/K/V 使用 `BNSD` 布局；
+- `num_heads` 和 `num_key_value_heads` 分别取 query 与 key 的 head 数，由算子直接处理 GQA；
+- 不增加 attention CLI 参数，不修改 Transformers site-packages，也不静默回退到 SDPA/eager。
+
+目标 `torch-npu` 必须同时提供上述两个接口及 `num_key_value_heads` 参数。运行前可检查：
+
+```bash
+python - <<'PY'
+import inspect
+import torch_npu
+print(inspect.signature(torch_npu.npu_prompt_flash_attention))
+print(inspect.signature(torch_npu.npu_incre_flash_attention))
+PY
+```
+
+性能评测直接使用 NPU 设备参数：
+
+```bash
+ASCEND_RT_VISIBLE_DEVICES=0 python inference.py \
+  --jsonl ../third_party/TTSD-eval/testset/ttsd_eval_zh.jsonl \
+  --output_dir ../results/ttsd_eval/npu_zh \
+  --device npu \
+  --batch_size 1 \
+  --seed 42 \
+  --use_normalize
+```
+
+Flash Attention 消除的是 `repeat_kv` 造成的 KV head 实体展开，不保证整份 manifest
+作为一个 batch 时的其他张量都能放入 HBM。patch 后入口默认
+`--batch_size 1`，逐批生成并显示 `[Batch i/N]` 进度；全部 batch 完成后仍按原
+入口规则写出 `output_N.wav`，避免 50 条长音频全部完成前没有任何进度。
+
+若日志停在 `Starting batch audio generation...`：
+
+1. 先执行 `watch -n 1 npu-smi info`。首批可能触发 NPU 算子/图编译；出现
+   `multiprocessing.forkserver` / `resource_tracker` 子进程本身不能证明死锁。
+2. 若 NPU 利用率或 HBM 持续变化，先等待首批完成；之后应出现
+   `Original outputs shape` 和 `[Batch 1/N] completed`。
+3. 若超过 10 分钟 NPU 利用率始终为 0、HBM 不变且无新 CANN 日志，终止进程，
+   用 `--batch_size 1` 和单条 manifest 重跑。单条仍卡住时再保留完整 Python
+   栈、`npu-smi info`、CANN 日志和依赖版本排查，不能静默切到 CPU。
+
+CPU/CUDA/NPU 候选对齐必须使用相同 `--batch_size`。未应用 patch 的原始入口不支持
+该参数，仍保留其原生完整 JSONL batch 作为 upstream baseline；报告中必须明确记录
+这一运行参数差异，不能把不同 batch 口径写成严格逐样本数值等价。
+
+### 已知问题：Transformers 5.x 不兼容
+
+如果环境安装了 `transformers==5.12.1`，模型加载阶段可能报：
+
+```text
+AttributeError: 'list' object has no attribute 'keys'
+```
+
+报错位置通常位于 Transformers 的 `get_expanded_tied_weights_keys()`。原因是 Transformers 5.x 要求 `_tied_weights_keys` 为“目标权重到源权重”的字典映射，而 MOSS-TTSD-v0.5 上游 `modeling_asteroid.py` 仍按 Transformers 4.x 接口将其定义为列表。
+
+当前项目仅记录该依赖边界，不修改上游模型代码。请在运行推理或 TTSD-eval 前固定已验证版本：
+
+```bash
+pip uninstall -y transformers
+pip install "transformers==4.57.6"
+python -c "import transformers; print(transformers.__version__)"
+```
+
+预期输出为 `4.57.6`。本地已验证该版本可以完成 `AsteroidTTSInstruct.from_pretrained()` 初始化并保持各通道输入 embedding 与 `lm_heads` 的权重绑定。不要通过忽略异常、关闭权重绑定或 CPU 回退绕过该错误。
+
+### 依赖与环境说明
+
+- **TTSD-eval 评测器依赖**：TTSD-eval 不是无权重评测器。ACC/SIM 依赖 MMS-FA 和 WeSpeaker `voxblink2_samresnet100_ft`，WER 依赖 `openai/whisper-large-v3`。评测器只读取已生成的 WAV。
+- **Python 版本与 hdbscan**：上游 README 示例使用 Python 3.12，但固定 WeSpeaker commit 依赖的 `hdbscan==0.8.37` 没有 CPython 3.12 manylinux wheel；CPU/CUDA profile 固定使用已完成安装和 import 验证的 Python 3.11，避免不可复现的本地 C 扩展构建。
+- **flash-attn**：`flash-attn` 官方包面向 CUDA/ROCm GPU kernel，当前不作为 Ascend NPU 必需依赖安装。NPU 内部固定使用 torch-npu 原生 PFA/IFA；CUDA 路径保持原项目 `flash_attention_2`，CPU 路径使用 SDPA。
+- **TorchCodec**：TorchAudio 2.9+ 的 `torchaudio.load` / `torchaudio.save` 会进入 TorchCodec 路径。本适配通过 patch 将 prompt 音频读取和 WAV 写出改为 `soundfile`，不要求额外安装 `torchcodec`。如果仍看到 `TorchCodec is required for load_with_torchcodec` 或 `save_with_torchcodec`，说明 patch 未应用或路径未覆盖。
+- **Transformers 5.x `_tied_weights_keys`**：Transformers 5.x 改变了 `_tied_weights_keys` 的数据结构和 `tie_weights()` 接口，而 MOSS-TTSD-v0.5 上游代码仍使用 Transformers 4.x 接口。当前项目不修改该模型定义，因此必须固定 `transformers==4.57.6`。
+- **HF_HOME 与符号链接**：原始代码继续使用 repo id `fnlp/MOSS-TTSD-v0.5`，执行时设置同一个 `HF_HOME` 和 `HF_HUB_OFFLINE=1`，从上述固定 revision cache 加载；patch 后代码通过符号链接读取同一 snapshot。
+- **batch_size 对齐**：CPU/CUDA/NPU 候选对齐必须使用相同 `--batch_size`。未应用 patch 的原始入口不支持该参数，仍保留其原生完整 JSONL batch 作为 upstream baseline；报告中必须明确记录这一运行参数差异，不能把不同 batch 口径写成严格逐样本数值等价。

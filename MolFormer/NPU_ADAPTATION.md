@@ -65,3 +65,19 @@ CPU 与 NPU 使用独立环境；NPU 环境不得复用
 
 用户推理见 [README_INFERENCE.md](README_INFERENCE.md)，官方 11 项下游指标和
 迁移对齐方案见 [ACCEPTANCE_PLAN.md](ACCEPTANCE_PLAN.md)。
+
+## 补充说明（来自 README_INFERENCE.md）
+
+### 独立 fine-tuning 环境与 L2 对齐策略
+
+精确复现 IBM 11 项 fine-tuning 指标需建立独立环境，不能让旧版 PyTorch
+Lightning/RDKit 覆盖已验证的 NPU 推理环境；当前 L2 优先使用 IBM 官方 split
+全量做 feature-extraction 精度和性能对齐。
+
+### 固定本地权重目录
+
+固定本地目录后，运行时不使用远端模型名，避免 remote-code 漂移。
+
+### CPU 导入检查
+
+CPU 环境执行导入检查时省略 `torch_npu` 和 NPU tensor。

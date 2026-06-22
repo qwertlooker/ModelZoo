@@ -47,3 +47,18 @@ benchmark。
 
 用户部署见 [README_INFERENCE.md](README_INFERENCE.md)，官方 agent 验收参数和
 报告模板见 [ACCEPTANCE_PLAN.md](ACCEPTANCE_PLAN.md)。
+
+## 补充说明（来自 README_INFERENCE.md）
+
+### benchmark 外部依赖与数据冻结
+
+完整 benchmark 还需要 Serper、Jina、E2B、summary LLM 和 OpenAI judge API。动态搜索结果和网页内容不能被视为完全冻结的数据资产。
+
+### CUDA/NPU 服务端口与对齐
+
+- CUDA 与 NPU 服务不能同时占用 8002 端口；分别运行并保存结果后比较。
+- 切换 CUDA/NPU 时只允许替换 `BASE_URL`，其余环境变量、`.env`、数据 archive 和运行次数保持一致。
+
+### 8K 与 256K 服务边界
+
+官方 benchmark 不能使用上述 8K 服务。必须重启成 256K 服务，并降低并发以满足实际 HBM。

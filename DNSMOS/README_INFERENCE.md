@@ -1,197 +1,208 @@
 # DNSMOS 推理指导
 
+- [概述](#概述)
+- [输入输出数据](#输入输出数据)
+- [推理环境准备](#推理环境准备)
+- [文件目录](#文件目录)
+- [快速上手](#快速上手)
+  - [获取源码](#获取源码)
+  - [准备权重](#准备权重)
+  - [准备数据集](#准备数据集)
+  - [模型推理](#模型推理)
+- [模型推理性能](#模型推理性能)
+- [公网地址说明](#公网地址说明)
+
 ## 概述
 
-本目录提供 Microsoft DNSMOS P.835 本地 ONNX 模型在昇腾 NPU 上的推理和迁移对齐入口。模型输出 `SIG`、`BAK`、`OVRL` 和 `P808_MOS`；NPU 路径使用 ONNX Runtime `CANNExecutionProvider`，CPU 路径用于同权重数值基线。
+DNSMOS P.835 是 Microsoft 发布的语音质量评估模型，输出 `SIG`、`BAK`、`OVRL` 和 `P808_MOS` 四个分数字段。本文档介绍该模型基于昇腾 NPU 的推理指导，NPU 路径使用 ONNX Runtime `CANNExecutionProvider`，CPU 路径用于同权重数值基线。
 
-版本边界：
+> 说明：本文档适配常规及 personalized DNSMOS P.835 本地 ONNX 模型，不包含在线 DNSMOS API。
 
-```text
-upstream=https://github.com/microsoft/DNS-Challenge.git
-branch=master
-commit=591184a9fcb2cbdec02520fed81a32bbbf9d73ff
-reference=https://gitcode.com/Ascend-SACT/DNSMOS
-reference_commit=d1e4c2c14df9cb935d61dc5f448e655772b12379
-```
+- 版本说明：
 
-当前适配的是常规及 personalized DNSMOS P.835，不包含在线 DNSMOS API。
+  ```text
+  upstream=https://github.com/microsoft/DNS-Challenge.git
+  branch=master
+  commit=591184a9fcb2cbdec02520fed81a32bbbf9d73ff
+  reference=https://gitcode.com/Ascend-SACT/DNSMOS
+  reference_commit=d1e4c2c14df9cb935d61dc5f448e655772b12379
+  ```
 
 ## 输入输出数据
 
-- 输入：一个或多个 WAV、递归 WAV 目录，或包含 `audio_path` 字段的 JSONL manifest。
-- 输出：逐文件 CSV、运行环境及模型校验值 sidecar `*.meta.json`。
-- 数据准备：`prepare_eval_data.py` 验证音频并生成固定 manifest 和 metadata。
-- 结果对齐：`compare_results.py` 比较 CPU/CUDA 与 NPU 的七个分数字段。
+- 输入数据
+
+  支持一个或多个 WAV 文件、递归 WAV 目录，或包含 `audio_path` 字段的 JSONL manifest。
+
+- 输出数据
+
+  逐文件 CSV，以及运行环境和模型校验值 sidecar `*.meta.json`。
 
 ## 推理环境准备
 
-| 配套 | 版本/要求 |
-|---|---|
-| 硬件 | 支持目标 CANN 的 Atlas 推理服务器 |
-| CANN、驱动、固件 | CANN 8.2.0 及其配套驱动/固件 |
-| Python | 3.10 |
-| ONNX Runtime | CPU：`onnxruntime==1.22.1`；NPU：`onnxruntime-cann==1.22.1` |
-| librosa / NumPy / soundfile | 见 `requirements.txt` |
+- 该模型需要以下插件与驱动。
 
-ONNX Runtime 官方 CANN EP 配套表将 1.22.1 对应到 CANN 8.2.0。CPU 和 NPU
-环境必须分开创建，避免 CPU `onnxruntime` 覆盖 CANN 构建。
+  **表 1** 版本配套表
+
+  | 配套 | 版本 |
+  |---|---|
+  | 硬件 | 支持目标 CANN 的 Atlas 推理服务器 |
+  | CANN、驱动、固件 | CANN 8.2.0 及其配套驱动/固件 |
+  | Python | 3.10 |
+  | ONNX Runtime | CPU：`onnxruntime==1.22.1`；NPU：`onnxruntime-cann==1.22.1` |
+  | librosa / NumPy / soundfile | 见 `requirements.txt` |
 
 ## 文件目录
 
 ```text
 DNSMOS
-├── infer.py
-├── prepare_eval_data.py
-├── compare_results.py
+├── README_INFERENCE.md                 # 推理指导文档
+├── NPU_ADAPTATION.md                   # NPU 适配文档
+├── ACCEPTANCE_PLAN.md                  # 验收计划
+├── infer.py                            # 推理脚本
+├── prepare_eval_data.py                # 评测数据准备脚本
+├── compare_results.py                  # CPU/NPU 结果比较脚本
 ├── requirements.txt
-├── README_INFERENCE.md
-├── NPU_ADAPTATION.md
-└── ACCEPTANCE_PLAN.md
+├── weights                             # 下载后的模型权重
+│   ├── DNSMOS
+│   │   ├── model_v8.onnx
+│   │   └── sig_bak_ovr.onnx
+│   └── pDNSMOS
+│       └── sig_bak_ovr.onnx
+├── eval_data                           # 评测数据目录，按需生成
+└── results                             # 推理/比较结果目录，按需生成
 ```
 
 ## 快速上手
 
-### 获取源码和安装依赖
+### 获取源码
 
-从当前模型目录执行。先克隆固定官方源码：
+1. 获取官方源码。
 
-```bash
-git clone https://github.com/microsoft/DNS-Challenge.git upstream
-git -C upstream checkout 591184a9fcb2cbdec02520fed81a32bbbf9d73ff
-```
+   ```bash
+   git clone https://github.com/microsoft/DNS-Challenge.git upstream
+   git -C upstream checkout 591184a9fcb2cbdec02520fed81a32bbbf9d73ff
+   ```
 
-CPU baseline 环境：
+2. 创建 CPU baseline 环境并安装依赖。
 
-```bash
-python3.10 -m venv .venv-cpu
-source .venv-cpu/bin/activate
-python -m pip install --upgrade pip
-python -m pip install -r requirements.txt
-python -m pip install onnxruntime==1.22.1
-python - <<'PY'
-import onnxruntime as ort
-assert "CPUExecutionProvider" in ort.get_available_providers()
-print(ort.__version__, ort.get_available_providers())
-PY
-deactivate
-```
+   ```bash
+   python3.10 -m venv .venv-cpu
+   source .venv-cpu/bin/activate
+   python -m pip install --upgrade pip
+   python -m pip install -r requirements.txt
+   python -m pip install onnxruntime==1.22.1
+   deactivate
+   ```
 
-NPU 环境：
+3. 创建 NPU 环境并安装依赖。
 
-```bash
-python3.10 -m venv .venv-npu
-source .venv-npu/bin/activate
-python -m pip install --upgrade pip
-python -m pip install -r requirements.txt
-python -m pip install onnxruntime-cann==1.22.1
-python - <<'PY'
-import onnxruntime as ort
-print(ort.__version__)
-print(ort.get_available_providers())
-assert "CANNExecutionProvider" in ort.get_available_providers()
-PY
-```
-
-如果目标基础镜像使用内部构建的 CANN EP，应以对应 wheel 替换上述 PyPI 包，并在
-验收报告中记录 wheel 文件名和 SHA256；不得同时安装 `onnxruntime`。
+   ```bash
+   python3.10 -m venv .venv-npu
+   source .venv-npu/bin/activate
+   python -m pip install --upgrade pip
+   python -m pip install -r requirements.txt
+   python -m pip install onnxruntime-cann==1.22.1
+   ```
 
 ### 准备权重
 
-```bash
-mkdir -p weights
-cp -r upstream/DNSMOS/DNSMOS weights/
-cp -r upstream/DNSMOS/pDNSMOS weights/
+1. 拷贝官方权重并校验 SHA256。
 
-sha256sum \
-  weights/DNSMOS/model_v8.onnx \
-  weights/DNSMOS/sig_bak_ovr.onnx \
-  weights/pDNSMOS/sig_bak_ovr.onnx
-```
+   ```bash
+   mkdir -p weights
+   cp -r upstream/DNSMOS/DNSMOS weights/
+   cp -r upstream/DNSMOS/pDNSMOS weights/
 
-固定 commit 的预期值：
+   sha256sum \
+     weights/DNSMOS/model_v8.onnx \
+     weights/DNSMOS/sig_bak_ovr.onnx \
+     weights/pDNSMOS/sig_bak_ovr.onnx
+   ```
 
-```text
-model_v8.onnx             9246480c58567bc6affd4200938e77eef49468c8bc7ed3776d109c07456f6e91
-DNSMOS/sig_bak_ovr.onnx   269fbebdb513aa23cddfbb593542ecc540284a91849ac50516870e1ac78f6edd
-pDNSMOS/sig_bak_ovr.onnx  9e3a197449ca2177f0997afec3bd6b890117ce2f17b89d6eea7fa0d47272c81c
-```
+   固定 commit 的预期值：
+
+   ```text
+   model_v8.onnx             9246480c58567bc6affd4200938e77eef49468c8bc7ed3776d109c07456f6e91
+   DNSMOS/sig_bak_ovr.onnx   269fbebdb513aa23cddfbb593542ecc540284a91849ac50516870e1ac78f6edd
+   pDNSMOS/sig_bak_ovr.onnx  9e3a197449ca2177f0997afec3bd6b890117ce2f17b89d6eea7fa0d47272c81c
+   ```
 
 ### 准备数据集
 
-VCC2018 只能作为非官方迁移回归集，不能冒充论文隐藏测试集：
+1. 下载 VCC2018 并生成 manifest。
 
-```bash
-mkdir -p eval_data/vcc2018
-wget -O eval_data/vcc2018.tar.gz \
-  https://datashare.ed.ac.uk/bitstream/handle/10283/3061/vcc2018_submitted_systems_converted_speech.tar.gz
-tar -xzf eval_data/vcc2018.tar.gz -C eval_data/vcc2018
+   数据集地址：`https://datashare.ed.ac.uk/handle/10283/3061`。
 
-python prepare_eval_data.py \
-  --audio_dir eval_data/vcc2018 \
-  --output_manifest eval_data/vcc2018.jsonl \
-  --dataset VCC2018 \
-  --split submitted-systems \
-  --limit 100
-```
+   ```bash
+   mkdir -p eval_data/vcc2018
+   wget -O eval_data/vcc2018.tar.gz \
+     https://datashare.ed.ac.uk/bitstream/handle/10283/3061/vcc2018_submitted_systems_converted_speech.tar.gz
+   tar -xzf eval_data/vcc2018.tar.gz -C eval_data/vcc2018
 
-生成：
+   python prepare_eval_data.py \
+     --audio_dir eval_data/vcc2018 \
+     --output_manifest eval_data/vcc2018.jsonl \
+     --dataset VCC2018 \
+     --split submitted-systems \
+     --limit 100
+   ```
 
-```text
-eval_data/vcc2018.jsonl
-eval_data/vcc2018.jsonl.meta.json
-```
+   参数说明：
+
+   - `audio_dir`：递归扫描的 WAV 目录。
+   - `output_manifest`：生成的 JSONL manifest 路径。
+   - `dataset`：数据集名称，写入 manifest 元数据。
+   - `split`：数据集 split 名称，写入 manifest 元数据。
+   - `limit`：保留的最大样本数，`0` 表示不限制。
+
+   生成的 manifest 默认路径：
+
+   ```text
+   eval_data/vcc2018.jsonl
+   eval_data/vcc2018.jsonl.meta.json
+   ```
 
 ### 模型推理
 
-CPU 基线：
+1. 执行 CPU 基线推理。
 
-```bash
-python infer.py \
-  --manifest eval_data/vcc2018.jsonl \
-  --model_root weights \
-  --device cpu \
-  --output_csv results/cpu.csv
-```
+   ```bash
+   python infer.py \
+     --manifest eval_data/vcc2018.jsonl \
+     --model_root weights \
+     --device cpu \
+     --output_csv results/cpu.csv
+   ```
 
-NPU：
+2. 执行 NPU 推理。
 
-```bash
-python infer.py \
-  --manifest eval_data/vcc2018.jsonl \
-  --model_root weights \
-  --device npu \
-  --output_csv results/npu.csv
-```
+   ```bash
+   python infer.py \
+     --manifest eval_data/vcc2018.jsonl \
+     --model_root weights \
+     --device npu \
+     --output_csv results/npu.csv
+   ```
 
-personalized 路径在两条命令中同时增加 `--personalized`，并使用独立输出文件。
+   参数说明：
 
-比较结果：
+   - `manifest`：输入 JSONL manifest 路径。
+   - `model_root`：权重根目录，包含 `DNSMOS` 和 `pDNSMOS` 子目录。
+   - `device`：推理设备，`cpu` 使用 `CPUExecutionProvider`，`npu` 使用 `CANNExecutionProvider`。
+   - `output_csv`：逐文件分数输出 CSV 路径。
+   - `personalized`：使用 personalized DNSMOS P.835 权重，需使用独立输出文件。
 
-```bash
-python compare_results.py \
-  --baseline results/cpu.csv \
-  --candidate results/npu.csv \
-  --output results/cpu_vs_npu.json
-```
+3. 比较 CPU 与 NPU 结果。
+
+   ```bash
+   python compare_results.py \
+     --baseline results/cpu.csv \
+     --candidate results/npu.csv \
+     --output results/cpu_vs_npu.json
+   ```
 
 ## 模型推理性能
-
-论文未发布可直接作为当前 NPU 通过线的硬件性能数值。正式报告至少记录样本数、总音频时长、首次和稳定运行耗时、RTF、NPU 型号及 CANN/ONNX Runtime 版本。精度主线和阈值见 [ACCEPTANCE_PLAN.md](ACCEPTANCE_PLAN.md)。
-
-对 L2 同一 manifest 分别在两个环境执行，并保留独立资源日志：
-
-```bash
-mkdir -p results
-/usr/bin/time -v -o results/cpu.time.txt python infer.py \
-  --manifest eval_data/vcc2018.jsonl --model_root weights \
-  --device cpu --output_csv results/cpu_perf.csv
-/usr/bin/time -v -o results/npu.time.txt python infer.py \
-  --manifest eval_data/vcc2018.jsonl --model_root weights \
-  --device npu --output_csv results/npu_perf.csv
-```
-
-`*.csv.meta.json` 提供 elapsed/RTF/provider，`*.time.txt` 提供峰值 RSS；NPU 峰值 HBM
-另由现场监控记录。常规和 personalized 均执行，正式轮次至少重复 3 次。
 
 | 路径 | 数据 | 结果 |
 |---|---|---|
@@ -201,8 +212,11 @@ mkdir -p results
 
 ## 公网地址说明
 
-- 官方源码：<https://github.com/microsoft/DNS-Challenge/tree/master/DNSMOS>
-- 参考适配：<https://gitcode.com/Ascend-SACT/DNSMOS>
-- DNSMOS P.835 论文：<https://arxiv.org/abs/2110.01763>
+| 类型 | 说明 | 公网地址 |
+|---|---|---|
+| 模型权重 | Microsoft DNSMOS 官方源码 | https://github.com/microsoft/DNS-Challenge/tree/master/DNSMOS |
+| 参考适配 | Ascend-SACT DNSMOS | https://gitcode.com/Ascend-SACT/DNSMOS |
+| 论文 | DNSMOS P.835 | https://arxiv.org/abs/2110.01763 |
+| 数据集 | VCC2018 | https://datashare.ed.ac.uk/handle/10283/3061 |
 
 适配实现和已执行验证见 [NPU_ADAPTATION.md](NPU_ADAPTATION.md)。

@@ -61,3 +61,24 @@ upstream `DiariZenPipeline` 将设备写为 `cuda:0`（CUDA 可用时）否则 C
 
 安装和推理见 [README_INFERENCE.md](README_INFERENCE.md)，DER 数据口径和
 CPU/CUDA/NPU 对齐标准见 [ACCEPTANCE_PLAN.md](ACCEPTANCE_PLAN.md)。
+
+## 补充说明（来自 README_INFERENCE.md）
+
+### 设备边界
+
+分割网络运行在 PyTorch NPU；WeSpeaker embedding 运行在 ONNX Runtime
+`CANNExecutionProvider`；Kaldi fbank 明确保留为 CPU 前处理。
+
+### 目录结构
+
+执行时创建 `source/`、未应用 patch 的 `upstream-original/` 和应用 patch 的
+`upstream-npu/` 三个目录。
+
+### 环境隔离要求
+
+- 原始和 patch 后 CPU baseline 使用独立环境。不要安装 upstream 根
+  `requirements.txt` 中的 `onnxruntime-gpu`。
+- NPU 环境不得安装 CPU 索引 wheel。
+- 不要修改 site-packages。执行 NPU 导入门禁。
+- CPU/CUDA baseline 使用上述独立环境和 CPU/CUDA ONNX Runtime，不能与
+  `onnxruntime-cann` 混装。

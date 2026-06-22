@@ -67,3 +67,20 @@ wheel；完整安装和比较命令见 `README_INFERENCE.md`。
 
 安装和推理见 [README_INFERENCE.md](README_INFERENCE.md)，SpeechOcean762
 对齐和相关性报告口径见 [ACCEPTANCE_PLAN.md](ACCEPTANCE_PLAN.md)。
+
+## 补充说明（来自 README_INFERENCE.md）
+
+### 两条评分路径
+
+当前交付保留两条明确分离的路径：
+
+- `whisper-clm`：上游默认入口，用于轻量功能 smoke；
+- `hubert-mlm`：上游 README 图和 SpeechOcean762 notebook 实际使用的公开演示路径，是原始结果对齐主线。
+
+### fairseq 依赖说明
+
+`hubert-mlm` 的 fairseq 依赖较旧。必须在目标 Python/PyTorch 组合中实际完成导入和端到端验证；安装失败时不能改用 `whisper-clm` 冒充原始公开路径。
+
+### 目录结构说明
+
+执行时另外创建 `source/`、未应用 patch 的 `upstream-original/` 和应用 patch 的 `upstream-npu/`，避免覆盖原始 baseline。

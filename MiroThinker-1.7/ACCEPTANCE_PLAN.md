@@ -163,3 +163,27 @@ tool error/超时/污染检查:
 官方未发布字段:
 结论:
 ```
+
+## 补充说明（来自 README_INFERENCE.md）
+
+### 完整官方结果输入
+
+完整官方结果输入：MiroFlow benchmark JSONL、MiroThinker agent、搜索/抓取/代码工具和 LLM judge。
+
+### benchmark 状态
+
+| Benchmark | 官方分数 | 当前 NPU 状态 |
+|---|---:|---|
+| BrowseComp | 74.0% | 待完整 agent 验收 |
+| BrowseComp-ZH | 75.3% | 待完整 agent 验收 |
+| GAIA-Val-165 | 82.7% | 待完整 agent 验收 |
+| HLE-Text | 42.9% | 待完整 agent 验收 |
+
+### 性能报告口径
+
+服务报告 TTFT、TPOT、ITL、E2E、token/s、QPS 和峰值 HBM；agent 报告每项 benchmark wall time、题/小时、工具错误、超时、judge 和动态网页状态。CUDA 写入独立 JSON。
+
+### 验收边界警告
+
+- 8K 服务结果不能用于宣称 256K benchmark 已验收。
+- 官方未发布与当前 A3 TP16 服务直接可比的硬件性能数值。

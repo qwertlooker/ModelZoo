@@ -136,3 +136,21 @@ CPU/CUDA vs NPU排序Spearman:
 三组wall time、RTF、samples/s、峰值RSS/HBM:
 结论/未完成项:
 ```
+
+## 补充说明（来自 README_INFERENCE.md）
+
+### 性能报告口径
+
+上游未发布固定硬件上的 latency/RTF/吞吐数值。正式报告记录加载时间、音频总时长、RTF、batch 1/4/8/16、峰值 HBM/RSS；性能不能替代 SpeechOcean 数值和相关性对齐。
+
+### 性能测量方法
+
+全量 L2 三组推理命令用 `/usr/bin/time -v -o` 包裹。由 manifest 的 `total_audio_seconds` 计算 RTF，并记录 samples/s、峰值 RSS/HBM。原始 CPU/CUDA 和 patch 后同设备使用相同 batch 和独立日志；正式 batch 重复 3 次。
+
+### 当前状态
+
+| 项目 | 官方/当前状态 |
+|---|---|
+| SpeechOcean 公开数值相关性 | 官方未发布，只提供 HuBERT-MLM 散点图 |
+| CPU/CUDA HuBERT-MLM 全量结果 | 待 3.8 GB checkpoint 实测 |
+| NPU 数值、相关性和性能 | 待验收 |

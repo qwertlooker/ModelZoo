@@ -157,3 +157,28 @@ L2 TTFT/TPOT/ITL/throughput/HBM及比值:
 官方未发布字段与未完成项:
 结论:
 ```
+
+## 9. 补充说明（来自 README_INFERENCE.md）
+
+以下验收警告与数据口径说明从推理指导文档迁移至此，避免终端用户在 README 中被过多限制条件干扰。
+
+### 9.1 L2 降级路径与官方 recipe 缺失
+
+Hy3 模型卡没有发布四项 instruct benchmark 的完整 agent/tool/judge/decode recipe，因此当前可从零执行的 L2 降级路径是：100 条固定服务精度回归 + 确定性 100 请求性能测试。它计算 token agreement、JSON/tool 有效率、TTFT、TPOT 和吞吐；报告必须明确“非官方 benchmark 复现”。拿到官方 recipe 后再优先替换为全量 benchmark。
+
+### 9.2 内部固定集的指标边界
+
+该 100 条内部固定集不能推导官方四项 benchmark 指标。功能验证与 L2 服务精度回归仅用于 CUDA/NPU 迁移对齐，不构成官方质量指标验收。
+
+### 9.3 上下文长度与启动配置
+
+`32K/bs8` 只是启动配置，不代表 256K 已验收。8K 服务结果不能用于宣称 256K benchmark 已验收。长上下文能力验收需单独使用接近 256K 的固定输入集并记录峰值 HBM。
+
+### 9.4 benchmark 状态表
+
+| 项目 | 官方值/当前状态 |
+|---|---|
+| SWE-bench Verified | 74.4%，精确 recipe 未完整发布 |
+| Terminal-Bench 2.0 | 54.4%，精确 recipe 未完整发布 |
+| BrowseComp / WideSearch | 67.1% / 70.2%，依赖外部工具 |
+| A3 服务性能与 256K | 官方硬件性能未发布；当前未实测 |
