@@ -75,14 +75,9 @@ MOSS-TTSD-v0.5 是 OpenMOSS 发布的对话式双说话人文本转语音/文本
 ```text
 MOSS-TTSD-v0.5
 ├── README.md                                   # 推理指导文档
-├── README_old.md                               # 模型适配说明
-├── NPU_ADAPTATION.md                           # NPU 适配文档与验证记录
-├── ACCEPTANCE_PLAN.md                          # 完整验收方案
-├── V1_0_DIFF_REFERENCE.md                      # v1.0 差异参考
 ├── prepare_eval_data.py                        # evaluator manifest/准备门禁工具
 ├── requirements_eval.txt                       # 固定 TTSD-eval 直接依赖
 ├── patches
-│   ├── README.md                               # patch 使用说明
 │   └── 0001-adapt-v0.5-inference-to-npu.patch  # v0.5 NPU 适配 patch
 ├── source                                      # 固定 tag 的 Git 管理目录
 ├── upstream-original                           # 未应用 patch 的 CUDA baseline
@@ -654,8 +649,6 @@ for LANG in zh en; do
   done
 done
 ```
-
-正式 ACC/SIM/WER 逐份运行的精确命令见 `ACCEPTANCE_PLAN.md`。
 
 ## 模型推理性能
 

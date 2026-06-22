@@ -66,10 +66,7 @@ BUTSpeechFIT-DiariZen
 ├── score_diarization.py                # DER 评测脚本
 ├── patches/0001-add-explicit-npu-pipeline-device.patch
 ├── requirements.txt
-├── README.md                           # 推理指导文档
-├── README_old.md                       # 原始部署说明
-├── NPU_ADAPTATION.md                   # NPU 适配文档
-└── ACCEPTANCE_PLAN.md                  # 验收计划
+└── README.md                           # 推理指导文档
 ```
 
 ## 快速上手
@@ -306,7 +303,7 @@ mkdir -p results/npu
   --output_dir results/npu
 ```
 
-`results/npu/run.meta.json` 提供 elapsed/RTF/provider。性能数据待正式验收，详见 [ACCEPTANCE_PLAN.md](ACCEPTANCE_PLAN.md)。
+`results/npu/run.meta.json` 提供 elapsed/RTF/provider。性能数据待正式验收。
 
 ## 公网地址说明
 
@@ -316,5 +313,3 @@ mkdir -p results/npu
 | 模型权重 | BUT-FIT/diarizen-wavlm-large-s80-md | https://huggingface.co/BUT-FIT/diarizen-wavlm-large-s80-md |
 | 模型权重 | pyannote/wespeaker-voxceleb-resnet34-LM | https://huggingface.co/pyannote/wespeaker-voxceleb-resnet34-LM |
 | 参考适配 | Ascend-SACT/BUTSpeechFIT-DiariZen | https://gitcode.com/Ascend-SACT/BUTSpeechFIT-DiariZen |
-
-DER 口径见 [ACCEPTANCE_PLAN.md](ACCEPTANCE_PLAN.md)，设备边界见 [NPU_ADAPTATION.md](NPU_ADAPTATION.md)。

@@ -58,9 +58,7 @@ speechscorer
 ├── prepare_eval_data.py
 ├── evaluate_results.py
 ├── requirements.txt
-├── README.md
-├── NPU_ADAPTATION.md
-└── ACCEPTANCE_PLAN.md
+└── README.md
 ```
 
 ## 快速上手
@@ -296,7 +294,7 @@ speechscorer
      --output_csv ../results/npu_perf.csv
    ```
 
-   原始 CPU/CUDA 和 patch 后同设备使用相同 batch 和独立日志。性能报告口径与当前验收状态见 [ACCEPTANCE_PLAN.md](ACCEPTANCE_PLAN.md)。
+   原始 CPU/CUDA 和 patch 后同设备使用相同 batch 和独立日志。
 
 ## 公网地址说明
 
@@ -306,5 +304,3 @@ speechscorer
 | 开源代码仓 | speechscorer 源码 | https://github.com/yaya-sy/speechscorer |
 | 数据集 | SpeechOcean762 | https://github.com/jimbozhang/speechocean762 |
 | 参考适配 | Ascend-SACT 参考仓 | https://gitcode.com/Ascend-SACT/speechscorer |
-
-详细口径见 [ACCEPTANCE_PLAN.md](ACCEPTANCE_PLAN.md)，适配事实见 [NPU_ADAPTATION.md](NPU_ADAPTATION.md)。

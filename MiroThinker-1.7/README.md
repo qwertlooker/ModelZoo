@@ -58,10 +58,7 @@ MiroThinker-1.7 是 MiroMind 发布的 235B MoE 推理模型，架构为 `Qwen3M
 ```text
 MiroThinker-1.7
 ├── test_data/service_prompts.jsonl
-├── patches/README.md
-├── README.md
-├── NPU_ADAPTATION.md
-└── ACCEPTANCE_PLAN.md
+└── README.md
 tools
 ├── openai_service_eval.py
 ├── compare_openai_service_results.py
@@ -324,5 +321,3 @@ vllm bench serve \
 | 开源代码仓 | MiroThinker 官方框架 | https://github.com/MiroMindAI/MiroThinker |
 | benchmark | MiroFlow-Benchmarks 数据集 | https://huggingface.co/datasets/miromind-ai/MiroFlow-Benchmarks |
 | 参考适配 | Ascend-SACT 参考实现 | https://gitcode.com/Ascend-SACT/MiroThinker-1.7 |
-
-适配边界见 [NPU_ADAPTATION.md](NPU_ADAPTATION.md)，验收计划见 [ACCEPTANCE_PLAN.md](ACCEPTANCE_PLAN.md)。

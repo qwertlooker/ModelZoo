@@ -52,7 +52,7 @@ Hy3-preview 是 295B total / 21B active 的 BF16 MoE 模型，包含一层 3.8B 
   | vllm-ascend | `99e1ea0fe685e93f53ee5adfe4b41cdd42fb809f` |
   | CANN、驱动、固件 | 使用镜像要求的配套版本，宿主机驱动需正确挂载 |
 
-说明：本交付示例是单机 16 卡；多机部署的额外配置见 [NPU_ADAPTATION.md](NPU_ADAPTATION.md)。
+说明：本交付示例是单机 16 卡；多机部署需额外配置。
 
 ## 文件目录
 
@@ -60,9 +60,7 @@ Hy3-preview 是 295B total / 21B active 的 BF16 MoE 模型，包含一层 3.8B 
 Hy3-preview
 ├── patches/0001-add-hy3-preview-support.patch
 ├── test_data/service_prompts.jsonl
-├── README.md
-├── NPU_ADAPTATION.md
-└── ACCEPTANCE_PLAN.md
+└── README.md
 tools
 ├── openai_service_eval.py
 ├── compare_openai_service_results.py
@@ -294,5 +292,3 @@ vllm bench serve \
 | 模型权重 | tencent/Hy3-preview Hugging Face 模型仓 | https://huggingface.co/tencent/Hy3-preview |
 | 开源代码仓 | Tencent-Hunyuan/Hy3-preview 官方源码 | https://github.com/Tencent-Hunyuan/Hy3-preview |
 | 参考适配 | Ascend-SACT/Hy3-preview 参考适配仓 | https://gitcode.com/Ascend-SACT/Hy3-preview |
-
-官方指标边界和正式验收见 [ACCEPTANCE_PLAN.md](ACCEPTANCE_PLAN.md)，补丁分析与适配决策见 [NPU_ADAPTATION.md](NPU_ADAPTATION.md)。

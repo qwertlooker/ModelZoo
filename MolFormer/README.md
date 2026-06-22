@@ -16,7 +16,7 @@
 
 MoLFormer-XL-both-10pct 是 IBM 发布的分子表征模型，基于 SMILES 输出官方 Hugging Face 模型的 `pooler_output` embedding。本入口用于验证同 checkpoint 在 CPU/CUDA 与 NPU 上的 embedding 数值一致性。本文档介绍该模型基于昇腾 NPU 的推理指导。
 
-> 说明：模型卡的 11 项 MoleculeNet 指标来自下游 fine-tuning，不能由 feature extraction 直接得到，详见 [ACCEPTANCE_PLAN.md](ACCEPTANCE_PLAN.md)。
+> 说明：模型卡的 11 项 MoleculeNet 指标来自下游 fine-tuning，不能由 feature extraction 直接得到。
 
 - 版本说明：
 
@@ -61,9 +61,7 @@ MolFormer
 ├── compare_embeddings.py
 ├── test_data/smiles_functional.txt          # 10 条功能验证输入
 ├── requirements.txt
-├── README.md
-├── NPU_ADAPTATION.md
-└── ACCEPTANCE_PLAN.md
+└── README.md
 ```
 
 ## 快速上手
@@ -259,5 +257,3 @@ CPU/CUDA 使用同一 manifest 和 batch 矩阵，写入不同文件。每个 em
 | 开源代码仓 | IBM molformer 源码 | https://github.com/IBM/molformer |
 | 数据集 | IBM MoLFormer 数据 | https://ibm.box.com/v/MoLFormer-data |
 | 参考适配 | Ascend-SACT MolFormer | https://gitcode.com/Ascend-SACT/MolFormer |
-
-完整指标口径见 [ACCEPTANCE_PLAN.md](ACCEPTANCE_PLAN.md)，适配决策见 [NPU_ADAPTATION.md](NPU_ADAPTATION.md)。

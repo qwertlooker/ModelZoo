@@ -57,9 +57,6 @@ DNSMOS P.835 是 Microsoft 发布的语音质量评估模型，输出 `SIG`、`B
 ```text
 DNSMOS
 ├── README.md                           # 推理指导文档
-├── README_old.md                       # 原始部署说明
-├── NPU_ADAPTATION.md                   # NPU 适配文档
-├── ACCEPTANCE_PLAN.md                  # 验收计划
 ├── infer.py                            # 推理脚本
 ├── prepare_eval_data.py                # 评测数据准备脚本
 ├── compare_results.py                  # CPU/NPU 结果比较脚本
@@ -219,5 +216,3 @@ DNSMOS
 | 参考适配 | Ascend-SACT DNSMOS | https://gitcode.com/Ascend-SACT/DNSMOS |
 | 论文 | DNSMOS P.835 | https://arxiv.org/abs/2110.01763 |
 | 数据集 | VCC2018 | https://datashare.ed.ac.uk/handle/10283/3061 |
-
-适配实现和已执行验证见 [NPU_ADAPTATION.md](NPU_ADAPTATION.md)。
