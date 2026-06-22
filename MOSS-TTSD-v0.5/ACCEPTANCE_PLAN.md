@@ -74,16 +74,16 @@ results/ttsd_eval_setup/evaluator-pip-freeze.txt
 
 并重新执行完整门禁：
 
-以下示例为 CUDA evaluator；CPU profile 必须改用 `--expected_device cpu`；NPU
-profile 改用 `--expected_device npu` 并改用 `.venv-npu`。
+以下示例为 NPU evaluator（必跑）；CUDA profile 改用 `.venv-ttsd-eval` 和
+`--expected_device cuda`，CPU profile 改用 `--expected_device cpu`，二者均为可选对照。
 
 ```bash
-source .venv-ttsd-eval/bin/activate
+source .venv-npu/bin/activate
 HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 \
   python prepare_eval_data.py verify-ttsd-eval \
     --eval_root third_party/TTSD-eval \
     --scope full \
-    --expected_device cuda \
+    --expected_device npu \
     --report results/ttsd_eval_setup/full.json
 deactivate
 ```
