@@ -12,11 +12,11 @@ index 9cb4e33..401d6ac 100644
 +        if device:
 +            device = str(device)
 +            if device == "npu":
-+                import torch_npu  # noqa: F401 - registers the NPU backend
++                import torch_npu  # registers the NPU backend
 +            return torch.device(device)
 +        if args.get("use_gpu", False):
 +            try:
-+                import torch_npu  # noqa: F401 - registers the NPU backend
++                import torch_npu  # registers the NPU backend
 +            except ImportError:
 +                pass
 +            if hasattr(torch, "npu") and torch.npu.is_available():
