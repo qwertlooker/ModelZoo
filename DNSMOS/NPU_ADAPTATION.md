@@ -63,13 +63,13 @@ CPU 实测环境和结果：
 
 系统没有 `npu-smi`/CANN NPU 环境，因此未执行 NPU 数值或性能验收。正式验收必须按
 [ACCEPTANCE_PLAN.md](ACCEPTANCE_PLAN.md) 生成 CPU/NPU CSV 并逐字段比较。
-用户环境、权重和运行命令见 [README_INFERENCE.md](README_INFERENCE.md)。
+用户环境、权重和运行命令见 [README.md](README.md)。
 
 当前交付状态：**S2，CPU 算法等价性已验证；升级到 S3 仍缺 NPU 同 manifest
 精度和性能对齐**。不能仅凭
 静态检查或本文档将状态标记为“适配验收完成”。
 
-## 补充说明（来自 README_INFERENCE.md）
+## 补充说明（来自 README.md）
 
 ### ONNX Runtime 与 CANN 版本配套
 

@@ -126,7 +126,7 @@ CPU/NPU elapsed、RTF、峰值RSS/HBM、RTF比值:
 结论与未完成项:
 ```
 
-## 补充说明（来自 README_INFERENCE.md）
+## 补充说明（来自 README.md）
 
 ### VCC2018 数据集定位
 

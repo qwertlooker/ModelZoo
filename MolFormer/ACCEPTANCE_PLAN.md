@@ -140,7 +140,7 @@ L2分类/回归split及样本数:
 结论和未完成项:
 ```
 
-## 补充说明（来自 README_INFERENCE.md）
+## 补充说明（来自 README.md）
 
 ### IBM Box 数据获取
 

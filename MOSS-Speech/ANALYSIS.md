@@ -18,7 +18,7 @@
 
 | 文件 | 问题 | 本次处理 |
 |---|---|---|
-| `README.md` | 原说明要求修改安装环境中的 `diffusers`、`transformers` 源码，并依赖 `transfer_to_npu` 自动迁移 CUDA 写法。 | 重写为可复现的版本边界、环境、下载、运行和验收说明。 |
+| `README_old.md` | 原说明要求修改安装环境中的 `diffusers`、`transformers` 源码，并依赖 `transfer_to_npu` 自动迁移 CUDA 写法。 | 重写为可复现的版本边界、环境、下载、运行和验收说明。 |
 | `infer.py` | 硬编码 `device="cuda"`、`device_map="cuda"`、`.to("cuda")`，路径和 prompt 写死。 | 改为参数化入口，默认 `--device npu`，CPU 验证显式 `--device cpu`，仅 NPU 后端条件导入 `torch_npu`。 |
 | `requirements.txt` | 为环境冻结文件，包含训练、服务、CUDA/NVIDIA 包等大量非最小依赖。 | 保留作历史环境参考；部署以 README/NPU_ADAPTATION 中最小推理依赖为准。 |
 | `patches/README.md` | 原先缺少 patch 策略。 | 新增说明：当前未修改上游；后续必须 patch 化，不允许手工改 site-packages。 |

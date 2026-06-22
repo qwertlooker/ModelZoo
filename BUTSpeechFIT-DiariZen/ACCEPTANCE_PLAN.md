@@ -146,7 +146,7 @@ provider核验:
 结论和未完成项:
 ```
 
-## 补充说明（来自 README_INFERENCE.md）
+## 补充说明（来自 README.md）
 
 ### 权重与数据许可
 

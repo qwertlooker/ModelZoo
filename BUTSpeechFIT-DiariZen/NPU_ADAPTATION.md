@@ -59,10 +59,10 @@ upstream `DiariZenPipeline` 将设备写为 `cuda:0`（CUDA 可用时）否则 C
   对相同 reference/system RTTM 得到 DER/JER `0.00`；
 - 该测试证明此前错误的 `--ignore_overlaps false` 已被消除，但不包含模型推理。
 
-安装和推理见 [README_INFERENCE.md](README_INFERENCE.md)，DER 数据口径和
+安装和推理见 [README.md](README.md)，DER 数据口径和
 CPU/CUDA/NPU 对齐标准见 [ACCEPTANCE_PLAN.md](ACCEPTANCE_PLAN.md)。
 
-## 补充说明（来自 README_INFERENCE.md）
+## 补充说明（来自 README.md）
 
 ### 设备边界
 

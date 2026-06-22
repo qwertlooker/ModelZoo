@@ -158,7 +158,7 @@ L2 TTFT/TPOT/ITL/throughput/HBM及比值:
 结论:
 ```
 
-## 9. 补充说明（来自 README_INFERENCE.md）
+## 9. 补充说明（来自 README.md）
 
 以下验收警告与数据口径说明从推理指导文档迁移至此，避免终端用户在 README 中被过多限制条件干扰。
 

@@ -54,10 +54,10 @@ vllm-ascend 不需要源码修改，由现有 Ascend attention、MoE、EP/HCCL �
 JSON 和 tool call，JSON/tool schema 校验通过；相同结果比较的 content/tool/token
 agreement 均为 `1.0`。这只证明评测工具链，不证明 Hy3 模型服务。
 
-用户推理和补丁应用见 [README_INFERENCE.md](README_INFERENCE.md)，数据集与
+用户推理和补丁应用见 [README.md](README.md)，数据集与
 CPU/CUDA/NPU 对齐要求见 [ACCEPTANCE_PLAN.md](ACCEPTANCE_PLAN.md)。
 
-## 5. 补充说明（来自 README_INFERENCE.md）
+## 5. 补充说明（来自 README.md）
 
 以下适配决策与技术说明从推理指导文档迁移至此，便于终端用户保持 README 简洁。
 

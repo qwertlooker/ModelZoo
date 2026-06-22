@@ -4,7 +4,7 @@
 
 文档分工：
 
-- `README_INFERENCE.md`：面向上库/用户的推理指导，单独保留，不在此处重复。
+- `README.md`：面向上库/用户的推理指导，单独保留，不在此处重复。
 - `NPU_ADAPTATION.md`：只记录适配实现与验证事实。
 - `ACCEPTANCE_PLAN.md`：记录 MLS / LibriSpeech / FLEURS 评测方案、分层验收、通过条件、报告模板和已完成 NPU 结果。
 
@@ -32,7 +32,7 @@
 当前 `Canary-1B/` 原有文件：
 
 - `infer.py`：原始推理 demo，依赖 `torch_npu.contrib.transfer_to_npu`，并包含硬编码音频/缓存路径。
-- `README.md`：NPU 运行说明，但要求手工移动脚本并修改路径。
+- `README_old.md`：NPU 运行说明，但要求手工移动脚本并修改路径。
 - `requirements.txt`：当前环境导出的依赖，范围明显大于 Canary/NeMo ASR 推理最小依赖。
 
 本次新增/调整：

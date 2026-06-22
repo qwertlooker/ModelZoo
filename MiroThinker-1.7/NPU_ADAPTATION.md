@@ -45,10 +45,10 @@ prompt 的 4 条功能集、100 条确定性 L2 服务回归、CUDA/NPU 比较�
 metadata 和 token 对齐自测试；该结果只验证工具，不替代 235B 模型服务或 agent
 benchmark。
 
-用户部署见 [README_INFERENCE.md](README_INFERENCE.md)，官方 agent 验收参数和
+用户部署见 [README.md](README.md)，官方 agent 验收参数和
 报告模板见 [ACCEPTANCE_PLAN.md](ACCEPTANCE_PLAN.md)。
 
-## 补充说明（来自 README_INFERENCE.md）
+## 补充说明（来自 README.md）
 
 ### benchmark 外部依赖与数据冻结
 

@@ -6,7 +6,7 @@
 >
 > 分析范围：`/home/pei/ModelZoo` 下已克隆的 12 个 GitCode/交付仓库。
 >
-> 分析方式：静态代码/文档分析，未在 Ascend NPU 上实际执行。判断依据来自各仓库 `README.md`、随仓脚本、`requirements.txt`、大文件/LFS 状态、上游工程说明以及是否已经形成类似 `Canary-1B/README.md`、`Canary-1B/README_INFERENCE.md` 的可交付推理文档。
+> 分析方式：静态代码/文档分析，未在 Ascend NPU 上实际执行。判断依据来自各仓库 `README.md`、随仓脚本、`requirements.txt`、大文件/LFS 状态、上游工程说明以及是否已经形成类似 `Canary-1B/README.md`、`Canary-1B/README.md` 的可交付推理文档。
 >
 > 约束：不添加未验证的 CPU fallback、远程下载 fallback、非官方指标替代官方指标；缺少依赖、缺少官方字段、上游版本不兼容或官方评估组件不可用时应快速失败并暴露原始错误。
 
@@ -15,7 +15,7 @@
 ## 2026-06-20 六模型专项复查
 
 本轮按 Canary-1B 的三类主文档结构复查以下模型，并分别新增
-`README_INFERENCE.md`、`NPU_ADAPTATION.md`、`ACCEPTANCE_PLAN.md`。
+`README.md`、`NPU_ADAPTATION.md`、`ACCEPTANCE_PLAN.md`。
 
 | 模型 | 参考仓 commit | 当前状态 | 当前结论与主阻塞 |
 |---|---|---|---|
@@ -159,7 +159,7 @@ NPU/CANN 运行环境和模型权重，因此真实 NPU 数值、性能和官方
 - 在当前脚本基础上补 `--device_id`、`--disable_performance_mode`、权重完整性检查和更清晰的错误信息。
 - 固化最小依赖：`onnxruntime-cann`、CANN、`numpy`、`librosa`、`soundfile`、`pandas`，不要把完整开发环境冻结成部署依赖。
 - 增加 CPU ONNXRuntime baseline 入口或 `--provider CPUExecutionProvider`，用于 NPU/CANN 输出一致性对比。
-- 形成 Canary-1B 风格的 `README_INFERENCE.md`：环境表、权重下载、数据准备、单条/批量推理、性能/精度命令。
+- 形成 Canary-1B 风格的 `README.md`：环境表、权重下载、数据准备、单条/批量推理、性能/精度命令。
 
 ### 1.3 功能验证
 
@@ -212,7 +212,7 @@ NPU/CANN 运行环境和模型权重，因此真实 NPU 数值、性能和官方
 - 新增非 WebUI CLI：`--text --speaker_audio --emotion_audio --model_dir --output --device --seed --duration`。
 - 增加 `check_assets.py`，统一检查 5 组权重和配置文件是否存在。
 - 整理最小依赖和编译步骤；对无法避免的 GCC/CMake/torch_npu 编译写版本矩阵。
-- 建议交付 `README_INFERENCE.md`，结构参考 Canary-1B，明确权重下载、示例数据、单条推理、批量性能和精度命令。
+- 建议交付 `README.md`，结构参考 Canary-1B，明确权重下载、示例数据、单条推理、批量性能和精度命令。
 
 ### 2.3 功能验证
 
@@ -354,7 +354,7 @@ NPU/CANN 运行环境和模型权重，因此真实 NPU 数值、性能和官方
 
 ### 5.1 仓库观察与判断依据
 
-- 当前已形成较完整交付件：`README.md`、`README_INFERENCE.md`、`infer.py`、`eval_canary.py`、`prepare_eval_data.py`。
+- 当前已形成较完整交付件：`README_old.md`、`README.md`、`infer.py`、`eval_canary.py`、`prepare_eval_data.py`。
 - README 明确上游 NeMo commit `44cb1c7ac5cbe6fc38ecc6184a174a02e7abadbe`，模型权重为 Hugging Face `nvidia/canary-1b` 的 `canary-1b.nemo`，并记录 SHA256。
 - 当前适配不修改 NeMo 上游文件，没有 `.patch`；推理脚本默认 `--device npu`，CPU 验证使用 `--device cpu`。
 - 已明确 `ASCEND_RT_VISIBLE_DEVICES` 控制卡号，不写死 `npu:0`。
@@ -365,21 +365,21 @@ NPU/CANN 运行环境和模型权重，因此真实 NPU 数值、性能和官方
 - 复杂度：中，当前已基本完成工程化。
 - 后续主要是把实际 NPU 环境运行结果补回 README：CANN/驱动/torch_npu 版本、batch size、beam size、RTF/RTFx、WER/BLEU。
 - 补充 NPU 失败样例和常见错误排查，例如 NeMo 版本、`.nemo` 权重路径、`torchcodec`/音频解码依赖。
-- 如需发布到统一 ModelZoo 目录，保持 `README_INFERENCE.md` 的路径命令不依赖本地绝对路径。
+- 如需发布到统一 ModelZoo 目录，保持 `README.md` 的路径命令不依赖本地绝对路径。
 
 ### 5.3 功能验证
 
 - 已有验证脚本：有，`infer.py` 支持单条/多条音频；`eval_canary.py` 支持 manifest。
 - 验证数据来源：单条 smoke 使用 PyTorch torchaudio tutorial WAV；正式数据使用 LibriSpeech、MLS、FLEURS。
 - 权重获取：`https://huggingface.co/nvidia/canary-1b/resolve/main/canary-1b.nemo` 或 `huggingface_hub.snapshot_download("nvidia/canary-1b")`。
-- 验证命令：README_INFERENCE 中已给出 ASR/AST 单条命令，参数包括 `--task --source_lang --target_lang --pnc --batch_size --beam_size`。
+- 验证命令：README.md 中已给出 ASR/AST 单条命令，参数包括 `--task --source_lang --target_lang --pnc --batch_size --beam_size`。
 - 验收：ASR/AST 输出文本非空，语言/任务参数生效，manifest 批量可运行，CPU/NPU 都能加载同一 `.nemo` 权重。
 
 ### 5.4 性能验证
 
 - 已有性能脚本：有，`eval_canary.py --performance_mode`。
 - 对比对象：Hugging Face Open ASR Leaderboard 的 `nvidia/canary-1b` A100 公开 RTFx，以及同 checkpoint 本地 CPU/CUDA/NeMo 路径。
-- 对比数据集：至少使用 LibriSpeech `test-clean`；该数据在 README_INFERENCE 中通过 `prepare_eval_data.py --task librispeech` 准备。
+- 对比数据集：至少使用 LibriSpeech `test-clean`；该数据在 README.md 中通过 `prepare_eval_data.py --task librispeech` 准备。
 - 指标：`elapsed_seconds`、`rtf`、`RTFx=audio_seconds/elapsed_seconds`、batch size、beam size、峰值 HBM/RSS。
 - 注意：Open ASR Leaderboard 的 A100 RTFx 只能作为公开 GPU 量级参考，不应直接作为 NPU 通过线。
 
@@ -756,7 +756,7 @@ NPU/CANN 运行环境和模型权重，因此真实 NPU 数值、性能和官方
 - 上游代码：`https://github.com/OpenMOSS/MOSS-TTSD` tag `v0.5`。
 - 模型：`https://huggingface.co/fnlp/MOSS-TTSD-v0.5`；同内容别名 `https://huggingface.co/OpenMOSS-Team/MOSS-TTSD-v0.5`；本次记录 HEAD `8527b9136b6afefe2252ae597cecea2e80e7ebeb`。
 - Codec：原项目 `XY_Tokenizer` 代码 + `https://huggingface.co/fnlp/XY_Tokenizer_TTSD_V0` 的 `xy_tokenizer.ckpt`；本次记录 HEAD `c83433728e698ed0698e88cb5096bc221fb8f8c5`。
-- 下载命令和三工作树布局以 `MOSS-TTSD-v0.5/README_INFERENCE.md` 为准。
+- 下载命令和三工作树布局以 `MOSS-TTSD-v0.5/README.md` 为准。
   固定资产命令示意：
 
   ```bash
@@ -798,7 +798,7 @@ NPU/CANN 运行环境和模型权重，因此真实 NPU 数值、性能和官方
 
 ### 13.2 建议执行节奏
 
-1. 第一批：DNSMOS、BEATs、FireRedASR-AED。目标是统一产出 `infer_npu.py`、`prepare_eval_data.py`、`eval.py`、`benchmark.py`、`README_INFERENCE.md`。
+1. 第一批：DNSMOS、BEATs、FireRedASR-AED。目标是统一产出 `infer_npu.py`、`prepare_eval_data.py`、`eval.py`、`benchmark.py`、`README.md`。
 2. 第二批：whisper-large-v3、MossFormer2_SE_48K、pyannote-speaker-diarization-3.1。目标是补数据准备、标准指标和源仓 CPU/CUDA 对比。
 3. Canary-1B 作为模板维护：后续只补真实 NPU 运行结果、环境版本和常见问题。
 4. 专项批：Index-TTS-2、MOSS-TTSD-v0.5、MOSS-Speech、MMAudio。MOSS-TTSD-v0.5 下一步优先补权重 SHA256、CPU/NPU 实推日志和质量评测；其他生成类模型也应优先 patch 化原项目代码，再做权重/数据检查和主观/客观质量评估。
