@@ -257,7 +257,11 @@ MOSS-TTSD-v0.5
 
 TTSD-eval 不是无权重评测器。ACC/SIM 依赖 MMS-FA 和 WeSpeaker
 `voxblink2_samresnet100_ft`，WER 依赖 `openai/whisper-large-v3`。评测器只读取已生成
-的 WAV，必须使用独立 CPU/CUDA 环境，不能安装到 NPU 推理环境。以下命令均从
+的 WAV。支持三种评测 profile：CPU、CUDA、NPU。CPU/CUDA profile 使用独立 venv
+（`torch/torchaudio==2.8.0`）；NPU profile 复用推理环境 `.venv-npu`
+（`torch/torchaudio==2.9.0 + torch-npu==2.9.0`），并需对 TTSD-eval 工作树应用
+`patches/0002-adapt-ttsd-eval-to-npu.patch`。正式验收只选一个 profile，并对六组
+结果始终使用同一 profile。以下命令均从
 `ACL_PyTorch/built-in/audio/MOSS-TTSD-v0.5` 执行。
 
 #### 获取固定源码和 testset
@@ -306,21 +310,22 @@ TTSD-eval 不是无权重评测器。ACC/SIM 依赖 MMS-FA 和 WeSpeaker
      --report results/ttsd_eval_setup/source_data.json
    ```
 
-#### 创建独立评测环境
+#### 创建评测环境
 
-TTSD-eval 固定提交要求 `torch/torchaudio<=2.8.0`，不能复用本指导的 PyTorch 2.9
-推理环境。上游 README 示例使用 Python 3.12，但固定 WeSpeaker commit 依赖的
-`hdbscan==0.8.37` 没有 CPython 3.12 manylinux wheel；本交付固定使用已完成安装和
-import 验证的 Python 3.11，避免不可复现的本地 C 扩展构建。系统需预先提供 Python
-3.11 venv、Git、FFmpeg 和 libsndfile；Ubuntu/Debian 可按现场权限安装：
+CPU/CUDA profile 使用独立 venv（`torch/torchaudio==2.8.0`）；NPU profile 复用
+推理环境 `.venv-npu`（`torch/torchaudio==2.9.0 + torch-npu==2.9.0`）。上游 README
+示例使用 Python 3.12，但固定 WeSpeaker commit 依赖的 `hdbscan==0.8.37` 没有
+CPython 3.12 manylinux wheel；CPU/CUDA profile 固定使用已完成安装和 import 验证
+的 Python 3.11，避免不可复现的本地 C 扩展构建。系统需预先提供 Python 3.11 venv、
+Git、FFmpeg 和 libsndfile；Ubuntu/Debian 可按现场权限安装：
 
 ```bash
 sudo apt-get install -y python3.11-venv git ffmpeg libsndfile1
 ```
 
-随后创建环境。正式验收只选一个 profile，并对六组结果始终使用同一 profile；以下
-默认固定 CUDA 12.8 wheel。没有 NVIDIA GPU 时可将 index URL 改为文末给出的 CPU
-wheel，但必须在报告中记录 evaluator 为 CPU/FP32，且不得在六组之间混用：
+正式验收只选一个 profile，并对六组结果始终使用同一 profile。
+
+**CUDA profile**（默认，CUDA 12.8 wheel）：
 
 ```bash
 python3.11 -m venv .venv-ttsd-eval
@@ -335,11 +340,24 @@ python -c 'import torch; print(torch.__version__, torch.cuda.is_available(), tor
 deactivate
 ```
 
-CPU profile 只替换框架安装命令：
+**CPU profile** 只替换框架安装命令（必须在报告中记录 evaluator 为 CPU/FP32）：
 
 ```bash
 python -m pip install torch==2.8.0 torchaudio==2.8.0 \
   --index-url https://download.pytorch.org/whl/cpu
+```
+
+**NPU profile** 复用推理环境，无需独立 venv；先对 TTSD-eval 工作树应用设备适配
+补丁，再安装评测直接依赖（不安装 torch/torchaudio）：
+
+```bash
+source .venv-npu/bin/activate
+git -C "$EVAL_ROOT" apply "$PWD/patches/0002-adapt-ttsd-eval-to-npu.patch"
+python -m pip install -r requirements_eval.txt
+python -m pip check
+python -m pip freeze > results/ttsd_eval_setup/evaluator-pip-freeze.txt
+python -c 'import torch, torch_npu; print(torch.__version__, torch.npu.is_available(), torch.npu.device_count())'
+deactivate
 ```
 
 `requirements_eval.txt` 固定 TTSD-eval 的直接依赖和 WeSpeaker commit，避免原
@@ -445,8 +463,10 @@ python -m pip install torch==2.8.0 torchaudio==2.8.0 \
 
 #### 完整预检
 
-1. 在离线模式下执行完整结构、hash、依赖版本和 import 门禁，并保存机器可读证据：
-   CPU profile 将 `--expected_device cuda` 改为 `--expected_device cpu`。
+1. 在离线模式下执行完整结构、hash、依赖版本和 import 门禁，并保存机器可读证据。
+   CPU profile 将 `--expected_device cuda` 改为 `--expected_device cpu`；NPU profile
+   改为 `--expected_device npu` 并改用 `.venv-npu`（NPU profile 下门禁会校验
+   `0002` 补丁已应用且 patch 后文件 SHA256 匹配）。
 
    ```bash
    source .venv-ttsd-eval/bin/activate

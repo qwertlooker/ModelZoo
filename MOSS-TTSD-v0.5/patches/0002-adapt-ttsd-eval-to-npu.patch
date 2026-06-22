@@ -1,0 +1,323 @@
+diff --git a/tools/align.py b/tools/align.py
+index 94abfb7..1398385 100644
+--- a/tools/align.py
++++ b/tools/align.py
+@@ -24,6 +24,23 @@ logger.setLevel(logging.INFO)
+ 
+ PROJECT_ROOT = Path(__file__).resolve().parent.parent
+ 
++
++def _npu_available() -> bool:
++    try:
++        import torch_npu  # noqa: F401
++        return torch.npu.is_available()
++    except Exception:
++        return False
++
++
++def _auto_select_device() -> str:
++    if _npu_available():
++        return "npu:0"
++    if torch.cuda.is_available():
++        return "cuda:0"
++    return "cpu"
++
++
+ _worker_aligner: Optional[MultiLingualAligner] = None
+ 
+ 
+@@ -62,7 +79,7 @@ class MultiLingualAligner:
+         self.device = (
+             device
+             if device is not None
+-            else ("cuda" if torch.cuda.is_available() else "cpu")
++            else _auto_select_device()
+         )
+ 
+         logger.info("Loading alignment bundle on %s …", self.device)
+@@ -350,12 +367,14 @@ def _worker_process_one(task: Tuple[int, Dict[str, Any], str]) -> Optional[Tuple
+ 
+     except Exception as e:
+         logger.warning("Line %d failed: %s", idx, e)
+-        if torch.cuda.is_available():
+-            try:
++        try:
++            if torch.cuda.is_available():
+                 torch.cuda.empty_cache()
+                 torch.cuda.synchronize()
+-            except Exception:
+-                pass
++            elif _npu_available():
++                torch.npu.empty_cache()
++        except Exception:
++            pass
+         return None
+ 
+ 
+@@ -408,6 +427,9 @@ def process_jsonl(
+ 
+     if device is not None:
+         devices = [device]
++    elif _npu_available():
++        num_npus = torch.npu.device_count()
++        devices = [f"npu:{i}" for i in range(num_npus)] if num_npus > 0 else ["npu"]
+     elif torch.cuda.is_available():
+         num_gpus = torch.cuda.device_count()
+         devices = [f"cuda:{i}" for i in range(num_gpus)]
+@@ -415,6 +437,7 @@ def process_jsonl(
+         devices = ["cpu"]
+ 
+     num_workers = len(devices)
++    device_type = devices[0].split(":")[0] if devices else "cpu"
+     print(f"Detected {num_workers} devices: {devices}, tasks: {len(tasks)}")
+ 
+     if num_workers == 1:
+@@ -441,7 +464,7 @@ def process_jsonl(
+                 if not bucket:
+                     continue
+                 fut = executor.submit(
+-                    _worker_run_bucket, gpu_idx, cache_dir, bucket
++                    _worker_run_bucket, gpu_idx, cache_dir, bucket, device_type
+                 )
+                 futures.append(fut)
+ 
+@@ -466,12 +489,17 @@ def _worker_run_bucket(
+     gpu_index: int,
+     cache_dir: str,
+     bucket: List[Tuple[int, Dict[str, Any], str]],
++    device_type: str = "cuda",
+ ) -> List[Tuple[int, Dict[str, Any]]]:
+     """Initialize aligner in a subprocess and process a task bucket."""
+-    # Limit this subprocess to one GPU to avoid cross-process CUDA context issues.
+-    os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu_index)
+-
+-    _worker_init("cuda:0", cache_dir)
++    if device_type == "npu":
++        os.environ["ASCEND_RT_VISIBLE_DEVICES"] = str(gpu_index)
++        _worker_init("npu:0", cache_dir)
++    elif device_type == "cuda":
++        os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu_index)
++        _worker_init("cuda:0", cache_dir)
++    else:
++        _worker_init("cpu", cache_dir)
+     results = []
+     for task in bucket:
+         ret = _worker_process_one(task)
+diff --git a/tools/run_similarity.py b/tools/run_similarity.py
+index da60b92..2c28675 100644
+--- a/tools/run_similarity.py
++++ b/tools/run_similarity.py
+@@ -36,6 +36,15 @@ DEFAULT_MODEL_DIR = str(PROJECT_ROOT / "model" / "voxblink2_samresnet100_ft")
+ DEFAULT_MIN_AUDIO_SECONDS = 2.0
+ DEFAULT_MAX_AUDIO_SECONDS = 30.0
+ 
++
++def _npu_available() -> bool:
++    try:
++        import torch_npu  # noqa: F401
++        return torch.npu.is_available()
++    except Exception:
++        return False
++
++
+ def _get_wespeaker_model_device(speaker) -> torch.device:
+     try:
+         return next(speaker.model.parameters()).device
+@@ -142,11 +151,15 @@ def _worker_init(
+     use_vad: bool,
+     min_audio_seconds: float,
+     max_audio_seconds: float,
++    device_type: str = "cuda",
+ ):
+-    """Initialize one worker model on a target GPU or CPU."""
++    """Initialize one worker model on a target GPU/NPU/CPU."""
+     global _worker_model
+ 
+-    if torch.cuda.is_available() and torch.cuda.device_count() > 0:
++    if device_type == "npu" and _npu_available():
++        device = torch.device(f"npu:{gpu_index}")
++        torch.npu.set_device(device)
++    elif device_type == "cuda" and torch.cuda.is_available() and torch.cuda.device_count() > 0:
+         if gpu_index < 0 or gpu_index >= torch.cuda.device_count():
+             raise ValueError(
+                 f"Invalid gpu_index={gpu_index}, cuda device_count={torch.cuda.device_count()}"
+@@ -216,6 +229,7 @@ def _worker_run_bucket(
+     min_audio_seconds: float,
+     max_audio_seconds: float,
+     tasks: List[Tuple[int, int, str, str, str, str]],
++    device_type: str = "cuda",
+ ) -> List[Tuple[int, int, float, float, str, float, str]]:
+     """Initialize one model in a subprocess and process its assigned tasks."""
+     _worker_init(
+@@ -224,6 +238,7 @@ def _worker_run_bucket(
+         use_vad,
+         min_audio_seconds=min_audio_seconds,
+         max_audio_seconds=max_audio_seconds,
++        device_type=device_type,
+     )
+     return _process_segment_batch(tasks)
+ 
+@@ -237,6 +252,7 @@ def run_similarity(
+     num_gpus: int | None = None,
+     min_audio_seconds: float = DEFAULT_MIN_AUDIO_SECONDS,
+     max_audio_seconds: float = DEFAULT_MAX_AUDIO_SECONDS,
++    device: str | None = None,
+ ):
+     """
+     Compute similarity and update both split files and output JSONL.
+@@ -245,12 +261,27 @@ def run_similarity(
+         input_stem = Path(input_jsonl).stem
+         output_jsonl = str(Path(input_jsonl).parent / f"{input_stem}_with_sim.jsonl")
+ 
+-    available_gpus = torch.cuda.device_count() if torch.cuda.is_available() else 0
+-    if num_gpus is None:
+-        num_gpus = available_gpus if available_gpus > 0 else 1
+-    elif available_gpus > 0:
+-        num_gpus = max(1, min(num_gpus, available_gpus))
++    if device is not None:
++        device_type = device.split(":")[0]
++        num_gpus = 1
++    elif _npu_available():
++        device_type = "npu"
++        available = torch.npu.device_count()
++        if num_gpus is None:
++            num_gpus = available if available > 0 else 1
++        else:
++            num_gpus = max(1, min(num_gpus, available)) if available > 0 else 1
++    elif torch.cuda.is_available():
++        device_type = "cuda"
++        available_gpus = torch.cuda.device_count()
++        if num_gpus is None:
++            num_gpus = available_gpus if available_gpus > 0 else 1
++        elif available_gpus > 0:
++            num_gpus = max(1, min(num_gpus, available_gpus))
++        else:
++            num_gpus = 1
+     else:
++        device_type = "cpu"
+         num_gpus = 1
+ 
+     cases: List[Dict[str, Any]] = []
+@@ -314,7 +345,7 @@ def run_similarity(
+         print("No valid segment task found.")
+         return
+ 
+-    print(f"Cases: {len(cases)}, segments: {len(segment_tasks)}, GPUs: {num_gpus}")
++    print(f"Cases: {len(cases)}, segments: {len(segment_tasks)}, devices: {num_gpus} ({device_type})")
+ 
+     results: List[Tuple[int, int, float, float, str, float, str]] = []
+ 
+@@ -326,6 +357,7 @@ def run_similarity(
+             min_audio_seconds,
+             max_audio_seconds,
+             segment_tasks,
++            device_type,
+         )
+     else:
+         gpu_buckets: List[List] = [[] for _ in range(num_gpus)]
+@@ -347,6 +379,7 @@ def run_similarity(
+                     min_audio_seconds,
+                     max_audio_seconds,
+                     bucket,
++                    device_type,
+                 )
+                 futures.append(fut)
+ 
+@@ -476,6 +509,10 @@ if __name__ == "__main__":
+         "--num_gpus", type=int, default=None,
+         help="Number of GPUs to use. Default: auto-detect.",
+     )
++    parser.add_argument(
++        "--device", type=str, default=None,
++        help="Device, e.g. npu:0, cuda:0, cpu. Overrides --num_gpus auto-detect.",
++    )
+     parser.add_argument(
+         "--vad", action="store_true",
+         help="Enable VAD.",
+@@ -504,4 +541,5 @@ if __name__ == "__main__":
+         num_gpus=args.num_gpus,
+         min_audio_seconds=args.min_audio_seconds,
+         max_audio_seconds=args.max_audio_seconds,
++        device=args.device,
+     )
+diff --git a/wer/whisper_asr.py b/wer/whisper_asr.py
+index 167c8a7..3babe9f 100644
+--- a/wer/whisper_asr.py
++++ b/wer/whisper_asr.py
+@@ -17,14 +17,26 @@ _pipe = None
+ _gpu_id = None
+ 
+ 
+-def _init_worker(device_id, model_id: str):
++def _npu_available() -> bool:
++    try:
++        import torch_npu  # noqa: F401
++        return torch.npu.is_available()
++    except Exception:
++        return False
++
++
++def _init_worker(device_id, model_id: str, device_type: str = "cuda"):
+     """Initialize one worker pipeline on a target device."""
+     global _pipe, _gpu_id
+     _gpu_id = device_id
+ 
+-    if device_id == "cpu":
++    if device_id == "cpu" or device_type == "cpu":
+         device = "cpu"
+         torch_dtype = torch.float32
++    elif device_type == "npu":
++        import torch_npu  # noqa: F401
++        device = f"npu:{device_id}"
++        torch_dtype = torch.float16
+     else:
+         device = f"cuda:{device_id}"
+         torch_dtype = torch.float16
+@@ -76,21 +88,33 @@ def _parse_args() -> argparse.Namespace:
+     parser.add_argument("--output_jsonl", type=str, required=True, help="Output JSONL path.")
+     parser.add_argument("--model_id", type=str, default=DEFAULT_MODEL_ID, help="Whisper model id or local path.")
+     parser.add_argument("--num_gpus", type=int, default=0, help="Number of GPUs. 0 means auto-detect.")
++    parser.add_argument("--device", type=str, default=None,
++                        help="Device type: npu, cuda, cpu. Overrides --num_gpus auto-detect.")
+     return parser.parse_args()
+ 
+ 
+ def main() -> None:
+     args = _parse_args()
+ 
+-    num_gpus = args.num_gpus if args.num_gpus > 0 else torch.cuda.device_count()
+-    use_cpu = num_gpus == 0
++    if args.device:
++        device_type = args.device.split(":")[0]
++    elif _npu_available():
++        device_type = "npu"
++    elif torch.cuda.is_available():
++        device_type = "cuda"
++    else:
++        device_type = "cpu"
+ 
+-    if use_cpu:
+-        print("[Whisper ASR] No GPU detected, fallback to CPU mode (single process).")
++    if device_type == "cpu":
++        print("[Whisper ASR] CPU mode (single process).")
+         num_workers = 1
+         device_ids = ["cpu"]
+     else:
+-        print(f"[Whisper ASR] Detected {num_gpus} GPU(s), running in parallel.")
++        if device_type == "npu":
++            num_gpus = args.num_gpus if args.num_gpus > 0 else torch.npu.device_count()
++        else:
++            num_gpus = args.num_gpus if args.num_gpus > 0 else torch.cuda.device_count()
++        print(f"[Whisper ASR] {device_type} mode, {num_gpus} device(s), running in parallel.")
+         num_workers = num_gpus
+         device_ids = list(range(num_gpus))
+ 
+@@ -115,7 +139,7 @@ def main() -> None:
+         pool = mp.Pool(
+             processes=1,
+             initializer=_init_worker,
+-            initargs=(device_id, args.model_id)
++            initargs=(device_id, args.model_id, device_type)
+         )
+         pools.append(pool)
+ 

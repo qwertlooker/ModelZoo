@@ -55,6 +55,26 @@ EVALUATOR_VERSIONS = {
     "silero-vad": "6.2.1",
     "onnxruntime": "1.23.2",
 }
+EVALUATOR_VERSIONS_NPU = {
+    **EVALUATOR_VERSIONS,
+    "torch": "2.9.0",
+    "torchaudio": "2.9.0",
+}
+TTSD_EVAL_NPU_PATCH = "patches/0002-adapt-ttsd-eval-to-npu.patch"
+TTSD_EVAL_NPU_PATCH_SHA256 = (
+    "5dd9c5ab357d64e5d43543821ee3324f32b9c1210bb4ba63e9fe9dcaa7438607"
+)
+TTSD_EVAL_NPU_PATCHED_SHA256 = {
+    "tools/align.py": (
+        "722028e9a7adbc90dfad3eb74cb1ab307cd6919bbc2969134f52175c0c2c49f2"
+    ),
+    "tools/run_similarity.py": (
+        "65ccfb613a5248f9f40efe9a09fadaa2ebcf4aa05df6a9331bf7a619fdc6dc66"
+    ),
+    "wer/whisper_asr.py": (
+        "b7a62bf6504ddf8a9fdf3c86f66ca4488608caf10ae5456901d4b275bf917194"
+    ),
+}
 
 
 def parse_args() -> argparse.Namespace:
@@ -90,7 +110,7 @@ def parse_args() -> argparse.Namespace:
     )
     verify.add_argument(
         "--expected_device",
-        choices=("cpu", "cuda"),
+        choices=("cpu", "cuda", "npu"),
         help="Required with --scope full; verifies the evaluator device profile.",
     )
     verify.add_argument(
@@ -226,7 +246,7 @@ def git_output(root: Path, *args: str) -> str:
     return result.stdout.strip()
 
 
-def check_source(eval_root: Path) -> dict:
+def check_source(eval_root: Path, expected_device: str | None = None) -> dict:
     required = (
         "README.md",
         "requirements.txt",
@@ -244,6 +264,33 @@ def check_source(eval_root: Path) -> dict:
             f"TTSD-eval commit: expected {TTSD_EVAL_COMMIT}, got {commit}"
         )
     tracked_diff = git_output(eval_root, "status", "--short", "--untracked-files=no")
+    if expected_device == "npu":
+        modified = set()
+        for line in tracked_diff.splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            modified.add(line[2:].strip().split(" -> ")[-1])
+        expected_modified = set(TTSD_EVAL_NPU_PATCHED_SHA256.keys())
+        if modified != expected_modified:
+            raise ValueError(
+                f"TTSD-eval NPU profile: expected modified files "
+                f"{sorted(expected_modified)}, got {sorted(modified)}"
+            )
+        for relative, expected_hash in TTSD_EVAL_NPU_PATCHED_SHA256.items():
+            actual_hash = sha256(eval_root / relative)
+            if actual_hash != expected_hash:
+                raise ValueError(
+                    f"{relative}: expected patched SHA256 {expected_hash}, "
+                    f"got {actual_hash}"
+                )
+        return {
+            "commit": commit,
+            "tracked_files_clean": False,
+            "npu_patch_applied": True,
+            "npu_patch": TTSD_EVAL_NPU_PATCH,
+            "npu_patch_sha256": TTSD_EVAL_NPU_PATCH_SHA256,
+        }
     if tracked_diff:
         raise ValueError(f"TTSD-eval tracked files are modified:\n{tracked_diff}")
     return {"commit": commit, "tracked_files_clean": True}
@@ -370,8 +417,11 @@ def check_environment(expected_device: str) -> dict:
             f"evaluator Python: expected 3.11, got "
             f"{sys.version_info.major}.{sys.version_info.minor}"
         )
+    version_table = (
+        EVALUATOR_VERSIONS_NPU if expected_device == "npu" else EVALUATOR_VERSIONS
+    )
     versions = {}
-    for distribution, expected in EVALUATOR_VERSIONS.items():
+    for distribution, expected in version_table.items():
         try:
             actual = importlib.metadata.version(distribution)
         except importlib.metadata.PackageNotFoundError as error:
@@ -421,7 +471,22 @@ def check_environment(expected_device: str) -> dict:
     cuda_available = bool(torch.cuda.is_available())
     cuda_device_count = int(torch.cuda.device_count())
     cuda_runtime = getattr(torch.version, "cuda", None)
-    if expected_device == "cuda" and (not cuda_available or cuda_device_count < 1):
+    npu_available = False
+    npu_device_count = 0
+    if expected_device == "npu":
+        try:
+            import torch_npu  # noqa: F401
+            npu_available = bool(torch.npu.is_available())
+            npu_device_count = int(torch.npu.device_count())
+        except ImportError as error:
+            raise RuntimeError(
+                "NPU evaluator requested, but torch_npu is not installed"
+            ) from error
+        if not npu_available or npu_device_count < 1:
+            raise RuntimeError(
+                "NPU evaluator requested, but no NPU device is available"
+            )
+    elif expected_device == "cuda" and (not cuda_available or cuda_device_count < 1):
         raise RuntimeError("CUDA evaluator requested, but no CUDA device is available")
     if expected_device == "cuda" and not cuda_runtime:
         raise RuntimeError("CUDA evaluator requested, but torch is not a CUDA wheel")
@@ -441,6 +506,8 @@ def check_environment(expected_device: str) -> dict:
         "cuda_available": cuda_available,
         "cuda_device_count": cuda_device_count,
         "cuda_runtime": cuda_runtime,
+        "npu_available": npu_available,
+        "npu_device_count": npu_device_count,
     }
 
 
@@ -449,7 +516,7 @@ def verify_ttsd_eval(args: argparse.Namespace) -> None:
     report = {
         "eval_root": str(eval_root),
         "scope": args.scope,
-        "source": check_source(eval_root),
+        "source": check_source(eval_root, args.expected_device),
         "testset": check_testset(eval_root),
     }
     if args.scope == "full":

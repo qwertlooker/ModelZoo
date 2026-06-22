@@ -207,6 +207,12 @@ deactivate
   版本选择并记录，不能复用 NPU 环境。
 - 如果安装依赖时 pip 试图替换已有 NPU 版 PyTorch，应修正版本约束；不得临时过滤
   requirements 或让 pip 静默替换。
+- TTSD-eval 评测器支持 NPU profile：复用 `.venv-npu`（不另建 venv），对 TTSD-eval
+  工作树应用 `patches/0002-adapt-ttsd-eval-to-npu.patch` 后，三个评测器
+  （`align.py`/`run_similarity.py`/`whisper_asr.py`）通过 `--device npu:0` /
+  `--device npu` 在 NPU 上推理；CPU/CUDA profile 仍使用独立 venv 且不应用该补丁。
+  `prepare_eval_data.py verify-ttsd-eval --expected_device npu` 会校验补丁已应用且
+  patch 后文件 SHA256 匹配。
 
 ### 2.4 权重下载
 

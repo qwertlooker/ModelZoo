@@ -64,7 +64,8 @@ results/ttsd_eval_setup/evaluator-pip-freeze.txt
 
 并重新执行完整门禁：
 
-以下示例为 CUDA evaluator；CPU profile 必须改用 `--expected_device cpu`。
+以下示例为 CUDA evaluator；CPU profile 必须改用 `--expected_device cpu`；NPU
+profile 改用 `--expected_device npu` 并改用 `.venv-npu`。
 
 ```bash
 source .venv-ttsd-eval/bin/activate
@@ -191,8 +192,12 @@ done
 
 TTSD-eval 的 prompt 路径相对 `testset/`。以下命令必须从该目录运行；输出路径使用
 绝对路径，避免切换目录后失效。以下固定为单卡 CUDA evaluator；CPU profile 必须
-设置 `CUDA_VISIBLE_DEVICES=""`、`ALIGN_DEVICE=cpu` 和 `WHISPER_NUM_GPUS=0`，
-并对六组保持一致。每组显式指定所有中间目录，避免 evaluator 默认目录互相污染：
+设置 `CUDA_VISIBLE_DEVICES=""`、`ALIGN_DEVICE=cpu` 和 `WHISPER_NUM_GPUS=0`；
+NPU profile 改用 `.venv-npu`、`ASCEND_RT_VISIBLE_DEVICES=0`、`ALIGN_DEVICE=npu:0`，
+并将 `run_similarity.py` 的 `--num_gpus "$SIM_NUM_GPUS"` 改为 `--device npu:0`、
+`whisper_asr.py` 的 `--num_gpus "$WHISPER_NUM_GPUS"` 改为 `--device npu`。三种
+profile 均须对六组保持一致。每组显式指定所有中间目录，避免 evaluator 默认目录
+互相污染：
 
 ```bash
 set -o pipefail
@@ -293,7 +298,7 @@ RTF/RTFx 可复现，并报告 NPU 相对 patch 后 CUDA 的比值。项目另�
 
 - [ ] 源码、模型、codec、patch 和 testset revision/SHA256 已记录。
 - [ ] TTSD-eval `source_data.json`、`full.json`、pip freeze 和模型加载预检已归档。
-- [ ] evaluator CPU/CUDA profile 固定，六组使用同一设备、dtype 和依赖环境。
+- [ ] evaluator profile（CPU/CUDA/NPU 之一）固定，六组使用同一设备、dtype 和依赖环境。
 - [ ] 原始 CUDA、patch 后 CUDA、NPU 使用相同 manifest 和参数，输出互不覆盖。
 - [ ] 功能验证 2 条、L2 中英文各 50 条均记录实际执行结果。
 - [ ] 六份 L2 manifest 和 metadata 已归档。
