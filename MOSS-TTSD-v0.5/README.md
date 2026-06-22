@@ -756,7 +756,7 @@ WHISPER_NUM_GPUS=1
 cd "$EVAL_ROOT/testset"
 
 for LANG in zh en; do
-  for GROUP in original_cuda patched_cuda npu; do
+  for GROUP in original_cuda patched_cuda; do
     INPUT="$MODEL_ROOT/results/ttsd_eval/${GROUP}_${LANG}.jsonl"
     [ -f "$INPUT" ] || continue
     STEM="${GROUP}_${LANG}"
