@@ -650,6 +650,86 @@ for LANG in zh en; do
 done
 ```
 
+### ACC/SIM/WER 逐份评测
+
+TTSD-eval 的 prompt 路径相对 `testset/`，以下命令必须从该目录运行；输出路径使用绝对路径，避免切换目录后失效。以下固定为单卡 CUDA evaluator；三种 profile 均须对六组结果保持一致，每组显式指定所有中间目录，避免 evaluator 默认目录互相污染。
+
+- **CUDA profile**（默认）：`CUDA_VISIBLE_DEVICES=0`、`ALIGN_DEVICE=cuda:0`、`SIM_NUM_GPUS=1`、`WHISPER_NUM_GPUS=1`，使用 `.venv-ttsd-eval`。
+- **CPU profile**：设置 `CUDA_VISIBLE_DEVICES=""`、`ALIGN_DEVICE=cpu`、`WHISPER_NUM_GPUS=0`，并将 `run_similarity.py` 的 `--num_gpus` 改为 `--device cpu`、`whisper_asr.py` 的 `--num_gpus` 改为 `--device cpu`。
+- **NPU profile**：改用 `.venv-npu`、`ASCEND_RT_VISIBLE_DEVICES=0`、`ALIGN_DEVICE=npu:0`，并将 `run_similarity.py` 的 `--num_gpus "$SIM_NUM_GPUS"` 改为 `--device npu:0`、`whisper_asr.py` 的 `--num_gpus "$WHISPER_NUM_GPUS"` 改为 `--device npu`。
+
+```bash
+set -o pipefail
+MODEL_ROOT="$PWD"
+EVAL_ROOT="$MODEL_ROOT/third_party/TTSD-eval"
+source "$MODEL_ROOT/.venv-ttsd-eval/bin/activate"
+export HF_HUB_OFFLINE=1
+export TRANSFORMERS_OFFLINE=1
+export CUDA_VISIBLE_DEVICES=0
+ALIGN_DEVICE=cuda:0
+SIM_NUM_GPUS=1
+WHISPER_NUM_GPUS=1
+cd "$EVAL_ROOT/testset"
+
+for LANG in zh en; do
+  for GROUP in original_cuda patched_cuda npu; do
+    INPUT="$MODEL_ROOT/results/ttsd_eval/${GROUP}_${LANG}.jsonl"
+    STEM="${GROUP}_${LANG}"
+    RUN_ROOT="$MODEL_ROOT/results/ttsd_eval_metrics/$STEM"
+    mkdir -p \
+      "$RUN_ROOT/alignment_files" \
+      "$RUN_ROOT/split_res" \
+      "$RUN_ROOT/audio_segments"
+
+    {
+      python "$EVAL_ROOT/tools/align.py" \
+        --input_jsonl "$INPUT" \
+        --output_dir "$RUN_ROOT/alignment_files" \
+        --output_jsonl "$RUN_ROOT/alignment.jsonl" \
+        --cache_dir "$EVAL_ROOT/model" \
+        --device "$ALIGN_DEVICE"
+      test "$(wc -l < "$RUN_ROOT/alignment.jsonl")" -eq 50
+
+      python "$EVAL_ROOT/tools/split.py" \
+        --input_jsonl "$RUN_ROOT/alignment.jsonl" \
+        --split_res_dir "$RUN_ROOT/split_res" \
+        --segment_dir "$RUN_ROOT/audio_segments" \
+        --output_jsonl "$RUN_ROOT/split.jsonl" \
+        --num_workers 8
+      test "$(wc -l < "$RUN_ROOT/split.jsonl")" -eq 50
+
+      python "$EVAL_ROOT/tools/run_similarity.py" \
+        --input_jsonl "$RUN_ROOT/split.jsonl" \
+        --output_jsonl "$RUN_ROOT/sim.jsonl" \
+        --metrics_txt "$RUN_ROOT/acc_sim.txt" \
+        --model_dir "$EVAL_ROOT/model/voxblink2_samresnet100_ft" \
+        --num_gpus "$SIM_NUM_GPUS"
+      test "$(wc -l < "$RUN_ROOT/sim.jsonl")" -eq 50
+      test -s "$RUN_ROOT/acc_sim.txt"
+
+      python "$EVAL_ROOT/wer/whisper_asr.py" \
+        --input_jsonl "$INPUT" \
+        --output_jsonl "$RUN_ROOT/asr.jsonl" \
+        --model_id "$EVAL_ROOT/model/whisper-large-v3" \
+        --num_gpus "$WHISPER_NUM_GPUS"
+      test "$(wc -l < "$RUN_ROOT/asr.jsonl")" -eq 50
+
+      python "$EVAL_ROOT/wer/run_wer.py" \
+        --lang "$LANG" \
+        --input_jsonl "$RUN_ROOT/asr.jsonl" \
+        --output_jsonl "$RUN_ROOT/wer.jsonl" \
+        --metrics_txt "$RUN_ROOT/wer.txt"
+      test "$(wc -l < "$RUN_ROOT/wer.jsonl")" -eq 50
+      test -s "$RUN_ROOT/wer.txt"
+    } 2>&1 | tee "$RUN_ROOT/evaluator.log"
+  done
+done
+cd "$MODEL_ROOT"
+deactivate
+```
+
+TTSD-eval 的部分工具会记录 warning 后跳过失败样本并以 0 退出，因此每阶段的 50 行检查是正式门禁，不得删除。上述命令直接复用固定 commit 的官方评测组件 `tools/align.py`、`tools/split.py`、`tools/run_similarity.py`、`wer/whisper_asr.py` 和 `wer/run_wer.py`，不修改 evaluator，也不使用简化指标。
+
 ## 模型推理性能
 
 MOSS-TTSD-v0.5 属自回归生成式 TTS/TTSD 模型，L2 性能以中英文全量生成音频总时长和端到端墙钟时间计算。以下展示 NPU 中文命令；原始 CUDA、patch 后 CUDA、英文 split 使用相同参数和独立日志/输出目录：
