@@ -139,3 +139,36 @@ L2分类/回归split及样本数:
 与CUDA/官方值差异:
 结论和未完成项:
 ```
+
+## 补充说明（来自 README_INFERENCE.md）
+
+### IBM Box 数据获取
+
+IBM 官方 11 项 fine-tuning 复现需要从 <https://ibm.box.com/v/MoLFormer-data>
+手工下载 `Pretrained MoLFormer.zip` 和 `finetune_datasets.zip`。该网盘没有在
+本文档中假装成稳定自动直链。
+
+### L2 降级固定集
+
+若 IBM 数据暂不可取得，可用脚本确定性生成 100 条简单线性 SMILES 作为 L2 降级
+固定集；报告必须明确它不是官方 benchmark。
+
+### 官方 split 与 fine-tuning 复现要求
+
+优先使用 IBM 官方 split 全量替换上述降级 manifest。若宣称复现模型卡 11 项表，
+还必须在独立环境中按固定 split 运行官方 fine-tuning，不得用 embedding 比较代替。
+
+### 性能方法论
+
+对同一 L2 manifest 分别以 batch 1/8/32/64 运行三组命令；每个输出的
+`*.meta.json` 记录 elapsed 和 samples/s，另用 `/usr/bin/time -v` 记录峰值 RSS，
+NPU 记录峰值 HBM。正式 batch 重复 3 次并报告中位数。
+
+### 当前状态表
+
+| 路径 | 数据/环境 | 结果 |
+|---|---|---|
+| CPU feature extraction | 10 条、batch 4、Transformers 4.35.0 | 20.535 samples/s，仅作链路记录 |
+| Transformers 4.35 vs 4.57 | 同 checkpoint/manifest | embedding 逐元素误差 0 |
+| NPU embedding | 同 manifest | 待验收 |
+| L2 IBM split | 官方 split 全量或明确降级固定集 | 待 CPU/CUDA/NPU 精度和性能验收 |

@@ -337,3 +337,31 @@ Evaluator：TTSD-eval/WeSpeaker commit、CPU/CUDA profile、pip freeze、三类�
 未执行/阻塞：
 结论：通过/不通过；不得用功能样例替代 L2 精度或性能结论
 ```
+
+## 补充说明（来自 README_INFERENCE.md）
+
+以下内容原位于 `README_INFERENCE.md`，因偏重验收口径与数据准备要求，迁移至此。
+
+### 使用口径
+
+v0.5 官方正式质量指标仍为“未发布”；TTSD-eval 结果用于公共评测和 NPU 迁移对齐，不得挪用 v1.0 论文指标作为 v0.5 通过线。
+
+### L2 数据准备要求
+
+L2 使用 `OpenMOSS/TTSD-eval` 中文、英文全量各 50 条。评测工程源码、testset、独立环境、三类评测权重和预检必须一次性准备完整；不能只下载 `testset.zip` 后直接开始正式评测。
+
+### profile 选择
+
+正式验收只选一个 profile，并对六组结果始终使用同一 profile。
+
+### 准备完成保留项
+
+准备完成后必须保留：`results/ttsd_eval_setup/source_data.json`、`full.json`、`evaluator-pip-freeze.txt`，以及正式运行时使用的 CPU/CUDA profile。只有 source、testset、环境、三类权重和加载预检全部通过，才可进入 TTSD-eval 正式指标计算。
+
+### 正式 ACC/SIM/WER 工具
+
+正式 ACC/SIM/WER 继续使用固定 commit 的 TTSD-eval 原始 `tools/align.py`、`tools/split.py`、`tools/run_similarity.py`、`wer/whisper_asr.py` 和 `wer/run_wer.py`。不得用简化相似度或其他 ASR 替代。
+
+### 性能报告方法学
+
+报告中至少记录三组输入样本数、成功输出数、输出 WAV 总时长、elapsed seconds、`RTF=elapsed/generated_audio_seconds`、`RTFx=generated_audio_seconds/elapsed`、固定 dtype/attention 路径、峰值 HBM 和 CPU RSS。每组至少重复 3 次并报告中位数。完整性能与质量验收口径见 `ACCEPTANCE_PLAN.md`。

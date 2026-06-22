@@ -12,8 +12,6 @@
   - [模型推理](#模型推理)
 - [OpenMOSS/TTSD-eval 测评](#openmossttsd-eval-测评)
 - [模型推理性能](#模型推理性能)
-- [NPU GQA FlashAttention 与显存说明](#npu-gqa-flashattention-与显存说明)
-- [已知问题：Transformers 5.x 不兼容](#已知问题transformers-5x-不兼容)
 - [公网地址说明](#公网地址说明)
 
 ## 概述
@@ -32,13 +30,6 @@ MOSS-TTSD-v0.5 是 OpenMOSS 发布的对话式双说话人文本转语音/文本
   patch=patches/0001-adapt-v0.5-inference-to-npu.patch
   ```
 
-- 适配原则：
-  - 不修改原始 `README.md`。
-  - 不新增旁路推理脚本；继续使用原项目已有 `inference.py`，通过 patch 适配 NPU。
-  - NPU 默认显式使用 `--device npu`，实际卡号由 `ASCEND_RT_VISIBLE_DEVICES` 控制。
-  - NPU 路径内部固定使用 torch-npu Flash Attention：prefill 调用 `npu_prompt_flash_attention`，decode 调用 `npu_incre_flash_attention`，直接传递 GQA 的 KV head 数，不执行 `repeat_kv`。
-  - 推理入口只新增一个 `--device` 参数，不向用户暴露 dtype、attention backend、batch size 或权重路径等额外开关。
-
 ## 输入输出数据
 
 - 输入数据
@@ -56,33 +47,28 @@ MOSS-TTSD-v0.5 是 OpenMOSS 发布的对话式双说话人文本转语音/文本
   }
   ```
 
-  `prompt_audio_speaker1`、`prompt_audio_speaker2` 可为相对 `base_path` 的路径，也可按原项目逻辑传入可解析的本地路径。prompt 音频建议为清晰人声 WAV，正式验收需固定 prompt 来源、采样率和文本。
+  `prompt_audio_speaker1`、`prompt_audio_speaker2` 可为相对 `base_path` 的路径，也可按原项目逻辑传入可解析的本地路径。
 
 - 输出数据
 
-  输出为 `output_*.wav`，保存到 `--output_dir` 指定目录。输出采样率以模型/codec 返回值为准，验收报告必须记录输出 WAV 数量、采样率、总时长、峰值/RMS 和是否可播放。
+  输出为 `output_*.wav`，保存到 `--output_dir` 指定目录。输出采样率以模型/codec 返回值为准。
 
 ## 推理环境准备
 
-- 该模型需要以下插件与驱动。实际版本以目标 CANN 与 torch-npu 官方匹配表为准。
+- 该模型需要以下插件与驱动。
 
   **表 1** 版本配套表
 
-| 配套 | 版本 |
-|---|---|
-| 固件与驱动 | 25.5.1+ |
-| CANN Toolkit / Kernel / NNAL | 8.5.1 |
-| Python | 3.11 |
-| PyTorch / torch-npu / torchaudio | 2.9.0 |
-| transformers | 当前上游 v0.5 代码固定使用 `4.57.6`；不要安装 5.x |
-| accelerate | 按原项目依赖安装 |
-| soundfile / torchaudio | `soundfile` 用于文件读写；`torchaudio.functional.resample` 用于重采样 |
+  | 配套 | 版本 |
+  |---|---|
+  | 固件与驱动 | 25.5.1+ |
+  | CANN Toolkit / Kernel / NNAL | 8.5.1 |
+  | Python | 3.11 |
+  | PyTorch / torch-npu / torchaudio | 2.9.0 |
+  | transformers | 4.57.6（不要安装 5.x） |
+  | soundfile | 用于文件读写 |
 
-说明：
-
-- `flash-attn` 官方包面向 CUDA/ROCm GPU kernel，当前不作为 Ascend NPU 必需依赖安装。NPU 内部固定使用 torch-npu 原生 PFA/IFA；CUDA 路径保持原项目 `flash_attention_2`，CPU 路径使用 SDPA。
-- TorchAudio 2.9+ 的 `torchaudio.load` / `torchaudio.save` 会进入 TorchCodec 路径。本适配通过 patch 将 prompt 音频读取和 WAV 写出改为 `soundfile`，不要求额外安装 `torchcodec`。如果仍看到 `TorchCodec is required for load_with_torchcodec` 或 `save_with_torchcodec`，说明 patch 未应用或路径未覆盖。
-- Transformers 5.x 改变了 `_tied_weights_keys` 的数据结构和 `tie_weights()` 接口，而 MOSS-TTSD-v0.5 上游代码仍使用 Transformers 4.x 接口。当前项目不修改该模型定义，因此必须固定 `transformers==4.57.6`。
+说明：Atlas 800I A2 推理卡请以 CANN 版本选择实际固件与驱动版本。
 
 ## 文件目录
 
@@ -120,7 +106,7 @@ MOSS-TTSD-v0.5
 
 ## 快速上手
 
-除获取适配仓库的初始步骤外，后续命令默认从 `ACL_PyTorch/built-in/audio/MOSS-TTSD-v0.5` 目录开始，示例只使用相对路径。
+后续命令默认从 `ACL_PyTorch/built-in/audio/MOSS-TTSD-v0.5` 目录开始，示例只使用相对路径。
 
 ### 获取源码并应用 patch
 
@@ -148,7 +134,7 @@ MOSS-TTSD-v0.5
      ../patches/0001-adapt-v0.5-inference-to-npu.patch
    ```
 
-3. 安装 NPU 环境。不得从 PyTorch CPU wheel 索引安装框架：
+3. 安装 NPU 环境。
 
    ```bash
    python3.11 -m venv .venv-npu
@@ -167,9 +153,7 @@ MOSS-TTSD-v0.5
    deactivate
    ```
 
-4. 原始 CUDA 和 patch 后 CUDA 使用两个独立环境，均安装相同的 PyTorch、
-   Transformers 和 CUDA `flash-attn`。以下 CUDA wheel/索引需按实际 CUDA 版本
-   选择，不能用于 NPU 环境：
+4. 原始 CUDA 和 patch 后 CUDA 使用两个独立环境，均安装相同的 PyTorch、Transformers 和 CUDA `flash-attn`。CUDA wheel/索引需按实际 CUDA 版本选择，不能用于 NPU 环境：
 
    ```bash
    python3.11 -m venv .venv-cuda-original
@@ -226,10 +210,6 @@ MOSS-TTSD-v0.5
      upstream-original/XY_Tokenizer/weights/xy_tokenizer.ckpt
    ```
 
-   原始代码继续使用 repo id `fnlp/MOSS-TTSD-v0.5`，执行时设置同一个
-   `HF_HOME` 和 `HF_HUB_OFFLINE=1`，从上述固定 revision cache 加载；patch 后代码
-   通过符号链接读取同一 snapshot。
-
 2. 下载后记录 SHA256。
 
    ```bash
@@ -249,25 +229,15 @@ MOSS-TTSD-v0.5
 
    该文件包含中文和英文双说话人长对话示例，并引用 `examples/` 目录下的 prompt WAV。
 
-2. L2 使用 `OpenMOSS/TTSD-eval` 中文、英文全量各 50 条。评测工程源码、testset、
-   独立环境、三类评测权重和预检必须按下一节一次性准备完整；不能只下载
-   `testset.zip` 后直接开始正式评测。
+2. L2 使用 `OpenMOSS/TTSD-eval` 中文、英文全量各 50 条。
 
 ### 准备 TTSD-eval 工程
 
-TTSD-eval 不是无权重评测器。ACC/SIM 依赖 MMS-FA 和 WeSpeaker
-`voxblink2_samresnet100_ft`，WER 依赖 `openai/whisper-large-v3`。评测器只读取已生成
-的 WAV。支持三种评测 profile：CPU、CUDA、NPU。CPU/CUDA profile 使用独立 venv
-（`torch/torchaudio==2.8.0`）；NPU profile 复用推理环境 `.venv-npu`
-（`torch/torchaudio==2.9.0 + torch-npu==2.9.0`），并需对 TTSD-eval 工作树应用
-`patches/0002-adapt-ttsd-eval-to-npu.patch`。正式验收只选一个 profile，并对六组
-结果始终使用同一 profile。以下命令均从
-`ACL_PyTorch/built-in/audio/MOSS-TTSD-v0.5` 执行。
+TTSD-eval 支持三种评测 profile：CPU、CUDA、NPU。CPU/CUDA profile 使用独立 venv（`torch/torchaudio==2.8.0`）；NPU profile 复用推理环境 `.venv-npu`（`torch/torchaudio==2.9.0 + torch-npu==2.9.0`），并需对 TTSD-eval 工作树应用 `patches/0002-adapt-ttsd-eval-to-npu.patch`。以下命令均从 `ACL_PyTorch/built-in/audio/MOSS-TTSD-v0.5` 执行。
 
 #### 获取固定源码和 testset
 
-1. 从干净目录获取评测器固定提交。不要直接使用 TTSD-eval 的浮动默认分支，也不要
-   修改其 `eval.sh` / `run_wer.sh` 中的硬编码数组作为正式入口：
+1. 从干净目录获取评测器固定提交。
 
    ```bash
    MODEL_ROOT="$PWD"
@@ -286,8 +256,7 @@ TTSD-eval 不是无权重评测器。ACC/SIM 依赖 MMS-FA 和 WeSpeaker
    test -z "$(git -C "$EVAL_ROOT" status --short --untracked-files=no)"
    ```
 
-2. 仓库中的 `testset.zip` 是 133-byte Git LFS pointer。为避免依赖本机 Git LFS，并保持
-   evaluator 的受版本控制文件不变，将固定对象下载到未跟踪的 `model/downloads/`：
+2. `testset.zip` 在仓库中为 Git LFS pointer，直接下载固定对象到未跟踪的 `model/downloads/`：
 
    ```bash
    mkdir -p "$EVAL_ROOT/model/downloads"
@@ -300,8 +269,7 @@ TTSD-eval 不是无权重评测器。ACC/SIM 依赖 MMS-FA 和 WeSpeaker
    unzip -oq "$EVAL_ROOT/model/downloads/testset.zip" -d "$EVAL_ROOT"
    ```
 
-3. 使用仓内正式工具检查 evaluator commit、受版本控制文件、archive、两个 manifest
-   的 50+50 样本及 200 个 prompt WAV：
+3. 使用仓内正式工具检查 evaluator commit、受版本控制文件、archive、两个 manifest 的 50+50 样本及 200 个 prompt WAV：
 
    ```bash
    python3 prepare_eval_data.py verify-ttsd-eval \
@@ -312,18 +280,11 @@ TTSD-eval 不是无权重评测器。ACC/SIM 依赖 MMS-FA 和 WeSpeaker
 
 #### 创建评测环境
 
-CPU/CUDA profile 使用独立 venv（`torch/torchaudio==2.8.0`）；NPU profile 复用
-推理环境 `.venv-npu`（`torch/torchaudio==2.9.0 + torch-npu==2.9.0`）。上游 README
-示例使用 Python 3.12，但固定 WeSpeaker commit 依赖的 `hdbscan==0.8.37` 没有
-CPython 3.12 manylinux wheel；CPU/CUDA profile 固定使用已完成安装和 import 验证
-的 Python 3.11，避免不可复现的本地 C 扩展构建。系统需预先提供 Python 3.11 venv、
-Git、FFmpeg 和 libsndfile；Ubuntu/Debian 可按现场权限安装：
+系统需预先提供 Python 3.11 venv、Git、FFmpeg 和 libsndfile；Ubuntu/Debian 可按现场权限安装：
 
 ```bash
 sudo apt-get install -y python3.11-venv git ffmpeg libsndfile1
 ```
-
-正式验收只选一个 profile，并对六组结果始终使用同一 profile。
 
 **CUDA profile**（默认，CUDA 12.8 wheel）：
 
@@ -347,8 +308,7 @@ python -m pip install torch==2.8.0 torchaudio==2.8.0 \
   --index-url https://download.pytorch.org/whl/cpu
 ```
 
-**NPU profile** 复用推理环境，无需独立 venv；先对 TTSD-eval 工作树应用设备适配
-补丁，再安装评测直接依赖（不安装 torch/torchaudio）：
+**NPU profile** 复用推理环境，无需独立 venv；先对 TTSD-eval 工作树应用设备适配补丁，再安装评测直接依赖（不安装 torch/torchaudio）：
 
 ```bash
 source .venv-npu/bin/activate
@@ -360,13 +320,11 @@ python -c 'import torch, torch_npu; print(torch.__version__, torch.npu.is_availa
 deactivate
 ```
 
-`requirements_eval.txt` 固定 TTSD-eval 的直接依赖和 WeSpeaker commit，避免原
-`requirements.txt` 中版本范围及 `wespeaker.git` HEAD 漂移。
+`requirements_eval.txt` 固定 TTSD-eval 的直接依赖和 WeSpeaker commit，避免原 `requirements.txt` 中版本范围及 `wespeaker.git` HEAD 漂移。
 
 #### 下载三类评测权重
 
-1. 下载 WeSpeaker 权重。WeNet 官网对象由 ModelScope 官方数据集镜像提供；命令
-   每次从 API 获取短期签名 URL，不保存会过期的 URL：
+1. 下载 WeSpeaker 权重。
 
    ```bash
    EVAL_ROOT="$PWD/third_party/TTSD-eval"
@@ -420,8 +378,7 @@ deactivate
    test "$(stat -c %s "$EVAL_ROOT/model/checkpoints/model.pt")" = "1262047414"
    ```
 
-3. 下载固定 revision 的 Whisper-large-v3，并写入 revision marker。正式评测只从
-   本地目录离线加载：
+3. 下载固定 revision 的 Whisper-large-v3，并写入 revision marker。正式评测只从本地目录离线加载：
 
    ```bash
    source .venv-ttsd-eval/bin/activate
@@ -463,10 +420,7 @@ deactivate
 
 #### 完整预检
 
-1. 在离线模式下执行完整结构、hash、依赖版本和 import 门禁，并保存机器可读证据。
-   CPU profile 将 `--expected_device cuda` 改为 `--expected_device cpu`；NPU profile
-   改为 `--expected_device npu` 并改用 `.venv-npu`（NPU profile 下门禁会校验
-   `0002` 补丁已应用且 patch 后文件 SHA256 匹配）。
+1. 在离线模式下执行完整结构、hash、依赖版本和 import 门禁，并保存机器可读证据。CPU profile 将 `--expected_device cuda` 改为 `--expected_device cpu`；NPU profile 改为 `--expected_device npu` 并改用 `.venv-npu`。
 
    ```bash
    source .venv-ttsd-eval/bin/activate
@@ -497,8 +451,7 @@ deactivate
    deactivate
    ```
 
-2. 在正式全量评测前逐个加载三类权重。该步骤会占用约 5 GiB 以上主机内存；失败时
-   保留原始异常并保持验收未完成：
+2. 在正式全量评测前逐个加载三类权重（占用约 5 GiB 以上主机内存）：
 
    ```bash
    source .venv-ttsd-eval/bin/activate
@@ -539,10 +492,6 @@ deactivate
    deactivate
    ```
 
-准备完成后必须保留：`results/ttsd_eval_setup/source_data.json`、`full.json`、
-`evaluator-pip-freeze.txt`，以及正式运行时使用的 CPU/CUDA profile。只有 source、
-testset、环境、三类权重和加载预检全部通过，才可进入 TTSD-eval 正式指标计算。
-
 ### 模型推理
 
 1. 执行未应用 patch 的原始 CUDA baseline。
@@ -566,8 +515,7 @@ testset、环境、三类权重和加载预检全部通过，才可进入 TTSD-e
    - `jsonl`：输入 JSONL 文件路径。
    - `output_dir`：输出 WAV 保存目录。
    - `device`：仅 patch 后入口提供，支持 `npu`、`cpu`、`cuda`。
-   - `batch_size`：仅 patch 后入口提供，每批生成的 JSONL 样本数，默认 `1`。
-     TTSD-eval 建议保持 `1`；增大前必须观察峰值 HBM 和单批耗时。
+   - `batch_size`：仅 patch 后入口提供，每批生成的 JSONL 样本数，默认 `1`。TTSD-eval 建议保持 `1`。
    - `seed`：随机种子。
    - `use_normalize`：启用原项目文本归一化路径。
 
@@ -604,8 +552,7 @@ testset、环境、三类权重和加载预检全部通过，才可进入 TTSD-e
    cd ..
    ```
 
-4. 检查三组输出 WAV。原始与 patch 后 CUDA 先做同设备回归，再比较 patch 后
-   CUDA 与 NPU。
+4. 检查三组输出 WAV。原始与 patch 后 CUDA 先做同设备回归，再比较 patch 后 CUDA 与 NPU。
 
    ```bash
    python - <<'PY'
@@ -629,10 +576,7 @@ testset、环境、三类权重和加载预检全部通过，才可进入 TTSD-e
    PY
    ```
 
-   功能验证通过条件：输出 WAV 数量与输入有效样本一致、WAV 可读、时长大于 0、
-   非全静音、无设备不一致、无 CUDA 硬编码、无 TorchCodec 报错、无 NPU
-   attention mask 形状错误。
-
+   功能验证通过条件：输出 WAV 数量与输入有效样本一致、WAV 可读、时长大于 0、非全静音。
 
 ## OpenMOSS/TTSD-eval 测评
 
@@ -642,11 +586,7 @@ testset、环境、三类权重和加载预检全部通过，才可进入 TTSD-e
 - `output_audio`：待评测的生成音频；
 - `prompt_audio_speaker1` / `prompt_audio_speaker2`：两位说话人的参考音频。
 
-使用口径：v0.5 官方正式质量指标仍为“未发布”；TTSD-eval 结果用于公共评测和 NPU 迁移对齐，不得挪用 v1.0 论文指标作为 v0.5 通过线。
-
-以下命令对中文和英文各 50 条执行三组生成。TTSD-eval JSONL 中的 prompt 路径相对
-`testset/`，而 v0.5 codec checkpoint 相对模型工作树；因此先把同一个 testset
-`audio/` 链接到两个工作树，再分别从工作树执行。三组输出不能覆盖：
+以下命令对中文和英文各 50 条执行三组生成。TTSD-eval JSONL 中的 prompt 路径相对 `testset/`，而 v0.5 codec checkpoint 相对模型工作树；因此先把同一个 testset `audio/` 链接到两个工作树，再分别从工作树执行。三组输出不能覆盖：
 
 ```bash
 cd ACL_PyTorch/built-in/audio/MOSS-TTSD-v0.5
@@ -701,8 +641,7 @@ for LANG in zh en; do
 done
 ```
 
-推理完成后生成六份互不覆盖的 evaluator manifest。工具会检查每个
-`output_N.wav` 是否存在，并写入 manifest SHA256：
+推理完成后生成六份互不覆盖的 evaluator manifest。工具会检查每个 `output_N.wav` 是否存在，并写入 manifest SHA256：
 
 ```bash
 for LANG in zh en; do
@@ -716,16 +655,11 @@ for LANG in zh en; do
 done
 ```
 
-正式 ACC/SIM/WER 继续使用固定 commit 的 TTSD-eval 原始
-`tools/align.py`、`tools/split.py`、`tools/run_similarity.py`、
-`wer/whisper_asr.py` 和 `wer/run_wer.py`。逐份运行的精确命令见
-`ACCEPTANCE_PLAN.md`；不得用简化相似度或其他 ASR 替代。
+正式 ACC/SIM/WER 逐份运行的精确命令见 `ACCEPTANCE_PLAN.md`。
 
 ## 模型推理性能
 
-MOSS-TTSD-v0.5 属自回归生成式 TTS/TTSD 模型，L2 性能以中英文全量生成音频总时长
-和端到端墙钟时间计算。以下展示 NPU 中文命令；原始 CUDA、patch 后 CUDA、英文
-split 使用相同参数和独立日志/输出目录：
+MOSS-TTSD-v0.5 属自回归生成式 TTS/TTSD 模型，L2 性能以中英文全量生成音频总时长和端到端墙钟时间计算。以下展示 NPU 中文命令；原始 CUDA、patch 后 CUDA、英文 split 使用相同参数和独立日志/输出目录：
 
 ```bash
 cd ACL_PyTorch/built-in/audio/MOSS-TTSD-v0.5
@@ -761,92 +695,10 @@ print('generated_audio_seconds=', total)
 PY
 ```
 
-报告中至少记录三组输入样本数、成功输出数、输出 WAV 总时长、elapsed seconds、
-`RTF=elapsed/generated_audio_seconds`、`RTFx=generated_audio_seconds/elapsed`、
-固定 dtype/attention 路径、峰值 HBM 和 CPU RSS。每组至少重复 3 次并报告中位数。
-完整性能与质量验收口径见 `ACCEPTANCE_PLAN.md`。
-
-## NPU GQA FlashAttention 与显存说明
-
-如果 TTSD-eval 或其他多样本 JSONL 在以下位置报 NPU OOM：
-
-```text
-transformers/integrations/sdpa_attention.py
-value = repeat_kv(value, module.num_key_value_groups)
-RuntimeError: NPU out of memory
-```
-
-原因是 Transformers 4.57.6 的 NPU SDPA 路径暂不使用原生 GQA，会把 Qwen3 的 key/value heads 通过 `repeat_kv` 实体扩展到全部 attention heads。`eager` 也会执行相同展开，并额外显式构造 attention weights，因此不是该问题的性能修复。
-
-当前 patch 在 NPU 设备路径内部固定选择 Flash Attention backend：
-
-- prefill：`torch_npu.npu_prompt_flash_attention`；
-- 单 token decode：`torch_npu.npu_incre_flash_attention`；
-- Q/K/V 使用 `BNSD` 布局；
-- `num_heads` 和 `num_key_value_heads` 分别取 query 与 key 的 head 数，由算子直接处理 GQA；
-- 不增加 attention CLI 参数，不修改 Transformers site-packages，也不静默回退到 SDPA/eager。
-
-目标 `torch-npu` 必须同时提供上述两个接口及 `num_key_value_heads` 参数。运行前可检查：
-
-```bash
-python - <<'PY'
-import inspect
-import torch_npu
-print(inspect.signature(torch_npu.npu_prompt_flash_attention))
-print(inspect.signature(torch_npu.npu_incre_flash_attention))
-PY
-```
-
-性能评测直接使用 NPU 设备参数：
-
-```bash
-ASCEND_RT_VISIBLE_DEVICES=0 python inference.py \
-  --jsonl ../third_party/TTSD-eval/testset/ttsd_eval_zh.jsonl \
-  --output_dir ../results/ttsd_eval/npu_zh \
-  --device npu \
-  --batch_size 1 \
-  --seed 42 \
-  --use_normalize
-```
-
-Flash Attention 消除的是 `repeat_kv` 造成的 KV head 实体展开，不保证整份 manifest
-作为一个 batch 时的其他张量都能放入 HBM。patch 后入口默认
-`--batch_size 1`，逐批生成并显示 `[Batch i/N]` 进度；全部 batch 完成后仍按原
-入口规则写出 `output_N.wav`，避免 50 条长音频全部完成前没有任何进度。
-
-若日志停在 `Starting batch audio generation...`：
-
-1. 先执行 `watch -n 1 npu-smi info`。首批可能触发 NPU 算子/图编译；出现
-   `multiprocessing.forkserver` / `resource_tracker` 子进程本身不能证明死锁。
-2. 若 NPU 利用率或 HBM 持续变化，先等待首批完成；之后应出现
-   `Original outputs shape` 和 `[Batch 1/N] completed`。
-3. 若超过 10 分钟 NPU 利用率始终为 0、HBM 不变且无新 CANN 日志，终止进程，
-   用 `--batch_size 1` 和单条 manifest 重跑。单条仍卡住时再保留完整 Python
-   栈、`npu-smi info`、CANN 日志和依赖版本排查，不能静默切到 CPU。
-
-CPU/CUDA/NPU 候选对齐必须使用相同 `--batch_size`。未应用 patch 的原始入口不支持
-该参数，仍保留其原生完整 JSONL batch 作为 upstream baseline；报告中必须明确记录
-这一运行参数差异，不能把不同 batch 口径写成严格逐样本数值等价。
-
-## 已知问题：Transformers 5.x 不兼容
-
-如果环境安装了 `transformers==5.12.1`，模型加载阶段可能报：
-
-```text
-AttributeError: 'list' object has no attribute 'keys'
-```
-
-报错位置通常位于 Transformers 的 `get_expanded_tied_weights_keys()`。原因是 Transformers 5.x 要求 `_tied_weights_keys` 为“目标权重到源权重”的字典映射，而 MOSS-TTSD-v0.5 上游 `modeling_asteroid.py` 仍按 Transformers 4.x 接口将其定义为列表。
-
-当前项目仅记录该依赖边界，不修改上游模型代码。请在运行推理或 TTSD-eval 前固定已验证版本：
-
-```bash
-pip uninstall -y transformers
-pip install "transformers==4.57.6"
-python -c "import transformers; print(transformers.__version__)"
-```
-
-预期输出为 `4.57.6`。本地已验证该版本可以完成 `AsteroidTTSInstruct.from_pretrained()` 初始化并保持各通道输入 embedding 与 `lm_heads` 的权重绑定。不要通过忽略异常、关闭权重绑定或 CPU 回退绕过该错误。
+| 硬件 | 数据集 | 指标 | 得分 |
+|---|---|---|---|
+| Atlas 800I A2 | TTSD-eval 中文 50 条 | RTF | 待补充 |
+| Atlas 800I A2 | TTSD-eval 英文 50 条 | RTF | 待补充 |
 
 ## 公网地址说明
 

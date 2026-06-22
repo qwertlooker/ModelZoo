@@ -145,3 +145,35 @@ NPU DER(miss/fa/confusion/total):
 provider核验:
 结论和未完成项:
 ```
+
+## 补充说明（来自 README_INFERENCE.md）
+
+### 权重与数据许可
+
+- 模型权重使用 CC BY-NC 4.0，正式部署前必须确认非商业使用及数据许可要求。
+- 数据许可和 split 必须由使用者根据官方 recipe 固定；不能自行猜测后宣称复现官方表。
+
+### 功能验证与正式 DER 对齐
+
+- 功能样例无 reference RTTM，只比较原始与 patch 后 RTTM 是否完全一致，并确认 NPU
+  成功生成 RTTM。正式 DER 对齐必须使用带 reference RTTM/UEM 的 L2 数据。
+- 需要忽略 overlap 的独立非官方模式才显式增加 `--ignore_overlaps`。
+
+### 性能评测方法
+
+优先在 upstream 公布数据集的可取得全量 split 上记录总音频时长、RTF、
+分割/embedding 阶段耗时、batch 和峰值 HBM/RSS。`infer.py` 会写
+`run.meta.json`；三组命令分别用 `/usr/bin/time -v -o` 保存独立资源日志。官方
+README 只发布 DER，未发布与当前 Atlas 路径可直接比较的硬件性能数值。
+
+`results/npu/run.meta.json` 提供 elapsed/RTF/provider。原始 CUDA、patch 后 CUDA
+使用同一 manifest 和独立输出目录/日志；正式轮次至少重复 3 次。
+
+### 当前状态
+
+| 项目 | 当前状态 |
+|---|---|
+| dscore 工具 fixture | collar=0、保留 overlap，DER/JER 0.00 |
+| 功能验证模型 RTTM | 待权重环境实测 |
+| CUDA/NPU DER | 待正式 reference RTTM/UEM |
+| Atlas RTF/HBM | 官方未发布，待验收 |

@@ -56,3 +56,31 @@ agreement 均为 `1.0`。这只证明评测工具链，不证明 Hy3 模型服�
 
 用户推理和补丁应用见 [README_INFERENCE.md](README_INFERENCE.md)，数据集与
 CPU/CUDA/NPU 对齐要求见 [ACCEPTANCE_PLAN.md](ACCEPTANCE_PLAN.md)。
+
+## 5. 补充说明（来自 README_INFERENCE.md）
+
+以下适配决策与技术说明从推理指导文档迁移至此，便于终端用户保持 README 简洁。
+
+### 5.1 容器设备可见性
+
+不同宿主机的设备节点可能不同；进入容器后必须先用 `npu-smi info` 确认 16 卡可见，不能仅凭容器启动成功判断设备可用。
+
+### 5.2 多机部署
+
+多机部署还必须配置固定的 HCCL rank table、网卡、容器网络和主机间免密/端口；本交付示例是单机 16 卡。
+
+### 5.3 speculative-config 参数形式
+
+固定 vLLM 版本将 `--speculative-config` 定义为单个 JSON 参数，不支持把内部字段拆成点号形式的多个 CLI 参数。开启 MTP 时必须以完整 JSON 字符串传入，例如：
+
+```text
+--speculative-config '{"method":"mtp","num_speculative_tokens":1}'
+```
+
+### 5.4 数值 baseline 来源
+
+原始 vLLM commit 不包含 HyV3 架构，未应用 patch 的原始 baseline 应保存模型注册/加载失败日志；它不能作为数值 baseline。应用 patch 后 CUDA 回归 baseline 是数值迁移基线，使用相同 patch、checkpoint、vLLM commit 和参数。即：在安装了同 commit 且应用同 patch 的 CUDA vLLM 环境中执行 baseline 推理，candidate 使用 NPU。
+
+### 5.5 CUDA 侧参数限制
+
+CUDA 侧不得使用 NPU 专用 `--enable-ep-weight-filter`。CUDA baseline 的 `vllm serve` 命令应省略该参数，其余参数与 NPU 保持一致。
