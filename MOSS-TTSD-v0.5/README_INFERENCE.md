@@ -8,6 +8,7 @@
   - [获取源码并应用 patch](#获取源码并应用-patch)
   - [准备权重](#准备权重)
   - [准备测试数据](#准备测试数据)
+  - [准备 TTSD-eval 评测环境与权重](#准备-ttsd-eval-评测环境与权重)
   - [模型推理](#模型推理)
 - [OpenMOSS/TTSD-eval 测评](#openmossttsd-eval-测评)
 - [模型推理性能](#模型推理性能)
@@ -272,6 +273,129 @@ MOSS-TTSD-v0.5
 3. 功能验证使用官方 `examples/examples.jsonl` 2 条；L2 使用
    `OpenMOSS/TTSD-eval` 全量。该评测可用于 v0.5 输出，但不代表 v0.5 已发布官方
    指标；正式验收需同时比较 ACC/SIM/WER 和 RTF/RTFx。
+
+### 准备 TTSD-eval 评测环境与权重
+
+TTSD-eval 不是无权重评测器。ACC/SIM 依赖 WeSpeaker
+`voxblink2_samresnet100_ft` 和 MMS-FA，WER 依赖
+`openai/whisper-large-v3`。三者必须在正式评测前下载，不能用名称相近的模型替代。
+评测器只读取三组已生成的 WAV，可使用独立 CUDA/CPU 环境执行，不要安装到 NPU
+推理环境中。
+
+1. 创建独立评测环境。TTSD-eval 固定 commit 的依赖要求
+   `torch/torchaudio<=2.8.0`，不能复用本指导中的 PyTorch 2.9 推理环境。CUDA wheel
+   索引按现场 CUDA 版本选择并记录：
+
+   ```bash
+   python3.12 -m venv .venv-ttsd-eval
+   source .venv-ttsd-eval/bin/activate
+   python -m pip install --upgrade pip
+   python -m pip install torch==2.8.0 torchaudio==2.8.0
+   python -m pip install -r third_party/TTSD-eval/requirements.txt
+   python -m pip install --force-reinstall --no-deps \
+     "wespeaker @ git+https://github.com/wenet-e2e/wespeaker.git@c92349a14d6b426808c4e09b8b12e076864dfc11"
+   python -m pip install "transformers==4.57.6" "huggingface_hub[cli]"
+   python -m pip freeze > third_party/TTSD-eval/evaluator-pip-freeze.txt
+   deactivate
+   ```
+
+   上述 WeSpeaker commit 是 TTSD-eval 固定 commit 发布前的上游版本，用于避免其
+   `requirements.txt` 中未固定的 Git HEAD 漂移。
+
+2. 下载 WeSpeaker 权重。WeNet 官网链接当前由 ModelScope 官方数据集镜像提供
+   实际对象，以下命令从 API 获取短期签名 URL，不把会过期的 URL 写入文档：
+
+   ```bash
+   EVAL_ROOT="$PWD/third_party/TTSD-eval"
+   export EVAL_ROOT
+   mkdir -p "$EVAL_ROOT/model/downloads"
+
+   python3 - <<'PY'
+   import json
+   import os
+   import pathlib
+   import urllib.request
+
+   api = (
+       "https://modelscope.cn/api/v1/datasets/"
+       "wenet/wespeaker_pretrained_models/oss/tree"
+   )
+   with urllib.request.urlopen(api) as response:
+       entries = json.load(response)["Data"]
+   entry = next(
+       item for item in entries
+       if item["Key"] == "voxblink2_samresnet100_ft.zip"
+   )
+   if entry["Size"] != 186890839:
+       raise RuntimeError(f"unexpected WeSpeaker archive size: {entry['Size']}")
+   output = (
+       pathlib.Path(os.environ["EVAL_ROOT"])
+       / "model/downloads/voxblink2_samresnet100_ft.zip"
+   )
+   urllib.request.urlretrieve(entry["Url"], output)
+   print(output)
+   PY
+
+   echo "ad0873d380acaa7f4256ff37d40217ee31e4955b26a45064a13a14998cc89d16  $EVAL_ROOT/model/downloads/voxblink2_samresnet100_ft.zip" \
+     | sha256sum -c -
+   unzip -oq "$EVAL_ROOT/model/downloads/voxblink2_samresnet100_ft.zip" \
+     -d "$EVAL_ROOT/model"
+   echo "5aeee438ca23c0ca6e341bab6c6bf7f465497e1dc323bb1bc1074d6a0c778b11  $EVAL_ROOT/model/voxblink2_samresnet100_ft/avg_model.pt" \
+     | sha256sum -c -
+   ```
+
+3. 下载 MMS-FA checkpoint。`tools/align.py` 将 torch hub 目录设置为
+   `model/`，因此文件必须位于 `model/checkpoints/model.pt`：
+
+   ```bash
+   EVAL_ROOT="$PWD/third_party/TTSD-eval"
+   mkdir -p "$EVAL_ROOT/model/checkpoints"
+   curl -L --fail --retry 3 \
+     -o "$EVAL_ROOT/model/checkpoints/model.pt" \
+     "https://dl.fbaipublicfiles.com/mms/torchaudio/ctc_alignment_mling_uroman/model.pt?versionId=dZWoHyjLHoCxDn.KL1FPSlVCD3CPRtOL"
+   test "$(stat -c %s "$EVAL_ROOT/model/checkpoints/model.pt")" = "1262047414"
+   sha256sum "$EVAL_ROOT/model/checkpoints/model.pt" \
+     | tee "$EVAL_ROOT/model/checkpoints/model.pt.sha256"
+   ```
+
+4. 下载固定 revision 的 Whisper-large-v3。正式评测通过本地路径加载，禁止运行时
+   从浮动的 `main` 下载：
+
+   ```bash
+   source .venv-ttsd-eval/bin/activate
+   EVAL_ROOT="$PWD/third_party/TTSD-eval"
+   export EVAL_ROOT
+   python - <<'PY'
+   import os
+   from huggingface_hub import snapshot_download
+
+   snapshot_download(
+       repo_id="openai/whisper-large-v3",
+       revision="06f233fe06e710322aca913c1bc4249a0d71fce1",
+       local_dir=os.path.join(os.environ["EVAL_ROOT"], "model/whisper-large-v3"),
+       allow_patterns=[
+           "added_tokens.json",
+           "config.json",
+           "generation_config.json",
+           "merges.txt",
+           "model.safetensors",
+           "normalizer.json",
+           "preprocessor_config.json",
+           "special_tokens_map.json",
+           "tokenizer.json",
+           "tokenizer_config.json",
+           "vocab.json",
+       ],
+   )
+   PY
+   find "$EVAL_ROOT/model/whisper-large-v3" -type f -print0 \
+     | sort -z | xargs -0 sha256sum \
+     > "$EVAL_ROOT/model/whisper-large-v3.sha256"
+   deactivate
+   ```
+
+下载后必须保留 WeSpeaker、MMS-FA、Whisper 的 SHA256 文件和
+`evaluator-pip-freeze.txt`，并在验收报告中记录；缺少任一权重时只能标记为待验收。
 
 ### 模型推理
 
@@ -559,6 +683,9 @@ python -c "import transformers; print(transformers.__version__)"
 |---|---|---|
 | OpenMOSS/MOSS-TTSD 源码 | <https://github.com/OpenMOSS/MOSS-TTSD> | 使用 tag `v0.5`，commit `0e078c62389922d3aa873ce182daf31142860b18` |
 | OpenMOSS/TTSD-eval | <https://github.com/OpenMOSS/TTSD-eval> | L2 公共客观评测，记录 ACC/SIM/WER；不是 v0.5 已发布官方指标 |
+| WeSpeaker 代码与权重索引 | <https://github.com/wenet-e2e/wespeaker>；<https://modelscope.cn/datasets/wenet/wespeaker_pretrained_models> | 代码固定 commit `c92349a14d6b426808c4e09b8b12e076864dfc11`；下载 `voxblink2_samresnet100_ft.zip` |
+| MMS-FA checkpoint | <https://dl.fbaipublicfiles.com/mms/torchaudio/ctc_alignment_mling_uroman/model.pt?versionId=dZWoHyjLHoCxDn.KL1FPSlVCD3CPRtOL> | 固定 S3 version ID；目标路径为 `model/checkpoints/model.pt` |
+| Whisper-large-v3 | <https://huggingface.co/openai/whisper-large-v3> | 固定 revision `06f233fe06e710322aca913c1bc4249a0d71fce1` |
 | MOSS-TTSD-v0.5 HF 权重 | <https://huggingface.co/fnlp/MOSS-TTSD-v0.5> | 固定 revision `8527b9136b6afefe2252ae597cecea2e80e7ebeb` |
 | MOSS-TTSD-v0.5 ModelScope 权重 | <https://modelscope.cn/models/openmoss/MOSS-TTSD-v0.5> | 国内镜像，记录 HEAD `2633fdb794b9b6acd2a0c80dae6c2961f7db9d59` |
 | XY Tokenizer HF checkpoint | <https://huggingface.co/fnlp/XY_Tokenizer_TTSD_V0> | 固定 revision `c83433728e698ed0698e88cb5096bc221fb8f8c5` |

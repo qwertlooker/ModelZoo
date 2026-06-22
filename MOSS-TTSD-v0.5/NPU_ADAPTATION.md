@@ -204,6 +204,17 @@ deactivate
 snapshot；原始 CUDA 通过 `HF_HOME` 离线读取，patch 后 CUDA/NPU 通过符号链接读取。
 正式验收前记录模型核心权重和 `xy_tokenizer.ckpt` SHA256。
 
+TTSD-eval 还需要独立评测权重，不能只准备主模型和 codec：
+
+| 评测资产 | 固定版本 | 目标路径 |
+|---|---|---|
+| WeSpeaker | `voxblink2_samresnet100_ft.zip`，SHA256 `ad0873d380acaa7f4256ff37d40217ee31e4955b26a45064a13a14998cc89d16` | `third_party/TTSD-eval/model/voxblink2_samresnet100_ft/` |
+| MMS-FA | S3 version ID `dZWoHyjLHoCxDn.KL1FPSlVCD3CPRtOL`，固定大小 `1262047414` bytes | `third_party/TTSD-eval/model/checkpoints/model.pt` |
+| Whisper-large-v3 | HF revision `06f233fe06e710322aca913c1bc4249a0d71fce1` | `third_party/TTSD-eval/model/whisper-large-v3/` |
+
+完整下载、校验和离线加载命令见 `README_INFERENCE.md` 的“准备 TTSD-eval
+评测环境与权重”。缺少任一评测权重时，ACC/SIM/WER 闭环未完成。
+
 ### 2.5 评测口径摘要
 
 MOSS-TTSD-v0.5 的正式质量/性能验收口径统一维护在 `ACCEPTANCE_PLAN.md`：

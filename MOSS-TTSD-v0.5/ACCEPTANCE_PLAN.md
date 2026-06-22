@@ -15,6 +15,10 @@
 | 官方质量指标 | 官方未发布 |
 | 公共评测 | `OpenMOSS/TTSD-eval` commit `dea13b98529dc16dcfb5fe45779ad63ac9238337`，中文/英文各 50 条 |
 | TTSD-eval testset.zip SHA256 | `49ed8338f3e5323c5ffcff01f3480a9c245937256d9197d792c973cba5603e17` |
+| WeSpeaker 代码 | `wenet-e2e/wespeaker` commit `c92349a14d6b426808c4e09b8b12e076864dfc11` |
+| WeSpeaker 权重 | `voxblink2_samresnet100_ft.zip`，SHA256 `ad0873d380acaa7f4256ff37d40217ee31e4955b26a45064a13a14998cc89d16` |
+| MMS-FA checkpoint | S3 version ID `dZWoHyjLHoCxDn.KL1FPSlVCD3CPRtOL`，固定大小 `1262047414` bytes |
+| Whisper | `openai/whisper-large-v3` revision `06f233fe06e710322aca913c1bc4249a0d71fce1` |
 | 适配 patch | `patches/0001-adapt-v0.5-inference-to-npu.patch`，SHA256 `426303406d9289c0f981ca333604107af323a56a576c5129a844aacc83962056` |
 
 TTSD-eval 的 ACC、SIM、WER 用于同 checkpoint 的迁移对齐。正式报告必须同时写出
@@ -58,10 +62,12 @@ wc -l \
 
 预期分别为 50、50。
 
-评测依赖按固定 TTSD-eval commit 的 README 安装。WeSpeaker 模型放到
-`third_party/TTSD-eval/model/voxblink2_samresnet100_ft`；MMS-FA checkpoint 放到
-`third_party/TTSD-eval/model/checkpoints/model.pt`。无法取得任一官方组件时应记录
-原始错误并保持验收未完成，不能替换成名称相近的第三方实现。
+评测环境和三类评测权重的完整下载、路径、revision、大小及 SHA256 校验命令见
+`README_INFERENCE.md` 的“准备 TTSD-eval 评测环境与权重”。WeSpeaker 模型必须放到
+`third_party/TTSD-eval/model/voxblink2_samresnet100_ft`；MMS-FA checkpoint 必须
+放到 `third_party/TTSD-eval/model/checkpoints/model.pt`；Whisper 必须从本地
+`third_party/TTSD-eval/model/whisper-large-v3` 加载。无法取得任一官方组件时应
+记录原始错误并保持验收未完成，不能替换成名称相近的第三方实现。
 
 ## 4. 三组推理
 
@@ -172,6 +178,9 @@ TTSD-eval 的 prompt 路径相对 `testset/`。以下命令必须从该目录运
 ```bash
 MODEL_ROOT="$PWD"
 EVAL_ROOT="$MODEL_ROOT/third_party/TTSD-eval"
+source "$MODEL_ROOT/.venv-ttsd-eval/bin/activate"
+export HF_HUB_OFFLINE=1
+export TRANSFORMERS_OFFLINE=1
 cd "$EVAL_ROOT/testset"
 
 for LANG in zh en; do
@@ -192,7 +201,8 @@ for LANG in zh en; do
       --metrics_txt "$MODEL_ROOT/results/ttsd_eval_metrics/$STEM/acc_sim.txt"
     python "$EVAL_ROOT/wer/whisper_asr.py" \
       --input_jsonl "$INPUT" \
-      --output_jsonl "$MODEL_ROOT/results/ttsd_eval_metrics/$STEM/asr.jsonl"
+      --output_jsonl "$MODEL_ROOT/results/ttsd_eval_metrics/$STEM/asr.jsonl" \
+      --model_id "$EVAL_ROOT/model/whisper-large-v3"
     python "$EVAL_ROOT/wer/run_wer.py" \
       --lang "$LANG" \
       --input_jsonl "$MODEL_ROOT/results/ttsd_eval_metrics/$STEM/asr.jsonl" \
@@ -201,6 +211,7 @@ for LANG in zh en; do
   done
 done
 cd "$MODEL_ROOT"
+deactivate
 ```
 
 这些命令直接复用固定 commit 的官方评测组件，不修改 evaluator，也不使用简化指标。
