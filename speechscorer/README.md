@@ -296,6 +296,31 @@ speechscorer
 
    原始 CPU/CUDA 和 patch 后同设备使用相同 batch 和独立日志。
 
+## 适配与精度口径
+
+### 适配事实
+
+正式 patch 把设备选择改为显式 `--device npu/cpu/cuda`，默认 NPU，并增加 `--output_csv`；NPU 路径直接导入 `torch_npu`，缺依赖时暴露错误。模型和输入仍通过 upstream `.to(self.device)` 迁移，CPU/CUDA 算法不变，不需要修改 site-packages。两条评分路径必须分离：`whisper-clm` 仅作 smoke，`hubert-mlm` 是原始公开主线，不得混写。fairseq 依赖较旧，必须实际导入验证，不能仅靠 `pip install` 成功判断可用。
+
+### 官方指标边界
+
+upstream 未发布可对齐的 Pearson/Spearman 数值，只提供人工总分与模型分数的散点图。因此正式迁移只比较 CPU/CUDA 与 NPU 的逐样本分数一致性，不与 upstream 散点图直接对齐。
+
+### 迁移对齐门禁
+
+使用同一 checkpoint、manifest、batch 和 padding，比较 CPU/CUDA 与 NPU 的逐样本分数：
+
+- entropy 逐样本最大绝对误差 `<= 1e-4`、平均绝对误差 `<= 1e-5`；
+- perplexity 逐样本相对误差 `<= 1e-4`；
+- 逐样本 Spearman 相关 `>= 0.9999`；
+- 与人工 total 的相关性差 `<= 0.001`。
+
+这些阈值是迁移初始门禁，不是 upstream 官方容差。
+
+### 性能评测方法
+
+记录 batch 1/4/8/16 的 RTF、samples、`/usr/bin/time -v` 资源占用和峰值 RSS/HBM，正式轮次至少重复 3 次并报告 RTF 中位数。upstream 未发布与当前 Atlas 路径直接可比的硬件性能数值，因此报告 NPU/CPU RTF 比值。
+
 ## 公网地址说明
 
 | 类型 | 说明 | 公网地址 |

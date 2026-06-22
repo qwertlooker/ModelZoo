@@ -249,6 +249,53 @@ done
 
 CPU/CUDA 使用同一 manifest 和 batch 矩阵，写入不同文件。每个 embedding 输出均需与相应 baseline 运行 `compare_embeddings.py`。
 
+## 适配与精度口径
+
+### 适配决策
+
+正式路径直接复用官方模型卡的 `AutoModel` + `pooler_output`，只增加显式设备迁移：`--device npu` 时仅 NPU 路径导入 `torch_npu`，模型和输入通过 `.to(device)` 迁移，算法不变。不修改 Transformers 和 IBM remote code，不需要 patch。CPU 与 NPU 使用独立环境，NPU 不复用 CPU wheel。精确复现 IBM 11 项 MoleculeNet 指标需要独立的下游 fine-tuning 环境，不能由本 feature-extraction 入口直接得到。
+
+### 官方 MoleculeNet 指标
+
+IBM 模型卡在标准 MoleculeNet split 上发布以下指标，均为下游 fine-tuning 结果：
+
+分类任务（AUROC）：
+
+| 数据集 | 官方 AUROC |
+|---|---:|
+| bbbp | 0.717 ± 0.006 |
+| bace | 0.829 ± 0.012 |
+| clintox | 0.945 ± 0.005 |
+| hiv | 0.822 ± 0.003 |
+| tox21 | 0.843 ± 0.001 |
+| sider | 0.649 ± 0.005 |
+
+回归任务（MAE / RMSE）：
+
+| 数据集 | 官方 MAE | 官方 RMSE |
+|---|---:|---:|
+| esol | 0.456 ± 0.014 | 0.587 ± 0.018 |
+| freesolv | 0.834 ± 0.060 | 1.075 ± 0.078 |
+| lipo | 0.515 ± 0.013 | 0.660 ± 0.016 |
+| qm7 | 67.6 ± 1.5 | 92.5 ± 2.7 |
+| qm8 | 0.0117 ± 0.0001 | 0.0151 ± 0.0001 |
+
+复现口径：RDKit canonicalize、`isomeric=False`、`seed=12345`、`lr=3e-5`、`500 epochs`、分类 `batch=32`、回归 `batch=128`。IBM 模型卡未发布上述每项的精确 split revision、scaffold seed 和完整训练命令，因此这些字段明确记为"官方未发布"，获得作者 recipe 前不得宣称精确复现。
+
+### 迁移对齐门禁
+
+使用同一 checkpoint、manifest、batch 和 seed，比较 CPU 与 NPU 的 `pooler_output` embedding：
+
+- cosine similarity `>= 0.99999`；
+- 逐元素最大绝对误差 `<= 1e-4`；
+- 逐元素平均绝对误差 `<= 1e-5`。
+
+这些阈值是迁移初始门禁，不是 IBM 官方容差。`compare_embeddings.py` 输出 cosine、max abs error、mean abs error 三项，三项同时满足才算通过。
+
+### 性能评测方法
+
+记录 batch 1/8/32/64 的 samples/s、`/usr/bin/time -v` 资源占用和峰值 HBM/RSS，正式轮次至少重复 3 次并报告 samples/s 中位数。IBM 模型卡只发布 MoleculeNet 精度，未发布与当前 Atlas 路径直接可比的硬件性能数值，因此报告 NPU/CPU samples/s 比值。
+
 ## 公网地址说明
 
 | 类型 | 说明 | 公网地址 |
