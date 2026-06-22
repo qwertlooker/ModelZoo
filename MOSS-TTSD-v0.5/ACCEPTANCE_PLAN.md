@@ -210,9 +210,9 @@ done
 ```
 
 TTSD-eval 的 prompt 路径相对 `testset/`。以下命令必须从该目录运行；输出路径使用
-绝对路径，避免切换目录后失效。NPU evaluator 为必跑项；CUDA、CPU evaluator 为可选
-对照，仅在本地具备对应环境且需要同口径对照时运行。所选 profile 须对所有已生成组
-保持一致。每组显式指定所有中间目录，避免 evaluator 默认目录互相污染。
+绝对路径，避免切换目录后失效。NPU evaluator 为必跑项，只评测 `npu` 推理组；
+CUDA evaluator 为可选对照，只评测 `original_cuda` 推理组；CPU evaluator 为可选
+对照，只评测 `npu` 推理组。每组显式指定所有中间目录，避免 evaluator 默认目录互相污染。
 
 ### 6.1 NPU evaluator（必跑）
 
@@ -228,58 +228,57 @@ ALIGN_DEVICE=npu:0
 cd "$EVAL_ROOT/testset"
 
 for LANG in zh en; do
-  for GROUP in original_cuda patched_cuda npu; do
-    INPUT="$MODEL_ROOT/results/ttsd_eval/${GROUP}_${LANG}.jsonl"
-    [ -f "$INPUT" ] || continue
-    STEM="${GROUP}_${LANG}"
-    RUN_ROOT="$MODEL_ROOT/results/ttsd_eval_metrics/$STEM"
-    mkdir -p \
-      "$RUN_ROOT/alignment_files" \
-      "$RUN_ROOT/split_res" \
-      "$RUN_ROOT/audio_segments"
+  GROUP=npu
+  INPUT="$MODEL_ROOT/results/ttsd_eval/${GROUP}_${LANG}.jsonl"
+  [ -f "$INPUT" ] || { echo "SKIP: $INPUT not found"; continue; }
+  STEM="${GROUP}_${LANG}"
+  RUN_ROOT="$MODEL_ROOT/results/ttsd_eval_metrics/$STEM"
+  mkdir -p \
+    "$RUN_ROOT/alignment_files" \
+    "$RUN_ROOT/split_res" \
+    "$RUN_ROOT/audio_segments"
 
-    {
-      python "$EVAL_ROOT/tools/align.py" \
-        --input_jsonl "$INPUT" \
-        --output_dir "$RUN_ROOT/alignment_files" \
-        --output_jsonl "$RUN_ROOT/alignment.jsonl" \
-        --cache_dir "$EVAL_ROOT/model" \
-        --device "$ALIGN_DEVICE"
-      test "$(wc -l < "$RUN_ROOT/alignment.jsonl")" -eq 50
+  {
+    python "$EVAL_ROOT/tools/align.py" \
+      --input_jsonl "$INPUT" \
+      --output_dir "$RUN_ROOT/alignment_files" \
+      --output_jsonl "$RUN_ROOT/alignment.jsonl" \
+      --cache_dir "$EVAL_ROOT/model" \
+      --device "$ALIGN_DEVICE"
+    test "$(wc -l < "$RUN_ROOT/alignment.jsonl")" -eq 50
 
-      python "$EVAL_ROOT/tools/split.py" \
-        --input_jsonl "$RUN_ROOT/alignment.jsonl" \
-        --split_res_dir "$RUN_ROOT/split_res" \
-        --segment_dir "$RUN_ROOT/audio_segments" \
-        --output_jsonl "$RUN_ROOT/split.jsonl" \
-        --num_workers 8
-      test "$(wc -l < "$RUN_ROOT/split.jsonl")" -eq 50
+    python "$EVAL_ROOT/tools/split.py" \
+      --input_jsonl "$RUN_ROOT/alignment.jsonl" \
+      --split_res_dir "$RUN_ROOT/split_res" \
+      --segment_dir "$RUN_ROOT/audio_segments" \
+      --output_jsonl "$RUN_ROOT/split.jsonl" \
+      --num_workers 8
+    test "$(wc -l < "$RUN_ROOT/split.jsonl")" -eq 50
 
-      python "$EVAL_ROOT/tools/run_similarity.py" \
-        --input_jsonl "$RUN_ROOT/split.jsonl" \
-        --output_jsonl "$RUN_ROOT/sim.jsonl" \
-        --metrics_txt "$RUN_ROOT/acc_sim.txt" \
-        --model_dir "$EVAL_ROOT/model/voxblink2_samresnet100_ft" \
-        --device npu:0
-      test "$(wc -l < "$RUN_ROOT/sim.jsonl")" -eq 50
-      test -s "$RUN_ROOT/acc_sim.txt"
+    python "$EVAL_ROOT/tools/run_similarity.py" \
+      --input_jsonl "$RUN_ROOT/split.jsonl" \
+      --output_jsonl "$RUN_ROOT/sim.jsonl" \
+      --metrics_txt "$RUN_ROOT/acc_sim.txt" \
+      --model_dir "$EVAL_ROOT/model/voxblink2_samresnet100_ft" \
+      --device npu:0
+    test "$(wc -l < "$RUN_ROOT/sim.jsonl")" -eq 50
+    test -s "$RUN_ROOT/acc_sim.txt"
 
-      python "$EVAL_ROOT/wer/whisper_asr.py" \
-        --input_jsonl "$INPUT" \
-        --output_jsonl "$RUN_ROOT/asr.jsonl" \
-        --model_id "$EVAL_ROOT/model/whisper-large-v3" \
-        --device npu
-      test "$(wc -l < "$RUN_ROOT/asr.jsonl")" -eq 50
+    python "$EVAL_ROOT/wer/whisper_asr.py" \
+      --input_jsonl "$INPUT" \
+      --output_jsonl "$RUN_ROOT/asr.jsonl" \
+      --model_id "$EVAL_ROOT/model/whisper-large-v3" \
+      --device npu
+    test "$(wc -l < "$RUN_ROOT/asr.jsonl")" -eq 50
 
-      python "$EVAL_ROOT/wer/run_wer.py" \
-        --lang "$LANG" \
-        --input_jsonl "$RUN_ROOT/asr.jsonl" \
-        --output_jsonl "$RUN_ROOT/wer.jsonl" \
-        --metrics_txt "$RUN_ROOT/wer.txt"
-      test "$(wc -l < "$RUN_ROOT/wer.jsonl")" -eq 50
-      test -s "$RUN_ROOT/wer.txt"
-    } 2>&1 | tee "$RUN_ROOT/evaluator.log"
-  done
+    python "$EVAL_ROOT/wer/run_wer.py" \
+      --lang "$LANG" \
+      --input_jsonl "$RUN_ROOT/asr.jsonl" \
+      --output_jsonl "$RUN_ROOT/wer.jsonl" \
+      --metrics_txt "$RUN_ROOT/wer.txt"
+    test "$(wc -l < "$RUN_ROOT/wer.jsonl")" -eq 50
+    test -s "$RUN_ROOT/wer.txt"
+  } 2>&1 | tee "$RUN_ROOT/evaluator.log"
 done
 cd "$MODEL_ROOT"
 deactivate
@@ -301,58 +300,57 @@ WHISPER_NUM_GPUS=1
 cd "$EVAL_ROOT/testset"
 
 for LANG in zh en; do
-  for GROUP in original_cuda patched_cuda npu; do
-    INPUT="$MODEL_ROOT/results/ttsd_eval/${GROUP}_${LANG}.jsonl"
-    [ -f "$INPUT" ] || continue
-    STEM="${GROUP}_${LANG}"
-    RUN_ROOT="$MODEL_ROOT/results/ttsd_eval_metrics/$STEM"
-    mkdir -p \
-      "$RUN_ROOT/alignment_files" \
-      "$RUN_ROOT/split_res" \
-      "$RUN_ROOT/audio_segments"
+  GROUP=original_cuda
+  INPUT="$MODEL_ROOT/results/ttsd_eval/${GROUP}_${LANG}.jsonl"
+  [ -f "$INPUT" ] || { echo "SKIP: $INPUT not found"; continue; }
+  STEM="${GROUP}_${LANG}"
+  RUN_ROOT="$MODEL_ROOT/results/ttsd_eval_metrics/$STEM"
+  mkdir -p \
+    "$RUN_ROOT/alignment_files" \
+    "$RUN_ROOT/split_res" \
+    "$RUN_ROOT/audio_segments"
 
-    {
-      python "$EVAL_ROOT/tools/align.py" \
-        --input_jsonl "$INPUT" \
-        --output_dir "$RUN_ROOT/alignment_files" \
-        --output_jsonl "$RUN_ROOT/alignment.jsonl" \
-        --cache_dir "$EVAL_ROOT/model" \
-        --device "$ALIGN_DEVICE"
-      test "$(wc -l < "$RUN_ROOT/alignment.jsonl")" -eq 50
+  {
+    python "$EVAL_ROOT/tools/align.py" \
+      --input_jsonl "$INPUT" \
+      --output_dir "$RUN_ROOT/alignment_files" \
+      --output_jsonl "$RUN_ROOT/alignment.jsonl" \
+      --cache_dir "$EVAL_ROOT/model" \
+      --device "$ALIGN_DEVICE"
+    test "$(wc -l < "$RUN_ROOT/alignment.jsonl")" -eq 50
 
-      python "$EVAL_ROOT/tools/split.py" \
-        --input_jsonl "$RUN_ROOT/alignment.jsonl" \
-        --split_res_dir "$RUN_ROOT/split_res" \
-        --segment_dir "$RUN_ROOT/audio_segments" \
-        --output_jsonl "$RUN_ROOT/split.jsonl" \
-        --num_workers 8
-      test "$(wc -l < "$RUN_ROOT/split.jsonl")" -eq 50
+    python "$EVAL_ROOT/tools/split.py" \
+      --input_jsonl "$RUN_ROOT/alignment.jsonl" \
+      --split_res_dir "$RUN_ROOT/split_res" \
+      --segment_dir "$RUN_ROOT/audio_segments" \
+      --output_jsonl "$RUN_ROOT/split.jsonl" \
+      --num_workers 8
+    test "$(wc -l < "$RUN_ROOT/split.jsonl")" -eq 50
 
-      python "$EVAL_ROOT/tools/run_similarity.py" \
-        --input_jsonl "$RUN_ROOT/split.jsonl" \
-        --output_jsonl "$RUN_ROOT/sim.jsonl" \
-        --metrics_txt "$RUN_ROOT/acc_sim.txt" \
-        --model_dir "$EVAL_ROOT/model/voxblink2_samresnet100_ft" \
-        --num_gpus "$SIM_NUM_GPUS"
-      test "$(wc -l < "$RUN_ROOT/sim.jsonl")" -eq 50
-      test -s "$RUN_ROOT/acc_sim.txt"
+    python "$EVAL_ROOT/tools/run_similarity.py" \
+      --input_jsonl "$RUN_ROOT/split.jsonl" \
+      --output_jsonl "$RUN_ROOT/sim.jsonl" \
+      --metrics_txt "$RUN_ROOT/acc_sim.txt" \
+      --model_dir "$EVAL_ROOT/model/voxblink2_samresnet100_ft" \
+      --num_gpus "$SIM_NUM_GPUS"
+    test "$(wc -l < "$RUN_ROOT/sim.jsonl")" -eq 50
+    test -s "$RUN_ROOT/acc_sim.txt"
 
-      python "$EVAL_ROOT/wer/whisper_asr.py" \
-        --input_jsonl "$INPUT" \
-        --output_jsonl "$RUN_ROOT/asr.jsonl" \
-        --model_id "$EVAL_ROOT/model/whisper-large-v3" \
-        --num_gpus "$WHISPER_NUM_GPUS"
-      test "$(wc -l < "$RUN_ROOT/asr.jsonl")" -eq 50
+    python "$EVAL_ROOT/wer/whisper_asr.py" \
+      --input_jsonl "$INPUT" \
+      --output_jsonl "$RUN_ROOT/asr.jsonl" \
+      --model_id "$EVAL_ROOT/model/whisper-large-v3" \
+      --num_gpus "$WHISPER_NUM_GPUS"
+    test "$(wc -l < "$RUN_ROOT/asr.jsonl")" -eq 50
 
-      python "$EVAL_ROOT/wer/run_wer.py" \
-        --lang "$LANG" \
-        --input_jsonl "$RUN_ROOT/asr.jsonl" \
-        --output_jsonl "$RUN_ROOT/wer.jsonl" \
-        --metrics_txt "$RUN_ROOT/wer.txt"
-      test "$(wc -l < "$RUN_ROOT/wer.jsonl")" -eq 50
-      test -s "$RUN_ROOT/wer.txt"
-    } 2>&1 | tee "$RUN_ROOT/evaluator.log"
-  done
+    python "$EVAL_ROOT/wer/run_wer.py" \
+      --lang "$LANG" \
+      --input_jsonl "$RUN_ROOT/asr.jsonl" \
+      --output_jsonl "$RUN_ROOT/wer.jsonl" \
+      --metrics_txt "$RUN_ROOT/wer.txt"
+    test "$(wc -l < "$RUN_ROOT/wer.jsonl")" -eq 50
+    test -s "$RUN_ROOT/wer.txt"
+  } 2>&1 | tee "$RUN_ROOT/evaluator.log"
 done
 cd "$MODEL_ROOT"
 deactivate
@@ -372,58 +370,57 @@ ALIGN_DEVICE=cpu
 cd "$EVAL_ROOT/testset"
 
 for LANG in zh en; do
-  for GROUP in original_cuda patched_cuda npu; do
-    INPUT="$MODEL_ROOT/results/ttsd_eval/${GROUP}_${LANG}.jsonl"
-    [ -f "$INPUT" ] || continue
-    STEM="${GROUP}_${LANG}"
-    RUN_ROOT="$MODEL_ROOT/results/ttsd_eval_metrics/$STEM"
-    mkdir -p \
-      "$RUN_ROOT/alignment_files" \
-      "$RUN_ROOT/split_res" \
-      "$RUN_ROOT/audio_segments"
+  GROUP=npu
+  INPUT="$MODEL_ROOT/results/ttsd_eval/${GROUP}_${LANG}.jsonl"
+  [ -f "$INPUT" ] || { echo "SKIP: $INPUT not found"; continue; }
+  STEM="${GROUP}_${LANG}"
+  RUN_ROOT="$MODEL_ROOT/results/ttsd_eval_metrics/$STEM"
+  mkdir -p \
+    "$RUN_ROOT/alignment_files" \
+    "$RUN_ROOT/split_res" \
+    "$RUN_ROOT/audio_segments"
 
-    {
-      python "$EVAL_ROOT/tools/align.py" \
-        --input_jsonl "$INPUT" \
-        --output_dir "$RUN_ROOT/alignment_files" \
-        --output_jsonl "$RUN_ROOT/alignment.jsonl" \
-        --cache_dir "$EVAL_ROOT/model" \
-        --device "$ALIGN_DEVICE"
-      test "$(wc -l < "$RUN_ROOT/alignment.jsonl")" -eq 50
+  {
+    python "$EVAL_ROOT/tools/align.py" \
+      --input_jsonl "$INPUT" \
+      --output_dir "$RUN_ROOT/alignment_files" \
+      --output_jsonl "$RUN_ROOT/alignment.jsonl" \
+      --cache_dir "$EVAL_ROOT/model" \
+      --device "$ALIGN_DEVICE"
+    test "$(wc -l < "$RUN_ROOT/alignment.jsonl")" -eq 50
 
-      python "$EVAL_ROOT/tools/split.py" \
-        --input_jsonl "$RUN_ROOT/alignment.jsonl" \
-        --split_res_dir "$RUN_ROOT/split_res" \
-        --segment_dir "$RUN_ROOT/audio_segments" \
-        --output_jsonl "$RUN_ROOT/split.jsonl" \
-        --num_workers 8
-      test "$(wc -l < "$RUN_ROOT/split.jsonl")" -eq 50
+    python "$EVAL_ROOT/tools/split.py" \
+      --input_jsonl "$RUN_ROOT/alignment.jsonl" \
+      --split_res_dir "$RUN_ROOT/split_res" \
+      --segment_dir "$RUN_ROOT/audio_segments" \
+      --output_jsonl "$RUN_ROOT/split.jsonl" \
+      --num_workers 8
+    test "$(wc -l < "$RUN_ROOT/split.jsonl")" -eq 50
 
-      python "$EVAL_ROOT/tools/run_similarity.py" \
-        --input_jsonl "$RUN_ROOT/split.jsonl" \
-        --output_jsonl "$RUN_ROOT/sim.jsonl" \
-        --metrics_txt "$RUN_ROOT/acc_sim.txt" \
-        --model_dir "$EVAL_ROOT/model/voxblink2_samresnet100_ft" \
-        --device cpu
-      test "$(wc -l < "$RUN_ROOT/sim.jsonl")" -eq 50
-      test -s "$RUN_ROOT/acc_sim.txt"
+    python "$EVAL_ROOT/tools/run_similarity.py" \
+      --input_jsonl "$RUN_ROOT/split.jsonl" \
+      --output_jsonl "$RUN_ROOT/sim.jsonl" \
+      --metrics_txt "$RUN_ROOT/acc_sim.txt" \
+      --model_dir "$EVAL_ROOT/model/voxblink2_samresnet100_ft" \
+      --device cpu
+    test "$(wc -l < "$RUN_ROOT/sim.jsonl")" -eq 50
+    test -s "$RUN_ROOT/acc_sim.txt"
 
-      python "$EVAL_ROOT/wer/whisper_asr.py" \
-        --input_jsonl "$INPUT" \
-        --output_jsonl "$RUN_ROOT/asr.jsonl" \
-        --model_id "$EVAL_ROOT/model/whisper-large-v3" \
-        --device cpu
-      test "$(wc -l < "$RUN_ROOT/asr.jsonl")" -eq 50
+    python "$EVAL_ROOT/wer/whisper_asr.py" \
+      --input_jsonl "$INPUT" \
+      --output_jsonl "$RUN_ROOT/asr.jsonl" \
+      --model_id "$EVAL_ROOT/model/whisper-large-v3" \
+      --device cpu
+    test "$(wc -l < "$RUN_ROOT/asr.jsonl")" -eq 50
 
-      python "$EVAL_ROOT/wer/run_wer.py" \
-        --lang "$LANG" \
-        --input_jsonl "$RUN_ROOT/asr.jsonl" \
-        --output_jsonl "$RUN_ROOT/wer.jsonl" \
-        --metrics_txt "$RUN_ROOT/wer.txt"
-      test "$(wc -l < "$RUN_ROOT/wer.jsonl")" -eq 50
-      test -s "$RUN_ROOT/wer.txt"
-    } 2>&1 | tee "$RUN_ROOT/evaluator.log"
-  done
+    python "$EVAL_ROOT/wer/run_wer.py" \
+      --lang "$LANG" \
+      --input_jsonl "$RUN_ROOT/asr.jsonl" \
+      --output_jsonl "$RUN_ROOT/wer.jsonl" \
+      --metrics_txt "$RUN_ROOT/wer.txt"
+    test "$(wc -l < "$RUN_ROOT/wer.jsonl")" -eq 50
+    test -s "$RUN_ROOT/wer.txt"
+  } 2>&1 | tee "$RUN_ROOT/evaluator.log"
 done
 cd "$MODEL_ROOT"
 deactivate
@@ -459,7 +456,7 @@ RTF/RTFx 可复现。项目另有性能目标时按该目标判定。
 
 - [ ] 源码、模型、codec、patch 和 testset revision/SHA256 已记录。
 - [ ] TTSD-eval `source_data.json`、`full.json`、pip freeze 和模型加载预检已归档。
-- [ ] evaluator profile（CPU/CUDA/NPU 之一）固定，对所有已生成组使用同一设备、dtype 和依赖环境。
+- [ ] evaluator profile（CPU/CUDA/NPU）按指定规则固定：NPU evaluator 只评测 `npu` 组，CUDA evaluator 只评测 `original_cuda` 组，CPU evaluator 只评测 `npu` 组。
 - [ ] NPU 组使用固定 manifest 和参数完成功能验证与 L2 生成，输出归档；CUDA 对照组（可选）使用相同 manifest 和参数，输出互不覆盖。
 - [ ] 功能验证 2 条、L2 中英文各 50 条的 NPU 实际执行结果已记录。
 - [ ] NPU 组 L2 manifest 和 metadata 已归档；CUDA 对照组 manifest（如有）一并归档。
@@ -514,7 +511,7 @@ L2 使用 `OpenMOSS/TTSD-eval` 中文、英文全量各 50 条。评测工程源
 
 ### profile 选择
 
-正式验收只选一个 profile，并对所有已生成组结果始终使用同一 profile。
+正式验收中，NPU evaluator 只评测 `npu` 推理组（必跑），CUDA evaluator 只评测 `original_cuda` 推理组（可选对照），CPU evaluator 只评测 `npu` 推理组（可选对照）。
 
 ### 准备完成保留项
 
