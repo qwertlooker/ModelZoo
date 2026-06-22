@@ -58,7 +58,6 @@ Canary-1B 是 NVIDIA 发布的多语言多任务语音模型，采用 FastConfor
 ```text
 Canary-1B
 ├── README.md                           # 推理指导文档
-├── README_old.md                       # 模型适配说明
 ├── infer.py                            # 单条或多条音频推理脚本
 ├── eval_canary.py                      # 精度和性能评测脚本
 ├── prepare_eval_data.py                # LibriSpeech/MLS/FLEURS 评测数据准备脚本

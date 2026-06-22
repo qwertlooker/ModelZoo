@@ -52,7 +52,7 @@ Hy3-preview 是 295B total / 21B active 的 BF16 MoE 模型，包含一层 3.8B 
   | vllm-ascend | `99e1ea0fe685e93f53ee5adfe4b41cdd42fb809f` |
   | CANN、驱动、固件 | 使用镜像要求的配套版本，宿主机驱动需正确挂载 |
 
-说明：本交付示例是单机 16 卡；多机部署的额外配置见 [NPU_ADAPTATION.md](NPU_ADAPTATION.md)。
+说明：本交付示例是单机 16 卡；多机部署还必须配置固定的 HCCL rank table、网卡、容器网络和主机间免密/端口。进入容器后必须先用 `npu-smi info` 确认 16 卡可见，不能仅凭容器启动成功判断设备可用。
 
 ## 文件目录
 
@@ -60,9 +60,7 @@ Hy3-preview 是 295B total / 21B active 的 BF16 MoE 模型，包含一层 3.8B 
 Hy3-preview
 ├── patches/0001-add-hy3-preview-support.patch
 ├── test_data/service_prompts.jsonl
-├── README.md
-├── NPU_ADAPTATION.md
-└── ACCEPTANCE_PLAN.md
+└── README.md
 tools
 ├── openai_service_eval.py
 ├── compare_openai_service_results.py
@@ -287,6 +285,53 @@ vllm bench serve \
 
 报告 Successful requests、TTFT、TPOT、ITL、E2E、request/output/total throughput、加载时间和峰值 HBM。CUDA 使用相同命令连接 CUDA 服务并写独立 JSON。官方未发布与当前 A3/vLLM-Ascend 环境可直接对齐的性能数值。
 
+## 适配与精度口径
+
+### 补丁分析
+
+补丁只修改 vLLM，vllm-ascend 不需要源码修改，由现有 Ascend attention、MoE、EP/HCCL 后端承载：
+
+- 注册 `hy_v3` config、`HyV3ForCausalLM` 和 `HYV3MTPModel`；
+- 实现 dense/MoE layer、shared expert、expert weight mapping 和 MTP；
+- 注册 `hy_v3` reasoning/tool parsers；
+- 增加 speculative config 的 HyV3 MTP 映射。
+
+补丁基于精确 vLLM commit，并已通过 `git apply --check`；不能对其他 vLLM commit 直接套用。
+
+### 运行边界
+
+- 推荐 TP16 + EP；TP8 能否满足加载和 KV 需求需单独验证。
+- `--enable-ep-weight-filter` 降低每 rank 非本地 expert 加载压力；CUDA baseline 不得使用该 NPU 专用参数，应省略，其余参数与 NPU 保持一致。
+- MTP 属于推测解码。精度对齐先关闭 MTP 建立 baseline，再开启并验证输出质量与性能。
+- tool/reasoning parser 是服务接口的一部分，必须单独测试流式/非流式、多个工具参数和 `reasoning_effort`。
+- 32K/bs8 只是当前可行配置，不等同于 256K context 能力验收；长上下文能力验收需单独使用接近 256K 的固定输入集并记录峰值 HBM。
+- 固定 vLLM 版本将 `--speculative-config` 定义为单个 JSON 参数，不支持把内部字段拆成点号形式的多个 CLI 参数，开启 MTP 时必须以完整 JSON 字符串传入，例如 `--speculative-config '{"method":"mtp","num_speculative_tokens":1}'`。
+- 未应用 patch 的 vLLM 不支持 HyV3，原始 baseline 是可审计的注册/加载失败；数值 baseline 使用应用相同 patch 的 CUDA vLLM，candidate 使用 NPU。
+
+### 官方指标边界
+
+官方 instruct 模型卡公开：
+
+| Benchmark | 官方分数 |
+|---|---:|
+| SWE-bench Verified | 74.4% |
+| Terminal-Bench 2.0 | 54.4% |
+| BrowseComp | 67.1% |
+| WideSearch | 70.2% |
+
+官方服务推荐参数为 `temperature=0.9`、`top_p=1.0`，复杂任务使用 `reasoning_effort=high`，直答使用 `no_think`。官方 README 没有发布上述 instruct 指标对应的精确 dataset revision/manifest SHA、agent harness commit、工具环境、采样次数和完整 decode 参数，必须标记这些字段"官方未发布"，获得作者 recipe 前不得宣称精确复现。官方 Base 模型另发布 MMLU 等表，但 Base 与本适配 instruct checkpoint 不可混用。
+
+### 迁移对齐门禁
+
+使用同一 checkpoint、vLLM commit、prompt JSONL、chat template 和 sampling 参数，比较 CUDA vLLM 与 NPU vLLM-Ascend：
+
+- 请求成功率 100%，无权重缺失、rank/device、parser 错误；
+- greedy top-1 token agreement `>= 99.5%`；
+- 结构化 JSON/tool call schema 有效率 100%；
+- MTP 开关后的任务级正确率不低于关闭 MTP 超过 0.5 个百分点。
+
+逐 token 一致率会在首个分叉后级联下降，因此它只能和首个分叉位置、logprob、结构化输出有效率及任务正确率一起解释，不能单独作为生成质量结论。这些阈值是迁移初始门禁，必须用固定 CUDA/NPU baseline 的实测分布校准，不是官方发布容差。
+
 ## 公网地址说明
 
 | 类型 | 说明 | 公网地址 |
@@ -294,5 +339,3 @@ vllm bench serve \
 | 模型权重 | tencent/Hy3-preview Hugging Face 模型仓 | https://huggingface.co/tencent/Hy3-preview |
 | 开源代码仓 | Tencent-Hunyuan/Hy3-preview 官方源码 | https://github.com/Tencent-Hunyuan/Hy3-preview |
 | 参考适配 | Ascend-SACT/Hy3-preview 参考适配仓 | https://gitcode.com/Ascend-SACT/Hy3-preview |
-
-官方指标边界和正式验收见 [ACCEPTANCE_PLAN.md](ACCEPTANCE_PLAN.md)，补丁分析与适配决策见 [NPU_ADAPTATION.md](NPU_ADAPTATION.md)。

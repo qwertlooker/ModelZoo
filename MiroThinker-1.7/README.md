@@ -58,10 +58,7 @@ MiroThinker-1.7 是 MiroMind 发布的 235B MoE 推理模型，架构为 `Qwen3M
 ```text
 MiroThinker-1.7
 ├── test_data/service_prompts.jsonl
-├── patches/README.md
-├── README.md
-├── NPU_ADAPTATION.md
-└── ACCEPTANCE_PLAN.md
+└── README.md
 tools
 ├── openai_service_eval.py
 ├── compare_openai_service_results.py
@@ -316,6 +313,43 @@ vllm bench serve \
   --result-filename npu.json
 ```
 
+## 适配与精度口径
+
+### 适配结论
+
+vLLM v0.17.0rc1 已原生支持 `Qwen3MoeForCausalLM`，vllm-ascend 提供 NPU 后端，不需要 patch。`--trust-remote-code` 仅针对固定本地权重目录，不是远程代码信任。服务名、`LLM_MODEL` 环境变量和请求 `model` 字段必须三者统一，否则 vLLM 会拒绝请求。
+
+### 运行边界
+
+- 推荐 TP16；必须显式设置 `compilation_config` 的 capture sizes，否则图捕获会失败。
+- 8K smoke 服务（`--max-model-len 8192`、128 并发）只用于链路验证，不等同于 256K context 能力验收；长上下文验收需单独使用接近 256K 的固定输入集并记录峰值 HBM。
+- benchmark 不能复用 8K 服务，必须重启 256K 服务后再跑；CUDA 与 NPU 服务不能同时占用 8002 端口，必须分别运行。
+- agent benchmark 质量依赖外部工具：Serper/Jina 检索、E2B 代码沙箱、summary LLM 和 OpenAI judge API，这些 key 和额度由使用者自备，缺失会导致 benchmark 跳过对应样本。
+- 8K smoke 与 256K benchmark 是两套独立配置，不得混用参数。
+
+### 官方指标边界
+
+官方在 MiroFlow-Benchmarks 上发布以下 agent 指标：
+
+| Benchmark | 官方分数 |
+|---|---:|
+| BrowseComp | 74.0% |
+| BrowseComp-ZH | 75.3% |
+| GAIA-Val-165 | 82.7% |
+| HLE-Text | 42.9% |
+
+评测口径：固定数据集 revision、OpenAI 作为 judge、每题多 run 取多数、固定 agent tool set、统一采样参数。官方未发布上述每项的精确 manifest SHA、agent harness commit、工具环境快照和完整 decode 参数，因此这些字段明确记为"官方未发布"，获得作者 recipe 前不得宣称精确复现。
+
+### 迁移对齐门禁
+
+使用同一 checkpoint、vLLM commit、prompt JSONL 和 sampling 参数，比较 CUDA vLLM 与 NPU vLLM-Ascend：
+
+- greedy top-1 token agreement `>= 99.5%`；
+- 结构化 JSON/tool call schema 有效率 100%；
+- NPU benchmark 相对 CUDA 下降 `<= 1.0` 个百分点。
+
+这些阈值是迁移初始门禁，不是官方发布容差，必须用固定 CUDA/NPU baseline 的实测分布校准。
+
 ## 公网地址说明
 
 | 类型 | 说明 | 公网地址 |
@@ -324,5 +358,3 @@ vllm bench serve \
 | 开源代码仓 | MiroThinker 官方框架 | https://github.com/MiroMindAI/MiroThinker |
 | benchmark | MiroFlow-Benchmarks 数据集 | https://huggingface.co/datasets/miromind-ai/MiroFlow-Benchmarks |
 | 参考适配 | Ascend-SACT 参考实现 | https://gitcode.com/Ascend-SACT/MiroThinker-1.7 |
-
-适配边界见 [NPU_ADAPTATION.md](NPU_ADAPTATION.md)，验收计划见 [ACCEPTANCE_PLAN.md](ACCEPTANCE_PLAN.md)。

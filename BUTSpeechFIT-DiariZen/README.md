@@ -66,10 +66,7 @@ BUTSpeechFIT-DiariZen
 ├── score_diarization.py                # DER 评测脚本
 ├── patches/0001-add-explicit-npu-pipeline-device.patch
 ├── requirements.txt
-├── README.md                           # 推理指导文档
-├── README_old.md                       # 原始部署说明
-├── NPU_ADAPTATION.md                   # NPU 适配文档
-└── ACCEPTANCE_PLAN.md                  # 验收计划
+└── README.md                           # 推理指导文档
 ```
 
 ## 快速上手
@@ -290,6 +287,7 @@ BUTSpeechFIT-DiariZen
    - `system_rttm`：待评测的 system RTTM 文件，支持 glob。
    - `uem`：UEM 文件路径。
    - `collar`：DER collar（秒），官方口径使用 `0.0`。
+   - `ignore_overlaps`：`store_true` 开关。官方口径保留 overlap 时必须完全省略该参数，不能写成无效的 `--ignore_overlaps false`；需要忽略 overlap 的独立非官方模式才显式增加该参数。
    - `output`：DER 报告输出路径。
 
 ## 模型推理性能
@@ -306,7 +304,59 @@ mkdir -p results/npu
   --output_dir results/npu
 ```
 
-`results/npu/run.meta.json` 提供 elapsed/RTF/provider。性能数据待正式验收，详见 [ACCEPTANCE_PLAN.md](ACCEPTANCE_PLAN.md)。
+`results/npu/run.meta.json` 提供 elapsed/RTF/provider。性能数据待正式验收。
+
+## 适配与精度口径
+
+### 设备边界与适配
+
+upstream `DiariZenPipeline` 将设备写为 `cuda:0`（CUDA 可用时）否则 CPU，不能显式选择 NPU；pyannote 的 ONNX WeSpeaker wrapper 只识别 CPU/CUDA，其他设备会告警后回退 CPU。当前 patch：
+
+1. pipeline 构造器和 `from_pretrained` 接收显式 device；
+2. `infer.py` 默认 `--device npu`，仅 NPU 路径导入 `torch_npu`；
+3. ONNX WeSpeaker 在 NPU 上显式使用 `CANNExecutionProvider`，provider 缺失时由 ONNX Runtime 直接失败；
+4. Kaldi fbank 是 CPU 预处理，并将 numpy 特征送入 CANN ONNX session，不需要修改 site-packages；
+5. CPU/CUDA 原路径不变。
+
+设备分工：分割网络运行在 PyTorch NPU；WeSpeaker embedding 运行在 ONNX Runtime `CANNExecutionProvider`；Kaldi fbank 明确保留为 CPU 前处理，不是模型推理回退。`infer.py` 运行时读取 provider 并在 NPU 路径强制首 provider 为 `CANNExecutionProvider`，同时写出 `run.meta.json`。
+
+环境隔离要求：原始和 patch 后 CPU baseline 使用独立环境，不要安装 upstream 根 `requirements.txt` 中的 `onnxruntime-gpu`；NPU 环境不得安装 CPU 索引 wheel；不要修改 site-packages；CPU/CUDA baseline 使用 CPU/CUDA ONNX Runtime，不能与 `onnxruntime-cann` 混装。
+
+### 官方 DER 指标
+
+upstream 对 `diarizen-wavlm-large-s80-md` 公布无 collar、保留 overlap、所有数据集共用 clustering 参数的 DER（%）：
+
+| 数据集 | 官方 DER |
+|---|---:|
+| AMI-SDM | 14.0 |
+| AISHELL-4 | 9.8 |
+| AliMeeting far | 12.5 |
+| NOTSOFAR-1 single-channel | 17.9 |
+| MSDWild | 15.6 |
+| DIHARD3 full | 14.5 |
+| RAMC | 11.0 |
+| VoxConverse | 9.2 |
+
+特殊口径：AISHELL-4 先用 `sox in.wav -c 1 out.wav` 转单声道；NOTSOFAR-1 仅使用 single-channel 录音。后处理为固定 checkpoint `config.toml` 中的 segmentation、median filtering、speaker count、embedding 和 clustering 参数，输出 RTTM；metric 使用 dscore DER，`collar=0.0` 且不忽略 overlap。upstream README 未发布上述每项的精确 split revision、样本规模、wav.scp/RTTM/UEM SHA 和完整评测命令，因此这些字段明确记为"官方未发布"。
+
+### 迁移对齐门禁
+
+必须保留三组结果：未应用 patch 的固定 upstream CUDA 原始路径、应用 patch 后的 CUDA 回归路径、应用 patch 后的 NPU 路径，三组使用同一 manifest、config 和权重。通过条件：
+
+- NPU DER 相对 CUDA 绝对劣化 `<= 0.2` 个百分点；
+- miss/false alarm/confusion 分项都报告；
+- 同输入 RTTM session、时间轴范围和 speaker 数约束一致；
+- 不允许 embedding ONNX session 使用 `CPUExecutionProvider` 冒充 NPU。
+
+`0.2` 个百分点是暂定迁移门禁，不是 upstream 官方容差。正式 L2 必须先测量原始 CUDA 与 patch 后 CUDA 的重复运行/聚类波动，再决定是否收紧或放宽。
+
+### 权重许可
+
+模型权重使用 CC BY-NC 4.0，正式部署前必须确认非商业使用及数据许可要求。数据许可和 split 必须由使用者根据官方 recipe 固定；不能自行猜测后宣称复现官方表。
+
+### 性能评测方法
+
+优先在 upstream 公布数据集的可取得全量 split 上记录总音频时长、RTF、分割/embedding 阶段耗时、batch 和峰值 HBM/RSS。`infer.py` 会写 `run.meta.json`；三组命令分别用 `/usr/bin/time -v -o` 保存独立资源日志，正式轮次至少重复 3 次并报告 RTF 中位数。官方 README 只发布 DER，未发布与当前 Atlas 路径可直接比较的硬件性能数值，因此报告 NPU/CUDA RTF 比值。
 
 ## 公网地址说明
 
@@ -316,5 +366,3 @@ mkdir -p results/npu
 | 模型权重 | BUT-FIT/diarizen-wavlm-large-s80-md | https://huggingface.co/BUT-FIT/diarizen-wavlm-large-s80-md |
 | 模型权重 | pyannote/wespeaker-voxceleb-resnet34-LM | https://huggingface.co/pyannote/wespeaker-voxceleb-resnet34-LM |
 | 参考适配 | Ascend-SACT/BUTSpeechFIT-DiariZen | https://gitcode.com/Ascend-SACT/BUTSpeechFIT-DiariZen |
-
-DER 口径见 [ACCEPTANCE_PLAN.md](ACCEPTANCE_PLAN.md)，设备边界见 [NPU_ADAPTATION.md](NPU_ADAPTATION.md)。

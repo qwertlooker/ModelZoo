@@ -57,9 +57,6 @@ DNSMOS P.835 是 Microsoft 发布的语音质量评估模型，输出 `SIG`、`B
 ```text
 DNSMOS
 ├── README.md                           # 推理指导文档
-├── README_old.md                       # 原始部署说明
-├── NPU_ADAPTATION.md                   # NPU 适配文档
-├── ACCEPTANCE_PLAN.md                  # 验收计划
 ├── infer.py                            # 推理脚本
 ├── prepare_eval_data.py                # 评测数据准备脚本
 ├── compare_results.py                  # CPU/NPU 结果比较脚本
@@ -211,6 +208,16 @@ DNSMOS
 | CPU 工具闭环 | 同一样例 manifest | RTF 0.076430，本次仅作链路记录 |
 | NPU | 同 manifest | 待 CANN 环境验收 |
 
+## 适配与精度口径
+
+### 适配实现
+
+`infer.py` 只增加显式设备边界：`--device npu` 选择 `CANNExecutionProvider`，provider 不存在时由 ONNX Runtime 直接失败；`--device cpu` 选择 `CPUExecutionProvider`。其余保留官方逻辑不变——16kHz 重采样、9.01 秒窗口、1 秒 hop、所有窗口平均、P.808 mel 特征和多项式校正——不改动官方源码，不需要 patch。ONNX Runtime 与 CANN 版本配套（`onnxruntime-cann 1.22.1` 对应 CANN 8.2.0），CPU 与 NPU 使用独立环境，不能混装 `onnxruntime-gpu`。
+
+### 迁移对齐门禁
+
+CPU 算法等价性已验证：与官方 `dnsmos_local.py` 比较，全部 raw/校正后 MOS 和 `P808_MOS` 的最大/平均绝对误差均为 `0.0`。NPU 迁移门禁为：同一 manifest、权重和窗口参数下，NPU 与 CPU 的逐样本 SIG/BAK/OV/P808 全字段最大绝对误差 `<= 1e-4`。该阈值是迁移初始门禁，不是 Microsoft 官方容差；正式 L2 必须先测量 CPU 重复运行波动再决定是否收紧。
+
 ## 公网地址说明
 
 | 类型 | 说明 | 公网地址 |
@@ -219,5 +226,3 @@ DNSMOS
 | 参考适配 | Ascend-SACT DNSMOS | https://gitcode.com/Ascend-SACT/DNSMOS |
 | 论文 | DNSMOS P.835 | https://arxiv.org/abs/2110.01763 |
 | 数据集 | VCC2018 | https://datashare.ed.ac.uk/handle/10283/3061 |
-
-适配实现和已执行验证见 [NPU_ADAPTATION.md](NPU_ADAPTATION.md)。
