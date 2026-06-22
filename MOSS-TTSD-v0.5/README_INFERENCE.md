@@ -420,6 +420,8 @@ TTSD-eval 不是无权重评测器。ACC/SIM 依赖 WeSpeaker
    - `jsonl`：输入 JSONL 文件路径。
    - `output_dir`：输出 WAV 保存目录。
    - `device`：仅 patch 后入口提供，支持 `npu`、`cpu`、`cuda`。
+   - `batch_size`：仅 patch 后入口提供，每批生成的 JSONL 样本数，默认 `1`。
+     TTSD-eval 建议保持 `1`；增大前必须观察峰值 HBM 和单批耗时。
    - `seed`：随机种子。
    - `use_normalize`：启用原项目文本归一化路径。
 
@@ -434,6 +436,7 @@ TTSD-eval 不是无权重评测器。ACC/SIM 依赖 WeSpeaker
      --jsonl examples/examples.jsonl \
      --output_dir outputs_patched_cuda \
      --device cuda \
+     --batch_size 2 \
      --seed 42 \
      --use_normalize
    cd ..
@@ -449,6 +452,7 @@ TTSD-eval 不是无权重评测器。ACC/SIM 依赖 WeSpeaker
      --jsonl examples/examples.jsonl \
      --output_dir outputs_npu \
      --device npu \
+     --batch_size 2 \
      --seed 42 \
      --use_normalize
    cd ..
@@ -530,6 +534,7 @@ for LANG in zh en; do
       --jsonl "$MANIFEST" \
       --output_dir "$MODEL_ROOT/results/ttsd_eval/patched_cuda_${LANG}" \
       --device cuda \
+      --batch_size 1 \
       --seed 42 \
       --use_normalize
   )
@@ -542,6 +547,7 @@ for LANG in zh en; do
       --jsonl "$MANIFEST" \
       --output_dir "$MODEL_ROOT/results/ttsd_eval/npu_${LANG}" \
       --device npu \
+      --batch_size 1 \
       --seed 42 \
       --use_normalize
   )
@@ -586,6 +592,7 @@ cd upstream-npu
   --jsonl "$MODEL_ROOT/third_party/TTSD-eval/testset/ttsd_eval_zh.jsonl" \
   --output_dir "$MODEL_ROOT/results/performance/npu_zh" \
   --device npu \
+  --batch_size 1 \
   --seed 42 \
   --use_normalize
 cd "$MODEL_ROOT"
@@ -651,11 +658,29 @@ ASCEND_RT_VISIBLE_DEVICES=0 python inference.py \
   --jsonl ../third_party/TTSD-eval/testset/ttsd_eval_zh.jsonl \
   --output_dir ../results/ttsd_eval/npu_zh \
   --device npu \
+  --batch_size 1 \
   --seed 42 \
   --use_normalize
 ```
 
-Flash Attention 消除的是 `repeat_kv` 造成的 KV head 实体展开，不保证整个评测集的所有其他张量都能放入 HBM。若完整 JSONL 仍 OOM，应保持样本内容和顺序不变，将同一 JSONL 确定性拆成较小 manifest，并在 CPU/CUDA 与 NPU 两端使用相同拆分；不能修改正式评测文本或静默切到 CPU 来规避。
+Flash Attention 消除的是 `repeat_kv` 造成的 KV head 实体展开，不保证整份 manifest
+作为一个 batch 时的其他张量都能放入 HBM。patch 后入口默认
+`--batch_size 1`，逐批生成并显示 `[Batch i/N]` 进度；全部 batch 完成后仍按原
+入口规则写出 `output_N.wav`，避免 50 条长音频全部完成前没有任何进度。
+
+若日志停在 `Starting batch audio generation...`：
+
+1. 先执行 `watch -n 1 npu-smi info`。首批可能触发 NPU 算子/图编译；出现
+   `multiprocessing.forkserver` / `resource_tracker` 子进程本身不能证明死锁。
+2. 若 NPU 利用率或 HBM 持续变化，先等待首批完成；之后应出现
+   `Original outputs shape` 和 `[Batch 1/N] completed`。
+3. 若超过 10 分钟 NPU 利用率始终为 0、HBM 不变且无新 CANN 日志，终止进程，
+   用 `--batch_size 1` 和单条 manifest 重跑。单条仍卡住时再保留完整 Python
+   栈、`npu-smi info`、CANN 日志和依赖版本排查，不能静默切到 CPU。
+
+CPU/CUDA/NPU 候选对齐必须使用相同 `--batch_size`。未应用 patch 的原始入口不支持
+该参数，仍保留其原生完整 JSONL batch 作为 upstream baseline；报告中必须明确记录
+这一运行参数差异，不能把不同 batch 口径写成严格逐样本数值等价。
 
 ## 已知问题：Transformers 5.x 不兼容
 

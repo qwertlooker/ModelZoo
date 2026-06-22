@@ -19,7 +19,7 @@
 | WeSpeaker 权重 | `voxblink2_samresnet100_ft.zip`，SHA256 `ad0873d380acaa7f4256ff37d40217ee31e4955b26a45064a13a14998cc89d16` |
 | MMS-FA checkpoint | S3 version ID `dZWoHyjLHoCxDn.KL1FPSlVCD3CPRtOL`，固定大小 `1262047414` bytes |
 | Whisper | `openai/whisper-large-v3` revision `06f233fe06e710322aca913c1bc4249a0d71fce1` |
-| 适配 patch | `patches/0001-adapt-v0.5-inference-to-npu.patch`，SHA256 `426303406d9289c0f981ca333604107af323a56a576c5129a844aacc83962056` |
+| 适配 patch | `patches/0001-adapt-v0.5-inference-to-npu.patch`，SHA256 `7d446e9c9c743b57ab41cb553422e428bf515b6d4e724d10450fa5b15b1a01ba` |
 
 TTSD-eval 的 ACC、SIM、WER 用于同 checkpoint 的迁移对齐。正式报告必须同时写出
 TTSD-eval commit、语言、样本数、MMS-FA、WeSpeaker 和 Whisper 版本，不得只写一个
@@ -97,6 +97,7 @@ source .venv-cuda-patched/bin/activate
     --jsonl "$MANIFEST" \
     --output_dir "$MODEL_ROOT/results/functional/patched_cuda" \
     --device cuda \
+    --batch_size 2 \
     --seed 42 \
     --use_normalize
 )
@@ -109,6 +110,7 @@ source .venv-npu/bin/activate
     --jsonl "$MANIFEST" \
     --output_dir "$MODEL_ROOT/results/functional/npu" \
     --device npu \
+    --batch_size 2 \
     --seed 42 \
     --use_normalize
 )
@@ -117,6 +119,10 @@ deactivate
 
 原始入口没有 `--device` 参数，依赖 CUDA 和 `flash_attention_2`；不能给原始组添加
 patch 后参数。若缺少 CUDA，S3 三组迁移验收即未完成，不能用 CPU 改写原始模型行为。
+官方示例共 2 条，因此 patch 后 CUDA/NPU 都固定 `--batch_size 2`，与原始入口的
+完整 manifest batch 一致。TTSD-eval 长清单的 patch 后 CUDA/NPU 固定
+`--batch_size 1`；原始入口不支持该参数，报告必须明确记录其原生完整 batch 与
+候选路径的差异，不得声称这是严格相同运行参数的逐样本数值对齐。
 
 ## 5. 输出检查和 evaluator manifest
 

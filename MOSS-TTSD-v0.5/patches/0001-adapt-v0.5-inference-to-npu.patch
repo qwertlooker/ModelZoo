@@ -294,7 +294,7 @@ diff --git a/inference.py b/inference.py
 index 69b696f..cb19d1b 100644
 --- a/inference.py
 +++ b/inference.py
-@@ -1,18 +1,30 @@
+@@ -1,18 +1,76 @@
  import json
  import torch
 -import torchaudio
@@ -327,17 +327,67 @@ index 69b696f..cb19d1b 100644
 +    return torch.device(device_name)
 +
 +
++def _process_batches(
++    batch_items,
++    tokenizer,
++    model,
++    spt,
++    device,
++    system_prompt,
++    start_idx,
++    use_normalize,
++    batch_size,
++):
++    actual_texts_data = []
++    audio_results = []
++    batch_count = (len(batch_items) + batch_size - 1) // batch_size
++    print(
++        f"Starting inference with batch_size={batch_size} "
++        f"({batch_count} batches)...",
++        flush=True,
++    )
++    for batch_number, batch_start in enumerate(
++        range(0, len(batch_items), batch_size),
++        start=1,
++    ):
++        batch_end = min(batch_start + batch_size, len(batch_items))
++        print(
++            f"[Batch {batch_number}/{batch_count}] "
++            f"Generating samples {start_idx + batch_start}-{start_idx + batch_end - 1}...",
++            flush=True,
++        )
++        batch_actual_texts, batch_audio_results = process_batch(
++            batch_items=batch_items[batch_start:batch_end],
++            tokenizer=tokenizer,
++            model=model,
++            spt=spt,
++            device=device,
++            system_prompt=system_prompt,
++            start_idx=start_idx + batch_start,
++            use_normalize=use_normalize,
++        )
++        actual_texts_data.extend(batch_actual_texts)
++        audio_results.extend(batch_audio_results)
++        print(f"[Batch {batch_number}/{batch_count}] completed.", flush=True)
++
++    return actual_texts_data, audio_results
++
++
  def main():
      parser = argparse.ArgumentParser(description="TTS inference with Asteroid model")
      parser.add_argument("--jsonl", default="examples/examples.jsonl", 
-@@ -23,18 +35,20 @@ def main():
+@@ -23,18 +81,24 @@ def main():
                         help="Output directory for generated audio files (default: outputs)")
      parser.add_argument("--use_normalize", action="store_true", default=True,
                         help="Whether to use text normalization (default: True)")
 +    parser.add_argument("--device", choices=["npu", "cpu", "cuda"], default="npu",
 +                       help="Inference device. Use ASCEND_RT_VISIBLE_DEVICES/CUDA_VISIBLE_DEVICES to select card.")
++    parser.add_argument("--batch_size", type=int, default=1,
++                       help="Number of JSONL items generated together (default: 1).")
      
      args = parser.parse_args()
++    if args.batch_size < 1:
++        parser.error("--batch_size must be greater than 0")
      
      # Create output directory if it doesn't exist
      os.makedirs(args.output_dir, exist_ok=True)
@@ -353,16 +403,23 @@ index 69b696f..cb19d1b 100644
      spt = spt.to(device)
      model = model.to(device)
      
-@@ -65,7 +79,7 @@ def main():
+@@ -60,12 +124,13 @@ def main():
+-    actual_texts_data, audio_results = process_batch(
++    actual_texts_data, audio_results = _process_batches(
+         batch_items=items,
+         tokenizer=tokenizer,
+         model=model,
+         spt=spt,
          device=device,
          system_prompt=SYSTEM_PROMPT,
          start_idx=0,
 -        use_normalize=args.use_normalize
 +        use_normalize=args.use_normalize,
++        batch_size=args.batch_size,
      )
      
      # Save the audio results to files
-@@ -73,10 +87,10 @@ def main():
+@@ -73,10 +138,10 @@ def main():
      for idx, audio_result in enumerate(audio_results):
          if audio_result is not None:
              output_path = os.path.join(args.output_dir, f"output_{idx}.wav")
@@ -375,7 +432,7 @@ index 69b696f..cb19d1b 100644
              )
              print(f"Saved audio to {output_path}")
              saved_count += 1
-@@ -86,4 +100,4 @@ def main():
+@@ -86,4 +151,4 @@ def main():
      print(f"Inference completed. Saved {saved_count}/{len(items)} audio files to {args.output_dir}")
  
  if __name__ == "__main__":

@@ -7,7 +7,9 @@
 - `0001-adapt-v0.5-inference-to-npu.patch`
   - 基于 `OpenMOSS/MOSS-TTSD` tag `v0.5` / commit `0e078c62389922d3aa873ce182daf31142860b18`。
   - 修改原项目已有 `inference.py`、`generation_utils.py`、`gradio_demo.py`、`podcast_generate.py`、`modeling_asteroid.py`、`requirements.txt`、`XY_Tokenizer/inference.py`、`XY_Tokenizer/utils/helpers.py`、`XY_Tokenizer/xy_tokenizer/model.py`、`XY_Tokenizer/xy_tokenizer/nn/quantizer.py`。
-  - 推理入口只增加显式 `--device npu/cpu/cuda`，默认 NPU；模型与 codec 按固定目录读取，不增加 dtype、attention、batch 或权重路径参数。
+  - 推理入口增加显式 `--device npu/cpu/cuda` 和 `--batch_size`；默认 NPU、
+    batch size 1。TTSD-eval 按有界 batch 顺序生成并打印逐批进度。
+    模型与 codec 按固定目录读取，不增加 dtype、attention 或权重路径参数。
   - 注册 NPU PFA/IFA attention backend，直接传递 query/KV head 数支持 GQA，避免 Transformers SDPA/eager 的 `repeat_kv` 实体展开；prefill 和单 token decode 分别走 `npu_prompt_flash_attention` / `npu_incre_flash_attention`。
   - NPU 设备内部固定选择 BF16 + PFA/IFA，CPU 使用 FP32 + SDPA，CUDA 保持 BF16 + `flash_attention_2`。
   - patch 直接从 `requirements.txt` 删除 CUDA/ROCm GPU 专用的 `flash-attn`；NPU 不依赖该包。
@@ -19,7 +21,7 @@
 Patch SHA256：
 
 ```text
-426303406d9289c0f981ca333604107af323a56a576c5129a844aacc83962056
+7d446e9c9c743b57ab41cb553422e428bf515b6d4e724d10450fa5b15b1a01ba
 ```
 
 应用方式（在 `ACL_PyTorch/built-in/audio/MOSS-TTSD-v0.5` 目录下执行）：

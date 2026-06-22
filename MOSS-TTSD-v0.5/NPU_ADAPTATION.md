@@ -66,7 +66,10 @@
 - `XY_Tokenizer/xy_tokenizer/nn/quantizer.py` 使用 `torch.autocast('cuda', enabled=False)`。
 - `torchaudio.load` / `torchaudio.save` 在 TorchAudio 2.9+ 环境会进入 TorchCodec 路径，缺少或不匹配时会报 `TorchCodec is required for load_with_torchcodec` / `save_with_torchcodec`。
 - `modeling_asteroid.py` 自定义 `GenerationMixin._sample` 先记录 shifted 输入原始长度，再裁掉 `channels - 1` 个位置用于初始前向；如果不同步 `cur_len`，NPU `sdpa` 下发 `aclnnFlashAttentionScore` 时可能收到 query/key 长度不一致的 attention mask。
-- `inference.py` 原本将 JSONL 的全部样本一次性传给 `process_batch()`；TTSD-eval 等多样本输入会在 Transformers NPU SDPA 的 `repeat_kv` GQA 展开处产生大块临时张量并 OOM。
+- `inference.py` 原本将 JSONL 的全部样本一次性传给 `process_batch()`；TTSD-eval
+  等多样本输入会长时间停留在无进度输出的自回归 `model.generate()`，并放大
+  padding、KV cache 和 logits 开销。旧 NPU SDPA 路径还会在 `repeat_kv` GQA
+  展开处产生大块临时张量并 OOM。
 
 因此本次必须修改上游已有文件并生成 patch，而不是仅新增外部包装脚本。
 
@@ -74,7 +77,7 @@
 
 | 文件 | 结论 | 说明 |
 |---|---|---|
-| `inference.py` | 已 patch | 只增加 `--device npu/cpu/cuda`；默认 NPU。模型与 codec 路径按脚本目录固定读取，保留原项目完整 JSONL batch 行为，并使用 `soundfile` 写 WAV。 |
+| `inference.py` | 已 patch | 增加 `--device npu/cpu/cuda` 和有界 `--batch_size`；默认 NPU、batch size 1。逐批生成并打印进度，全部 batch 完成后沿用原编号写 WAV；模型与 codec 路径按脚本目录固定读取。 |
 | `generation_utils.py` | 已 patch | `load_model()` 按设备内部选择固定 dtype 和 attention backend：NPU 为 BF16 + PFA/IFA，CUDA 保持 BF16 + `flash_attention_2`，CPU 为 FP32 + SDPA；音频读取/写出改为 `soundfile`。 |
 | `modeling_asteroid.py` | 已 patch | 裁剪 shifted speech channels 后同步 `cur_len`；注册内部 NPU Flash Attention backend，prefill/decode 分别调用 PFA/IFA，并直接传递 GQA KV head 数。 |
 | `gradio_demo.py` / `podcast_generate.py` | 已 patch | WAV 写出复用 `save_audio_file()`，移除 `torchaudio.save` 路径。 |
@@ -95,6 +98,9 @@
 7. 显存清理：CUDA 使用 `torch.cuda.empty_cache()`，NPU 使用 `torch.npu.empty_cache()`。
 8. attention mask：裁剪 shifted speech channels 后重置 `cur_len = input_ids.shape[1]`，保证 `input_ids`、`attention_mask`、cache position 长度一致。
 9. NPU GQA attention：内部 Flash Attention backend 使用 PFA/IFA 的 `num_key_value_heads` 参数，避免 SDPA/eager 对 KV 执行 `repeat_kv`；复用 Transformers SDPA 的布尔 causal/padding mask 生成逻辑，但禁用 mask-skip，再转换为 NPU 算子的“True 表示屏蔽”语义。
+10. 长清单生成：`--batch_size` 默认 `1`，保持输入顺序和 `output_N.wav` 编号，
+    每批返回后打印 `[Batch i/N]`，避免 TTSD-eval 整集单批造成长时间无日志以及
+    过量 padding/KV cache。
 
 ### 1.6 风险与限制
 
@@ -102,7 +108,9 @@
 - 权重 SHA256 尚未记录；正式验收前必须补充。
 - 原项目 v0.5 中仍存在若干宽泛 `try/except` 和失败后继续处理的逻辑；本次 patch 以 NPU 设备适配为目标，没有重构原项目整体错误处理。
 - NPU Flash Attention 依赖目标 `torch-npu` 的 PFA/IFA GQA 接口；当前本地环境无 NPU，尚未完成真实算子精度/性能验证，正式验收必须补齐与 CPU/CUDA 原始路径的结果对齐。
-- 即使消除 `repeat_kv`，完整 JSONL 仍可能因输入 embedding、logits、KV cache 或 codec 中间张量超过 HBM；此时需按固定规则拆分 manifest，不能声称 attention 修改可以无条件容纳任意评测集。
+- 即使消除 `repeat_kv`，过大的 `--batch_size` 仍可能因输入 embedding、logits、
+  KV cache 或 codec 中间张量超过 HBM；TTSD-eval 默认保持 `1`，不得用 CPU 回退
+  掩盖 NPU 问题。
 - 生成式 TTS/TTSD 不能用“能输出 WAV”作为完整验收；正式验收需按 `ACCEPTANCE_PLAN.md` 做可懂度、音色、自然度和人工听测。
 - NeMo/Transformers/PyTorch/TorchAudio 版本持续变化；若上游或依赖升级，应重新检查 `flash-attn`、TorchCodec、attention backend 和 `GenerationMixin` 行为。
 
@@ -114,6 +122,8 @@
 - 2026-06-17：固定模型权重和 codec checkpoint 的 HF/ModelScope revision，待正式下载后补充 SHA256。
 - 2026-06-18：根据 TTSD-eval NPU OOM 栈确认整集 batch 在 `sdpa_attention.repeat_kv` 处放大 GQA KV。
 - 2026-06-18：新增内部 PFA/IFA GQA backend，随后收敛接口，仅保留 `--device`；NPU 自动使用 Flash Attention，不再暴露 dtype、attention、batch 或权重路径参数。
+- 2026-06-22：根据 TTSD-eval 长时间停在 `Starting batch audio generation...`
+  的现场信息，恢复最小 `--batch_size` 参数，默认单样本并增加逐批进度日志。
 
 ## 2. NPU 适配与运行说明
 
@@ -346,7 +356,7 @@ TTSD-eval 等多样本 JSONL 旧路径会将全部样本作为一个 batch。Tra
 - query length 为 1 的 decode 调用 `torch_npu.npu_incre_flash_attention`；
 - Q/K/V 使用 `BNSD`，分别传入 query head 数与 KV head 数；
 - 不改 site-packages，不运行时 monkey patch，不静默回退；
-- 推理 CLI 只增加 `--device`，不暴露 attention、dtype、batch 或权重路径参数；
+- 推理 CLI 增加 `--device` 和 `--batch_size`，不暴露 attention、dtype 或权重路径参数；
 - CPU 使用 SDPA，CUDA 保持原始 `flash_attention_2`。
 
 官方接口说明中，PFA/IFA 的 `num_key_value_heads` 用于 GQA，要求 query head 数可整除 KV head 数。参考：
@@ -355,7 +365,12 @@ TTSD-eval 等多样本 JSONL 旧路径会将全部样本作为一个 batch。Tra
 - <https://www.hiascend.com/document/detail/zh/Pytorch/600/apiref/apilist/ptaoplist_000146.html>
 - <https://www.hiascend.com/document/detail/zh/Pytorch/60RC1/apiref/apilist/ptaoplist_000453.html>
 
-若完整 JSONL 仍 OOM，应记录峰值 HBM，并保持样本内容和顺序不变，将同一 JSONL 确定性拆成较小 manifest，在 CPU/CUDA 与 NPU 两端使用相同拆分；若单样本仍 OOM，再按超长样本或更深层 KV cache 优化问题处理。
+patch 后入口默认按单样本顺序处理 JSONL，每批完成后打印进度；全部 batch 结束后
+按原入口规则保存对应 `output_N.wav`。
+TTSD-eval 首批在 NPU 上可能触发算子/图编译；`forkserver`/`resource_tracker`
+子进程本身不是死锁证据。应结合 `npu-smi info` 的利用率、HBM 变化和 CANN 日志判断。
+若 `--batch_size 1` 的单样本仍 OOM 或超过 10 分钟保持 0 利用率且无日志进展，
+再按超长样本、算子编译或更深层 KV cache 问题处理。
 
 ### 3.5 提交前必跑检查
 
