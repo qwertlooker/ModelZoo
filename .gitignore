@@ -1,3 +1,6 @@
+**/__pycache__/
+*.pyc
+
 BEATs/upstream/
 BEATs/test_data/
 BEATs/weights/

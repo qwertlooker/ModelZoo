@@ -2,9 +2,80 @@
 
 ## 一句话指令
 
-> 先克隆 upstream，确认远端最新 commit，并明确“当前适配的精确版本边界”：源码 repo/分支/commit、模型权重 repo/文件/commit 或校验值、辅助模型版本，以及明确排除同系列其他变体。区分上游源码改动和当前适配脚本。上游已有文件的修改必须生成 patch；新增 `infer.py` 不放进 patch，直接放当前模型目录。`infer.py` 只保留一个，默认 `--device npu`，CPU 验证用 `--device cpu`，不要使用 `auto/use_gpu`，不要写死 `npu:0/cuda:0`，实际设备由环境变量控制。适配/评测脚本必须按项目级“严格失败”原则实现：必需依赖统一前置 import，缺依赖、缺官方预期字段或版本不匹配时直接暴露原始错误，不添加不必要的 `try/except`、`hasattr/getattr`、regex/basic 替代、CPU/远端 fallback 等静默兼容。必须补全环境搭建、权重下载、测试数据下载、CPU 当前环境验证、NPU 验证说明。还必须生成 `ACCEPTANCE_PLAN.md`，先写清“原始测试集是什么、原始指标是多少、NPU 如何对齐原始模型结果”。当前最低验收只保留两层：功能验证和 L2 正式对齐；L2 必须同时包含主要精度/质量与性能指标，并尽量使用原始公开 benchmark 全量数据和官方配置，否则使用公开数据或内部固定集并说明降级口径。L1/L3 和长稳扩展项可选。模型目录默认维护 `README.md`、`NPU_ADAPTATION.md`、`ACCEPTANCE_PLAN.md` 三类主文档；最后验证 `git apply --check`、`py_compile`、下载 URL/脚本可用性、测试数据可用性和可执行入口，不能只补文档不做验证。
+> 先固定目标仓 master 快照、拟合入路径和同类近期样例，再确认 upstream、权重、辅助模型及参考实现的精确版本边界。区分迁移工作证据和正式上库候选文件；上游已有文件的修改必须生成可重复应用的 patch，新增入口直接作为候选文件维护。默认 NPU 路径不得绑定卡号，适配/评测脚本按“严格失败”原则实现。先查清原始测试集与官方/公开指标，再形成数据准备、NPU 推理、官方 evaluator 或等价评测、自动比较、精度/质量与性能报告闭环。达到 S3 只代表技术验收完成；还必须通过目标路径、README 自包含、许可证、贡献门禁、候选文件清单和候选目录 clean-room 重放，才能标记“上库候选就绪”。
 
 ---
+
+## 目标仓基线与上库就绪定义
+
+目标仓是 `https://gitcode.com/Ascend/ModelZoo-PyTorch.git` 的
+`ACL_PyTorch/built-in`。流程文档中的快照只用于说明审阅依据，不能替代每次任务的
+实时检查。2026-06-22 审阅时，目标仓 `master` 为
+`ec2a7b514973805f66b67c9178d2f5c9e97eee34`；后续任务必须重新执行：
+
+```bash
+git ls-remote https://gitcode.com/Ascend/ModelZoo-PyTorch.git refs/heads/master
+```
+
+目标仓 `ACL_PyTorch/README.md` 当前链接到 `Ascend/modelzoo` 的贡献规范。2026-06-22
+核对的贡献规范 commit 为 `5eab9a4921c7f12edb555079836429a8f285cd1f`，其中仍要求
+源码、README、参考许可证、自测试和 built-in `modelzoo_level.txt`。但目标仓现有
+目录并非全部具备这些文件，说明历史目录和当前 PR 门禁可能存在差异。执行时必须向
+当前目标仓规则和维护者确认适用项：不得因为历史模型缺文件就跳过，也不得为了形式
+生成未执行、虚假的自测试或状态文件；不适用或获豁免时记录依据。
+
+每个模型在 `NPU_ADAPTATION.md` 中必须记录：
+
+- 目标仓检查日期和 commit；
+- 拟合入路径 `ACL_PyTorch/built-in/<领域>/<模型目录>`；
+- 目标路径是否已存在，本次是新增、替换还是增量更新；
+- 至少一个同领域、同推理形态的最新实质合入参考目录，以及该目录最后实质变更的
+  commit/date 和选择原因；
+- 当前目标仓贡献规范的来源 commit，以及许可证、自测试、
+  `modelzoo_level.txt` 等 PR 门禁的适用结论；
+- 正式上库文件清单和明确排除项。
+
+### 参考样例按新近程度排序
+
+目标仓样例按以下顺序选取，不再默认拿历史“经典模型”当模板：
+
+1. 同领域、同推理形态中最后实质变更时间最新的模型；
+2. 推理形态相同但领域不同的最新模型，例如在线 PyTorch、TorchAir、ONNX/OM、
+   vLLM-Ascend 或 CANN EP；
+3. 同领域历史模型，仅用于补充特定 metric、数据集或兼容场景。
+
+“实质变更”指新增模型、推理链路、环境配套、评测脚本、性能/精度结果或重要适配
+修改；仓级批量改链接、格式或硬件名称不改变参考模型的新旧排序。推荐先列出最近变更：
+
+```bash
+git -C <target_repo> log --date=short \
+  --format='COMMIT %H %ad %s' --name-only -- ACL_PyTorch/built-in
+
+git -C <target_repo> log -1 --date=iso-strict \
+  --format='%H %ad %s' -- ACL_PyTorch/built-in/<领域>/<参考模型>
+```
+
+2026-06-22 审阅时，近期实质合入样例包括：
+
+| 日期 | 目录 | 最后实质变更 commit | 主要参考价值 |
+|---|---|---|---|
+| 2026-06-22 | `audio/YingMusic-SVC_for_Pytorch` | `e98df562edb2e3af90392360145ead663a5f8d8a` | 容器镜像、框架版本保护、许可证来源、patch 交付 |
+| 2026-06-17 | `cv/F3Net` | `270266e62ffb2673a0bd68413c2b557017153b49` | 独立精度/性能脚本、完整上游 SHA 和 patch |
+| 2026-06-11 | `embodied_ai/IsaacGR00T` | `f5088ea17ba89b6eb8b725759976f59cbf62b5bc` | TorchAir 图编译路径 |
+| 2026-06-09 | `embodied_ai/GraspNet` | `d249098a7bb9d5b4a72cbd7d55c03dc1f81de604` | 在线 `torch_npu` 推理与评测入口 |
+| 2026-06-09 | `nlp/chronos-2` | `058e04c7d4aa09bc535e30380bf9133b0ea25c60` | 在线 PyTorch 精度/性能脚本 |
+| 2026-06-08 | `cv/SAM3` | `093104676ed87c3e4a59a2d810902a77503e1568` | ONNX 导出、图优化、ATC/OM、精度与性能 |
+| 2026-06-01 | `audio/Canary-1B` | `4592df34779dd7a463bdda139a510d99b50ca6b0` | 音频数据准备、推理和评测入口 |
+
+这张表只记录当次审阅事实，后续任务必须重新排序。最新样例仍可能有 README 层级、
+路径、数据链接、设备绑定或验收口径问题；只能提取已核实的共同约束，不能照搬。
+
+技术验收与上库就绪是两个维度：
+
+- S0-S4 描述模型分析、适配和运行验收状态；
+- “上库候选就绪”要求至少达到 S3，并且最终候选目录可独立完成 README 中的最低
+  正式路径，且不依赖当前工作区内部证据；
+- “正式合入”只能由目标仓 PR 已合并或目标仓 commit 证明。
 
 ## 完成定义：先判定交付状态，再决定是否可以结束任务
 
@@ -26,8 +97,8 @@
    重放和命令级检查。
 4. **“建议/尽量”过多**：数据脚本、离线目录、metadata、下载 check-only 等虽然
    分散写到流程中，但缺少“不满足则不得宣称完成”的统一硬门禁。
-5. **没有区分三组 baseline**：只写 CPU/CUDA vs NPU，容易漏掉“未修改 upstream”
-   与“patch 后同设备”的回归证明。
+5. **基线口径互相冲突**：旧流程一处允许引用公开/官方基线，另一处又强制本地三组
+   baseline。现在按“可比性和 patch 风险”决定是否必须补跑同设备回归。
 6. **缺少模型类型专用检查**：通用规则发现不了 ONNX provider 分区回退、vLLM
    served model/context 冲突、agent 外部工具、fine-tuning 方差和 dscore
    `store_true` 参数等问题。
@@ -39,7 +110,7 @@
 | S0 分析完成 | upstream/权重/参考版本、设备节点、官方测试集和指标取证 | “完成适配分析” |
 | S1 静态适配完成 | 最小 patch/infer、`git apply --check`、`py_compile`、静态扫描 | “静态门禁通过” |
 | S2 功能验证完成 | 干净环境安装、权重/功能输入准备、CPU/CUDA 或 NPU 至少一条真实端到端输出 | “某设备功能链路实测通过” |
-| S3 L2 迁移对齐完成 | L2 上同 checkpoint/manifest/脚本/参数的三组精度/质量结果、性能结果及自动比较 | “NPU L2 精度和性能对齐通过” |
+| S3 L2 迁移对齐完成 | NPU L2 精度/质量与性能结果、可比的官方/公开基线或必要的本地同设备回归、自动比较和报告 | “NPU L2 精度和性能对齐通过” |
 | S4 扩展验收通过 | 用户明确要求的 L3、长稳或业务扩展项完成 | “扩展验收通过” |
 
 硬规则：
@@ -60,8 +131,8 @@
 环境/依赖检查
   -> 权重 metadata check 或实际下载
   -> 测试数据准备和 manifest/meta
-  -> 未修改 upstream CPU/CUDA 基线
-  -> patch 后 CPU/CUDA 回归
+  -> 原始公开/官方基线取证
+  -> 必要时补 patch 后 CPU/CUDA 回归
   -> NPU 推理
   -> 自动比较数值/指标
   -> 验收报告
@@ -73,43 +144,49 @@
   metadata，不加载模型；
 - `infer.py` / 官方推理入口：读取固定输入并写独立结果；
 - `eval_*.py` / 官方 evaluator：计算官方 metric；
-- `compare_*.py`：按稳定 ID 比较 CPU/CUDA/NPU，阈值失败时返回非零退出码；
+- `compare_*.py`：按稳定 ID 比较公开/官方基线、必要的 CPU/CUDA 回归和 NPU 结果，
+  阈值失败时返回非零退出码；
 - 固定功能输入：可提交的小样本、prompt JSONL 或明确下载的一条官方样例；
 - 输出 sidecar：命令、版本、权重/manifest SHA、设备/provider、耗时。
 
 如果项目已有公共工具，应优先复用，例如 OpenAI-compatible 服务使用：
 
 ```bash
-python tools/openai_service_eval.py --help
-python tools/compare_openai_service_results.py --help
+python3 tools/openai_service_eval.py --help
+python3 tools/compare_openai_service_results.py --help
 ```
 
 只在 `ACCEPTANCE_PLAN.md` 写“比较 logits/CSV/DER/embedding”但没有脚本、官方命令
 或人工步骤的精确定义，视为未交付。
 
-## 三组基线不能省略
+## 基线证据按可比性分层
 
-存在上游 patch 时，验收至少保留三组独立结果：
+最低必需的两类证据是：
 
-1. **原始 baseline**：精确 upstream commit 未应用 patch 的 CPU/CUDA 路径；
-2. **回归 baseline**：应用 patch 后的同设备 CPU/CUDA 路径，证明 patch 没有改变
-   原始行为；
-3. **NPU candidate**：应用 patch 后的 NPU 路径。
+1. **原始公开/官方基线**：论文、官方仓、模型卡或公开 benchmark 中与当前模型版本
+   对应的测试集、指标和配置；
+2. **NPU candidate**：应用适配后的 NPU 结果，包含 L2 精度/质量和性能。
 
-三组必须使用同一 checkpoint、manifest、参数和 evaluator，结果写入不同目录。禁止：
+只有在两者 checkpoint、数据集/split、metric、normalizer/后处理和关键推理参数一致
+或可明确换算时，才能直接判定对齐。下列情况必须增加**应用 patch 后的同设备
+CPU/CUDA 回归**：
 
-- 让 CPU/NPU 都覆盖 `results.csv`；
-- 只比较 patch 后 CPU 与 NPU，却未证明 patch 保持原始 CUDA 行为；
-- 使用不同 batch/decode/normalizer 后直接比较指标；
-- 用 reference README 截图代替当前运行结果。
+- 公开基线与 NPU 结果不可直接比较，且没有其他等价公开结果；
+- patch 修改了模型算法语义、预处理、后处理、decode、dtype 默认值或输出结构；
+- 适配问题可能来自上游版本漂移，需要隔离“版本差异”和“NPU 后端差异”；
+- 目标仓维护者或用户明确要求本地回归。
 
-若 patch 的目的就是新增上游原本不支持的模型架构或后端，未修改 upstream 可能无法
-产生数值结果。此时允许把第一组改为“原始路径预期失败证据”，但必须同时满足：
+精确 upstream 未应用 patch 的本地运行属于增强证据。若已选择本地三组对照，三组必须
+使用同一 checkpoint、manifest、参数和 evaluator，并写入不同目录。禁止：
 
-- 给出可直接执行的原始命令、非零退出码和独立日志路径；
-- 记录稳定且与能力缺失直接相关的错误，不接受下载失败、OOM 或环境缺包代替；
-- patch 后同设备 CPU/CUDA 必须产生数值结果，作为 NPU 的主要迁移基线；
-- `ACCEPTANCE_PLAN.md` 明确这是架构新增例外，不能写成原始数值已对齐。
+- 让 CPU/CUDA/NPU 覆盖同一个结果文件；
+- 使用不同 batch/decode/normalizer 后直接比较；
+- 用截图、口头描述或历史 README 表格代替机器可读结果；
+- 公开基线不可比时仍直接宣称“无精度下降”。
+
+若原始路径因能力缺失无法运行，可记录可重复的预期失败证据；但 patch 后同设备回归
+是否强制，仍按上面的可比性和 patch 风险判断，不能用下载失败、OOM 或缺包冒充能力
+缺失。
 
 ---
 
@@ -120,10 +197,15 @@ python tools/compare_openai_service_results.py --help
 ```bash
 find <model_dir> -maxdepth 3 -type f | sort
 git status --short
+git ls-remote https://gitcode.com/Ascend/ModelZoo-PyTorch.git refs/heads/master
 ```
 
 确认：
 
+- 拟合入领域和目标路径；
+- 目标路径是否已存在，现有 README 和文件是否需要保留；
+- 同领域、同推理形态按最后实质变更时间排序后的最新参考模型；
+- 每个参考模型的最后实质变更 commit/date，排除仅批量改链接/格式的提交；
 - 是否已有 `README.md`；
 - 是否已有 `infer.py` 或多个推理脚本；
 - 是否已有 `requirements.txt` / `environment.yml` / 安装说明；
@@ -184,7 +266,7 @@ sha256sum <weight_file>
 
 ---
 
-### Step 3：区分三类文件
+### Step 3：区分四类文件
 
 #### A. 上游已有文件
 
@@ -222,6 +304,30 @@ scripts/download_test_data.sh
 ```text
 <model_dir>/upstream/
 ```
+
+#### D. 内部证据与正式候选文件
+
+当前仓模型目录允许保留迁移证据，但最终上库候选默认排除：
+
+```text
+NPU_ADAPTATION.md
+ACCEPTANCE_PLAN.md
+README_old.md
+ANALYSIS.md
+NPU_VALIDATION.md
+upstream/
+.codex-reference/
+.venv*/
+__pycache__/
+weights/
+eval_data/
+eval_results/
+*.log
+```
+
+默认候选包括 `README.md`、正式运行/数据准备/评测脚本、必要 patch/diff、依赖文件、
+许可证文件、当前贡献规范要求的元数据，以及明确用于功能链路验证的小型固定样例。
+`NPU_ADAPTATION.md` 必须列出精确候选文件，不能用“整个模型目录”代替。
 
 ---
 
@@ -314,7 +420,7 @@ CUDA_VISIBLE_DEVICES=0
 
 #### 5.1 FlashAttention / SDPA 迁移原则
 
-本原则适用于所有使用 Transformers、PyTorch attention、CUDA/ROCm `flash-attn`、ONNX/OM attention 图改写或 vLLM-Ascend 的模型目录。2026-06-21 已重新核对官方 `Ascend/ModelZoo-PyTorch` 的 `ACL_PyTorch/built-in` master 快照 `6fecdfba771499ecf4cbc3ed975884720e2a8635`；官方上库文档持续采用固定源码 commit、明确固件/驱动/CANN/PyTorch 配套、真实目录和性能/精度表。后续适配前仍需按当前日期重新复查上游文档和目标 CANN / `torch-npu` 版本。
+本原则适用于所有使用 Transformers、PyTorch attention、CUDA/ROCm `flash-attn`、ONNX/OM attention 图改写或 vLLM-Ascend 的模型目录。2026-06-22 已重新核对官方 `Ascend/ModelZoo-PyTorch` 的 `ACL_PyTorch/built-in` master 快照 `ec2a7b514973805f66b67c9178d2f5c9e97eee34`；官方上库文档持续采用固定源码 commit、明确固件/驱动/CANN/PyTorch 配套、真实目录和性能/精度表。后续适配前仍需按当前日期重新复查目标仓、目标 CANN / `torch-npu` 版本和同类近期模型。
 
 官方仓中常见做法主要有四类：
 
@@ -448,6 +554,11 @@ ONNX Runtime 官方 CANN EP 文档给出的公开配套包括
   6. 模型推理性能
   7. 公网地址说明
 
+- README 必须在最终候选目录中自包含。不得写入候选目录不存在的文件，不得要求读者
+  再查看默认不合入的 `NPU_ADAPTATION.md`、`ACCEPTANCE_PLAN.md` 或历史 README。
+- 目录树只列候选文件和按命令生成/下载的运行产物。候选文件必须真实存在；生成项应
+  明确标注“下载后”或“运行后生成”，避免把内部工作目录伪装成交付文件。
+
 **概述和输入输出**
 
 - 概述只写模型来源、核心架构、支持任务/语言/模态，以及“本文档介绍该模型基于昇腾 NPU 推理指导”。不要把性能测试、精度测试流程等细节堆到概述中。
@@ -481,6 +592,9 @@ ONNX Runtime 官方 CANN EP 文档给出的公开配套包括
 - 不要列出与上库推理无关的目录，例如 patch 说明目录、历史日志、本地虚拟环境、upstream clone、缓存目录等。
 - 如果文档命令使用根目录脚本名（如 `python eval_xxx.py`），仓库中必须提供对应入口脚本；否则文档必须写真实路径（如 `python scripts/eval_xxx.py`）。文档和脚本入口必须一致，不能只在目录树里省略 `scripts/`，但命令里仍使用 `scripts/`。
 - 新增根目录 wrapper 可以用于统一上库入口，但 wrapper 只能转发到真实脚本，不应复制大量逻辑。
+- README 中每条最低路径命令都必须从声明的执行目录 clean-room 重放。命令引用的
+  Python/shell/patch/requirements 文件必须在候选目录中存在，或由前一步固定版本的
+  clone/download 明确产生。
 
 **权重和测试数据**
 
@@ -540,7 +654,7 @@ PY
 
 如已安装匹配 CANN 的 `torch` / `torch-npu`，安装模型依赖时应避免 pip 自动升级或替换 PyTorch。必要时可使用 `--no-deps` 安装源码包，再手工安装除 torch 外的依赖。
 
-#### 6.2 依赖文件含义记录模板
+#### 6.3 依赖文件含义记录模板
 
 模型适配文档中建议加入如下表格：
 
@@ -556,7 +670,7 @@ PY
 | `requirements_docs.txt` | 文档构建 | 非推理必需 | Sphinx 等 |
 | `requirements_cu*.txt` | CUDA 附加依赖 | NPU 通常不需要 | NPU 环境不要误装 CUDA 专用 extra |
 
-#### 6.3 依赖验收必须包含导入测试
+#### 6.4 依赖验收必须包含导入测试
 
 依赖安装完成后，必须在 `NPU_ADAPTATION.md` 的验证记录中给出最小导入测试。不要只写“安装完成”。
 
@@ -742,15 +856,15 @@ Canary-1B 的 FLEURS 与 LibriSpeech 数据准备进一步明确了一个通用�
 3. **离线模式必须严格禁止联网**
    - 提供统一 `--offline` 或等价参数。
    - `--offline` 下缺文件必须立即报出具体缺失路径，不得 fallback 到 HF hub、OpenSLR、HTTP URL 或其他远端。
-   - 离线命令应写入 README / NPU_VALIDATION，例如：
+   - 离线命令应写入 README / NPU_ADAPTATION，例如：
 
      ```bash
-     python prepare_eval_data.py --task ast \
+     python3 prepare_eval_data.py --task ast \
        --data_dir Canary-1B/eval_data \
        --fleurs_parquet_dir Canary-1B/eval_data/fleurs_parquet \
        --offline
 
-     python prepare_eval_data.py --task asr \
+     python3 prepare_eval_data.py --task asr \
        --data_dir Canary-1B/eval_data \
        --librispeech_dir Canary-1B/eval_data/librispeech_raw \
        --offline
@@ -831,9 +945,10 @@ git -C <model_dir>/upstream apply --check ../patches/0001-xxx.patch
 
 ---
 
-### Step 11：当前环境 CPU 验证（必须执行）
+### Step 11：当前环境轻量执行与可选 CPU 回归
 
-即使没有 NPU，也必须尽量使用当前环境执行 CPU 验证流程。
+当前环境必须执行静态检查、`--help`、数据 fixture 或 dry-run。CPU/CUDA 端到端回归
+是否强制按“基线证据按可比性分层”决定；不能用 CPU smoke 代替 NPU 功能验证或 S3。
 
 #### 11.1 先做轻量静态验证
 
@@ -844,7 +959,7 @@ python3 <model_dir>/infer.py --help
 
 要求：`--help` 不应因为缺少 `torch_npu`、权重文件或非必要推理依赖而失败。若上游包导入不可避免，必须在 `NPU_ADAPTATION.md` 记录失败原因并说明如何安装最小依赖。
 
-#### 11.2 准备 CPU 可运行依赖
+#### 11.2 准备轻量或 CPU 可运行依赖
 
 优先使用最小依赖，不要盲目安装超大训练环境：
 
@@ -887,15 +1002,15 @@ MODEL_CHECK_ONLY=1 <download_weights_command>
 - 权重 URL 检查结果：repo commit、必需文件列表、HTTP status、文件大小或失败原因；
 - 测试数据可读性检查结果：采样率/尺寸/字段等。
 
-#### 11.4 执行 CPU 推理
+#### 11.4 执行 CPU 推理或记录不适用
 
-必须尝试执行：
+如果脚本声明支持 `--device cpu`，或本模型需要本地同设备回归，应执行：
 
 ```bash
 python <model_dir>/infer.py --device cpu <model_args> <input_args>
 ```
 
-CPU 验证至少记录：
+若执行 CPU/CUDA 同设备回归，至少记录：
 
 - 命令；
 - 是否成功；
@@ -903,11 +1018,13 @@ CPU 验证至少记录：
 - 运行耗时（如方便）；
 - 如果失败，完整错误摘要和下一步处理建议。
 
-#### 11.5 CPU 验证判定
+#### 11.5 当前环境验证判定
 
 - 成功：说明 `infer.py` 参数、权重加载、数据读取、主推理链路基本正确；
-- 失败但可解释：记录为“当前环境 CPU 验证阻塞”，不可简单省略；
-- 不能因为无 NPU 而跳过 CPU 验证。
+- 失败但可解释：记录为“当前环境轻量验证/CPU 回归阻塞”，不可简单省略；
+- NPU-only 入口可以明确记录 CPU 不适用，但仍必须执行静态、help/dry-run 和最终 NPU
+  功能/L2 验证；
+- 没有 NPU 时不能把 CPU 结果写成 NPU 验收完成。
 
 ---
 
@@ -942,7 +1059,7 @@ python <model_dir>/infer.py --device cpu <model_args> <input_args>
 
 1. **原始模型测试集是什么**：记录官方/论文/模型卡/README 使用的数据集、config、split、样本数或时长、manifest 生成方式、测试数据下载来源。
 2. **原始模型指标是多少**：记录官方公开指标、metric、normalizer/后处理、decode/推理参数、checkpoint/版本、硬件和来源链接。
-3. **NPU 如何对齐原始结果**：同 checkpoint、同测试集或同一固定 manifest、同官方或等价评测脚本、同推理参数下，比较 CPU/CUDA 原始路径与 NPU 结果；NPU 通过线应优先定义为“相对原始 CPU/CUDA 不退化”以及“在可复现条件下接近官方公开指标”。
+3. **NPU 如何对齐原始结果**：同 checkpoint、同测试集或同一固定 manifest、同官方或等价评测脚本、同推理参数下，优先直接比较官方/公开基线与 NPU 结果；公开基线不可比或 patch 风险较高时，再补应用 patch 后的 CPU/CUDA 同设备回归。通过线必须与实际证据类型一致。
 
 如果官方没有发布正式测试集或指标，必须在 `ACCEPTANCE_PLAN.md` 中明确写“官方未发布测试集/指标”，并说明当前只能使用官方示例、公开替代集或内部固定集做迁移对齐；不得编造官方指标，也不得把内部集、人工抽检、第三方榜单或 smoke test 说成原始模型官方结果。
 
@@ -967,7 +1084,7 @@ python <model_dir>/infer.py --device cpu <model_args> <input_args>
 - **L2 正式验收**：使用可获取公开数据或内部固定集，计算原始模型主要精度/质量指标；
 - **功能矩阵**：覆盖所有核心任务、语言/模态、batch、长输入、异常输入；
 - **精度/质量验收**：优先围绕原始测试集和原始指标设计；指标、normalizer/后处理、CPU/CUDA 原始路径 vs NPU 对齐阈值、对官方/公开精度指标的允许差异必须写清楚；
-- **性能验收**：在 L2 同一数据或固定性能 manifest 上记录 latency、throughput、RTF/RTFx、tokens/s、峰值 HBM/RSS 等适用指标；官方有公开硬件结果时按官方配置对齐，否则只做三组相对比较；
+- **性能验收**：在 L2 同一数据或固定性能 manifest 上记录 latency、throughput、RTF/RTFx、tokens/s、峰值 HBM/RSS 等适用指标；官方有公开硬件结果时按官方配置对齐，否则报告 NPU 绝对结果，并在需要或可行时补同设备相对比较；
 - **最低正式验收清单**：资源受限时也必须执行的最小集合；
 - **报告模板**：环境、功能、L2 精度/质量、L2 性能和结论。
 
@@ -975,10 +1092,11 @@ python <model_dir>/infer.py --device cpu <model_args> <input_args>
 
 示例判定原则：
 
-- NPU 适配本身优先要求同 checkpoint、同数据、同脚本下相对 CPU/CUDA 不退化；
+- NPU 适配本身优先要求同 checkpoint、同数据、同脚本下对齐原始公开/官方指标；
+  无法直接比较时，使用 patch 后同设备 CPU/CUDA 结果校准；
 - 只有使用原始公开数据全量、官方或等价评测脚本、匹配解码/后处理配置时，才可宣称复现原始公开指标；
 - 只有性能数据的硬件、精度、batch、输入输出长度和计时口径一致时，才可与官方
-  性能表直接比较；否则报告本次三组相对结果；
+  性能表直接比较；否则报告 NPU 绝对结果，并在可行时补充本地同设备相对结果；
 - dummy / 随机输入只能作为功能链路验证，不得作为 L2 精度或质量结论。
 
 ---
@@ -1064,13 +1182,16 @@ ACCEPTANCE_PLAN.md
 
 - 面向正式仓用户，包含模型概述、版本边界、输入输出、环境配套表、交付目录、权重和数据准备、推理/评测命令、性能与精度表、公网地址；
 - 只保留可直接执行的正式使用说明，路径、脚本名和参数必须与交付文件一致；
-- 不堆叠本地调试日志、适配过程、失败记录和大段指标对齐分析，相关内容链接到另外两份文档。
+- 不堆叠本地调试日志、适配过程、失败记录和大段指标对齐分析；
+- README 必须自包含，不得依赖默认不进入候选目录的另外两份内部文档。
 
 #### NPU_ADAPTATION.md：适配实现与验证事实
 
 - 合并原 `ANALYSIS.md` 和 `NPU_VALIDATION.md` 的职责；
 - 记录 upstream repo/commit/检查日期、源码和权重版本边界、非目标变体、原目录分析、设备节点、修改范围、patch、依赖和设备适配方式；
 - 记录权重/数据路径及校验、`git apply --check`、导入测试、`py_compile`、CPU/NPU 实际验证命令和结果、未执行原因、风险与限制；
+- 记录目标仓快照、拟合入路径、同名目录处理、许可证结论、PR 门禁适用性、正式上库
+  文件清单和排除项；
 - 只记录已实施或已验证事实，不在此重复完整验收方案和官方指标表。
 - 文末必须使用 S0-S4 状态名，并列出升级到下一状态仍缺少的证据。
 
@@ -1126,8 +1247,9 @@ MODEL_CHECK_ONLY=1 <model_dir>/scripts/download_weights.sh <weights_dir>
 <model_dir>/scripts/download_test_data.sh <test_data_dir>
 <inspect_test_data_command>
 
-# 7. 当前环境 CPU 验证
-python <model_dir>/infer.py --device cpu <model_args> <input_args>
+# 7. 当前环境轻量验证；如 CPU/CUDA 回归为必需项，执行同设备回归
+python3 <model_dir>/infer.py --help
+python3 <model_dir>/infer.py --device cpu <model_args> <input_args>
 
 # 8. NPU 验证，有 NPU 环境时执行
 ASCEND_RT_VISIBLE_DEVICES=0 python <model_dir>/infer.py --device npu <model_args> <input_args>
@@ -1139,7 +1261,12 @@ test -f <model_dir>/ACCEPTANCE_PLAN.md
 grep -E "功能验证|L2|精度|质量|性能|数据集" <model_dir>/ACCEPTANCE_PLAN.md
 
 # 10. 项目基础审计
-python tools/audit_model_delivery.py <model_dir>
+python3 tools/audit_model_delivery.py <model_dir>
+
+# 11. 上库候选审计
+python3 tools/audit_model_delivery.py <model_dir> \
+  --target-readiness \
+  --target-path ACL_PyTorch/built-in/<领域>/<模型目录>
 ```
 
 如果某一步无法执行，不能删除该步骤，必须在 `NPU_ADAPTATION.md` 中记录：
@@ -1150,11 +1277,12 @@ python tools/audit_model_delivery.py <model_dir>
 - 需要用户提供什么，例如授权 token、浏览器下载文件、NPU 机器；
 - 后续如何补验。
 
-### Step 14.1：clean-room 重放是最终硬门禁
+### Step 14.1：候选目录 clean-room 重放是最终硬门禁
 
-在提交前由未参与实现的人，或至少在新的临时目录/venv/容器中，从
-`README.md` 开始执行。不得读取 `.codex-reference`、历史 shell 状态、
-用户 home cache 或未记录环境变量。
+先按 `NPU_ADAPTATION.md` 的“上库文件清单”在新的临时目录组装候选目录，再由未参与
+实现的人，或至少在新的 venv/容器中，从候选目录的 `README.md` 开始执行。不得从原
+工作区补拿未列入候选的脚本，也不得读取 `.codex-reference`、`upstream/`、历史 shell
+状态、用户 home cache 或未记录环境变量。
 
 最小重放记录：
 
@@ -1164,7 +1292,7 @@ python tools/audit_model_delivery.py <model_dir>
 | install/import | Python、框架版本、关键 import、NPU tensor/provider |
 | weights | revision、文件清单、大小、SHA 或 metadata check |
 | data | 下载/复用日志、manifest/meta、样本数、时长/字段 |
-| baseline | 原始和 patch 后 CPU/CUDA 命令、独立输出 |
+| baseline | 官方/公开来源；若本地回归为必需项，再附独立命令和输出 |
 | NPU | 命令、独立输出、实际 device/provider |
 | compare | 比较脚本输出、退出码、阈值来源 |
 | report | 当前 S0-S4 状态和未完成项 |
@@ -1187,7 +1315,12 @@ clean-room 审查必须特别寻找：
 - vLLM JSON/嵌套配置是否误写为 CLI 点号参数；
 - 外部数据集、evaluator 和 agent 仓库 clone 后是否 checkout 固定 commit；
 - 有 patch 的模型是否真实保留原始、patch 后同设备、NPU 三个独立工作目录或
-  可重复恢复步骤，而不是先覆盖源码后再口头描述原始基线。
+  可重复恢复步骤；仅当本模型已选择或被要求进行本地三组对照时适用。
+- README 目录树和命令引用的候选文件是否真实存在；
+- README 是否引用了未进入候选目录的内部证据；
+- 许可证、版权头、`modelzoo_level.txt`、自测试入口等当前 PR 门禁是否逐项核对，
+  不适用或获豁免时是否记录依据；
+- 目标路径已存在时，是否明确保留、替换和删除的文件。
 
 任一最低路径命令未被重放时，只能报告“未验证”，不得假设它可运行。
 
@@ -1201,11 +1334,12 @@ clean-room 审查必须特别寻找：
 | 代码适配 | patch、diff、静态门禁 | 已证实/缺失 |
 | 环境可安装 | clean-room 安装和 import 输出 | 已证实/缺失 |
 | 数据可准备 | manifest/meta 和可读性输出 | 已证实/缺失 |
-| 原始 baseline | 未修改 upstream 结果 | 已证实/缺失 |
-| patch 回归 | 同设备前后比较 | 已证实/缺失 |
+| 原始 baseline | 官方/公开来源及可比性 | 已证实/缺失 |
+| patch 回归 | 风险判断；若强制则提供同设备结果 | 已证实/不适用/缺失 |
 | NPU 对齐 | NPU 结果和 compare 报告 | 已证实/缺失 |
 | 正式指标 | L2 evaluator 输出 | 已证实/缺失 |
-| L2 性能 | 三组性能日志和资源记录 | 已证实/缺失 |
+| L2 性能 | NPU 性能日志；必要时含同设备对照 | 已证实/缺失 |
+| 上库候选 | 目标路径、文件清单、许可证、PR 门禁和 clean-room | 已证实/缺失 |
 
 没有证据、只有计划、只有文档描述或只有静态检查时，状态必须是“缺失”。只有所有
 用户明确要求的交付项均有权威证据，才可以宣称目标完成。
@@ -1223,3 +1357,9 @@ clean-room 审查必须特别寻找：
 - [ ] 已明确排除同系列其他变体；
 - [ ] `README.md`、`NPU_ADAPTATION.md`、`ACCEPTANCE_PLAN.md` 中的版本边界一致；
 - [ ] `ACCEPTANCE_PLAN.md` 已参考原始模型功能、精度和性能，列出功能验证与 L2 的数据、命令和通过标准。
+- [ ] 已记录目标仓最新 commit、拟合入路径、同名目录处理和参考模型；
+- [ ] 参考模型已按最后实质变更时间排序，并记录参考目录的 commit/date；
+- [ ] 已列出正式上库文件清单，README 不依赖被排除的内部证据；
+- [ ] 已完成上游许可证、文件版权头、数据/权重链接和当前目标仓 PR 门禁核对；
+- [ ] 已从独立候选目录完成最低正式路径 clean-room 重放；
+- [ ] 只有达到 S3 且上库门禁全部通过时，才标记“上库候选就绪”。
