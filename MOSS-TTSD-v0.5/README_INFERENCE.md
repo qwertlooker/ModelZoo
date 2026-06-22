@@ -8,7 +8,7 @@
   - [获取源码并应用 patch](#获取源码并应用-patch)
   - [准备权重](#准备权重)
   - [准备测试数据](#准备测试数据)
-  - [准备 TTSD-eval 评测环境与权重](#准备-ttsd-eval-评测环境与权重)
+  - [准备 TTSD-eval 工程](#准备-ttsd-eval-工程)
   - [模型推理](#模型推理)
 - [OpenMOSS/TTSD-eval 测评](#openmossttsd-eval-测评)
 - [模型推理性能](#模型推理性能)
@@ -93,7 +93,8 @@ MOSS-TTSD-v0.5
 ├── NPU_ADAPTATION.md                           # NPU 适配文档与验证记录
 ├── ACCEPTANCE_PLAN.md                          # 完整验收方案
 ├── V1_0_DIFF_REFERENCE.md                      # v1.0 差异参考
-├── prepare_eval_data.py                        # evaluator manifest 工具
+├── prepare_eval_data.py                        # evaluator manifest/准备门禁工具
+├── requirements_eval.txt                       # 固定 TTSD-eval 直接依赖
 ├── patches
 │   ├── README.md                               # patch 使用说明
 │   └── 0001-adapt-v0.5-inference-to-npu.patch  # v0.5 NPU 适配 patch
@@ -240,70 +241,114 @@ MOSS-TTSD-v0.5
 
 ### 准备测试数据
 
-1. 使用原项目官方示例作为 smoke test 数据。
-
-   默认示例路径：
+1. 使用原项目官方示例作为 smoke test 数据：
 
    ```text
    upstream-original/examples/examples.jsonl
    ```
 
-   该文件包含中文和英文双说话人长对话示例，并引用 `examples/` 目录下的 prompt wav。
+   该文件包含中文和英文双说话人长对话示例，并引用 `examples/` 目录下的 prompt WAV。
 
-2. 下载固定 TTSD-eval 全量 testset：
+2. L2 使用 `OpenMOSS/TTSD-eval` 中文、英文全量各 50 条。评测工程源码、testset、
+   独立环境、三类评测权重和预检必须按下一节一次性准备完整；不能只下载
+   `testset.zip` 后直接开始正式评测。
+
+### 准备 TTSD-eval 工程
+
+TTSD-eval 不是无权重评测器。ACC/SIM 依赖 MMS-FA 和 WeSpeaker
+`voxblink2_samresnet100_ft`，WER 依赖 `openai/whisper-large-v3`。评测器只读取已生成
+的 WAV，必须使用独立 CPU/CUDA 环境，不能安装到 NPU 推理环境。以下命令均从
+`ACL_PyTorch/built-in/audio/MOSS-TTSD-v0.5` 执行。
+
+#### 获取固定源码和 testset
+
+1. 从干净目录获取评测器固定提交。不要直接使用 TTSD-eval 的浮动默认分支，也不要
+   修改其 `eval.sh` / `run_wer.sh` 中的硬编码数组作为正式入口：
 
    ```bash
-   git clone https://github.com/OpenMOSS/TTSD-eval.git third_party/TTSD-eval
-   git -C third_party/TTSD-eval checkout \
+   MODEL_ROOT="$PWD"
+   EVAL_ROOT="$MODEL_ROOT/third_party/TTSD-eval"
+   test ! -e "$EVAL_ROOT"
+   mkdir -p "$EVAL_ROOT"
+
+   git -C "$EVAL_ROOT" init
+   git -C "$EVAL_ROOT" remote add origin \
+     https://github.com/OpenMOSS/TTSD-eval.git
+   git -C "$EVAL_ROOT" fetch --depth 1 origin \
      dea13b98529dc16dcfb5fe45779ad63ac9238337
-   curl -L --fail \
-     -o third_party/TTSD-eval/testset.zip \
-     https://media.githubusercontent.com/media/OpenMOSS/TTSD-eval/dea13b98529dc16dcfb5fe45779ad63ac9238337/testset.zip
-   echo "49ed8338f3e5323c5ffcff01f3480a9c245937256d9197d792c973cba5603e17  third_party/TTSD-eval/testset.zip" \
-     | sha256sum -c -
-   unzip -oq third_party/TTSD-eval/testset.zip -d third_party/TTSD-eval
-
-   wc -l \
-     third_party/TTSD-eval/testset/ttsd_eval_zh.jsonl \
-     third_party/TTSD-eval/testset/ttsd_eval_en.jsonl
+   git -C "$EVAL_ROOT" checkout --detach FETCH_HEAD
+   test "$(git -C "$EVAL_ROOT" rev-parse HEAD)" = \
+     "dea13b98529dc16dcfb5fe45779ad63ac9238337"
+   test -z "$(git -C "$EVAL_ROOT" status --short --untracked-files=no)"
    ```
 
-   L2 使用上述中文和英文全量各 50 条。
-
-3. 功能验证使用官方 `examples/examples.jsonl` 2 条；L2 使用
-   `OpenMOSS/TTSD-eval` 全量。该评测可用于 v0.5 输出，但不代表 v0.5 已发布官方
-   指标；正式验收需同时比较 ACC/SIM/WER 和 RTF/RTFx。
-
-### 准备 TTSD-eval 评测环境与权重
-
-TTSD-eval 不是无权重评测器。ACC/SIM 依赖 WeSpeaker
-`voxblink2_samresnet100_ft` 和 MMS-FA，WER 依赖
-`openai/whisper-large-v3`。三者必须在正式评测前下载，不能用名称相近的模型替代。
-评测器只读取三组已生成的 WAV，可使用独立 CUDA/CPU 环境执行，不要安装到 NPU
-推理环境中。
-
-1. 创建独立评测环境。TTSD-eval 固定 commit 的依赖要求
-   `torch/torchaudio<=2.8.0`，不能复用本指导中的 PyTorch 2.9 推理环境。CUDA wheel
-   索引按现场 CUDA 版本选择并记录：
+2. 仓库中的 `testset.zip` 是 133-byte Git LFS pointer。为避免依赖本机 Git LFS，并保持
+   evaluator 的受版本控制文件不变，将固定对象下载到未跟踪的 `model/downloads/`：
 
    ```bash
-   python3.12 -m venv .venv-ttsd-eval
-   source .venv-ttsd-eval/bin/activate
-   python -m pip install --upgrade pip
-   python -m pip install torch==2.8.0 torchaudio==2.8.0
-   python -m pip install -r third_party/TTSD-eval/requirements.txt
-   python -m pip install --force-reinstall --no-deps \
-     "wespeaker @ git+https://github.com/wenet-e2e/wespeaker.git@c92349a14d6b426808c4e09b8b12e076864dfc11"
-   python -m pip install "transformers==4.57.6" "huggingface_hub[cli]"
-   python -m pip freeze > third_party/TTSD-eval/evaluator-pip-freeze.txt
-   deactivate
+   mkdir -p "$EVAL_ROOT/model/downloads"
+   curl -L --fail --retry 5 --retry-all-errors \
+     -o "$EVAL_ROOT/model/downloads/testset.zip" \
+     https://media.githubusercontent.com/media/OpenMOSS/TTSD-eval/dea13b98529dc16dcfb5fe45779ad63ac9238337/testset.zip
+   echo "49ed8338f3e5323c5ffcff01f3480a9c245937256d9197d792c973cba5603e17  $EVAL_ROOT/model/downloads/testset.zip" \
+     | sha256sum -c -
+   test "$(stat -c %s "$EVAL_ROOT/model/downloads/testset.zip")" = "71138324"
+   unzip -oq "$EVAL_ROOT/model/downloads/testset.zip" -d "$EVAL_ROOT"
    ```
 
-   上述 WeSpeaker commit 是 TTSD-eval 固定 commit 发布前的上游版本，用于避免其
-   `requirements.txt` 中未固定的 Git HEAD 漂移。
+3. 使用仓内正式工具检查 evaluator commit、受版本控制文件、archive、两个 manifest
+   的 50+50 样本及 200 个 prompt WAV：
 
-2. 下载 WeSpeaker 权重。WeNet 官网链接当前由 ModelScope 官方数据集镜像提供
-   实际对象，以下命令从 API 获取短期签名 URL，不把会过期的 URL 写入文档：
+   ```bash
+   python3 prepare_eval_data.py verify-ttsd-eval \
+     --eval_root "$EVAL_ROOT" \
+     --scope source-data \
+     --report results/ttsd_eval_setup/source_data.json
+   ```
+
+#### 创建独立评测环境
+
+TTSD-eval 固定提交要求 `torch/torchaudio<=2.8.0`，不能复用本指导的 PyTorch 2.9
+推理环境。上游 README 示例使用 Python 3.12，但固定 WeSpeaker commit 依赖的
+`hdbscan==0.8.37` 没有 CPython 3.12 manylinux wheel；本交付固定使用已完成安装和
+import 验证的 Python 3.11，避免不可复现的本地 C 扩展构建。系统需预先提供 Python
+3.11 venv、Git、FFmpeg 和 libsndfile；Ubuntu/Debian 可按现场权限安装：
+
+```bash
+sudo apt-get install -y python3.11-venv git ffmpeg libsndfile1
+```
+
+随后创建环境。正式验收只选一个 profile，并对六组结果始终使用同一 profile；以下
+默认固定 CUDA 12.8 wheel。没有 NVIDIA GPU 时可将 index URL 改为文末给出的 CPU
+wheel，但必须在报告中记录 evaluator 为 CPU/FP32，且不得在六组之间混用：
+
+```bash
+python3.11 -m venv .venv-ttsd-eval
+source .venv-ttsd-eval/bin/activate
+python -m pip install --upgrade pip
+python -m pip install torch==2.8.0 torchaudio==2.8.0 \
+  --index-url https://download.pytorch.org/whl/cu128
+python -m pip install -r requirements_eval.txt
+python -m pip check
+python -m pip freeze > results/ttsd_eval_setup/evaluator-pip-freeze.txt
+python -c 'import torch; print(torch.__version__, torch.cuda.is_available(), torch.cuda.device_count())'
+deactivate
+```
+
+CPU profile 只替换框架安装命令：
+
+```bash
+python -m pip install torch==2.8.0 torchaudio==2.8.0 \
+  --index-url https://download.pytorch.org/whl/cpu
+```
+
+`requirements_eval.txt` 固定 TTSD-eval 的直接依赖和 WeSpeaker commit，避免原
+`requirements.txt` 中版本范围及 `wespeaker.git` HEAD 漂移。
+
+#### 下载三类评测权重
+
+1. 下载 WeSpeaker 权重。WeNet 官网对象由 ModelScope 官方数据集镜像提供；命令
+   每次从 API 获取短期签名 URL，不保存会过期的 URL：
 
    ```bash
    EVAL_ROOT="$PWD/third_party/TTSD-eval"
@@ -344,22 +389,21 @@ TTSD-eval 不是无权重评测器。ACC/SIM 依赖 WeSpeaker
      | sha256sum -c -
    ```
 
-3. 下载 MMS-FA checkpoint。`tools/align.py` 将 torch hub 目录设置为
-   `model/`，因此文件必须位于 `model/checkpoints/model.pt`：
+2. 下载固定 S3 version ID 的 MMS-FA checkpoint：
 
    ```bash
    EVAL_ROOT="$PWD/third_party/TTSD-eval"
    mkdir -p "$EVAL_ROOT/model/checkpoints"
-   curl -L --fail --retry 3 \
+   curl -L --fail --retry 5 --retry-all-errors \
      -o "$EVAL_ROOT/model/checkpoints/model.pt" \
      "https://dl.fbaipublicfiles.com/mms/torchaudio/ctc_alignment_mling_uroman/model.pt?versionId=dZWoHyjLHoCxDn.KL1FPSlVCD3CPRtOL"
+   echo "20ef12963ab4924bef49ac4fc7f58ad5da2ee43b2c11bc8c853c9b90ecdbc680  $EVAL_ROOT/model/checkpoints/model.pt" \
+     | sha256sum -c -
    test "$(stat -c %s "$EVAL_ROOT/model/checkpoints/model.pt")" = "1262047414"
-   sha256sum "$EVAL_ROOT/model/checkpoints/model.pt" \
-     | tee "$EVAL_ROOT/model/checkpoints/model.pt.sha256"
    ```
 
-4. 下载固定 revision 的 Whisper-large-v3。正式评测通过本地路径加载，禁止运行时
-   从浮动的 `main` 下载：
+3. 下载固定 revision 的 Whisper-large-v3，并写入 revision marker。正式评测只从
+   本地目录离线加载：
 
    ```bash
    source .venv-ttsd-eval/bin/activate
@@ -367,12 +411,15 @@ TTSD-eval 不是无权重评测器。ACC/SIM 依赖 WeSpeaker
    export EVAL_ROOT
    python - <<'PY'
    import os
+   from pathlib import Path
    from huggingface_hub import snapshot_download
 
+   revision = "06f233fe06e710322aca913c1bc4249a0d71fce1"
+   model_dir = Path(os.environ["EVAL_ROOT"]) / "model/whisper-large-v3"
    snapshot_download(
        repo_id="openai/whisper-large-v3",
-       revision="06f233fe06e710322aca913c1bc4249a0d71fce1",
-       local_dir=os.path.join(os.environ["EVAL_ROOT"], "model/whisper-large-v3"),
+       revision=revision,
+       local_dir=model_dir,
        allow_patterns=[
            "added_tokens.json",
            "config.json",
@@ -387,15 +434,94 @@ TTSD-eval 不是无权重评测器。ACC/SIM 依赖 WeSpeaker
            "vocab.json",
        ],
    )
+   (model_dir / "REVISION").write_text(revision + "\n", encoding="utf-8")
    PY
-   find "$EVAL_ROOT/model/whisper-large-v3" -type f -print0 \
-     | sort -z | xargs -0 sha256sum \
-     > "$EVAL_ROOT/model/whisper-large-v3.sha256"
+   echo "a8e94b85976e5864ba3e9525c7e6c83b2a1eca42d4b797a0c7c24d778e40fd95  $EVAL_ROOT/model/whisper-large-v3/model.safetensors" \
+     | sha256sum -c -
+   test "$(stat -c %s "$EVAL_ROOT/model/whisper-large-v3/model.safetensors")" = \
+     "3087130976"
    deactivate
    ```
 
-下载后必须保留 WeSpeaker、MMS-FA、Whisper 的 SHA256 文件和
-`evaluator-pip-freeze.txt`，并在验收报告中记录；缺少任一权重时只能标记为待验收。
+#### 完整预检
+
+1. 在离线模式下执行完整结构、hash、依赖版本和 import 门禁，并保存机器可读证据：
+   CPU profile 将 `--expected_device cuda` 改为 `--expected_device cpu`。
+
+   ```bash
+   source .venv-ttsd-eval/bin/activate
+   export HF_HUB_OFFLINE=1
+   export TRANSFORMERS_OFFLINE=1
+   python prepare_eval_data.py verify-ttsd-eval \
+     --eval_root "$EVAL_ROOT" \
+     --scope full \
+     --expected_device cuda \
+     --report results/ttsd_eval_setup/full.json
+
+   for ENTRY in \
+     tools/align.py tools/split.py tools/run_similarity.py \
+     wer/whisper_asr.py wer/run_wer.py; do
+     python "$EVAL_ROOT/$ENTRY" --help >/dev/null
+   done
+
+   mkdir -p results/ttsd_eval_setup/fixture
+   printf '%s\n' \
+     '{"text":"[S1]hello world","asr_res":"hello world"}' \
+     > results/ttsd_eval_setup/fixture/wer_input.jsonl
+   python "$EVAL_ROOT/wer/run_wer.py" \
+     --lang en \
+     --input_jsonl results/ttsd_eval_setup/fixture/wer_input.jsonl \
+     --output_jsonl results/ttsd_eval_setup/fixture/wer_output.jsonl \
+     --metrics_txt results/ttsd_eval_setup/fixture/wer.txt
+   grep -q '"wer": 0.0' results/ttsd_eval_setup/fixture/wer_output.jsonl
+   deactivate
+   ```
+
+2. 在正式全量评测前逐个加载三类权重。该步骤会占用约 5 GiB 以上主机内存；失败时
+   保留原始异常并保持验收未完成：
+
+   ```bash
+   source .venv-ttsd-eval/bin/activate
+   export HF_HUB_OFFLINE=1
+   export TRANSFORMERS_OFFLINE=1
+   export EVAL_ROOT="$PWD/third_party/TTSD-eval"
+   python - <<'PY'
+   import gc
+   import os
+
+   import torch
+   import wespeaker
+   from torchaudio.pipelines import MMS_FA
+   from transformers import AutoModelForSpeechSeq2Seq, AutoProcessor
+
+   root = os.environ["EVAL_ROOT"]
+   torch.hub.set_dir(os.path.join(root, "model"))
+   mms = MMS_FA.get_model()
+   del mms
+   gc.collect()
+
+   speaker = wespeaker.load_model(
+       os.path.join(root, "model/voxblink2_samresnet100_ft")
+   )
+   del speaker
+   gc.collect()
+
+   whisper_path = os.path.join(root, "model/whisper-large-v3")
+   processor = AutoProcessor.from_pretrained(whisper_path, local_files_only=True)
+   whisper = AutoModelForSpeechSeq2Seq.from_pretrained(
+       whisper_path,
+       local_files_only=True,
+       use_safetensors=True,
+       low_cpu_mem_usage=True,
+   )
+   print(type(processor).__name__, type(whisper).__name__)
+   PY
+   deactivate
+   ```
+
+准备完成后必须保留：`results/ttsd_eval_setup/source_data.json`、`full.json`、
+`evaluator-pip-freeze.txt`，以及正式运行时使用的 CPU/CUDA profile。只有 source、
+testset、环境、三类权重和加载预检全部通过，才可进入 TTSD-eval 正式指标计算。
 
 ### 模型推理
 

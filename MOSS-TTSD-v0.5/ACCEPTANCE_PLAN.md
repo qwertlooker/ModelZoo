@@ -15,10 +15,12 @@
 | 官方质量指标 | 官方未发布 |
 | 公共评测 | `OpenMOSS/TTSD-eval` commit `dea13b98529dc16dcfb5fe45779ad63ac9238337`，中文/英文各 50 条 |
 | TTSD-eval testset.zip SHA256 | `49ed8338f3e5323c5ffcff01f3480a9c245937256d9197d792c973cba5603e17` |
+| TTSD-eval manifest SHA256 | 中文 `2c9cafed6eaea093e3dbdbc30dba0d3e87b91b4d1be9925ae97d7e8ce41a2dc4`；英文 `e779ed7c9ece3d0d0c0364bfd235fcbb591e17b543dd693b37e265f1cffb4d4d` |
 | WeSpeaker 代码 | `wenet-e2e/wespeaker` commit `c92349a14d6b426808c4e09b8b12e076864dfc11` |
 | WeSpeaker 权重 | `voxblink2_samresnet100_ft.zip`，SHA256 `ad0873d380acaa7f4256ff37d40217ee31e4955b26a45064a13a14998cc89d16` |
-| MMS-FA checkpoint | S3 version ID `dZWoHyjLHoCxDn.KL1FPSlVCD3CPRtOL`，固定大小 `1262047414` bytes |
-| Whisper | `openai/whisper-large-v3` revision `06f233fe06e710322aca913c1bc4249a0d71fce1` |
+| MMS-FA checkpoint | S3 version ID `dZWoHyjLHoCxDn.KL1FPSlVCD3CPRtOL`，SHA256 `20ef12963ab4924bef49ac4fc7f58ad5da2ee43b2c11bc8c853c9b90ecdbc680` |
+| Whisper | revision `06f233fe06e710322aca913c1bc4249a0d71fce1`；`model.safetensors` SHA256 `a8e94b85976e5864ba3e9525c7e6c83b2a1eca42d4b797a0c7c24d778e40fd95` |
+| evaluator 依赖文件 | `requirements_eval.txt`，SHA256 `e719dfc262acaa9486216ebb0e5b85afad4722f37a7f989ab0330985da6fb539` |
 | 适配 patch | `patches/0001-adapt-v0.5-inference-to-npu.patch`，SHA256 `7d446e9c9c743b57ab41cb553422e428bf515b6d4e724d10450fa5b15b1a01ba` |
 
 TTSD-eval 的 ACC、SIM、WER 用于同 checkpoint 的迁移对齐。正式报告必须同时写出
@@ -40,34 +42,43 @@ TTSD-eval commit、语言、样本数、MMS-FA、WeSpeaker 和 Whisper 版本，
 
 三组使用相同权重、manifest、seed 和 normalize 设置，写入不同目录。
 
-## 3. 数据准备
+## 3. TTSD-eval 工程准备硬门禁
 
-以下命令从模型目录执行：
+完整准备命令统一维护在 `README_INFERENCE.md` 的“准备 TTSD-eval 工程”，包括：
 
-```bash
-git clone https://github.com/OpenMOSS/TTSD-eval.git third_party/TTSD-eval
-git -C third_party/TTSD-eval checkout \
-  dea13b98529dc16dcfb5fe45779ad63ac9238337
-curl -L --fail \
-  -o third_party/TTSD-eval/testset.zip \
-  https://media.githubusercontent.com/media/OpenMOSS/TTSD-eval/dea13b98529dc16dcfb5fe45779ad63ac9238337/testset.zip
-echo "49ed8338f3e5323c5ffcff01f3480a9c245937256d9197d792c973cba5603e17  third_party/TTSD-eval/testset.zip" \
-  | sha256sum -c -
-unzip -oq third_party/TTSD-eval/testset.zip -d third_party/TTSD-eval
+1. evaluator 固定 commit，且受版本控制文件未修改；
+2. 直接下载固定 Git LFS 对象并校验 50+50 manifest、200 个 prompt WAV；
+3. 独立 Python 3.11 + PyTorch/TorchAudio 2.8.0 CPU/CUDA 环境；
+4. 固定直接依赖和 WeSpeaker commit 的 `requirements_eval.txt`；
+5. WeSpeaker、MMS-FA、Whisper-large-v3 的固定对象、SHA256、大小和目标路径；
+6. 离线 import、五个 evaluator CLI `--help` 和三类模型加载预检。
 
-wc -l \
-  third_party/TTSD-eval/testset/ttsd_eval_zh.jsonl \
-  third_party/TTSD-eval/testset/ttsd_eval_en.jsonl
+不得修改 TTSD-eval 的 `eval.sh` / `run_wer.sh` 硬编码数组作为正式入口；正式命令
+直接调用固定提交中的五个 Python 工具。进入 L2 前必须存在并归档：
+
+```text
+results/ttsd_eval_setup/source_data.json
+results/ttsd_eval_setup/full.json
+results/ttsd_eval_setup/evaluator-pip-freeze.txt
 ```
 
-预期分别为 50、50。
+并重新执行完整门禁：
 
-评测环境和三类评测权重的完整下载、路径、revision、大小及 SHA256 校验命令见
-`README_INFERENCE.md` 的“准备 TTSD-eval 评测环境与权重”。WeSpeaker 模型必须放到
-`third_party/TTSD-eval/model/voxblink2_samresnet100_ft`；MMS-FA checkpoint 必须
-放到 `third_party/TTSD-eval/model/checkpoints/model.pt`；Whisper 必须从本地
-`third_party/TTSD-eval/model/whisper-large-v3` 加载。无法取得任一官方组件时应
-记录原始错误并保持验收未完成，不能替换成名称相近的第三方实现。
+以下示例为 CUDA evaluator；CPU profile 必须改用 `--expected_device cpu`。
+
+```bash
+source .venv-ttsd-eval/bin/activate
+HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 \
+  python prepare_eval_data.py verify-ttsd-eval \
+    --eval_root third_party/TTSD-eval \
+    --scope full \
+    --expected_device cuda \
+    --report results/ttsd_eval_setup/full.json
+deactivate
+```
+
+任何 source、数据、环境、权重、hash、import 或模型加载失败都必须保留原始错误，并
+保持验收未完成；不能换用名称相近的第三方模型或在线浮动 revision。
 
 ## 4. 三组推理
 
@@ -179,48 +190,83 @@ done
 ```
 
 TTSD-eval 的 prompt 路径相对 `testset/`。以下命令必须从该目录运行；输出路径使用
-绝对路径，避免切换目录后失效。对六个 manifest 逐一执行：
+绝对路径，避免切换目录后失效。以下固定为单卡 CUDA evaluator；CPU profile 必须
+设置 `CUDA_VISIBLE_DEVICES=""`、`ALIGN_DEVICE=cpu` 和 `WHISPER_NUM_GPUS=0`，
+并对六组保持一致。每组显式指定所有中间目录，避免 evaluator 默认目录互相污染：
 
 ```bash
+set -o pipefail
 MODEL_ROOT="$PWD"
 EVAL_ROOT="$MODEL_ROOT/third_party/TTSD-eval"
 source "$MODEL_ROOT/.venv-ttsd-eval/bin/activate"
 export HF_HUB_OFFLINE=1
 export TRANSFORMERS_OFFLINE=1
+export CUDA_VISIBLE_DEVICES=0
+ALIGN_DEVICE=cuda:0
+SIM_NUM_GPUS=1
+WHISPER_NUM_GPUS=1
 cd "$EVAL_ROOT/testset"
 
 for LANG in zh en; do
   for GROUP in original_cuda patched_cuda npu; do
     INPUT="$MODEL_ROOT/results/ttsd_eval/${GROUP}_${LANG}.jsonl"
     STEM="${GROUP}_${LANG}"
-    mkdir -p "$MODEL_ROOT/results/ttsd_eval_metrics/$STEM"
+    RUN_ROOT="$MODEL_ROOT/results/ttsd_eval_metrics/$STEM"
+    mkdir -p \
+      "$RUN_ROOT/alignment_files" \
+      "$RUN_ROOT/split_res" \
+      "$RUN_ROOT/audio_segments"
 
-    python "$EVAL_ROOT/tools/align.py" \
-      --input_jsonl "$INPUT" \
-      --output_jsonl "$MODEL_ROOT/results/ttsd_eval_metrics/$STEM/alignment.jsonl"
-    python "$EVAL_ROOT/tools/split.py" \
-      --input_jsonl "$MODEL_ROOT/results/ttsd_eval_metrics/$STEM/alignment.jsonl" \
-      --output_jsonl "$MODEL_ROOT/results/ttsd_eval_metrics/$STEM/split.jsonl"
-    python "$EVAL_ROOT/tools/run_similarity.py" \
-      --input_jsonl "$MODEL_ROOT/results/ttsd_eval_metrics/$STEM/split.jsonl" \
-      --output_jsonl "$MODEL_ROOT/results/ttsd_eval_metrics/$STEM/sim.jsonl" \
-      --metrics_txt "$MODEL_ROOT/results/ttsd_eval_metrics/$STEM/acc_sim.txt"
-    python "$EVAL_ROOT/wer/whisper_asr.py" \
-      --input_jsonl "$INPUT" \
-      --output_jsonl "$MODEL_ROOT/results/ttsd_eval_metrics/$STEM/asr.jsonl" \
-      --model_id "$EVAL_ROOT/model/whisper-large-v3"
-    python "$EVAL_ROOT/wer/run_wer.py" \
-      --lang "$LANG" \
-      --input_jsonl "$MODEL_ROOT/results/ttsd_eval_metrics/$STEM/asr.jsonl" \
-      --output_jsonl "$MODEL_ROOT/results/ttsd_eval_metrics/$STEM/wer.jsonl" \
-      --metrics_txt "$MODEL_ROOT/results/ttsd_eval_metrics/$STEM/wer.txt"
+    {
+      python "$EVAL_ROOT/tools/align.py" \
+        --input_jsonl "$INPUT" \
+        --output_dir "$RUN_ROOT/alignment_files" \
+        --output_jsonl "$RUN_ROOT/alignment.jsonl" \
+        --cache_dir "$EVAL_ROOT/model" \
+        --device "$ALIGN_DEVICE"
+      test "$(wc -l < "$RUN_ROOT/alignment.jsonl")" -eq 50
+
+      python "$EVAL_ROOT/tools/split.py" \
+        --input_jsonl "$RUN_ROOT/alignment.jsonl" \
+        --split_res_dir "$RUN_ROOT/split_res" \
+        --segment_dir "$RUN_ROOT/audio_segments" \
+        --output_jsonl "$RUN_ROOT/split.jsonl" \
+        --num_workers 8
+      test "$(wc -l < "$RUN_ROOT/split.jsonl")" -eq 50
+
+      python "$EVAL_ROOT/tools/run_similarity.py" \
+        --input_jsonl "$RUN_ROOT/split.jsonl" \
+        --output_jsonl "$RUN_ROOT/sim.jsonl" \
+        --metrics_txt "$RUN_ROOT/acc_sim.txt" \
+        --model_dir "$EVAL_ROOT/model/voxblink2_samresnet100_ft" \
+        --num_gpus "$SIM_NUM_GPUS"
+      test "$(wc -l < "$RUN_ROOT/sim.jsonl")" -eq 50
+      test -s "$RUN_ROOT/acc_sim.txt"
+
+      python "$EVAL_ROOT/wer/whisper_asr.py" \
+        --input_jsonl "$INPUT" \
+        --output_jsonl "$RUN_ROOT/asr.jsonl" \
+        --model_id "$EVAL_ROOT/model/whisper-large-v3" \
+        --num_gpus "$WHISPER_NUM_GPUS"
+      test "$(wc -l < "$RUN_ROOT/asr.jsonl")" -eq 50
+
+      python "$EVAL_ROOT/wer/run_wer.py" \
+        --lang "$LANG" \
+        --input_jsonl "$RUN_ROOT/asr.jsonl" \
+        --output_jsonl "$RUN_ROOT/wer.jsonl" \
+        --metrics_txt "$RUN_ROOT/wer.txt"
+      test "$(wc -l < "$RUN_ROOT/wer.jsonl")" -eq 50
+      test -s "$RUN_ROOT/wer.txt"
+    } 2>&1 | tee "$RUN_ROOT/evaluator.log"
   done
 done
 cd "$MODEL_ROOT"
 deactivate
 ```
 
-这些命令直接复用固定 commit 的官方评测组件，不修改 evaluator，也不使用简化指标。
+TTSD-eval 的部分工具会记录 warning 后跳过失败样本并以 0 退出，因此每阶段的 50 行
+检查是正式门禁，不得删除。上述命令直接复用固定 commit 的官方评测组件，不修改
+evaluator，也不使用简化指标。
 
 ## 7. L2 精度与性能标准
 
@@ -246,6 +292,8 @@ RTF/RTFx 可复现，并报告 NPU 相对 patch 后 CUDA 的比值。项目另�
 ## 8. 最低正式验收清单
 
 - [ ] 源码、模型、codec、patch 和 testset revision/SHA256 已记录。
+- [ ] TTSD-eval `source_data.json`、`full.json`、pip freeze 和模型加载预检已归档。
+- [ ] evaluator CPU/CUDA profile 固定，六组使用同一设备、dtype 和依赖环境。
 - [ ] 原始 CUDA、patch 后 CUDA、NPU 使用相同 manifest 和参数，输出互不覆盖。
 - [ ] 功能验证 2 条、L2 中英文各 50 条均记录实际执行结果。
 - [ ] 六份 L2 manifest 和 metadata 已归档。
@@ -266,6 +314,7 @@ RTF/RTFx 可复现，并报告 NPU 相对 patch 后 CUDA 的比值。项目另�
 状态：S1/S2/S3/S4
 源码/模型/codec/patch/testset：revision + SHA256
 环境：OS、Python、CANN、driver、torch、torch-npu、transformers、GPU/NPU
+Evaluator：TTSD-eval/WeSpeaker commit、CPU/CUDA profile、pip freeze、三类权重 SHA256
 数据：功能验证/L2 文件、样本数、manifest SHA256
 
 三组命令和输出：

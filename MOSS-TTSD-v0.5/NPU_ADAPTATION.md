@@ -47,8 +47,11 @@
 - `V1_0_DIFF_REFERENCE.md`：v1.0 差异参考。
 - `patches/0001-adapt-v0.5-inference-to-npu.patch`：唯一代码适配 patch。
 - `patches/README.md`：patch 应用和校验说明。
-- `prepare_eval_data.py`：生成 TTSD-eval output manifest；保留 subset 子命令用于调试，
-  但正式 L2 使用中英文全量各 50 条。
+- `prepare_eval_data.py`：生成 TTSD-eval output manifest，并用
+  `verify-ttsd-eval` 校验 evaluator commit、testset、权重和评测环境；保留 subset
+  子命令用于调试，但正式 L2 使用中英文全量各 50 条。
+- `requirements_eval.txt`：固定 TTSD-eval 直接依赖和 WeSpeaker commit；框架
+  `torch/torchaudio==2.8.0` 按 CPU/CUDA profile 单独安装。
 - `source/`、`upstream-original/`、`upstream-npu/`：分别用于 Git 管理、
   原始 CUDA baseline 和 patch 后 CUDA/NPU。
 
@@ -124,6 +127,11 @@
 - 2026-06-18：新增内部 PFA/IFA GQA backend，随后收敛接口，仅保留 `--device`；NPU 自动使用 Flash Attention，不再暴露 dtype、attention、batch 或权重路径参数。
 - 2026-06-22：根据 TTSD-eval 长时间停在 `Starting batch audio generation...`
   的现场信息，恢复最小 `--batch_size` 参数，默认单样本并增加逐批进度日志。
+- 2026-06-22：从干净目录重放 TTSD-eval 固定 commit 和 testset，确认中英文各
+  50 条、200 个 prompt WAV；在独立 Python 3.11 + PyTorch/TorchAudio 2.8.0 CPU
+  环境完成 pinned dependencies 安装、`pip check`、五个 CLI `--help`、WER fixture、
+  MMS-FA/WeSpeaker hash 与模型加载。Whisper-large-v3 全量下载和加载仍由正式验收
+  环境执行，不能据此标记 L2 已完成。
 
 ## 2. NPU 适配与运行说明
 
@@ -219,11 +227,11 @@ TTSD-eval 还需要独立评测权重，不能只准备主模型和 codec：
 | 评测资产 | 固定版本 | 目标路径 |
 |---|---|---|
 | WeSpeaker | `voxblink2_samresnet100_ft.zip`，SHA256 `ad0873d380acaa7f4256ff37d40217ee31e4955b26a45064a13a14998cc89d16` | `third_party/TTSD-eval/model/voxblink2_samresnet100_ft/` |
-| MMS-FA | S3 version ID `dZWoHyjLHoCxDn.KL1FPSlVCD3CPRtOL`，固定大小 `1262047414` bytes | `third_party/TTSD-eval/model/checkpoints/model.pt` |
-| Whisper-large-v3 | HF revision `06f233fe06e710322aca913c1bc4249a0d71fce1` | `third_party/TTSD-eval/model/whisper-large-v3/` |
+| MMS-FA | S3 version ID `dZWoHyjLHoCxDn.KL1FPSlVCD3CPRtOL`，SHA256 `20ef12963ab4924bef49ac4fc7f58ad5da2ee43b2c11bc8c853c9b90ecdbc680` | `third_party/TTSD-eval/model/checkpoints/model.pt` |
+| Whisper-large-v3 | HF revision `06f233fe06e710322aca913c1bc4249a0d71fce1`，`model.safetensors` SHA256 `a8e94b85976e5864ba3e9525c7e6c83b2a1eca42d4b797a0c7c24d778e40fd95` | `third_party/TTSD-eval/model/whisper-large-v3/` |
 
-完整下载、校验和离线加载命令见 `README_INFERENCE.md` 的“准备 TTSD-eval
-评测环境与权重”。缺少任一评测权重时，ACC/SIM/WER 闭环未完成。
+完整源码、testset、独立环境、下载、校验和离线加载命令见 `README_INFERENCE.md`
+的“准备 TTSD-eval 工程”。缺少任一环节时，ACC/SIM/WER 闭环未完成。
 
 ### 2.5 评测口径摘要
 
