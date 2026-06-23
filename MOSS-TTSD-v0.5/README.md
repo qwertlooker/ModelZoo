@@ -171,6 +171,24 @@ MOSS-TTSD-v0.5
    deactivate
    ```
 
+5. （可选）CPU 对照组使用独立环境，安装 CPU-only PyTorch。CPU 推理使用 patch 后代码，固定 FP32 + SDPA，不依赖 CUDA 或 NPU：
+
+   ```bash
+   python3.11 -m venv .venv-cpu
+   source .venv-cpu/bin/activate
+   python -m pip install --upgrade pip
+   python -m pip install torch==2.9.0 torchaudio==2.9.0 \
+     --index-url https://download.pytorch.org/whl/cpu
+   python -m pip install "transformers==4.57.6"
+   python -m pip install -r upstream-npu/requirements.txt
+   python -m pip install -r upstream-npu/XY_Tokenizer/requirements.txt
+   python - <<'PY'
+   import torch
+   print(torch.__version__, torch.randn(1).device)
+   PY
+   deactivate
+   ```
+
 ### 准备权重
 
 1. 下载 MOSS-TTSD-v0.5 权重和 XY Tokenizer checkpoint。
@@ -551,7 +569,23 @@ python -m pip install torch==2.8.0 torchaudio==2.8.0 \
    cd ..
    ```
 
-4. 检查已生成组的输出 WAV。NPU 组必查；若运行了 CUDA 对照组，再比较原始与 patch 后 CUDA 的同设备回归，以及 patch 后 CUDA 与 NPU。
+4. （可选）执行 CPU 推理。CPU 路径使用 patch 后代码，固定 FP32 + SDPA。
+
+   ```bash
+   source .venv-cpu/bin/activate
+   cd upstream-npu
+   python inference.py \
+     --jsonl examples/examples.jsonl \
+     --output_dir outputs_cpu \
+     --device cpu \
+     --batch_size 2 \
+     --seed 42 \
+     --use_normalize
+   cd ..
+   deactivate
+   ```
+
+5. 检查已生成组的输出 WAV。NPU 组必查；若运行了 CUDA 或 CPU 对照组，再比较各组输出。
 
    ```bash
    python - <<'PY'
@@ -561,6 +595,7 @@ python -m pip install torch==2.8.0 torchaudio==2.8.0 \
    groups = {
        "original_cuda": Path("upstream-original/outputs_original_cuda"),
        "patched_cuda": Path("upstream-npu/outputs_patched_cuda"),
+       "cpu": Path("upstream-npu/outputs_cpu"),
        "npu": Path("upstream-npu/outputs_npu"),
    }
    if not groups["npu"].exists():
@@ -648,6 +683,22 @@ for LANG in zh en; do
       --use_normalize
   )
   deactivate
+
+  # 可选：CPU 对照组
+  if [ -d "$MODEL_ROOT/.venv-cpu" ]; then
+    source "$MODEL_ROOT/.venv-cpu/bin/activate"
+    (
+      cd "$MODEL_ROOT/upstream-npu"
+      python inference.py \
+        --jsonl "$MANIFEST" \
+        --output_dir "$MODEL_ROOT/results/ttsd_eval/cpu_${LANG}" \
+        --device cpu \
+        --batch_size 1 \
+        --seed 42 \
+        --use_normalize
+    )
+    deactivate
+  fi
 done
 ```
 
@@ -655,7 +706,7 @@ done
 
 ```bash
 for LANG in zh en; do
-  for GROUP in original_cuda patched_cuda npu; do
+  for GROUP in original_cuda patched_cuda cpu npu; do
     [ -d "results/ttsd_eval/${GROUP}_${LANG}" ] || continue
     python prepare_eval_data.py attach-output \
       --input_jsonl "third_party/TTSD-eval/testset/ttsd_eval_${LANG}.jsonl" \
@@ -814,6 +865,8 @@ deactivate
 
 #### CPU evaluator（可选对照）
 
+评测 CPU 推理生成的音频（`cpu` 组）。以下命令使用 `.venv-ttsd-eval`（CPU PyTorch + 评测依赖），仅评估 CPU 推理输出，与 NPU/CUDA evaluator 使用相同的评测工具和权重。
+
 ```bash
 set -o pipefail
 MODEL_ROOT="$PWD"
@@ -825,7 +878,7 @@ ALIGN_DEVICE=cpu
 cd "$EVAL_ROOT/testset"
 
 for LANG in zh en; do
-  for GROUP in original_cuda patched_cuda npu; do
+  for GROUP in cpu; do
     INPUT="$MODEL_ROOT/results/ttsd_eval/${GROUP}_${LANG}.jsonl"
     [ -f "$INPUT" ] || continue
     STEM="${GROUP}_${LANG}"
@@ -886,7 +939,7 @@ TTSD-eval 的部分工具会记录 warning 后跳过失败样本并以 0 退出�
 
 ## 模型推理性能
 
-MOSS-TTSD-v0.5 属自回归生成式 TTS/TTSD 模型，L2 性能以中英文全量生成音频总时长和端到端墙钟时间计算。以下展示 NPU 中文命令（必跑）；英文 split 使用相同参数和独立日志/输出目录。本地具备 CUDA 时可额外运行原始 CUDA、patch 后 CUDA 对照组，但不作为强制要求：
+MOSS-TTSD-v0.5 属自回归生成式 TTS/TTSD 模型，L2 性能以中英文全量生成音频总时长和端到端墙钟时间计算。以下展示 NPU 中文命令（必跑）；英文 split 使用相同参数和独立日志/输出目录。本地具备 CUDA 或 CPU 时可额外运行对照组，但不作为强制要求：
 
 ```bash
 cd ACL_PyTorch/built-in/audio/MOSS-TTSD-v0.5
@@ -926,6 +979,15 @@ PY
 |---|---|---|---|
 | Atlas 800I A2 | TTSD-eval 中文 50 条 | RTF | 待补充 |
 | Atlas 800I A2 | TTSD-eval 英文 50 条 | RTF | 待补充 |
+
+### 模型推理精度/质量
+
+v0.5 官方未发布正式测试集和精度/质量指标。NPU 迁移结果以 `OpenMOSS/TTSD-eval` 公共评测的 ACC（说话人归因准确率）、SIM（说话人相似度）和 WER（词错误率）作为记录，与可取得的公开参考对比。详细精度/质量验收方案见 `ACCEPTANCE_PLAN.md`。
+
+| 硬件 | 数据集 | 指标 | 得分 |
+|---|---|---|---|
+| Atlas 800I A2 | TTSD-eval 中文 50 条 | ACC / SIM / WER | 待补充 |
+| Atlas 800I A2 | TTSD-eval 英文 50 条 | ACC / SIM / WER | 待补充 |
 
 ## 公网地址说明
 

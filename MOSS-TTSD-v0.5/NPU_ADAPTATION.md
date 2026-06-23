@@ -266,13 +266,14 @@ MOSS-TTSD-v0.5 的正式质量/性能验收口径统一维护在 `ACCEPTANCE_PLA
 
 ### 2.7 推理和评测边界
 
-正式迁移验收以 NPU 组为必跑项；本地具备 CUDA 时可额外运行两组对照做自洽验证：
+正式迁移验收以 NPU 组为必跑项；本地具备 CUDA 或 CPU 时可额外运行对照组做自洽验证：
 
 - `upstream-npu` + `.venv-npu`：应用 patch 后的 NPU（必跑）；
 - `upstream-original` + `.venv-cuda-original`：未应用 patch 的原始 CUDA（可选对照）；
-- `upstream-npu` + `.venv-cuda-patched`：应用 patch 后的 CUDA 回归（可选对照）。
+- `upstream-npu` + `.venv-cuda-patched`：应用 patch 后的 CUDA 回归（可选对照）；
+- `upstream-npu` + `.venv-cpu`：应用 patch 后的 CPU（可选对照）。
 
-NPU 组与可选 CUDA 对照组的完整命令、输出目录、功能/L2 manifest 和 TTSD-eval
+NPU 组与可选对照组的完整命令、输出目录、功能/L2 manifest 和 TTSD-eval
 evaluator 命令统一维护在 `README.md` 与 `ACCEPTANCE_PLAN.md`。本文件不复制第二套
 易漂移的操作手册。
 

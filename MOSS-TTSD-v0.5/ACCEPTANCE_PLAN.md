@@ -94,8 +94,8 @@ deactivate
 ## 4. 推理与可选对照
 
 环境、源码工作树和权重按 `README.md` 执行。功能验证使用官方示例。以下命令给出
-NPU 必跑组与两组可选 CUDA 对照；本地不具备 CUDA 时可只运行 NPU 组，CUDA 对照组
-缺失不构成阻塞：
+NPU 必跑组、两组可选 CUDA 对照和一组可选 CPU 对照；本地不具备 CUDA 或 CPU 环境
+时可只运行 NPU 组，对照组缺失不构成阻塞：
 
 ```bash
 MODEL_ROOT="$PWD"
@@ -139,14 +139,28 @@ source .venv-npu/bin/activate
     --use_normalize
 )
 deactivate
+
+source .venv-cpu/bin/activate
+(
+  cd upstream-npu
+  python inference.py \
+    --jsonl "$MANIFEST" \
+    --output_dir "$MODEL_ROOT/results/functional/cpu" \
+    --device cpu \
+    --batch_size 2 \
+    --seed 42 \
+    --use_normalize
+)
+deactivate
 ```
 
 原始入口没有 `--device` 参数，依赖 CUDA 和 `flash_attention_2`；不能给原始组添加
-patch 后参数。若缺少 CUDA 环境，可只运行 NPU 组完成迁移验收，不得用 CPU 改写原始
-模型行为冒充 CUDA 基线。官方示例共 2 条，因此 patch 后 CUDA/NPU 都固定
-`--batch_size 2`，与原始入口的完整 manifest batch 一致。TTSD-eval 长清单的
-patch 后 CUDA/NPU 固定 `--batch_size 1`；原始入口不支持该参数，报告必须明确记录
-其原生完整 batch 与候选路径的差异，不得声称这是严格相同运行参数的逐样本数值对齐。
+patch 后参数。若缺少 CUDA 或 CPU 环境，可只运行 NPU 组完成迁移验收，不得用 CPU
+改写原始模型行为冒充 CUDA 基线。官方示例共 2 条，因此 patch 后 CUDA/NPU/CPU 都
+固定 `--batch_size 2`，与原始入口的完整 manifest batch 一致。TTSD-eval 长清单的
+patch 后 CUDA/NPU/CPU 固定 `--batch_size 1`；原始入口不支持该参数，报告必须明确
+记录其原生完整 batch 与候选路径的差异，不得声称这是严格相同运行参数的逐样本数值
+对齐。
 
 ## 5. 输出检查和 evaluator manifest
 
@@ -158,7 +172,7 @@ from pathlib import Path
 import numpy as np
 import soundfile as sf
 
-groups = [g for g in ("original_cuda", "patched_cuda", "npu")
+groups = [g for g in ("original_cuda", "patched_cuda", "cpu", "npu")
           if Path("results/functional", g).exists()]
 if "npu" not in groups:
     raise RuntimeError("npu group is required but missing")
@@ -176,21 +190,23 @@ PY
 ```
 
 波形逐点一致不是生成式 TTS 的通过条件。NPU 组输出必须满足基础质量门禁；若同时
-运行了 CUDA 对照组，再比较 `original_cuda` 与 `patched_cuda`，确认 patch 后同设备
-指标无系统性变化，并比较 `patched_cuda` 与 `npu`。仅运行 NPU 时，以 NPU 结果作为
-迁移验收结果。
+运行了 CUDA 或 CPU 对照组，再比较 `original_cuda` 与 `patched_cuda`，确认 patch 后
+同设备指标无系统性变化，并比较 `patched_cuda` 与 `npu`、`cpu` 与 `npu`。仅运行
+NPU 时，以 NPU 结果作为迁移验收结果。
 
 ## 6. L2 OpenMOSS/TTSD-eval
 
 对 `ttsd_eval_zh.jsonl` 和 `ttsd_eval_en.jsonl` 重复第 4 节生成；NPU 组必跑，
-`original_cuda`/`patched_cuda` 为可选对照组。输出到：
+`original_cuda`/`patched_cuda`/`cpu` 为可选对照组。输出到：
 
 ```text
 results/ttsd_eval/original_cuda_zh   （可选）
 results/ttsd_eval/patched_cuda_zh    （可选）
+results/ttsd_eval/cpu_zh             （可选）
 results/ttsd_eval/npu_zh             （必跑）
 results/ttsd_eval/original_cuda_en   （可选）
 results/ttsd_eval/patched_cuda_en    （可选）
+results/ttsd_eval/cpu_en             （可选）
 results/ttsd_eval/npu_en             （必跑）
 ```
 
@@ -198,7 +214,7 @@ results/ttsd_eval/npu_en             （必跑）
 
 ```bash
 for LANG in zh en; do
-  for GROUP in original_cuda patched_cuda npu; do
+  for GROUP in original_cuda patched_cuda cpu npu; do
     [ -d "results/ttsd_eval/${GROUP}_${LANG}" ] || continue
     python prepare_eval_data.py attach-output \
       --input_jsonl "third_party/TTSD-eval/testset/ttsd_eval_${LANG}.jsonl" \
@@ -228,7 +244,7 @@ ALIGN_DEVICE=npu:0
 cd "$EVAL_ROOT/testset"
 
 for LANG in zh en; do
-  for GROUP in original_cuda patched_cuda npu; do
+  for GROUP in original_cuda patched_cuda cpu npu; do
     INPUT="$MODEL_ROOT/results/ttsd_eval/${GROUP}_${LANG}.jsonl"
     [ -f "$INPUT" ] || continue
     STEM="${GROUP}_${LANG}"
@@ -360,6 +376,8 @@ deactivate
 
 ### 6.3 CPU evaluator（可选对照）
 
+评测 CPU 推理生成的音频（`cpu` 组）。使用 `.venv-ttsd-eval`（CPU PyTorch + 评测依赖），仅评估 CPU 推理输出。
+
 ```bash
 set -o pipefail
 MODEL_ROOT="$PWD"
@@ -372,7 +390,7 @@ ALIGN_DEVICE=cpu
 cd "$EVAL_ROOT/testset"
 
 for LANG in zh en; do
-  for GROUP in original_cuda patched_cuda npu; do
+  for GROUP in cpu; do
     INPUT="$MODEL_ROOT/results/ttsd_eval/${GROUP}_${LANG}.jsonl"
     [ -f "$INPUT" ] || continue
     STEM="${GROUP}_${LANG}"
@@ -436,7 +454,7 @@ evaluator，也不使用简化指标。
 ## 7. L2 精度与性能标准
 
 由于 v0.5 没有官方数值，通过线以 NPU 可运行且精度/性能不下降为核心；相对迁移退化
-比较在运行了 CUDA 对照组时作为更严格的自洽验证：
+比较在运行了 CUDA 或 CPU 对照组时作为更严格的自洽验证：
 
 | 指标 | 判定 |
 |---|---|
@@ -444,9 +462,10 @@ evaluator，也不使用简化指标。
 | NPU 迁移结果 | NPU 组 ACC/SIM/WER 和 RTF/RTFx 作为迁移结果记录，并与可取得的公开参考对比；不得编造官方阈值 |
 | patch 同设备回归（可选） | 运行 CUDA 对照组时，`patched_cuda` 相对 `original_cuda` 的 ACC/SIM/WER 无系统性退化；差异和失败样例归档 |
 | NPU 相对 CUDA（可选） | 运行 CUDA 对照组时，`npu` 相对 `patched_cuda` 的 ACC/SIM/WER 无系统性退化 |
+| NPU 相对 CPU（可选） | 运行 CPU 对照组时，`npu` 相对 `cpu` 的 ACC/SIM/WER 无系统性退化 |
 | WER 建议阈值 | 对照组之间绝对差不超过 1.0 个百分点或相对差不超过 10%，取较宽者；超限必须人工复核 |
 | ACC/SIM | 不预设伪造的官方阈值；报告绝对差、相对差、样本级异常和人工听感 |
-| 性能 | NPU 组使用 L2 manifest 记录 elapsed、生成音频总时长、RTF/RTFx、峰值 HBM/RSS；至少重复 3 次报告中位数。运行 CUDA 对照组时额外报告 NPU 相对 patch 后 CUDA 的比值 |
+| 性能 | NPU 组使用 L2 manifest 记录 elapsed、生成音频总时长、RTF/RTFx、峰值 HBM/RSS；至少重复 3 次报告中位数。运行 CUDA 或 CPU 对照组时额外报告 NPU 相对对照组的比值 |
 
 TTSD-eval 是当前可取得的 OpenMOSS 公共全量 benchmark，因此 L2 使用中英文各 50 条
 全量。v0.5 没有公开硬件性能值，不编造 speedup 线；最低性能结论是 NPU 全量无失败、
@@ -460,14 +479,14 @@ RTF/RTFx 可复现。项目另有性能目标时按该目标判定。
 - [ ] 源码、模型、codec、patch 和 testset revision/SHA256 已记录。
 - [ ] TTSD-eval `source_data.json`、`full.json`、pip freeze 和模型加载预检已归档。
 - [ ] evaluator profile（CPU/CUDA/NPU 之一）固定，对所有已生成组使用同一设备、dtype 和依赖环境。
-- [ ] NPU 组使用固定 manifest 和参数完成功能验证与 L2 生成，输出归档；CUDA 对照组（可选）使用相同 manifest 和参数，输出互不覆盖。
+- [ ] NPU 组使用固定 manifest 和参数完成功能验证与 L2 生成，输出归档；CUDA/CPU 对照组（可选）使用相同 manifest 和参数，输出互不覆盖。
 - [ ] 功能验证 2 条、L2 中英文各 50 条的 NPU 实际执行结果已记录。
-- [ ] NPU 组 L2 manifest 和 metadata 已归档；CUDA 对照组 manifest（如有）一并归档。
+- [ ] NPU 组 L2 manifest 和 metadata 已归档；CUDA/CPU 对照组 manifest（如有）一并归档。
 - [ ] ACC/SIM/WER 使用固定 TTSD-eval 原始脚本完成。
-- [ ] 报告给出 NPU 迁移结果；运行了 CUDA 对照组时，额外给出原始→patch 回归差和 patch→NPU 迁移差。
-- [ ] NPU 组 L2 elapsed、RTF/RTFx、峰值 RSS/HBM 已归档；运行 CUDA 对照组时额外归档相对比值。
+- [ ] 报告给出 NPU 迁移结果；运行了 CUDA 对照组时，额外给出原始→patch 回归差和 patch→NPU 迁移差；运行了 CPU 对照组时，额外给出 CPU→NPU 迁移差。
+- [ ] NPU 组 L2 elapsed、RTF/RTFx、峰值 RSS/HBM 已归档；运行 CUDA/CPU 对照组时额外归档相对比值。
 - [ ] 日志包含 Python、CANN、torch、torch-npu、transformers、硬件和权重 SHA256。
-- [ ] 任何未执行项、依赖缺失、OOM 或指标超限均明确标为阻塞/失败；CUDA 对照组缺失需注明原因，但不单独构成阻塞。
+- [ ] 任何未执行项、依赖缺失、OOM 或指标超限均明确标为阻塞/失败；CUDA/CPU 对照组缺失需注明原因，但不单独构成阻塞。
 
 在全部完成前，当前交付状态最多为 S1 静态适配完成；不能写“迁移验收完成”或
 “正式验收通过”。
