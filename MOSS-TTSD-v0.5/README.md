@@ -721,6 +721,8 @@ done
 
 TTSD-eval 的 prompt 路径相对 `testset/`，以下命令必须从该目录运行；输出路径使用绝对路径，避免切换目录后失效。NPU evaluator 为必跑项；CUDA、CPU evaluator 为可选对照，仅在本地具备对应环境且需要同口径对照时运行。所选 profile 须对所有已生成组结果保持一致，每组显式指定所有中间目录，避免 evaluator 默认目录互相污染。
 
+> **注意：`tools/align.py` 内部使用的 MMS-FA（`torchaudio.pipelines.MMS_FA`）当前未做 NPU 适配。**`patches/0002-adapt-ttsd-eval-to-npu.patch` 仅对 `align.py` 增加了设备路由层，但 MMS-FA 模型本身的算子（CTC 解码、Viterbi 对齐等）未在 NPU 上验证。若 NPU evaluator 的 `align.py` 步骤报错或结果异常，可将 `ALIGN_DEVICE` 改为 `cpu`，仅对齐步骤走 CPU，其余步骤（`run_similarity.py`、`whisper_asr.py`）仍可走 NPU。
+
 #### NPU evaluator（必跑）
 
 ```bash

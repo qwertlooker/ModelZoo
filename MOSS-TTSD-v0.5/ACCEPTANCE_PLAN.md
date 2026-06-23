@@ -230,6 +230,13 @@ TTSD-eval 的 prompt 路径相对 `testset/`。以下命令必须从该目录运
 对照，仅在本地具备对应环境且需要同口径对照时运行。所选 profile 须对所有已生成组
 保持一致。每组显式指定所有中间目录，避免 evaluator 默认目录互相污染。
 
+> **MMS-FA 适配限制：**`tools/align.py` 内部使用的 `torchaudio.pipelines.MMS_FA`
+> 当前未做 NPU 适配。`patches/0002-adapt-ttsd-eval-to-npu.patch` 仅对 `align.py`
+> 增加了设备路由层，MMS-FA 模型本身未修改，其算子（CTC 解码、Viterbi 对齐等）
+> 在 NPU 上的兼容性未验证。若 NPU evaluator 的对齐步骤失败或结果异常，应将
+> `align.py` 的 `--device` 改为 `cpu`，仅对齐步骤走 CPU，其余步骤仍可走 NPU。
+> 验收报告中必须记录对齐步骤实际使用的设备。
+
 ### 6.1 NPU evaluator（必跑）
 
 ```bash
