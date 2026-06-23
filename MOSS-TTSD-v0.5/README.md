@@ -61,6 +61,7 @@ MOSS-TTSD-v0.5 是 OpenMOSS 发布的对话式双说话人文本转语音/文本
 
   | 配套 | 版本 |
   |---|---|
+  | 硬件 | Atlas 800I A2 |
   | 固件与驱动 | 25.5.1+ |
   | CANN Toolkit / Kernel / NNAL | 8.5.1 |
   | Python | 3.11 |
@@ -78,10 +79,9 @@ MOSS-TTSD-v0.5
 ├── prepare_eval_data.py                        # evaluator manifest/准备门禁工具
 ├── requirements_eval.txt                       # 固定 TTSD-eval 直接依赖
 ├── patches
-│   └── 0001-adapt-v0.5-inference-to-npu.patch  # v0.5 NPU 适配 patch
-├── source                                      # 固定 tag 的 Git 管理目录
-├── upstream-original                           # 未应用 patch 的 CUDA baseline
-├── upstream-npu                                # 应用 patch 的 CUDA 回归/NPU 路径
+│   ├── 0001-adapt-v0.5-inference-to-npu.patch  # v0.5 NPU 适配 patch
+│   └── 0002-adapt-ttsd-eval-to-npu.patch       # TTSD-eval NPU 适配 patch
+├── upstream-npu                                # 应用 patch 后的 NPU 路径（下载后）
 │   ├── inference.py                            # patch 后的推理入口
 │   ├── generation_utils.py                     # 生成和音频处理逻辑
 │   ├── modeling_asteroid.py                    # Asteroid 生成模型
@@ -96,7 +96,8 @@ MOSS-TTSD-v0.5
 │   └── XY_Tokenizer
 │       ├── config/xy_tokenizer_config.yaml     # codec 配置
 │       └── weights/xy_tokenizer.ckpt           # 下载后的 codec checkpoint
-└── validation_reports                          # 验收报告目录，按需生成
+└── third_party
+    └── TTSD-eval                               # 下载后的评测工程
 ```
 
 ## 快速上手
@@ -499,7 +500,7 @@ python -m pip install torch==2.8.0 torchaudio==2.8.0 \
    export HF_HOME="$(pwd)/hf-cache"
    export HF_HUB_OFFLINE=1
    cd upstream-original
-   CUDA_VISIBLE_DEVICES=0 python inference.py \
+   python inference.py \
      --jsonl examples/examples.jsonl \
      --output_dir outputs_original_cuda \
      --seed 42 \
@@ -608,7 +609,7 @@ for LANG in zh en; do
     source "$MODEL_ROOT/.venv-cuda-original/bin/activate"
     (
       cd "$MODEL_ROOT/upstream-original"
-      HF_HOME="$MODEL_ROOT/hf-cache" HF_HUB_OFFLINE=1 CUDA_VISIBLE_DEVICES=0 \
+      HF_HOME="$MODEL_ROOT/hf-cache" HF_HUB_OFFLINE=1 \
         python inference.py \
           --jsonl "$MANIFEST" \
           --output_dir "$MODEL_ROOT/results/ttsd_eval/original_cuda_${LANG}" \
@@ -623,7 +624,7 @@ for LANG in zh en; do
     source "$MODEL_ROOT/.venv-cuda-patched/bin/activate"
     (
       cd "$MODEL_ROOT/upstream-npu"
-      CUDA_VISIBLE_DEVICES=0 python inference.py \
+      python inference.py \
         --jsonl "$MANIFEST" \
         --output_dir "$MODEL_ROOT/results/ttsd_eval/patched_cuda_${LANG}" \
         --device cuda \
@@ -638,7 +639,7 @@ for LANG in zh en; do
   source "$MODEL_ROOT/.venv-npu/bin/activate"
   (
     cd "$MODEL_ROOT/upstream-npu"
-    ASCEND_RT_VISIBLE_DEVICES=0 python inference.py \
+    python inference.py \
       --jsonl "$MANIFEST" \
       --output_dir "$MODEL_ROOT/results/ttsd_eval/npu_${LANG}" \
       --device npu \
@@ -678,8 +679,7 @@ EVAL_ROOT="$MODEL_ROOT/third_party/TTSD-eval"
 source "$MODEL_ROOT/.venv-npu/bin/activate"
 export HF_HUB_OFFLINE=1
 export TRANSFORMERS_OFFLINE=1
-export ASCEND_RT_VISIBLE_DEVICES=0
-ALIGN_DEVICE=npu:0
+ALIGN_DEVICE=npu
 cd "$EVAL_ROOT/testset"
 
 for LANG in zh en; do
@@ -715,7 +715,7 @@ for LANG in zh en; do
         --output_jsonl "$RUN_ROOT/sim.jsonl" \
         --metrics_txt "$RUN_ROOT/acc_sim.txt" \
         --model_dir "$EVAL_ROOT/model/voxblink2_samresnet100_ft" \
-        --device npu:0
+        --device npu
       test "$(wc -l < "$RUN_ROOT/sim.jsonl")" -eq 50
       test -s "$RUN_ROOT/acc_sim.txt"
 
@@ -749,8 +749,7 @@ EVAL_ROOT="$MODEL_ROOT/third_party/TTSD-eval"
 source "$MODEL_ROOT/.venv-ttsd-eval/bin/activate"
 export HF_HUB_OFFLINE=1
 export TRANSFORMERS_OFFLINE=1
-export CUDA_VISIBLE_DEVICES=0
-ALIGN_DEVICE=cuda:0
+ALIGN_DEVICE=cuda
 SIM_NUM_GPUS=1
 WHISPER_NUM_GPUS=1
 cd "$EVAL_ROOT/testset"
@@ -822,7 +821,6 @@ EVAL_ROOT="$MODEL_ROOT/third_party/TTSD-eval"
 source "$MODEL_ROOT/.venv-ttsd-eval/bin/activate"
 export HF_HUB_OFFLINE=1
 export TRANSFORMERS_OFFLINE=1
-export CUDA_VISIBLE_DEVICES=""
 ALIGN_DEVICE=cpu
 cd "$EVAL_ROOT/testset"
 
@@ -897,7 +895,7 @@ source .venv-npu/bin/activate
 mkdir -p results/performance
 cd upstream-npu
 /usr/bin/time -v -o "$MODEL_ROOT/results/performance/npu_zh.time.txt" \
-  env ASCEND_RT_VISIBLE_DEVICES=0 python inference.py \
+  python inference.py \
   --jsonl "$MODEL_ROOT/third_party/TTSD-eval/testset/ttsd_eval_zh.jsonl" \
   --output_dir "$MODEL_ROOT/results/performance/npu_zh" \
   --device npu \
