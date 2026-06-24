@@ -116,6 +116,7 @@
   掩盖 NPU 问题。
 - 生成式 TTS/TTSD 不能用“能输出 WAV”作为完整验收；正式验收需按 `ACCEPTANCE_PLAN.md` 做可懂度、音色、自然度和人工听测。
 - NeMo/Transformers/PyTorch/TorchAudio 版本持续变化；若上游或依赖升级，应重新检查 `flash-attn`、TorchCodec、attention backend 和 `GenerationMixin` 行为。
+- **TTSD-eval `tools/align.py` 中的 MMS-FA（`torchaudio.pipelines.MMS_FA`）当前未做 NPU 适配**。`patches/0002-adapt-ttsd-eval-to-npu.patch` 仅对 `align.py` 增加了设备路由层（NPU 设备检测、`ASCEND_RT_VISIBLE_DEVICES` 隔离、`device_type` 参数），但 `MultiLingualAligner` 内部加载的 MMS-FA 模型本身未修改，也未在 NPU 上验证过推理正确性。`align.py` 传入 `--device npu` 时，MMS-FA 模型会被 `.to("npu")` 迁移到 NPU，但模型内部算子（如 CTC 解码、Viterbi 对齐等）的 NPU 兼容性尚未验证。若 NPU 上 MMS-FA 推理失败或结果异常，应将 `align.py` 的 `--device` 设为 `cpu` 完成对齐步骤，其他评测步骤（`run_similarity.py`、`whisper_asr.py`）仍可走 NPU。
 
 ### 1.7 上游版本检查记录
 
@@ -261,18 +262,20 @@ MOSS-TTSD-v0.5 的正式质量/性能验收口径统一维护在 `ACCEPTANCE_PLA
 - TTSD-eval 结果用于 L2 公共评测和 NPU 迁移结果记录：同一 testset、同一 v0.5 checkpoint、同一输入参数生成 NPU 音频并计算 ACC/SIM/WER；本地具备 CUDA 时可额外生成 CPU/CUDA 音频做同口径对照，但不作为强制要求。
 - TTSD-eval 输入 manifest 必须包含 `text`、`output_audio`、`prompt_audio_speaker1`、`prompt_audio_speaker2`。v0.5 推理完成后，需要把 `output_*.wav` 回填为 `output_audio`。
 - 若 `git lfs` testset、MMS-FA checkpoint、WeSpeaker 权重或 Whisper 依赖不可用，直接记录失败原因，不用简化指标替代。
+- **MMS-FA 未适配 NPU**：`patches/0002-adapt-ttsd-eval-to-npu.patch` 仅对 `tools/align.py` 增加了设备路由层（NPU 检测、卡隔离、`device_type` 参数），但 `MultiLingualAligner` 内部加载的 `torchaudio.pipelines.MMS_FA` 模型本身未修改，也未在 NPU 上验证。若 NPU 上 MMS-FA 推理失败，应将 `align.py` 的 `--device` 设为 `cpu`，仅对齐步骤走 CPU，其余步骤（`run_similarity.py`、`whisper_asr.py`）仍可走 NPU。详见风险与限制（§1.6）。
 
 详细命令、manifest 生成方式和报告字段见 `ACCEPTANCE_PLAN.md` 的 “OpenMOSS/TTSD-eval 公共评测” 小节。
 
 ### 2.7 推理和评测边界
 
-正式迁移验收以 NPU 组为必跑项；本地具备 CUDA 时可额外运行两组对照做自洽验证：
+正式迁移验收以 NPU 组为必跑项；本地具备 CUDA 或 CPU 时可额外运行对照组做自洽验证：
 
 - `upstream-npu` + `.venv-npu`：应用 patch 后的 NPU（必跑）；
 - `upstream-original` + `.venv-cuda-original`：未应用 patch 的原始 CUDA（可选对照）；
-- `upstream-npu` + `.venv-cuda-patched`：应用 patch 后的 CUDA 回归（可选对照）。
+- `upstream-npu` + `.venv-cuda-patched`：应用 patch 后的 CUDA 回归（可选对照）；
+- `upstream-npu` + `.venv-cpu`：应用 patch 后的 CPU（可选对照）。
 
-NPU 组与可选 CUDA 对照组的完整命令、输出目录、功能/L2 manifest 和 TTSD-eval
+NPU 组与可选对照组的完整命令、输出目录、功能/L2 manifest 和 TTSD-eval
 evaluator 命令统一维护在 `README.md` 与 `ACCEPTANCE_PLAN.md`。本文件不复制第二套
 易漂移的操作手册。
 
