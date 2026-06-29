@@ -95,6 +95,21 @@ wheel；完整安装和比较命令见 `README.md`。
 - 许可证：上游 `yaya-sy/speechscorer` License 上库前核对并拷贝；fairseq/HuBERT/Whisper
   等依赖各自 License 在公网地址说明中记录。`modelzoo_level.txt` 须在 NPU 实测后据实填写。
 
+## 需求—证据表 (Step 14.2)
+
+| 要求 | 权威证据 | 状态 |
+|---|---|---|
+| 版本固定 | upstream `bbe0be7` / HuBERT proc `ece5fab` / SpeechOcean762 `613968e` | 已证实 |
+| 代码适配 | patch `git apply --check` 通过，`compileall` 通过，无设备回退模式 | 已证实 |
+| 环境可安装 | CPU/NPU 三环境 venv 创建及导入测试已补全 | 已证实 |
+| 数据可准备 | SpeechOcean762 `git clone` + `prepare_eval_data.py` 生成 manifest/meta | 已证实 |
+| 原始 baseline | 上游未发布数值表，仅散点图；HuBERT-MLM 路径已固定 | 已证实（口径） |
+| patch 回归 | 待原始 vs patched CPU 同设备回归实测 | 缺失 |
+| NPU 对齐 | 待 HuBERT 权重下载 + fairseq + NPU 实测 | 缺失 |
+| 正式指标 | 待全量 2500 条 SpeechOcean762 三组对齐 | 缺失 |
+| L2 性能 | 待 NPU 实测 | 缺失 |
+| 上库候选 | 拟合入路径 `ACL_PyTorch/built-in/audio/speechscorer`，文件清单已列 | 已证实（清单） |
+
 ## 补充说明（来自 README.md）
 
 ### 两条评分路径

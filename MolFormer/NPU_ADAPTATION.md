@@ -92,6 +92,21 @@ CPU 与 NPU 使用独立环境；NPU 环境不得复用
 - 许可证：上游 `IBM/molformer` License 上库前核对并拷贝；Transformers/HuggingFace
   remote code 各自 License 在公网地址说明中记录。`modelzoo_level.txt` 须在 NPU 实测后据实填写。
 
+## 需求—证据表 (Step 14.2)
+
+| 要求 | 权威证据 | 状态 |
+|---|---|---|
+| 版本固定 | 模型 `7b12d94` / IBM 代码 `3b9ac43` / DeepChem `046c8b8`；`model.safetensors` SHA256 已记录 | 已证实 |
+| 代码适配 | 无 patch（直接复用 AutoModel+pooler_output），`py_compile` 通过 | 已证实 |
+| 环境可安装 | CPU 环境实际下载权重并完成 10 条 embedding 推理 (NPU_ADAPTATION §3) | 已证实 |
+| 数据可准备 | 仓内 10 条 + L2 降级 100 条 + IBM Box 手工下载路径已记录 | 已证实 |
+| 原始 baseline | CPU feature extraction 实测通过；IBM 11 项 fine-tuning 指标口径已记录但需独立环境 | 已证实 |
+| patch 回归 | 不适用（无 patch）；Transformers 4.35 vs 4.57 跨版本误差 0 已验证 | 已证实 |
+| NPU 对齐 | 待 NPU 同 manifest embedding 精度对齐 | 缺失 |
+| 正式指标 | IBM 11 项需独立 fine-tuning 环境，当前仅 feature extraction | 已证实（口径） |
+| L2 性能 | 待 NPU 实测 batch 1/8/32/64 samples/s | 缺失 |
+| 上库候选 | 拟合入路径 `ACL_PyTorch/built-in/nlp/MolFormer`，文件清单已列 | 已证实（清单） |
+
 ## 补充说明（来自 README.md）
 
 ### 独立 fine-tuning 环境与 L2 对齐策略

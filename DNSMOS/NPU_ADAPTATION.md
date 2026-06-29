@@ -96,6 +96,21 @@ CPU 实测环境和结果：
   LICENSE 并按贡献规范为新增脚本追加华为 License 头部。`modelzoo_level.txt` 的
   Func/Perf/Precision 状态须在 NPU 实测后据实填写，未达 S3 前不得伪造 OK。
 
+## 需求—证据表 (Step 14.2)
+
+| 要求 | 权威证据 | 状态 |
+|---|---|---|
+| 版本固定 | upstream `591184a9` / 权重 ONNX SHA256 已记录 (NPU_ADAPTATION §1) | 已证实 |
+| 代码适配 | 无 patch（只增加显式 provider 选择），`py_compile` 通过 | 已证实 |
+| 环境可安装 | CPU 环境 `onnxruntime==1.22.1` + requirements.txt 安装及导入测试通过 | 已证实 |
+| 数据可准备 | VCC2018 `wget` 下载 + `prepare_eval_data.py` 生成 manifest/meta 通过 | 已证实 |
+| 原始 baseline | CPU vs 官方 `dnsmos_local.py` 全字段误差 0.0 (NPU_ADAPTATION §3) | 已证实 |
+| patch 回归 | 不适用（无 patch） | 不适用 |
+| NPU 对齐 | 待 CANN 环境实测 | 缺失 |
+| 正式指标 | 论文 unseen test set 未公开，VCC2018 为迁移回归集 | 已证实（口径） |
+| L2 性能 | 待 CANN 环境实测 | 缺失 |
+| 上库候选 | 拟合入路径 `ACL_PyTorch/built-in/audio/DNSMOS`，文件清单已列，待补 LICENSE + `modelzoo_level.txt` | 已证实（清单） |
+
 ## 补充说明（来自 README.md）
 
 ### ONNX Runtime 与 CANN 版本配套

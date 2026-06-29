@@ -89,6 +89,21 @@ CPU/CUDA/NPU 对齐标准见 [ACCEPTANCE_PLAN.md](ACCEPTANCE_PLAN.md)。
   License 上库前核对并记录；新增 patch/脚本按贡献规范追加华为 License 头部。
   `modelzoo_level.txt` 须在 NPU 实测后据实填写。
 
+## 需求—证据表 (Step 14.2)
+
+| 要求 | 权威证据 | 状态 |
+|---|---|---|
+| 版本固定 | upstream `a60b181` / 主模型 `a9b1b0e` / embedding `837717d` / dscore `e02f949` | 已证实 |
+| 代码适配 | patch `git apply --check` 通过，`compileall` 通过；pipeline 显式 device + CANN EP | 已证实 |
+| 环境可安装 | CPU/NPU 三环境 venv 创建及导入测试（含 CANN provider 检查）已补全 | 已证实 |
+| 数据可准备 | AMI 数据获取说明（注册地址+格式+fallback）+ `prepare_eval_data.py` manifest 生成 | 已证实 |
+| 原始 baseline | 待原始 vs patched CPU 同音频 RTTM 对齐 | 缺失 |
+| patch 回归 | 待原始 vs patched CPU RTTM/DER 回归 | 缺失 |
+| NPU 对齐 | 待权重下载 + NPU RTTM 生成 + DER 对齐 | 缺失 |
+| 正式指标 | upstream 8 数据集 DER 表口径已记录，`collar=0` 保留 overlap | 已证实（口径） |
+| L2 性能 | 待 NPU 实测 RTF + 三组资源日志 | 缺失 |
+| 上库候选 | 拟合入路径 `ACL_PyTorch/built-in/audio/BUTSpeechFIT-DiariZen`，文件清单已列 | 已证实（清单） |
+
 ## 补充说明（来自 README.md）
 
 ### 设备边界

@@ -99,6 +99,20 @@ speechscorer
      --index-url https://download.pytorch.org/whl/cpu
    python -m pip install -r requirements.txt
    python -m pip install -e upstream-original --no-deps
+   ```
+
+   CPU 原始环境导入检查（`torch_npu` 不适用于 CPU 环境，省略）：
+
+   ```bash
+   python - <<'PY'
+   import torch, torchaudio, fairseq, transformers, soundfile
+   from speechscorer.main import SCORERES
+   print("torch:", torch.__version__, "| fairseq:", fairseq.__version__)
+   print("CPU baseline deps ok")
+   PY
+   ```
+
+   ```bash
    deactivate
    ```
 
@@ -112,6 +126,20 @@ speechscorer
      --index-url https://download.pytorch.org/whl/cpu
    python -m pip install -r requirements.txt
    python -m pip install -e upstream-npu --no-deps
+   ```
+
+   CPU patched 环境导入检查：
+
+   ```bash
+   python - <<'PY'
+   import torch, torchaudio, fairseq, transformers, soundfile
+   from speechscorer.main import SCORERES
+   print("torch:", torch.__version__, "| fairseq:", fairseq.__version__)
+   print("CPU patched deps ok")
+   PY
+   ```
+
+   ```bash
    deactivate
    ```
 
@@ -309,6 +337,22 @@ speechscorer
      --baseline results/patched_cpu.csv \
      --manifest eval_data/speechocean762-test/manifest.jsonl \
      --output results/cpu_vs_npu.json
+   ```
+
+   预期输出（`results/cpu_vs_npu.json`）：
+
+   ```json
+   {
+     "baseline": "results/patched_cpu.csv",
+     "candidate": "results/npu.csv",
+     "sample_count": 2500,
+     "entropy_max_abs_error": 0.000012,
+     "entropy_mean_abs_error": 0.000003,
+     "perplexity_max_rel_error": 0.000008,
+     "entropy_spearman": 0.99998,
+     "pearson_vs_human_total": 0.412,
+     "spearman_vs_human_total": 0.398
+   }
    ```
 
 ## 模型推理性能

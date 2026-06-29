@@ -110,3 +110,19 @@ CPU/CUDA/NPU 对齐要求见 [ACCEPTANCE_PLAN.md](ACCEPTANCE_PLAN.md)。
 ### 5.5 CUDA 侧参数限制
 
 CUDA 侧不得使用 NPU 专用 `--enable-ep-weight-filter`。CUDA baseline 的 `vllm serve` 命令应省略该参数，其余参数与 NPU 保持一致。
+
+## 需求—证据表 (Step 14.2)
+
+| 要求 | 权威证据 | 状态 |
+|---|---|---|
+| 版本固定 | 官方代码 `38ac237` / 权重 `549c2b3` / vLLM `262ddd0` / vllm-ascend `99e1ea0` | 已证实 |
+| 代码适配 | patch `git apply --check` 通过，`compileall` 通过 | 已证实 |
+| 环境可安装 | Docker 镜像 `quay.io/ascend/vllm-ascend:v0.18.0rc1-a3`（待 digest） | 已证实（声明） |
+| 数据可准备 | `test_data/service_prompts.jsonl` 仓内 4 条；L2 100 条由 `tools/prepare_service_prompts.py` 生成 | 已证实 |
+| 原始 baseline | 官方 instruct 指标已记录；原始 vLLM 不支持 HyV3（注册失败日志待归档） | 已证实（口径） |
+| patch 回归 | 待 patched CUDA vs NPU 同 checkpoint 对齐 | 缺失 |
+| NPU 对齐 | 待 16 卡 A3 加载 + CUDA/NPU token agreement | 缺失 |
+| 正式指标 | 官方 benchmark recipe 未完整发布，L2 降级为 100 条服务精度回归 | 已证实（口径） |
+| L2 性能 | 待 NPU 实测 `vllm bench serve` | 缺失 |
+| 上库候选 | 拟合入路径 `ACL_PyTorch/built-in/audio/Hy3-preview`，文件清单已列 | 已证实（清单） |
+

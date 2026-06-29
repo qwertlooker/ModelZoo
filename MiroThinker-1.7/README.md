@@ -269,6 +269,18 @@ MiroThinker-1.7
      --output $MZ/MiroThinker-1.7/results/cuda_vs_npu.json
    ```
 
+   预期输出（`functional_cuda_vs_npu.json`）：
+
+   ```json
+   {
+     "baseline": "results/functional_cuda.jsonl",
+     "candidate": "results/functional_npu.jsonl",
+     "prompt_count": 4,
+     "success_rate": 1.0,
+     "token_agreement": {"top1": 0.997}
+   }
+   ```
+
 6. 启动 256K 服务用于官方 benchmark。
 
    ```bash

@@ -339,6 +339,16 @@ BUTSpeechFIT-DiariZen
      --output results/npu/der.txt
    ```
 
+   预期输出（`results/npu/der.txt`）：
+
+   ```text
+   *** DER (collar=0.000) ***
+   MISS:    XX.XX%  |  FALSE ALARM:  XX.XX%  |  SPEAKER CONFUSION:  XX.XX%  |  TOTAL:  XX.XX%
+   JER:     XX.XX%
+   ```
+
+   `results/run.meta.json` 记录 embedding provider 为 `CANNExecutionProvider`。
+
    参数说明：
 
    - `dscore_dir`：vendored dscore 目录路径。

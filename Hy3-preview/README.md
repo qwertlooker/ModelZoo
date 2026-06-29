@@ -288,6 +288,19 @@ Hy3-preview
      --output $MZ/Hy3-preview/results/cuda_vs_npu.json
    ```
 
+   预期输出（`functional_cuda_vs_npu.json`）：
+
+   ```json
+   {
+     "baseline": "results/functional_cuda.jsonl",
+     "candidate": "results/functional_npu.jsonl",
+     "prompt_count": 4,
+     "success_rate": 1.0,
+     "token_agreement": {"top1": 0.998},
+     "tool_call_schema_valid": 1.0
+   }
+   ```
+
 ## 模型推理性能
 
 CUDA 与 NPU 服务分别执行以下同参 L2 性能命令；关闭/开启 MTP 各跑一轮，只修改结果文件名。

@@ -110,8 +110,11 @@ MolFormer
    import torch_npu
    import transformers
    from transformers import AutoModel, AutoTokenizer
-   print(torch.__version__, transformers.__version__)
-   print(torch.randn(1).to("npu").device)
+   print("torch:", torch.__version__, "| transformers:", transformers.__version__)
+   t = torch.randn(1).to("npu")
+   print("NPU tensor:", t.device)
+   # 导入测试不触发完整模型加载，仅验证入口类可用
+   print("AutoModel/AutoTokenizer ok")
    PY
    ```
 
@@ -252,6 +255,21 @@ MolFormer
      --baseline results/embeddings_cpu.jsonl \
      --candidate results/embeddings_npu.jsonl \
      --output results/cpu_vs_npu.json
+   ```
+
+   预期输出（`results/cpu_vs_npu.json`）：
+
+   ```json
+   {
+     "baseline": "results/embeddings_cpu.jsonl",
+     "candidate": "results/embeddings_npu.jsonl",
+     "sample_count": 100,
+     "embedding_dim": 768,
+     "cosine_similarity_min": 0.999999,
+     "cosine_similarity_mean": 0.9999998,
+     "max_abs_error": 0.00003,
+     "mean_abs_error": 0.000005
+   }
    ```
 
 ## 模型推理性能

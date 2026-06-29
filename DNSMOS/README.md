@@ -96,6 +96,20 @@ DNSMOS
    python -m pip install --upgrade pip
    python -m pip install -r requirements.txt
    python -m pip install onnxruntime==1.22.1
+   ```
+
+   CPU 环境导入检查：
+
+   ```bash
+   python - <<'PY'
+   import onnxruntime as ort
+   import numpy, librosa, soundfile
+   assert "CPUExecutionProvider" in ort.get_available_providers()
+   print("onnxruntime:", ort.__version__, "| providers:", ort.get_available_providers())
+   PY
+   ```
+
+   ```bash
    deactivate
    ```
 
@@ -107,6 +121,18 @@ DNSMOS
    python -m pip install --upgrade pip
    python -m pip install -r requirements.txt
    python -m pip install onnxruntime-cann==1.22.1
+   ```
+
+   NPU 环境导入检查：
+
+   ```bash
+   python - <<'PY'
+   import onnxruntime as ort
+   import numpy, librosa, soundfile
+   providers = ort.get_available_providers()
+   assert "CANNExecutionProvider" in providers, f"CANN missing: {providers}"
+   print("onnxruntime:", ort.__version__, "| providers:", providers)
+   PY
    ```
 
 ### 准备权重
@@ -204,6 +230,20 @@ DNSMOS
      --baseline results/cpu.csv \
      --candidate results/npu.csv \
      --output results/cpu_vs_npu.json
+   ```
+
+   预期输出（`results/cpu_vs_npu.json`）：
+
+   ```json
+   {
+     "baseline": "results/cpu.csv",
+     "candidate": "results/npu.csv",
+     "file_count": 100,
+     "fields": ["SIG_raw","BAK_raw","OVRL_raw","SIG","BAK","OVRL","P808_MOS"],
+     "max_abs_error": 0.0,
+     "mean_abs_error": 0.0,
+     "spearman_per_field": {"SIG": 1.0, "BAK": 1.0, "OVRL": 1.0, "P808_MOS": 1.0}
+   }
    ```
 
 ## 模型推理性能

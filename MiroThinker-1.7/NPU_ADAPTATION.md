@@ -74,6 +74,21 @@ benchmark。
 - 许可证：上游 `MiroMindAI/MiroThinker`、vLLM、vllm-ascend 各自 License 上库前核对；
   新增脚本按贡献规范追加华为 License 头部。`modelzoo_level.txt` 须在 NPU 实测后据实填写。
 
+## 需求—证据表 (Step 14.2)
+
+| 要求 | 权威证据 | 状态 |
+|---|---|---|
+| 版本固定 | 模型 `1a42014` / agent 框架 `370f983` / benchmark archive SHA256 `35816f69` / vLLM `b31e932` | 已证实 |
+| 代码适配 | 无 patch（vLLM 原生支持 Qwen3MoeForCausalLM），`serve_npu.sh` 已提供 | 已证实 |
+| 环境可安装 | Docker 镜像 `quay.io/ascend/vllm-ascend:v0.17.0rc1-a3`（待 digest）| 已证实（声明） |
+| 数据可准备 | benchmark archive 已下载解压，四项数据规模已盘点；`test_data/service_prompts.jsonl` 仓内 4 条 | 已证实 |
+| 原始 baseline | 官方四项 agent 指标已记录；原始 vLLM 支持 Qwen3Moe 但无 agent 框架（注册成功日志待归档） | 已证实（口径） |
+| patch 回归 | 不适用（无 patch） | 不适用 |
+| NPU 对齐 | 待 16 卡 A3 加载 + CUDA/NPU token agreement + agent benchmark | 缺失 |
+| 正式指标 | 官方 benchmark recipe 未完整发布，agent 工具依赖外部 API | 已证实（口径） |
+| L2 性能 | 待 NPU 实测 `vllm bench serve` + agent wall time | 缺失 |
+| 上库候选 | 拟合入路径 `ACL_PyTorch/built-in/nlp/MiroThinker-1.7`，文件清单已列 | 已证实（清单） |
+
 ## 补充说明（来自 README.md）
 
 ### benchmark 外部依赖与数据冻结
