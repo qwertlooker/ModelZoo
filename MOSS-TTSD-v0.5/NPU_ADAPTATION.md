@@ -110,7 +110,7 @@
 - 当前环境缺少 `torch`、`torch-npu`、模型权重和 NPU/CANN，未在本机执行 CPU/NPU 实推。
 - 权重 SHA256 尚未记录；正式验收前必须补充。
 - 原项目 v0.5 中仍存在若干宽泛 `try/except` 和失败后继续处理的逻辑；本次 patch 以 NPU 设备适配为目标，没有重构原项目整体错误处理。
-- NPU Flash Attention 依赖目标 `torch-npu` 的 PFA/IFA GQA 接口；当前本地环境无 NPU，尚未完成真实算子精度/性能验证，正式验收必须补齐 NPU 实推结果与可取得的公开参考对齐。对齐基准优先使用公开/官方数据，不强制同环境重跑 CPU/CUDA；本地具备 CUDA 时可额外运行三组对照做自洽验证。
+- NPU Flash Attention 依赖目标 `torch-npu` 的 PFA/IFA GQA 接口；当前本地环境无 NPU，尚未完成真实算子精度/性能验证，正式验收必须补齐 NPU 实推结果与可取得的公开参考对齐。对齐基准优先使用公开/官方数据，不强制同环境重跑 CPU/CUDA；当无公开指标时，使用 CPU 精度对照（`--device cpu`，复用同一环境）确认 NPU 适配正确性。CUDA 对照组为可选增强。
 - 即使消除 `repeat_kv`，过大的 `--batch_size` 仍可能因输入 embedding、logits、
   KV cache 或 codec 中间张量超过 HBM；TTSD-eval 默认保持 `1`，不得用 CPU 回退
   掩盖 NPU 问题。
@@ -132,6 +132,72 @@
   环境完成 pinned dependencies 安装、`pip check`、五个 CLI `--help`、WER fixture、
   MMS-FA/WeSpeaker hash 与模型加载。Whisper-large-v3 全量下载和加载仍由正式验收
   环境执行，不能据此标记 L2 已完成。
+- 2026-06-23：NPU 实测发现 `torchaudio::forced_align` 自定义 C++ 算子无 NPU
+  后端实现，npu_cpu_fallback 回退可能引起设备不匹配或对齐结果异常。在
+  `tools/align.py` 的 `_compute_alignments` 方法中显式将 emission 张量从 NPU
+  转移至 CPU 后再调用 aligner，wav2vec2 前向推理仍在 NPU 执行。更新
+  `0002-adapt-ttsd-eval-to-npu.patch` 及 `prepare_eval_data.py` 中的 SHA256。
+- 2026-06-23：NPU 实测 `DEVICE=npu eval.sh` Step 3 (Similarity) 报
+  `TypeError: run_similarity() got an unexpected keyword argument 'device'`。
+  原因：`0002-adapt-ttsd-eval-to-npu.patch` 在 `run_similarity()` 函数体
+  使用了 `device` 参数并在 `__main__` 传入 `device=args.device`，但函数
+  定义未添加 `device: str | None = None` 形参。同时，单设备路径
+  (`num_gpus == 1`) 的 `_worker_run_bucket` 直接调用未传递
+  `device_type`，导致默认使用 `"cuda"` 而非 NPU。修正两个缺陷，
+  更新补丁 SHA256 和 patched `run_similarity.py` SHA256。
+- 2026-06-23：NPU 实测发现 TorchAudio 2.9+ 移除 `torchaudio.sox_effects`
+  模块，导致 `import wespeaker` 的间接依赖链
+  `wespeaker → s3prl.cli.speaker → s3prl.frontend → s3prl.nn → s3prl.hub → mos_prediction.hubconf → mos_prediction.expert → torchaudio.sox_effects`
+  报 `ModuleNotFoundError`。`mos_prediction/expert.py` 中 `apply_effects_tensor`
+  为未使用的顶层导入，TTSD-eval 相似度评测不依赖该上游。新增
+  `patches/0003-fix-s3prl-hub-resilient-imports.patch`（前身为
+  `0003-fix-s3prl-torchaudio-sox_effects-removed.patch`，后扩展），在
+  `s3prl/hub.py` 中将全部 36 个 upstream hubconf 星号导入改为循环 +
+  `try/except Exception`（旧版仅包裹 `espnet_hubert` 和 `mos_prediction`，
+  遗漏了 `byol_s`/`byol_a` 等更早崩溃的导入——`byol_s` 在 hub.py 中排
+  第 7 行，因 `torchaudio.set_audio_backend()` 移除而崩溃，在
+  `espnet_hubert` 之前，导致旧补丁无效）。新版补丁彻底消除此问题。
+  `try/except Exception` 中。
+  此问题仅影响 NPU profile（TorchAudio 2.9.0）；CPU/CUDA profile 使用
+  TorchAudio 2.8.0，`torchaudio.sox_effects` 仍存在，无需此补丁。
+- 2026-06-24：NPU 实测 `DEVICE=npu eval.sh` Step 3 (Similarity) 所有 case
+  的 `sim=0.0000`（ACC 正常）。根因：NPU `torch.fft.rfft()` 返回复数张量后
+  `.abs()` 返回全零（NPU FFT backend 对复数取模 `.abs()` 支持不完整），
+  导致 WeSpeaker 通过 `torchaudio.compliance.kaldi.fbank()` 提取的 fbank
+  特征全零 → 嵌入向量全零 → 余弦相似度恒为 0.0000。ACC 不受影响（仅依赖
+  文本对齐）。修复：将 `rfft().abs()` 替换为手动实部/虚部分解
+  `sqrt(real^2 + imag^2)`，数学等价。新增
+  `patches/0005-fix-torchaudio-kaldi-rfft-abs-on-npu.patch`，修改
+  site-packages 内 `torchaudio/compliance/kaldi.py` 的 `spectrogram()`
+  和 `fbank()` 两处。此问题仅影响 NPU profile。
+- 2026-06-24：NPU 实测 `DEVICE=npu eval.sh` Step 3 (Similarity) 报
+  `zipfile.BadZipFile: File is not a zip file`。完整导入链：
+  `wespeaker → s3prl.frontend → s3prl.nn → s3prl.hub → espnet_hubert.hubconf → espnet2.tasks.hubert → espnet2.text.phoneme_tokenizer → g2p_en → nltk.data.find('corpora/cmudict.zip')`。
+  `nltk.data.find()` 找到 zip 文件后尝试打开并验证，文件损坏时抛出
+  `BadZipFile`（`Exception` 子类），`g2p_en` 的 `except LookupError` 无法
+  捕获，导致整个 `import wespeaker` 链崩溃。离线环境无法通过
+  `nltk.download('cmudict')` 修复（NLTK 下载服务器同样返回损坏数据）。
+  TTSD-eval 相似度评测不使用 `espnet_hubert` 和 `g2p_en`，因此将
+  `espnet_hubert` hubconf 导入也包裹在 `try/except Exception` 中即可
+  让评测正常运行。将原 `0003` 补丁扩展为
+  `0003-fix-s3prl-hub-resilient-imports.patch`，同时包裹 `espnet_hubert`
+  和 `mos_prediction`，并改用 `except Exception` 替代
+  `except (ImportError, ModuleNotFoundError)` 以捕获 `BadZipFile` 等非
+  导入异常。同时在 README 常见故障中新增 NLTK cmudict 离线修复指引
+  （离线下载 → 传输 → 安装），供需要 `g2p_en` 的环境使用。
+- 2026-06-24：NPU 实测 `DEVICE=npu eval.sh` Step 3 (Similarity) 报
+  `aclnnAddV3 failed, error code is 507035`，伴有 `Device do not support
+  double dtype now, dtype cast replace with float` 警告和 `The DDR
+  address of the MTE instruction is out of range`。根因：NPU 不支持
+  float64；wespeaker 的 `SimAM` 注意力模块和 ASP 等 pooling 层在 tensor
+  运算中使用 Python float 标量（`1e-4`、`0.5`、`1e-7`、`1e-5`、`1e-12`），
+  CPython 中均为 float64；torch-npu 将其转为 float64 设备 tensor 后
+  隐式转换为 float32，转换后 tensor 内存布局异常导致 `aclnnAddV3`
+  算子访问越界崩溃。新增
+  `patches/0004-fix-wespeaker-float64-on-npu.patch`，将所有 Python
+  float 标量替换为显式 float32 设备 tensor（`torch.tensor(value,
+  dtype=tensor.dtype, device=tensor.device)`）。此问题仅影响 NPU
+  profile。
 
 ## 2. NPU 适配与运行说明
 
@@ -176,19 +242,25 @@ baseline 的可审计性。
 
 ### 2.3 环境准备
 
-目标配套固定为固件/驱动 25.5.1+、CANN 8.5.1、Python 3.11、
-PyTorch/torch-npu/torchaudio 2.9.0、Transformers 4.57.6。NPU 环境不得先安装
-PyTorch CPU wheel：
+目标配套固定为固件/驱动 25.5.1+、CANN 8.5.1、Python 3.11、PyTorch/torch-npu/torchaudio 2.9.0、Transformers 4.57.6。非必要不使用 venv；当 CANN 基础镜像或系统 Python 已满足要求时直接使用。NPU 环境不得先装 PyTorch CPU wheel：
 
 ```bash
-python3.11 -m venv .venv-npu
-source .venv-npu/bin/activate
-python -m pip install --upgrade pip
-python -m pip install torch==2.9.0 torch-npu==2.9.0 torchaudio==2.9.0 \
+# 非 venv 方式（当 CANN 基础镜像或系统 Python 已满足要求时直接使用）
+pip install --upgrade pip
+pip install torch==2.9.0 torch-npu==2.9.0 torchaudio==2.9.0 \
   -i https://mirrors.huaweicloud.com/repository/pypi/simple
-python -m pip install transformers==4.57.6
-python -m pip install -r upstream-npu/requirements.txt
-python -m pip install -r upstream-npu/XY_Tokenizer/requirements.txt
+pip install transformers==4.57.6
+pip install -r upstream-npu/requirements.txt
+pip install -r upstream-npu/XY_Tokenizer/requirements.txt
+# TorchAudio 2.9+ 移除 torchaudio.sox_effects，s3prl hub.py 全量导入
+# espnet_hubert/mos_prediction 时会分别因 NLTK cmudict 损坏和 sox_effects
+# 移除而失败；用 patch 包裹这两个 hubconf 导入为 try/except Exception：
+S3PRL_DIR=$(python -c "import importlib.util; print(importlib.util.find_spec('s3prl').submodule_search_locations[0])") && \
+cd "$S3PRL_DIR/../" && patch -p1 < "$MODEL_ROOT/patches/0003-fix-s3prl-hub-resilient-imports.patch"
+# NPU 不支持 float64；wespeaker SimAM/pooling 中 Python float 标量
+# 被 torch-npu 转为 float64 设备 tensor 后触发 aclnnAddV3 崩溃
+WESPEAKER_DIR=$(python -c "import importlib.util; print(importlib.util.find_spec('wespeaker').submodule_search_locations[0])") && \
+cd "$WESPEAKER_DIR/../" && patch -p1 < "$MODEL_ROOT/patches/0004-fix-wespeaker-float64-on-npu.patch"
 python - <<'PY'
 import torch
 import torch_npu
@@ -207,7 +279,7 @@ deactivate
   版本选择并记录，不能复用 NPU 环境。
 - 如果安装依赖时 pip 试图替换已有 NPU 版 PyTorch，应修正版本约束；不得临时过滤
   requirements 或让 pip 静默替换。
-- TTSD-eval 评测器支持 NPU profile：复用 `.venv-npu`（不另建 venv），对 TTSD-eval
+- TTSD-eval 评测器支持 NPU profile：复用推理环境（不另建 venv），对 TTSD-eval
   工作树应用 `patches/0002-adapt-ttsd-eval-to-npu.patch` 后，三个评测器
   （`align.py`/`run_similarity.py`/`whisper_asr.py`）通过 `--device npu:0` /
   `--device npu` 在 NPU 上推理；CPU/CUDA profile 仍使用独立 venv 且不应用该补丁。
@@ -246,7 +318,7 @@ MOSS-TTSD-v0.5 的正式质量/性能验收口径统一维护在 `ACCEPTANCE_PLA
 - 功能：中文、英文、中英混合、双说话人、prompt 切换、normalize、长短文本和异常暴露。
 - 可懂度：固定 ASR 模型和 normalizer，统计 CER/WER。
 - 音色：固定 speaker embedding 模型，统计 speaker similarity / EER。
-- 公共客观评测：默认使用 `OpenMOSS/TTSD-eval`，记录 ACC、SIM、WER；该流程可测评 v0.5 输出，但不是 v0.5 已发布官方指标。NPU 结果作为迁移结果记录并与可取得的公开参考对比；本地具备 CUDA 时可额外与 CPU/CUDA 原始路径做同口径对照，但不作为强制要求。
+- 公共客观评测：默认使用 `OpenMOSS/TTSD-eval`，记录 ACC、SIM、WER；该流程可测评 v0.5 输出，但不是 v0.5 已发布官方指标。NPU 结果作为迁移结果记录并与可取得的公开参考对比；当无公开指标时，使用 CPU 精度对照（`--device cpu`，复用同一环境）确认适配正确性；CUDA 对照组为可选增强，不作为强制要求。
 - 自然度：DNSMOS / UTMOS / NISQA 等作为客观参考，不替代人工听测。
 - 主观：MOS / CMOS / A-B preference，记录人数、样本数和置信区间。
 - 性能：记录 `elapsed_seconds`、`RTF`、`RTFx`、dtype、attention backend、峰值 HBM/RSS、首次加载/编译耗时和稳定推理耗时。
@@ -266,15 +338,10 @@ MOSS-TTSD-v0.5 的正式质量/性能验收口径统一维护在 `ACCEPTANCE_PLA
 
 ### 2.7 推理和评测边界
 
-正式迁移验收以 NPU 组为必跑项；本地具备 CUDA 时可额外运行两组对照做自洽验证：
+正式迁移验收以 NPU 组为必跑项；精度对比优先使用公开/官方指标，当无公开指标时使用 CPU 精度对照（`--device cpu`，复用同一环境）确认 NPU 适配正确性；性能数据按 TTS/TTSD 领域一般指标（RTF/RTFx）在 NPU 上实测。CUDA 对照组为可选增强，不作为验收强制要求。
 
-- `upstream-npu` + `.venv-npu`：应用 patch 后的 NPU（必跑）；
-- `upstream-original` + `.venv-cuda-original`：未应用 patch 的原始 CUDA（可选对照）；
-- `upstream-npu` + `.venv-cuda-patched`：应用 patch 后的 CUDA 回归（可选对照）。
-
-NPU 组与可选 CUDA 对照组的完整命令、输出目录、功能/L2 manifest 和 TTSD-eval
-evaluator 命令统一维护在 `README.md` 与 `ACCEPTANCE_PLAN.md`。本文件不复制第二套
-易漂移的操作手册。
+- `upstream-npu`：应用 patch 后的 NPU/CPU 推理（必跑 NPU，可选 CPU 精度对照）；
+- 若需 CPU 精度对照，使用同一环境 `--device cpu` 运行。
 
 ### 2.8 上游更新处理
 
