@@ -61,6 +61,15 @@ speechscorer
 └── README.md
 ```
 
+> 说明：
+> - `prepare_eval_data.py`：将 SpeechOcean762 的 Kaldi 格式 `test/wav.scp`
+>   转换为扁平 WAV 目录 + JSONL manifest，并校验音频可读性和人工标签完整性。
+>   SpeechOcean762 原始格式为嵌套的 Kaldi data dir，本脚本将其规范化为
+>   `infer.py` 可直接读取的本地文件结构。
+> - `evaluate_results.py`：对 scorer 输出 CSV 计算与人工 `total` 分数的
+>   Pearson/Spearman 相关性，同时支持 CPU/CUDA 与 NPU 两组结果的逐 utterance
+>   数值比较（entropy/perplexity 误差和排序 Spearman）。
+
 ## 快速上手
 
 ### 获取源码
@@ -80,7 +89,7 @@ speechscorer
      ../patches/0001-add-explicit-device-selection.patch
    ```
 
-2. 创建原始 CPU baseline 环境。
+2. 创建原始 CPU baseline 环境（需独立 venv，CPU PyTorch 与 torch-npu 不可共存，且原始/patched 的 editable 安装需要隔离）。
 
    ```bash
    python3.10 -m venv .venv-cpu-original
@@ -141,13 +150,26 @@ speechscorer
 
    ```bash
    mkdir -p weights
+   # fairseq checkpoint（约 3.8 GB）
    wget -O weights/hubert_large_ll60k.pt \
      https://dl.fbaipublicfiles.com/hubert/hubert_large_ll60k.pt
 
+   # HuggingFace processor（在线路径）
    huggingface-cli download facebook/hubert-large-ls960-ft \
      --revision ece5fabbf034c1073acae96d5401b25be96709d8 \
      --local-dir weights/hubert-large-ls960-ft
    sha256sum weights/hubert_large_ll60k.pt
+   ```
+
+   **离线替代**（在可联网机器预下载后传输到 NPU 服务器）：
+
+   ```bash
+   mkdir -p weights/hubert-large-ls960-ft
+   curl -L --fail -o weights/hubert-large-ls960-ft/preprocessor_config.json \
+     https://huggingface.co/facebook/hubert-large-ls960-ft/resolve/ece5fabbf034c1073acae96d5401b25be96709d8/preprocessor_config.json
+   curl -L --fail -o weights/hubert-large-ls960-ft/config.json \
+     https://huggingface.co/facebook/hubert-large-ls960-ft/resolve/ece5fabbf034c1073acae96d5401b25be96709d8/config.json
+   sha256sum weights/hubert_large_ll60k.pt weights/hubert-large-ls960-ft/*.json
    ```
 
    该 checkpoint 下载约 3.8 GB；正式报告必须记录实际 SHA256。
@@ -158,6 +180,19 @@ speechscorer
    huggingface-cli download openai/whisper-base.en \
      --revision 911407f4214e0e1d82085af863093ec0b66f9cd6 \
      --local-dir weights/whisper-base.en
+   ```
+
+   **离线替代**：
+
+   ```bash
+   mkdir -p weights/whisper-base.en
+   curl -L --fail -o weights/whisper-base.en/config.json \
+     https://huggingface.co/openai/whisper-base.en/resolve/911407f4214e0e1d82085af863093ec0b66f9cd6/config.json
+   curl -L --fail -o weights/whisper-base.en/model.safetensors \
+     https://huggingface.co/openai/whisper-base.en/resolve/911407f4214e0e1d82085af863093ec0b66f9cd6/model.safetensors
+   curl -L --fail -o weights/whisper-base.en/tokenizer.json \
+     https://huggingface.co/openai/whisper-base.en/resolve/911407f4214e0e1d82085af863093ec0b66f9cd6/tokenizer.json
+   sha256sum weights/whisper-base.en/*
    ```
 
 ### 准备数据集

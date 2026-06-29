@@ -62,6 +62,8 @@ upstream `DiariZenPipeline` 将设备写为 `cuda:0`（CUDA 可用时）否则 C
 安装和推理见 [README.md](README.md)，DER 数据口径和
 CPU/CUDA/NPU 对齐标准见 [ACCEPTANCE_PLAN.md](ACCEPTANCE_PLAN.md)。
 
+权重下载优先使用 `huggingface-cli download`（在线路径），README 已补全等价 `curl` 离线替代命令（见 7.2 离线规则）。
+
 ## 上库就绪与目标仓对齐
 
 - 目标仓快照：`https://gitcode.com/Ascend/ModelZoo-PyTorch.git`，2026-06-29 重新查询

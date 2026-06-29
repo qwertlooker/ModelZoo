@@ -69,6 +69,14 @@ BUTSpeechFIT-DiariZen
 └── README.md                           # 推理指导文档
 ```
 
+> 说明：
+> - `prepare_eval_data.py`：将 Kaldi 风格 wav.scp + RTTM/UEM 转换为 `infer.py`
+>   所需的 JSONL manifest，并校验音频可读性、session ID 一致性和文件 SHA256。
+>   上游 DiariZen 社区通用 wav.scp 格式，本脚本是到 NPU 推理入口的桥接层。
+> - `score_diarization.py`：封装固定版本 dscore（`nryant/dscore@e02f949`），
+>   确保 `--ignore_overlaps` 作为 `store_true` 开关被正确处理，避免误写
+>   `--ignore_overlaps false` 导致语义反转；同时输出评测配置 metadata。
+
 ## 快速上手
 
 ### 获取源码
@@ -91,7 +99,7 @@ BUTSpeechFIT-DiariZen
      ../patches/0001-add-explicit-npu-pipeline-device.patch
    ```
 
-2. 创建并安装 CPU 原始环境。
+2. 创建并安装 CPU 原始环境（需独立 venv，`onnxruntime` 与 `onnxruntime-cann` 不可共存，且原始/patched 的 editable 安装需要隔离）。
 
    ```bash
    python3.10 -m venv .venv-cpu-original
@@ -161,6 +169,8 @@ BUTSpeechFIT-DiariZen
    主模型地址：`https://huggingface.co/BUT-FIT/diarizen-wavlm-large-s80-md`
    embedding 地址：`https://huggingface.co/pyannote/wespeaker-voxceleb-resnet34-LM`
 
+   **在线路径**：
+
    ```bash
    huggingface-cli download BUT-FIT/diarizen-wavlm-large-s80-md \
      --revision a9b1b0e7974d96dcfd63af417e9da7ad8714040f \
@@ -169,6 +179,25 @@ BUTSpeechFIT-DiariZen
      pytorch_model.bin \
      --revision 837717ddb9ff5507820346191109dc79c958d614 \
      --local-dir weights/wespeaker-voxceleb-resnet34-LM
+
+   find weights -type f -print0 | sort -z | xargs -0 sha256sum
+   ```
+
+   **离线替代**（在可联网机器预下载后传输到 NPU 服务器）：
+
+   ```bash
+   mkdir -p weights/diarizen-wavlm-large-s80-md/plda
+   DZ_BASE="https://huggingface.co/BUT-FIT/diarizen-wavlm-large-s80-md/resolve/a9b1b0e7974d96dcfd63af417e9da7ad8714040f"
+   curl -L --fail -o weights/diarizen-wavlm-large-s80-md/config.toml "$DZ_BASE/config.toml"
+   curl -L --fail -o weights/diarizen-wavlm-large-s80-md/pytorch_model.bin "$DZ_BASE/pytorch_model.bin"
+   curl -L --fail -o weights/diarizen-wavlm-large-s80-md/plda/plda $DZ_BASE/plda/plda
+   curl -L --fail -o weights/diarizen-wavlm-large-s80-md/plda/mean.vec "$DZ_BASE/plda/mean.vec"
+   curl -L --fail -o weights/diarizen-wavlm-large-s80-md/plda/transform.mat "$DZ_BASE/plda/transform.mat"
+
+   mkdir -p weights/wespeaker-voxceleb-resnet34-LM
+   WS_BASE="https://huggingface.co/pyannote/wespeaker-voxceleb-resnet34-LM/resolve/837717ddb9ff5507820346191109dc79c958d614"
+   curl -L --fail -o weights/wespeaker-voxceleb-resnet34-LM/pytorch_model.bin "$WS_BASE/pytorch_model.bin"
+   curl -L --fail -o weights/wespeaker-voxceleb-resnet34-LM/config.yaml "$WS_BASE/config.yaml"
 
    find weights -type f -print0 | sort -z | xargs -0 sha256sum
    ```
@@ -197,7 +226,37 @@ BUTSpeechFIT-DiariZen
    - `dataset`：数据集名称标签。
    - `split`：数据集 split 标签。
 
-2. 准备 L2 正式评测数据。
+2. 准备 AMI-SDM 评测数据。
+
+   AMI 语料库需在 <https://groups.inf.ed.ac.uk/ami/corpus/> 注册后下载。
+   下载后使用 Kaldi 工具或上游 DiariZen 数据处理脚本生成以下文件：
+
+   ```text
+   eval_data/ami/wav.scp          # 每行：<session_id> <absolute_audio_path>
+   eval_data/ami/reference.rttm    # NIST RTTM 格式 reference
+   eval_data/ami/all.uem           # 可选：UEM 文件
+   ```
+
+   期望的 wav.scp 格式（可直接从 DiariZen 上游提供的 AMI recipe 获得）：
+
+   ```text
+   IS1000a /path/to/ami/IS1000a.wav
+   IS1000b /path/to/ami/IS1000b.wav
+   ...
+   ```
+
+   reference RTTM 格式示例：
+
+   ```text
+   SPEAKER IS1000a 1 0.000 5.123 <NA> <NA> A <NA> <NA>
+   SPEAKER IS1000a 1 5.500 3.200 <NA> <NA> B <NA> <NA>
+   ...
+   ```
+
+   若 AMI 数据暂时不可取得，可先用上游示例音频完成功能验证（2.1 节），
+   正式 DER 对齐留待数据就绪后补验。
+
+3. 从上述文件生成正式评测 manifest。
 
    ```bash
    python prepare_eval_data.py \

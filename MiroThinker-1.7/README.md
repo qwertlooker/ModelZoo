@@ -125,6 +125,32 @@ MiroThinker-1.7
    sha256sum "$MODEL_DIR"/config.json "$MODEL_DIR"/model.safetensors.index.json
    ```
 
+   **离线替代**（在可联网机器预下载后传输到 NPU 服务器）：
+
+   ```bash
+   mkdir -p "$MODEL_DIR"
+   # 下载 config/tokenizer 文件
+   for f in config.json tokenizer_config.json tokenizer.json generation_config.json \
+            model.safetensors.index.json; do
+     curl -L --fail -o "$MODEL_DIR/$f" \
+       "https://huggingface.co/miromind-ai/MiroThinker-1.7/resolve/1a42014ce72e1025fdbf3c48d54545715ab3eea8/$f"
+   done
+
+   # 根据 index.json 中的 weight_map 下载所有 safetensors shard（约 470 GB）
+   python3 -c "
+   import json
+   with open('$MODEL_DIR/model.safetensors.index.json') as f:
+       idx = json.load(f)
+   for fname in sorted(set(idx['weight_map'].values())):
+       print(fname)
+   " | while read -r f; do
+     curl -L --fail -o "$MODEL_DIR/$f" \
+       "https://huggingface.co/miromind-ai/MiroThinker-1.7/resolve/1a42014ce72e1025fdbf3c48d54545715ab3eea8/$f"
+   done
+
+   sha256sum "$MODEL_DIR"/*.json "$MODEL_DIR"/*.safetensors
+   ```
+
 ### 准备数据集
 
 1. 生成固定 100 条 L2 服务精度回归 prompt。

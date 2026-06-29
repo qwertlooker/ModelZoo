@@ -65,11 +65,19 @@ MolFormer
 └── README.md
 ```
 
+> 说明：
+> - `prepare_eval_data.py`：支持三种输入模式——仓内固定 SMILES 文本文件、
+>   IBM 官方 CSV split（需从 Box 手工下载 `finetune_datasets.zip`）、
+>   以及确定性生成的线性 SMILES（L2 降级固定集）。输出 JSONL manifest
+>   并记录所有输入文件的 SHA256。
+> - `compare_embeddings.py`：按 SMILES 逐条比较 CPU 与 NPU 的
+>   `pooler_output` embedding，输出 cosine similarity、最大/平均绝对误差。
+
 ## 快速上手
 
 ### 获取源码
 
-1. 安装 CPU baseline 环境。
+1. 安装 CPU baseline 环境（需独立 venv，因为 CPU PyTorch wheel 与 `torch-npu` 不可共存）。
 
    ```bash
    python3.10 -m venv .venv-cpu
@@ -113,6 +121,8 @@ MolFormer
 
    原始权重地址：`https://huggingface.co/ibm-research/MoLFormer-XL-both-10pct`
 
+   **在线路径**：
+
    ```bash
    huggingface-cli download ibm-research/MoLFormer-XL-both-10pct \
      --revision 7b12d946c181a37f6012b9dc3b002275de070314 \
@@ -121,6 +131,20 @@ MolFormer
    find weights/MoLFormer-XL-both-10pct -maxdepth 1 -type f -print | sort
    find weights/MoLFormer-XL-both-10pct -maxdepth 1 -type f -print0 \
      | sort -z | xargs -0 sha256sum
+   ```
+
+   **离线替代**（在可联网机器预下载后传输到 NPU 服务器）：
+
+   ```bash
+   mkdir -p weights/MoLFormer-XL-both-10pct
+   BASE="https://huggingface.co/ibm-research/MoLFormer-XL-both-10pct/resolve/7b12d946c181a37f6012b9dc3b002275de070314"
+   curl -L --fail -o weights/MoLFormer-XL-both-10pct/config.json "$BASE/config.json"
+   curl -L --fail -o weights/MoLFormer-XL-both-10pct/model.safetensors "$BASE/model.safetensors"
+   curl -L --fail -o weights/MoLFormer-XL-both-10pct/modeling_molformer.py "$BASE/modeling_molformer.py"
+   curl -L --fail -o weights/MoLFormer-XL-both-10pct/tokenizer.json "$BASE/tokenizer.json"
+   curl -L --fail -o weights/MoLFormer-XL-both-10pct/tokenizer_config.json "$BASE/tokenizer_config.json"
+   curl -L --fail -o weights/MoLFormer-XL-both-10pct/special_tokens_map.json "$BASE/special_tokens_map.json"
+   sha256sum weights/MoLFormer-XL-both-10pct/*
    ```
 
    关键文件预期 SHA256：

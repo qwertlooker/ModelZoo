@@ -57,6 +57,8 @@ agreement 均为 `1.0`。这只证明评测工具链，不证明 Hy3 模型服�
 用户推理和补丁应用见 [README.md](README.md)，数据集与
 CPU/CUDA/NPU 对齐要求见 [ACCEPTANCE_PLAN.md](ACCEPTANCE_PLAN.md)。
 
+权重下载优先使用 `huggingface-cli download`（在线路径，需 login），README 已补全等价 `curl` 带 token 离线替代命令（见 7.2 离线规则）。该模型为 gated 模型，离线下载前需先在可联网机器完成授权。
+
 ## 上库就绪与目标仓对齐
 
 - 目标仓快照：`https://gitcode.com/Ascend/ModelZoo-PyTorch.git`，2026-06-29 重新查询

@@ -15,7 +15,7 @@ ee569c0e51d9805b9c054e80b1ee7d32dbf50d5c5a1fffd11b68f28a452a1542
 
 ```bash
 git -C upstream apply --check \
-  ../patches/0001-add-explicit-npu-pipeline-device.patch
+  patches/0001-add-explicit-npu-pipeline-device.patch
 git -C upstream apply \
-  ../patches/0001-add-explicit-npu-pipeline-device.patch
+  patches/0001-add-explicit-npu-pipeline-device.patch
 ```

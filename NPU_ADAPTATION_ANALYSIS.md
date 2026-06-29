@@ -46,6 +46,15 @@ NPU/CANN 运行环境和模型权重，因此真实 NPU 数值、性能和官方
   硬编码路径（改用 `MZ` 变量）并清理目录树中项目级 `tools/` 引用；MiroThinker-1.7
   新增 `serve_npu.sh` 可运行服务入口；speechscorer/MolFormer/BUTSpeechFIT-DiariZen
   去除 `待验收`、`<...>` 占位符。
+- **wget/curl 离线下载规则对齐**（Step 7.2）：所有使用 `huggingface-cli download` 的模型
+  （speechscorer、Hy3-preview、MiroThinker-1.7、MolFormer、BUTSpeechFIT-DiariZen）
+  已在 README 中补全等价 `curl`/`wget` 离线替代命令，包含 HF raw URL、固定 revision、
+  文件清单和 SHA256 校验。Hy3-preview 为 gated 模型，离线命令包含 `Authorization` header。
+  DNSMOS 权重从上游 clone 拷贝，不涉及 `huggingface-cli download`，VCC2018 数据已使用
+  `wget`。MolFormer、BUTSpeechFIT-DiariZen 从零 wget/curl 覆盖到完整离线命令。
+- **环境原则对齐**：DNSMOS、speechscorer、MolFormer、BUTSpeechFIT-DiariZen 的 venv
+  创建命令均已补全隔离原因说明（不同 ONNX Runtime / PyTorch 包不可共存）。
+  Hy3-preview、MiroThinker-1.7 使用 Docker 容器，无 venv。
 - `python3 tools/audit_model_delivery.py <model>` 基础门禁六模型均 PASS；
   `--target-readiness --target-path ACL_PyTorch/built-in/<领域>/<模型>` 仅剩
   「当前状态: S3」一项。因当前机器无 NPU/CANN 环境与权重，六模型仍为 S1/S2，

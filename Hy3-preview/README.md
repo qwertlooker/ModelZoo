@@ -126,6 +126,37 @@ Hy3-preview
 
    正式报告保存镜像 digest、完整文件清单、总大小和所有 shard SHA256。
 
+   **离线替代**：该模型为 gated 模型，需先在可联网机器完成 `huggingface-cli login` 授权，再逐文件下载。根据 `model.safetensors.index.json` 中的 `weight_map` 列出所有 shard 文件名，然后使用 `curl` 带 token 下载：
+
+   ```bash
+   # 在可联网机器上
+   mkdir -p "$MODEL_DIR"
+   # 先获取文件清单
+   curl -s -H "Authorization: Bearer $HF_TOKEN" \
+     https://huggingface.co/api/models/tencent/Hy3-preview \
+     | python3 -c "import sys,json; [print(s['rfilename']) for s in json.load(sys.stdin)['siblings']]" \
+     > "$MODEL_DIR/filelist.txt"
+
+   # 逐文件下载 config/tokenizer
+   for f in config.json tokenizer_config.json tokenizer.json generation_config.json \
+            model.safetensors.index.json; do
+     curl -L --fail -H "Authorization: Bearer $HF_TOKEN" \
+       -o "$MODEL_DIR/$f" \
+       "https://huggingface.co/tencent/Hy3-preview/resolve/549c2b3a0fd5b9a6c6059a9935bf0d59ab69d75a/$f"
+   done
+
+   # 下载所有 safetensors shard（约 590 GB）
+   grep '.safetensors' "$MODEL_DIR/filelist.txt" | while read -r f; do
+     curl -L --fail -H "Authorization: Bearer $HF_TOKEN" \
+       -o "$MODEL_DIR/$f" \
+       "https://huggingface.co/tencent/Hy3-preview/resolve/549c2b3a0fd5b9a6c6059a9935bf0d59ab69d75a/$f"
+   done
+
+   sha256sum "$MODEL_DIR"/*.json "$MODEL_DIR"/*.safetensors
+   ```
+
+   离线传输：将 `$MODEL_DIR` 整体打包后通过 scp/USB/共享目录传输到 NPU 服务器。
+
 ### 准备数据集
 
 1. 生成固定 100 条 L2 服务精度回归 prompt。

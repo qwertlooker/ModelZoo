@@ -66,6 +66,8 @@ CPU 与 NPU 使用独立环境；NPU 环境不得复用
 用户推理见 [README.md](README.md)，官方 11 项下游指标和
 迁移对齐方案见 [ACCEPTANCE_PLAN.md](ACCEPTANCE_PLAN.md)。
 
+权重下载优先使用 `huggingface-cli download`（在线路径），README 已补全等价 `curl` 离线替代命令（见 7.2 离线规则）。单文件 safetensors 模型约 179 MiB，离线下载简单。
+
 ## 上库就绪与目标仓对齐
 
 - 目标仓快照：`https://gitcode.com/Ascend/ModelZoo-PyTorch.git`，2026-06-29 重新查询

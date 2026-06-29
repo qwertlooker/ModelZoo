@@ -71,6 +71,12 @@ DNSMOS
 └── results                             # 推理/比较结果目录，按需生成
 ```
 
+> 说明：
+> - `prepare_eval_data.py`：递归扫描 WAV 目录并生成 JSONL manifest，记录每段
+>   音频的采样率、声道数、时长和 SHA256。支持按 `--limit` 抽样固定子集。
+> - `compare_results.py`：逐文件比较 CPU 与 NPU 的 CSV 输出，计算
+>   SIG/BAK/OVRL/P808_MOS 七个字段的最大/平均绝对误差和排序 Spearman。
+
 ## 快速上手
 
 ### 获取源码
@@ -82,7 +88,7 @@ DNSMOS
    git -C upstream checkout 591184a9fcb2cbdec02520fed81a32bbbf9d73ff
    ```
 
-2. 创建 CPU baseline 环境并安装依赖。
+2. 创建 CPU baseline 环境并安装依赖（需独立 venv，因为 `onnxruntime` 与 `onnxruntime-cann` 不可共存）。
 
    ```bash
    python3.10 -m venv .venv-cpu
