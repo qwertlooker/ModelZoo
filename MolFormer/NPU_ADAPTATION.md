@@ -92,6 +92,20 @@ CPU 与 NPU 使用独立环境；NPU 环境不得复用
 - 许可证：上游 `IBM/molformer` License 上库前核对并拷贝；Transformers/HuggingFace
   remote code 各自 License 在公网地址说明中记录。`modelzoo_level.txt` 须在 NPU 实测后据实填写。
 
+## clean-room 重放记录 (Step 14.1)
+
+| 阶段 | 命令 | 结果 | 备注 |
+|---|---|---|---|
+| py_compile | `python3 -m py_compile MolFormer/infer.py` | ✅ PASS | |
+| prepare_eval_data.py --help | `python3 MolFormer/prepare_eval_data.py --help` | ✅ PASS | 纯 stdlib |
+| infer.py --help | `python3 MolFormer/infer.py --help` | ❌ 阻塞 | 缺 `torch` |
+| compare_embeddings.py --help | `python3 MolFormer/compare_embeddings.py --help` | ❌ 阻塞 | 缺 `numpy` |
+| CPU 推理 | 待 `pip install torch transformers huggingface_hub` | ⛔ 环境阻塞 | 权重 179MB，历史已实测通过 |
+| NPU 推理 | 待 CANN 环境 | ⛔ 硬件阻塞 | |
+
+- 重放环境：WSL Python 3.12.3，系统无 pip/网络，无 GPU/NPU。
+- 历史 CPU 实测：10 条 SMILES batch 4，embedding shape [768]，Transformers 4.35 与 4.57 输出误差 0。
+
 ## 需求—证据表 (Step 14.2)
 
 | 要求 | 权威证据 | 状态 |

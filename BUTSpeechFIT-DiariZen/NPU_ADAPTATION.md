@@ -89,6 +89,20 @@ CPU/CUDA/NPU 对齐标准见 [ACCEPTANCE_PLAN.md](ACCEPTANCE_PLAN.md)。
   License 上库前核对并记录；新增 patch/脚本按贡献规范追加华为 License 头部。
   `modelzoo_level.txt` 须在 NPU 实测后据实填写。
 
+## clean-room 重放记录 (Step 14.1)
+
+| 阶段 | 命令 | 结果 | 备注 |
+|---|---|---|---|
+| py_compile | `python3 -m py_compile BUTSpeechFIT-DiariZen/infer.py` | ✅ PASS | |
+| score_diarization.py --help | `python3 BUTSpeechFIT-DiariZen/score_diarization.py --help` | ✅ PASS | 纯 stdlib |
+| prepare_eval_data.py --help | `python3 BUTSpeechFIT-DiariZen/prepare_eval_data.py --help` | ❌ 阻塞 | 缺 `soundfile` |
+| infer.py --help | `python3 BUTSpeechFIT-DiariZen/infer.py --help` | ❌ 阻塞 | 缺 `torch` |
+| CPU 推理 | 待安装 torch + onnxruntime + pyannote + 权重 | ⛔ 重量级依赖 | 需先克隆 upstream + 下载权重 |
+| NPU 推理 | 待 CANN 环境 | ⛔ 硬件阻塞 | |
+
+- 重放环境：WSL Python 3.12.3，系统无 pip/网络，无 GPU/NPU。
+- DiariZen 依赖链重（pyannote-audio + dscore 子模块 + 3 套 venv），完整 CPU 重放成本高。
+
 ## 需求—证据表 (Step 14.2)
 
 | 要求 | 权威证据 | 状态 |

@@ -96,6 +96,20 @@ CPU 实测环境和结果：
   LICENSE 并按贡献规范为新增脚本追加华为 License 头部。`modelzoo_level.txt` 的
   Func/Perf/Precision 状态须在 NPU 实测后据实填写，未达 S3 前不得伪造 OK。
 
+## clean-room 重放记录 (Step 14.1)
+
+| 阶段 | 命令 | 结果 | 备注 |
+|---|---|---|---|
+| py_compile | `python3 -m py_compile DNSMOS/infer.py` | ✅ PASS | |
+| infer.py --help | `python3 DNSMOS/infer.py --help` | ❌ 阻塞 | 缺 `librosa`（系统无 pip/网络） |
+| prepare_eval_data.py --help | `python3 DNSMOS/prepare_eval_data.py --help` | ❌ 阻塞 | 缺 `soundfile` |
+| compare_results.py --help | `python3 DNSMOS/compare_results.py --help` | ❌ 阻塞 | 缺 `numpy` |
+| CPU 推理 | 待 `pip install onnxruntime==1.22.1 librosa soundfile numpy` | ⛔ 环境阻塞 | 需先安装依赖 |
+| NPU 推理 | 待 CANN 环境 | ⛔ 硬件阻塞 | |
+
+- 重放环境：WSL Python 3.12.3，系统无 pip/网络，无 GPU/NPU。
+- 安装最小依赖后可执行 CPU 推理，命令见 README 模型推理章节。
+
 ## 需求—证据表 (Step 14.2)
 
 | 要求 | 权威证据 | 状态 |

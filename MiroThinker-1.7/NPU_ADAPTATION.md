@@ -74,6 +74,18 @@ benchmark。
 - 许可证：上游 `MiroMindAI/MiroThinker`、vLLM、vllm-ascend 各自 License 上库前核对；
   新增脚本按贡献规范追加华为 License 头部。`modelzoo_level.txt` 须在 NPU 实测后据实填写。
 
+## clean-room 重放记录 (Step 14.1)
+
+| 阶段 | 命令 | 结果 | 备注 |
+|---|---|---|---|
+| serve_npu.sh 语法 | `bash -n serve_npu.sh` | ✅ PASS | |
+| benchmark archive 解压 | SHA256 `35816f69` 校验 + unzip | ✅ PASS | (历史记录) |
+| CPU 推理 | vLLM 服务模型，不适用 CPU | 不适用 | 需 16 卡 A3 + 约 470GB 权重 |
+| NPU 推理 | 待 A3 硬件 + Docker 镜像 | ⛔ 硬件阻塞 | |
+
+- 重放环境：WSL，无 GPU/NPU/A3，无 Docker。
+- 无 patch（vLLM 原生支持 Qwen3MoeForCausalLM），不需要 patch apply 检查。
+
 ## 需求—证据表 (Step 14.2)
 
 | 要求 | 权威证据 | 状态 |

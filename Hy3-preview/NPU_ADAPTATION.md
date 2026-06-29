@@ -111,6 +111,18 @@ CPU/CUDA/NPU 对齐要求见 [ACCEPTANCE_PLAN.md](ACCEPTANCE_PLAN.md)。
 
 CUDA 侧不得使用 NPU 专用 `--enable-ep-weight-filter`。CUDA baseline 的 `vllm serve` 命令应省略该参数，其余参数与 NPU 保持一致。
 
+## clean-room 重放记录 (Step 14.1)
+
+| 阶段 | 命令 | 结果 | 备注 |
+|---|---|---|---|
+| patch apply --check | 固定 vLLM commit 上 `git apply --check` | ✅ PASS | (历史记录) |
+| serve_npu.sh 语法 | `bash -n serve_npu.sh` | ✅ PASS | |
+| CPU 推理 | vLLM 服务模型，不适用 CPU | 不适用 | 需 16 卡 A3 + 约 590GB 权重 |
+| NPU 推理 | 待 A3 硬件 + Docker 镜像 | ⛔ 硬件阻塞 | |
+
+- 重放环境：WSL，无 GPU/NPU/A3，无 Docker。
+- 服务模型不适用 CPU 推理。
+
 ## 需求—证据表 (Step 14.2)
 
 | 要求 | 权威证据 | 状态 |

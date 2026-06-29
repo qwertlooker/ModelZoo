@@ -95,6 +95,19 @@ wheel；完整安装和比较命令见 `README.md`。
 - 许可证：上游 `yaya-sy/speechscorer` License 上库前核对并拷贝；fairseq/HuBERT/Whisper
   等依赖各自 License 在公网地址说明中记录。`modelzoo_level.txt` 须在 NPU 实测后据实填写。
 
+## clean-room 重放记录 (Step 14.1)
+
+| 阶段 | 命令 | 结果 | 备注 |
+|---|---|---|---|
+| py_compile | `python3 -m compileall -q speechscorer/` | ✅ PASS | (历史记录) |
+| prepare_eval_data.py --help | `python3 speechscorer/prepare_eval_data.py --help` | ❌ 阻塞 | 缺 `soundfile` |
+| evaluate_results.py --help | `python3 speechscorer/evaluate_results.py --help` | ❌ 阻塞 | 缺 `numpy` |
+| CPU 推理 | 待安装 fairseq + torch + transformers + HuBERT 权重(3.8GB) | ⛔ 重量级依赖 | 需先下载权重和安装依赖 |
+| NPU 推理 | 待 CANN 环境 | ⛔ 硬件阻塞 | |
+
+- 重放环境：WSL Python 3.12.3，系统无 pip/网络，无 GPU/NPU。
+- HuBERT-MLM 路径依赖 fairseq（旧版），安装和导入验证成本高。
+
 ## 需求—证据表 (Step 14.2)
 
 | 要求 | 权威证据 | 状态 |
