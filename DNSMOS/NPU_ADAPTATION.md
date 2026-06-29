@@ -5,7 +5,7 @@
 - 官方源码：<https://github.com/microsoft/DNS-Challenge.git>
 - 分支/commit：`master` / `591184a9fcb2cbdec02520fed81a32bbbf9d73ff`
 - Ascend-SACT 参考：<https://gitcode.com/Ascend-SACT/DNSMOS>，commit `d1e4c2c14df9cb935d61dc5f448e655772b12379`
-- 检查日期：2026-06-20；两个远端 HEAD 与上述本地 commit 一致。
+- 检查日期：2026-06-29；两个远端 HEAD 与上述本地 commit 一致。
 - 权重：官方仓 `DNSMOS/DNSMOS/model_v8.onnx`、`DNSMOS/DNSMOS/sig_bak_ovr.onnx`、`DNSMOS/pDNSMOS/sig_bak_ovr.onnx`。
 - 变体边界：包含常规和 personalized DNSMOS P.835；不包含在线 DNSMOS API。
 - 目标 NPU 运行组合：Python 3.10、CANN 8.2.0、
@@ -68,6 +68,33 @@ CPU 实测环境和结果：
 当前交付状态：**S2，CPU 算法等价性已验证；升级到 S3 仍缺 NPU 同 manifest
 精度和性能对齐**。不能仅凭
 静态检查或本文档将状态标记为“适配验收完成”。
+
+## 上库就绪与目标仓对齐
+
+- 目标仓快照：`https://gitcode.com/Ascend/ModelZoo-PyTorch.git`，2026-06-29 重新查询
+  `master` HEAD `7a02a6701c971b29df188a0f3241e1efe249d1df`（commit message "modify document"）。
+  2026-06-22 审阅快照为 `ec2a7b514973805f66b67c9178d2f5c9e97eee34`；本次为重新查询，不复用历史快照。
+- 拟合入路径：`ACL_PyTorch/built-in/audio/DNSMOS`。目标仓 `ACL_PyTorch/built-in/audio/`
+  下不存在 `DNSMOS` 目录，本次为新增，不涉及替换或增量更新。
+- 最新参考目录：同领域、同推理形态（audio / ONNX-OM、`CANNExecutionProvider`）按最后
+  实质变更时间选取 `ACL_PyTorch/built-in/audio/AASIST-L_for_Pytorch`，其最后实质变更为
+  commit `6fecdfba7`（2026-06-18，建立 `pth2onnx.py`/`modify_onnx.py`/`om_val.py` +
+  `LICENSE` + `modelzoo_level.txt` 的完整 ONNX/OM 交付）。选择原因是同属 audio ONNX/OM
+  推理形态且 PR 门禁文件最全。更新的 `YingMusic-SVC_for_Pytorch`（`e98df562e`，
+  2026-06-22）为 SVC 形态，推理链路不同，仅作 PR 门禁参考。
+- 贡献规范与 PR 门禁：`Ascend/modelzoo` HEAD `5eab9a4921c7f12edb555079836429a8f285cd1f`
+  的 CONTRIBUTING.md 要求源码、README、参考模型 License、测试用例；AASIST-L 另含
+  `modelzoo_level.txt`，但 Canary-1B、chronos-2 等同领域目录未提供 LICENSE/
+  modelzoo_level.txt，说明历史目录与当前 PR 门禁存在差异。执行时按贡献规范提交，
+  不因历史模型缺文件而跳过，也不为形式伪造未执行的自测试或状态文件。
+- 上库文件清单（候选）：`README.md`、`infer.py`、`prepare_eval_data.py`、
+  `compare_results.py`、`requirements.txt`；上库前补 `LICENSE`、`modelzoo_level.txt`。
+- 排除项：`NPU_ADAPTATION.md`、`ACCEPTANCE_PLAN.md`、`README_old.md`、
+  `patches/README.md`、`*.png` 截图、`upstream/`、`weights/`、`eval_data/`、
+  `eval_results/`、`.codex-reference/`、日志与虚拟环境。
+- 许可证：上游 `microsoft/DNS-Challenge` 为 MIT License，上库时在模型顶层目录拷贝上游
+  LICENSE 并按贡献规范为新增脚本追加华为 License 头部。`modelzoo_level.txt` 的
+  Func/Perf/Precision 状态须在 NPU 实测后据实填写，未达 S3 前不得伪造 OK。
 
 ## 补充说明（来自 README.md）
 

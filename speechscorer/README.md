@@ -20,7 +20,7 @@ speechscorer 使用语音模型输出分布的 entropy/perplexity 对 utterance 
 
   ```text
   upstream=https://github.com/yaya-sy/speechscorer.git
-  commit=bbe0be772b37f472994d5a97f809214fd67a2c8e
+  commit_id=bbe0be772b37f472994d5a97f809214fd67a2c8e
   reference=https://gitcode.com/Ascend-SACT/speechscorer
   reference_commit=f1d6e3ee3d0f113c610a969e6fde4a29af3216d1
   hubert_processor=facebook/hubert-large-ls960-ft@ece5fabbf034c1073acae96d5401b25be96709d8

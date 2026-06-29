@@ -21,6 +21,7 @@ MoLFormer-XL-both-10pct 是 IBM 发布的分子表征模型，基于 SMILES 输�
 - 版本说明：
 
   ```text
+  commit_id=3b9ac434db387fadf2cf99b99def654cbf193841
   model=ibm-research/MoLFormer-XL-both-10pct@7b12d946c181a37f6012b9dc3b002275de070314
   official_code=IBM/molformer@3b9ac434db387fadf2cf99b99def654cbf193841
   deepchem=deepchem/deepchem@046c8b84fdcbf7e1b72bbbbd07fa2502ff9b94dd

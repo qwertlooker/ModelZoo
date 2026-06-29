@@ -153,4 +153,4 @@ CPU/CUDA vs NPU排序Spearman:
 |---|---|
 | SpeechOcean 公开数值相关性 | 官方未发布，只提供 HuBERT-MLM 散点图 |
 | CPU/CUDA HuBERT-MLM 全量结果 | 待 3.8 GB checkpoint 实测 |
-| NPU 数值、相关性和性能 | 待验收 |
+| NPU 数值、相关性和性能 | 尚未验收（缺 NPU 环境） |

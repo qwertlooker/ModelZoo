@@ -9,7 +9,7 @@
 - 官方代码：`IBM/molformer`
 - DeepChem HEAD：`046c8b84fdcbf7e1b72bbbbd07fa2502ff9b94dd`
 - Ascend-SACT 参考 commit：`b39184dcb79501f0cd81def11e7b934176194a4c`
-- 检查日期：2026-06-20。
+- 检查日期：2026-06-29。
 
 ## 2. 参考实现审查与正式路径
 
@@ -65,6 +65,30 @@ CPU 与 NPU 使用独立环境；NPU 环境不得复用
 
 用户推理见 [README.md](README.md)，官方 11 项下游指标和
 迁移对齐方案见 [ACCEPTANCE_PLAN.md](ACCEPTANCE_PLAN.md)。
+
+## 上库就绪与目标仓对齐
+
+- 目标仓快照：`https://gitcode.com/Ascend/ModelZoo-PyTorch.git`，2026-06-29 重新查询
+  `master` HEAD `7a02a6701c971b29df188a0f3241e1efe249d1df`（"modify document"）。
+  2026-06-22 审阅快照为 `ec2a7b514973805f66b67c9178d2f5c9e97eee34`；本次不复用历史快照。
+- 拟合入路径：`ACL_PyTorch/built-in/nlp/MolFormer`。目标仓 `nlp/` 下不存在该目录，
+  本次为新增，不涉及替换或增量更新。
+- 最新参考目录：同领域选 `ACL_PyTorch/built-in/nlp/ProtBert_for_Pytorch`（nlp 序列/
+  分子-蛋白语言模型，最后实质变更 `6fecdfba7`，2026-06-18，`Protbert_infer.py` +
+  `TestProtbert_2onnx.py` + `requirements.txt`），选择原因是同属 nlp 分子/序列模型且含
+  infer + ONNX 路径；同领域 `nlp/chronos-2`（`6fecdfba7`，2026-06-18）提供
+  `ascend_infer.py`/`eval_accuracy.py`/`eval_performance.py` 精度性能脚本参考。
+- 贡献规范与 PR 门禁：`Ascend/modelzoo` HEAD `5eab9a4921c7f12edb555079836429a8f285cd1f`
+  的 CONTRIBUTING.md 要求源码、README、参考模型 License、测试用例；AASIST-L 另含
+  `modelzoo_level.txt`，但 ProtBert、chronos-2 等目录未提供 LICENSE/modelzoo_level.txt，
+  历史目录与当前 PR 门禁存在差异。按贡献规范提交，不跳过也不伪造。
+- 上库文件清单（候选）：`README.md`、`infer.py`、`prepare_eval_data.py`、
+  `compare_embeddings.py`、`requirements.txt`、`test_data/smiles_functional.txt`；
+  上库前补 `LICENSE`、`modelzoo_level.txt`。
+- 排除项：`NPU_ADAPTATION.md`、`ACCEPTANCE_PLAN.md`、`patches/README.md`、`upstream/`、
+  `weights/`、`eval_data/`、`eval_results/`、`.codex-reference/`、日志与虚拟环境。
+- 许可证：上游 `IBM/molformer` License 上库前核对并拷贝；Transformers/HuggingFace
+  remote code 各自 License 在公网地址说明中记录。`modelzoo_level.txt` 须在 NPU 实测后据实填写。
 
 ## 补充说明（来自 README.md）
 

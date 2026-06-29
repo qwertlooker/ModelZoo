@@ -30,6 +30,27 @@
 NPU/CANN 运行环境和模型权重，因此真实 NPU 数值、性能和官方数据集验收仍以各模型
 `NPU_ADAPTATION.md`、`ACCEPTANCE_PLAN.md` 的记录为准。
 
+### 2026-06-29 复核更新
+
+按《模型 NPU 适配标准流程》重新查询目标仓并复核上述六模型：
+
+- 目标仓 `https://gitcode.com/Ascend/ModelZoo-PyTorch.git` `master` HEAD 由 2026-06-22
+  的 `ec2a7b514973805f66b67c9178d2f5c9e97eee34` 更新为
+  `7a02a6701c971b29df188a0f3241e1efe249d1df`（commit message "modify document"）；
+  贡献规范 `Ascend/modelzoo` HEAD 仍 `5eab9a4921c7f12edb555079836429a8f285cd1f`。
+- 各模型 `NPU_ADAPTATION.md` 新增「上库就绪与目标仓对齐」章节，记录目标仓快照、
+  拟合入路径（六个均为新增）、按最后实质变更排序的同领域/同推理形态参考目录
+  （均为 commit `6fecdfba7`，2026-06-18 建立）、贡献规范与 PR 门禁结论、上库文件清单
+  和排除项；版本检查日期统一更新为 2026-06-29。
+- README 补全 `commit_id` 声明；Hy3-preview、MiroThinker-1.7 去除 `/workspace/ModelZoo`
+  硬编码路径（改用 `MZ` 变量）并清理目录树中项目级 `tools/` 引用；MiroThinker-1.7
+  新增 `serve_npu.sh` 可运行服务入口；speechscorer/MolFormer/BUTSpeechFIT-DiariZen
+  去除 `待验收`、`<...>` 占位符。
+- `python3 tools/audit_model_delivery.py <model>` 基础门禁六模型均 PASS；
+  `--target-readiness --target-path ACL_PyTorch/built-in/<领域>/<模型>` 仅剩
+  「当前状态: S3」一项。因当前机器无 NPU/CANN 环境与权重，六模型仍为 S1/S2，
+  按规则不得伪造 S3，故保留为“尚未验收/上库候选未就绪”。
+
 ---
 
 ## A. 参考原始仓库与适配版本边界

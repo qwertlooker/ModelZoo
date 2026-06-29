@@ -9,7 +9,7 @@
 - 原始公开图路径：`hubert_large_ll60k.pt` + `hubert-mlm` +
   `facebook/hubert-large-ls960-ft@ece5fabbf034c1073acae96d5401b25be96709d8`
 - SpeechOcean762：`613968e3b0b789fc33936fb5eba1973176ba7d11`
-- 检查日期：2026-06-20；上述源码远端 HEAD 未变化。
+- 检查日期：2026-06-29；上述源码远端 HEAD 未变化。
 - 原始结果对齐主路径为 `hubert-mlm`。`whisper-clm` 只保留为上游默认 smoke；
   两条路径不得混写指标。
 
@@ -67,6 +67,31 @@ wheel；完整安装和比较命令见 `README.md`。
 
 安装和推理见 [README.md](README.md)，SpeechOcean762
 对齐和相关性报告口径见 [ACCEPTANCE_PLAN.md](ACCEPTANCE_PLAN.md)。
+
+## 上库就绪与目标仓对齐
+
+- 目标仓快照：`https://gitcode.com/Ascend/ModelZoo-PyTorch.git`，2026-06-29 重新查询
+  `master` HEAD `7a02a6701c971b29df188a0f3241e1efe249d1df`（"modify document"）。
+  2026-06-22 审阅快照为 `ec2a7b514973805f66b67c9178d2f5c9e97eee34`；本次不复用历史快照。
+- 拟合入路径：`ACL_PyTorch/built-in/audio/speechscorer`。目标仓 `audio/` 下不存在该目录，
+  本次为新增，不涉及替换或增量更新。
+- 最新参考目录：同领域、同推理形态（audio / 在线 PyTorch）选取
+  `ACL_PyTorch/built-in/audio/Canary-1B`，其最后实质变更为 commit `6fecdfba7`
+  （2026-06-18，建立 `infer.py`/`eval_canary.py`/`prepare_eval_data.py`/`utils.py`
+  完整在线 PyTorch 交付）。选择原因是同属 audio 在线 PyTorch 形态且含数据准备/评测
+  入口。更新的 `YingMusic-SVC_for_Pytorch`（`e98df562e`，2026-06-22）为 SVC 形态，
+  推理链路不同，仅作 PR 门禁参考。
+- 贡献规范与 PR 门禁：`Ascend/modelzoo` HEAD `5eab9a4921c7f12edb555079836429a8f285cd1f`
+  的 CONTRIBUTING.md 要求源码、README、参考模型 License、测试用例；AASIST-L 另含
+  `modelzoo_level.txt`，但 Canary-1B、chronos-2 等同领域目录未提供 LICENSE/
+  modelzoo_level.txt，历史目录与当前 PR 门禁存在差异。按贡献规范提交，不跳过也不伪造。
+- 上库文件清单（候选）：`README.md`、`evaluate_results.py`、
+  `patches/0001-add-explicit-device-selection.patch`、`prepare_eval_data.py`、
+  `requirements.txt`；上库前补 `LICENSE`、`modelzoo_level.txt`。
+- 排除项：`NPU_ADAPTATION.md`、`ACCEPTANCE_PLAN.md`、`patches/README.md`、
+  `upstream/`、`weights/`、`eval_data/`、`eval_results/`、`.codex-reference/`、日志与虚拟环境。
+- 许可证：上游 `yaya-sy/speechscorer` License 上库前核对并拷贝；fairseq/HuBERT/Whisper
+  等依赖各自 License 在公网地址说明中记录。`modelzoo_level.txt` 须在 NPU 实测后据实填写。
 
 ## 补充说明（来自 README.md）
 

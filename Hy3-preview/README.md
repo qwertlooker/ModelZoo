@@ -21,6 +21,7 @@ Hy3-preview 是 295B total / 21B active 的 BF16 MoE 模型，包含一层 3.8B 
 - 版本说明：
 
   ```text
+  commit_id=38ac237dc0bf4329f054d09054aaf22fdaf6f553
   model=tencent/Hy3-preview@549c2b3a0fd5b9a6c6059a9935bf0d59ab69d75a
   official=Tencent-Hunyuan/Hy3-preview@38ac237dc0bf4329f054d09054aaf22fdaf6f553
   reference=Ascend-SACT/Hy3-preview@eb533c1dfd9a1fa7f373f9b980a9c0f973f1dad8
@@ -61,10 +62,6 @@ Hy3-preview
 ├── patches/0001-add-hy3-preview-support.patch
 ├── test_data/service_prompts.jsonl
 └── README.md
-tools
-├── openai_service_eval.py
-├── compare_openai_service_results.py
-└── prepare_service_prompts.py
 ```
 
 ## 快速上手
@@ -98,16 +95,17 @@ tools
 2. 在容器中核对并应用补丁。
 
    ```bash
-   cd /workspace/ModelZoo/Hy3-preview
+   export MZ=/workspace/ModelZoo
+   cd "$MZ/Hy3-preview"
    test "$(git -C /vllm-workspace/vllm rev-parse HEAD)" = \
      262ddd0d81a1e4687e209f988d6ea32616e736fa
    test "$(git -C /vllm-workspace/vllm-ascend rev-parse HEAD)" = \
      99e1ea0fe685e93f53ee5adfe4b41cdd42fb809f
 
    git -C /vllm-workspace/vllm apply --check \
-     /workspace/ModelZoo/Hy3-preview/patches/0001-add-hy3-preview-support.patch
+     $MZ/Hy3-preview/patches/0001-add-hy3-preview-support.patch
    git -C /vllm-workspace/vllm apply \
-     /workspace/ModelZoo/Hy3-preview/patches/0001-add-hy3-preview-support.patch
+     $MZ/Hy3-preview/patches/0001-add-hy3-preview-support.patch
    python -m compileall -q /vllm-workspace/vllm/vllm
    ```
 
@@ -133,11 +131,11 @@ tools
 1. 生成固定 100 条 L2 服务精度回归 prompt。
 
    ```bash
-   python /workspace/ModelZoo/tools/prepare_service_prompts.py \
-     --base /workspace/ModelZoo/Hy3-preview/test_data/service_prompts.jsonl \
-     --output /workspace/ModelZoo/Hy3-preview/eval_data/service_prompts_l2.jsonl \
+   python $MZ/tools/prepare_service_prompts.py \
+     --base $MZ/Hy3-preview/test_data/service_prompts.jsonl \
+     --output $MZ/Hy3-preview/eval_data/service_prompts_l2.jsonl \
      --count 100
-   test "$(wc -l < /workspace/ModelZoo/Hy3-preview/eval_data/service_prompts_l2.jsonl)" = 100
+   test "$(wc -l < $MZ/Hy3-preview/eval_data/service_prompts_l2.jsonl)" = 100
    ```
 
    参数说明：
@@ -187,23 +185,23 @@ tools
 
    ```bash
    curl -sf http://127.0.0.1:8000/v1/models
-   mkdir -p /workspace/ModelZoo/Hy3-preview/results
-   python /workspace/ModelZoo/tools/openai_service_eval.py \
+   mkdir -p $MZ/Hy3-preview/results
+   python $MZ/tools/openai_service_eval.py \
      --base_url http://127.0.0.1:8000/v1 \
      --model hy3-preview \
-     --prompts /workspace/ModelZoo/Hy3-preview/test_data/service_prompts.jsonl \
-     --output /workspace/ModelZoo/Hy3-preview/results/functional_npu.jsonl
+     --prompts $MZ/Hy3-preview/test_data/service_prompts.jsonl \
+     --output $MZ/Hy3-preview/results/functional_npu.jsonl
    ```
 
 4. 保存 NPU L2 服务精度回归结果。
 
    ```bash
-   python /workspace/ModelZoo/tools/openai_service_eval.py \
+   python $MZ/tools/openai_service_eval.py \
      --base_url http://127.0.0.1:8000/v1 \
      --model hy3-preview \
-     --prompts /workspace/ModelZoo/Hy3-preview/eval_data/service_prompts_l2.jsonl \
+     --prompts $MZ/Hy3-preview/eval_data/service_prompts_l2.jsonl \
      --request_logprobs \
-     --output /workspace/ModelZoo/Hy3-preview/results/npu.jsonl
+     --output $MZ/Hy3-preview/results/npu.jsonl
    ```
 
 5. 流式 parser 单独检查。
@@ -212,7 +210,7 @@ tools
    curl -N -s http://127.0.0.1:8000/v1/chat/completions \
      -H 'Content-Type: application/json' \
      -d '{"model":"hy3-preview","messages":[{"role":"user","content":"Return exactly: ready"}],"temperature":0,"max_tokens":8,"stream":true,"chat_template_kwargs":{"reasoning_effort":"no_think"}}' \
-     | tee /workspace/ModelZoo/Hy3-preview/results/npu-stream.txt
+     | tee $MZ/Hy3-preview/results/npu-stream.txt
    ```
 
 6. 在应用同 patch 的 CUDA vLLM 环境中执行 baseline 推理。
@@ -228,35 +226,35 @@ tools
      --max-model-len 32768 \
      --max-num-seqs 8
 
-   python /workspace/ModelZoo/tools/openai_service_eval.py \
+   python $MZ/tools/openai_service_eval.py \
      --base_url http://127.0.0.1:8000/v1 \
      --model hy3-preview \
-     --prompts /workspace/ModelZoo/Hy3-preview/test_data/service_prompts.jsonl \
-     --output /workspace/ModelZoo/Hy3-preview/results/functional_cuda.jsonl
+     --prompts $MZ/Hy3-preview/test_data/service_prompts.jsonl \
+     --output $MZ/Hy3-preview/results/functional_cuda.jsonl
 
-   python /workspace/ModelZoo/tools/openai_service_eval.py \
+   python $MZ/tools/openai_service_eval.py \
      --base_url http://127.0.0.1:8000/v1 \
      --model hy3-preview \
-     --prompts /workspace/ModelZoo/Hy3-preview/eval_data/service_prompts_l2.jsonl \
+     --prompts $MZ/Hy3-preview/eval_data/service_prompts_l2.jsonl \
      --request_logprobs \
-     --output /workspace/ModelZoo/Hy3-preview/results/cuda.jsonl
+     --output $MZ/Hy3-preview/results/cuda.jsonl
    ```
 
 7. 生成 `cuda.jsonl` 后比较 CUDA/NPU 结果。
 
    ```bash
-   python /workspace/ModelZoo/tools/compare_openai_service_results.py \
-     --baseline /workspace/ModelZoo/Hy3-preview/results/functional_cuda.jsonl \
-     --candidate /workspace/ModelZoo/Hy3-preview/results/functional_npu.jsonl \
+   python $MZ/tools/compare_openai_service_results.py \
+     --baseline $MZ/Hy3-preview/results/functional_cuda.jsonl \
+     --candidate $MZ/Hy3-preview/results/functional_npu.jsonl \
      --require_exact_tool_calls \
-     --output /workspace/ModelZoo/Hy3-preview/results/functional_cuda_vs_npu.json
+     --output $MZ/Hy3-preview/results/functional_cuda_vs_npu.json
 
-   python /workspace/ModelZoo/tools/compare_openai_service_results.py \
-     --baseline /workspace/ModelZoo/Hy3-preview/results/cuda.jsonl \
-     --candidate /workspace/ModelZoo/Hy3-preview/results/npu.jsonl \
+   python $MZ/tools/compare_openai_service_results.py \
+     --baseline $MZ/Hy3-preview/results/cuda.jsonl \
+     --candidate $MZ/Hy3-preview/results/npu.jsonl \
      --require_logprobs \
      --require_exact_tool_calls \
-     --output /workspace/ModelZoo/Hy3-preview/results/cuda_vs_npu.json
+     --output $MZ/Hy3-preview/results/cuda_vs_npu.json
    ```
 
 ## 模型推理性能
@@ -264,7 +262,7 @@ tools
 CUDA 与 NPU 服务分别执行以下同参 L2 性能命令；关闭/开启 MTP 各跑一轮，只修改结果文件名。
 
 ```bash
-mkdir -p /workspace/ModelZoo/Hy3-preview/results/performance
+mkdir -p $MZ/Hy3-preview/results/performance
 vllm bench serve \
   --backend vllm \
   --base-url http://127.0.0.1:8000 \
@@ -279,7 +277,7 @@ vllm bench serve \
   --seed 42 \
   --save-result \
   --save-detailed \
-  --result-dir /workspace/ModelZoo/Hy3-preview/results/performance \
+  --result-dir $MZ/Hy3-preview/results/performance \
   --result-filename npu_mtp_off.json
 ```
 

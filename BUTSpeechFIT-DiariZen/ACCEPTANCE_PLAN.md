@@ -176,4 +176,4 @@ README 只发布 DER，未发布与当前 Atlas 路径可直接比较的硬件�
 | dscore 工具 fixture | collar=0、保留 overlap，DER/JER 0.00 |
 | 功能验证模型 RTTM | 待权重环境实测 |
 | CUDA/NPU DER | 待正式 reference RTTM/UEM |
-| Atlas RTF/HBM | 官方未发布，待验收 |
+| Atlas RTF/HBM | 官方未发布，尚未验收 |

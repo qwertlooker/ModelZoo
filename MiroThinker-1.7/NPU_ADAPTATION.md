@@ -9,7 +9,7 @@
 - MiroFlow-Benchmarks：commit `09900fb9f7297b853f56e1b785491494e93ac85d`，
   2025-11-15 archive SHA256
   `35816f69ba5f0d2baf45b248c68dd4a8e0f9b30cac6f41076f44099d5073f377`
-- 检查日期：2026-06-20；上述远端 HEAD/tag 已核对。
+- 检查日期：2026-06-29；上述远端 HEAD/tag 已核对。
 
 模型配置：Qwen3 MoE、约 235B、94 层、64 attention heads、4 KV heads、128 experts top-8、hidden size 4096、256K context。不是 30B mini。
 
@@ -47,6 +47,30 @@ benchmark。
 
 用户部署见 [README.md](README.md)，官方 agent 验收参数和
 报告模板见 [ACCEPTANCE_PLAN.md](ACCEPTANCE_PLAN.md)。
+
+## 上库就绪与目标仓对齐
+
+- 目标仓快照：`https://gitcode.com/Ascend/ModelZoo-PyTorch.git`，2026-06-29 重新查询
+  `master` HEAD `7a02a6701c971b29df188a0f3241e1efe249d1df`（"modify document"）。
+  2026-06-22 审阅快照为 `ec2a7b514973805f66b67c9178d2f5c9e97eee34`；本次不复用历史快照。
+- 拟合入路径：`ACL_PyTorch/built-in/nlp/MiroThinker-1.7`。目标仓 `nlp/` 下不存在该目录，
+  本次为新增，不涉及替换或增量更新。
+- 最新参考目录：推理形态相同（优先）选 `ACL_PyTorch/built-in/audio/Index-TTS-vLLM-v2`
+  （vLLM-Ascend 服务，最后实质变更 `6fecdfba7`，2026-06-18），提供同形态 vLLM-Ascend
+  patch 交付参考；同领域选 `ACL_PyTorch/built-in/nlp/chronos-2`（nlp 在线 PyTorch，
+  `6fecdfba7`，2026-06-18，`ascend_infer.py`/`eval_accuracy.py`/`eval_performance.py`），
+  提供 nlp 精度/性能脚本参考。本模型无 patch（vLLM `v0.17.0rc1` 原生支持 `Qwen3MoeForCausalLM`），
+  正式交付不制造空 patch，以 `serve_npu.sh` 作为可运行服务入口。
+- 贡献规范与 PR 门禁：`Ascend/modelzoo` HEAD `5eab9a4921c7f12edb555079836429a8f285cd1f`
+  的 CONTRIBUTING.md 要求源码、README、参考模型 License、测试用例；AASIST-L 另含
+  `modelzoo_level.txt`，但 chronos-2、ProtBert 等目录未提供 LICENSE/modelzoo_level.txt，
+  历史目录与当前 PR 门禁存在差异。按贡献规范提交，不跳过也不伪造。
+- 上库文件清单（候选）：`README.md`、`serve_npu.sh`、`test_data/service_prompts.jsonl`；
+  上库前补 `LICENSE`、`modelzoo_level.txt`。
+- 排除项：`NPU_ADAPTATION.md`、`ACCEPTANCE_PLAN.md`、`patches/README.md`、`upstream/`、
+  `weights/`、`eval_data/`、`results/`、`.codex-reference/`、日志与虚拟环境。
+- 许可证：上游 `MiroMindAI/MiroThinker`、vLLM、vllm-ascend 各自 License 上库前核对；
+  新增脚本按贡献规范追加华为 License 头部。`modelzoo_level.txt` 须在 NPU 实测后据实填写。
 
 ## 补充说明（来自 README.md）
 

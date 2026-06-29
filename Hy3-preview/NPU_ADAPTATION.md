@@ -7,7 +7,7 @@
 - vLLM：`v0.18.0rc1` / `262ddd0d81a1e4687e209f988d6ea32616e736fa`
 - vllm-ascend：`v0.18.0rc1` / `99e1ea0fe685e93f53ee5adfe4b41cdd42fb809f`
 - Ascend-SACT：`eb533c1dfd9a1fa7f373f9b980a9c0f973f1dad8`
-- 检查日期：2026-06-20；远端 HEAD/tag 与上述记录一致。
+- 检查日期：2026-06-29；远端 HEAD/tag 与上述记录一致。
 
 模型是 295B total / 21B active / 192 experts top-8 / 80 layers / GQA 64 heads、8 KV heads / BF16 / 256K context，含一层 MTP。不是 Base 变体。
 
@@ -56,6 +56,30 @@ agreement 均为 `1.0`。这只证明评测工具链，不证明 Hy3 模型服�
 
 用户推理和补丁应用见 [README.md](README.md)，数据集与
 CPU/CUDA/NPU 对齐要求见 [ACCEPTANCE_PLAN.md](ACCEPTANCE_PLAN.md)。
+
+## 上库就绪与目标仓对齐
+
+- 目标仓快照：`https://gitcode.com/Ascend/ModelZoo-PyTorch.git`，2026-06-29 重新查询
+  `master` HEAD `7a02a6701c971b29df188a0f3241e1efe249d1df`（"modify document"）。
+  2026-06-22 审阅快照为 `ec2a7b514973805f66b67c9178d2f5c9e97eee34`；本次不复用历史快照。
+- 拟合入路径：`ACL_PyTorch/built-in/audio/Hy3-preview`。目标仓 `audio/` 下不存在该目录，
+  本次为新增，不涉及替换或增量更新。
+- 最新参考目录：同领域、同推理形态（audio / vLLM-Ascend 服务）选取
+  `ACL_PyTorch/built-in/audio/Index-TTS-vLLM-v2`，其最后实质变更为 commit `6fecdfba7`
+  （2026-06-18，`README.md` + `diff_index_tts_vllm_v2.patch` + `diff_torchaudio_kaldi.patch`）。
+  选择原因是同属 vLLM-Ascend 服务形态且以 patch 交付，与本模型 patch 交付方式一致。
+  更新的 `YingMusic-SVC_for_Pytorch`（`e98df562e`，2026-06-22）为 SVC 非 vLLM-Ascend 形态，
+  仅作 PR 门禁参考。
+- 贡献规范与 PR 门禁：`Ascend/modelzoo` HEAD `5eab9a4921c7f12edb555079836429a8f285cd1f`
+  的 CONTRIBUTING.md 要求源码、README、参考模型 License、测试用例；AASIST-L 另含
+  `modelzoo_level.txt`，但 Index-TTS-vLLM-v2、Canary-1B 等目录未提供 LICENSE/
+  modelzoo_level.txt，历史目录与当前 PR 门禁存在差异。按贡献规范提交，不跳过也不伪造。
+- 上库文件清单（候选）：`README.md`、`patches/0001-add-hy3-preview-support.patch`、
+  `test_data/service_prompts.jsonl`；上库前补 `LICENSE`、`modelzoo_level.txt`。
+- 排除项：`NPU_ADAPTATION.md`、`ACCEPTANCE_PLAN.md`、`patches/README.md`、`upstream/`、
+  `weights/`、`eval_data/`、`results/`、`.codex-reference/`、日志与虚拟环境。
+- 许可证：上游 `Tencent-Hunyuan/Hy3-preview`、vLLM、vllm-ascend 各自 License 上库前核对；
+  新增 patch/脚本按贡献规范追加华为 License 头部。`modelzoo_level.txt` 须在 NPU 实测后据实填写。
 
 ## 5. 补充说明（来自 README.md）
 

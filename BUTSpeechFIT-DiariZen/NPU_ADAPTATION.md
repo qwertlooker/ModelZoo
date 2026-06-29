@@ -8,7 +8,7 @@
 - 主模型：`diarizen-wavlm-large-s80-md` commit `a9b1b0e7974d96dcfd63af417e9da7ad8714040f`
 - embedding：`wespeaker-voxceleb-resnet34-LM` commit `837717ddb9ff5507820346191109dc79c958d614`
 - Ascend-SACT 参考：`7961b5ab79b1232b9da367f14f8cd4f592694465`
-- 检查日期：2026-06-20。
+- 检查日期：2026-06-29。
 - 目标 NPU 组合：Python 3.10、CANN 8.2.0、PyTorch/torchaudio/torch-npu
   2.5.1、`onnxruntime-cann==1.22.1`；CPU baseline 使用独立环境中的
   `onnxruntime==1.22.1`。
@@ -43,7 +43,7 @@ upstream `DiariZenPipeline` 将设备写为 `cuda:0`（CUDA 可用时）否则 C
 - 官方数据 DER；
 - L2 性能：三组 RTF、峰值 RSS/HBM 和相对比值。
 
-这些状态必须保留为“待验收”，不能使用参考 README 的运行描述代替本次实测。
+这些状态必须保留为“尚未验收”，不能使用参考 README 的运行描述代替本次实测。
 
 当前状态是 **S1：源码适配和验收工具链已形成；升级到 S2/S3 仍缺模型功能 RTTM
 实测及 L2 CPU/CUDA/NPU DER、RTF 和资源对齐**。
@@ -61,6 +61,31 @@ upstream `DiariZenPipeline` 将设备写为 `cuda:0`（CUDA 可用时）否则 C
 
 安装和推理见 [README.md](README.md)，DER 数据口径和
 CPU/CUDA/NPU 对齐标准见 [ACCEPTANCE_PLAN.md](ACCEPTANCE_PLAN.md)。
+
+## 上库就绪与目标仓对齐
+
+- 目标仓快照：`https://gitcode.com/Ascend/ModelZoo-PyTorch.git`，2026-06-29 重新查询
+  `master` HEAD `7a02a6701c971b29df188a0f3241e1efe249d1df`（"modify document"）。
+  2026-06-22 审阅快照为 `ec2a7b514973805f66b67c9178d2f5c9e97eee34`；本次不复用历史快照。
+- 拟合入路径：`ACL_PyTorch/built-in/audio/BUTSpeechFIT-DiariZen`。目标仓 `audio/` 下不
+  存在该目录，本次为新增，不涉及替换或增量更新。
+- 最新参考目录：本模型混合 PyTorch NPU 分割网络 + ONNX `CANNExecutionProvider` WeSpeaker
+  embedding，分别选取：分割网络（在线 PyTorch）参考 `ACL_PyTorch/built-in/audio/Canary-1B`
+  （最后实质变更 `6fecdfba7`，2026-06-18）；WeSpeaker embedding（ONNX/OM）参考
+  `ACL_PyTorch/built-in/audio/AASIST-L_for_Pytorch`（`6fecdfba7`，2026-06-18，含
+  pth2onnx/om_val 完整 ONNX/OM 交付）。选择原因是两条参考分别覆盖本模型的两种推理形态。
+- 贡献规范与 PR 门禁：`Ascend/modelzoo` HEAD `5eab9a4921c7f12edb555079836429a8f285cd1f`
+  的 CONTRIBUTING.md 要求源码、README、参考模型 License、测试用例；AASIST-L 另含
+  `modelzoo_level.txt`，但 Canary-1B 等目录未提供 LICENSE/modelzoo_level.txt，历史目录
+  与当前 PR 门禁存在差异。按贡献规范提交，不跳过也不伪造。
+- 上库文件清单（候选）：`README.md`、`infer.py`、`prepare_eval_data.py`、
+  `score_diarization.py`、`patches/0001-add-explicit-npu-pipeline-device.patch`、
+  `requirements.txt`；上库前补 `LICENSE`、`modelzoo_level.txt`。
+- 排除项：`NPU_ADAPTATION.md`、`ACCEPTANCE_PLAN.md`、`README_old.md`、`patches/README.md`、
+  `upstream/`、`weights/`、`eval_data/`、`results/`、`.codex-reference/`、日志与虚拟环境。
+- 许可证：上游 `BUTSpeechFIT/DiariZen`、`nryant/dscore`、`pyannote`、`wespeaker` 各自
+  License 上库前核对并记录；新增 patch/脚本按贡献规范追加华为 License 头部。
+  `modelzoo_level.txt` 须在 NPU 实测后据实填写。
 
 ## 补充说明（来自 README.md）
 

@@ -23,7 +23,7 @@ DNSMOS P.835 是 Microsoft 发布的语音质量评估模型，输出 `SIG`、`B
   ```text
   upstream=https://github.com/microsoft/DNS-Challenge.git
   branch=master
-  commit=591184a9fcb2cbdec02520fed81a32bbbf9d73ff
+  commit_id=591184a9fcb2cbdec02520fed81a32bbbf9d73ff
   reference=https://gitcode.com/Ascend-SACT/DNSMOS
   reference_commit=d1e4c2c14df9cb935d61dc5f448e655772b12379
   ```

@@ -170,5 +170,5 @@ NPU 记录峰值 HBM。正式 batch 重复 3 次并报告中位数。
 |---|---|---|
 | CPU feature extraction | 10 条、batch 4、Transformers 4.35.0 | 20.535 samples/s，仅作链路记录 |
 | Transformers 4.35 vs 4.57 | 同 checkpoint/manifest | embedding 逐元素误差 0 |
-| NPU embedding | 同 manifest | 待验收 |
+| NPU embedding | 同 manifest | 尚未验收（缺 NPU 环境） |
 | L2 IBM split | 官方 split 全量或明确降级固定集 | 待 CPU/CUDA/NPU 精度和性能验收 |

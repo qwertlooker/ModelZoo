@@ -192,7 +192,7 @@ BUTSpeechFIT-DiariZen
 
    参数说明：
 
-   - `wav_scp`：`<session_id> <audio_path>` 格式的音频列表文件。
+   - `wav_scp`：每行一条 `session_id` 与 `audio_path` 的音频列表文件。
    - `output_manifest`：生成的 JSONL manifest 路径。
    - `dataset`：数据集名称标签。
    - `split`：数据集 split 标签。

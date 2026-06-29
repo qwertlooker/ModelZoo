@@ -21,6 +21,7 @@ MiroThinker-1.7 是 MiroMind 发布的 235B MoE 推理模型，架构为 `Qwen3M
 - 版本说明：
 
   ```text
+  commit_id=370f98361553ddf787bedc5745760e04114cb161
   model=miromind-ai/MiroThinker-1.7@1a42014ce72e1025fdbf3c48d54545715ab3eea8
   official=MiroMindAI/MiroThinker@370f98361553ddf787bedc5745760e04114cb161
   reference=Ascend-SACT/MiroThinker-1.7@a4199f82dcadf88e81e296eb2d0e79bdb5805184
@@ -57,12 +58,9 @@ MiroThinker-1.7 是 MiroMind 发布的 235B MoE 推理模型，架构为 `Qwen3M
 
 ```text
 MiroThinker-1.7
+├── serve_npu.sh
 ├── test_data/service_prompts.jsonl
 └── README.md
-tools
-├── openai_service_eval.py
-├── compare_openai_service_results.py
-└── prepare_service_prompts.py
 ```
 
 ## 快速上手
@@ -103,7 +101,8 @@ tools
 3. 容器中核对版本。
 
    ```bash
-   cd /workspace/ModelZoo/MiroThinker-1.7
+   export MZ=/workspace/ModelZoo
+   cd "$MZ/MiroThinker-1.7"
    npu-smi info
    test "$(git -C /vllm-workspace/vllm rev-parse HEAD)" = \
      b31e9326a7d9394aab8c767f8ebe225c65594b60
@@ -131,11 +130,11 @@ tools
 1. 生成固定 100 条 L2 服务精度回归 prompt。
 
    ```bash
-   python /workspace/ModelZoo/tools/prepare_service_prompts.py \
-     --base /workspace/ModelZoo/MiroThinker-1.7/test_data/service_prompts.jsonl \
-     --output /workspace/ModelZoo/MiroThinker-1.7/eval_data/service_prompts_l2.jsonl \
+   python $MZ/tools/prepare_service_prompts.py \
+     --base $MZ/MiroThinker-1.7/test_data/service_prompts.jsonl \
+     --output $MZ/MiroThinker-1.7/eval_data/service_prompts_l2.jsonl \
      --count 100
-   test "$(wc -l < /workspace/ModelZoo/MiroThinker-1.7/eval_data/service_prompts_l2.jsonl)" = 100
+   test "$(wc -l < $MZ/MiroThinker-1.7/eval_data/service_prompts_l2.jsonl)" = 100
    ```
 
 2. 下载完整 agent benchmark archive 并安装 agent 依赖。
@@ -146,9 +145,9 @@ tools
    echo "35816f69ba5f0d2baf45b248c68dd4a8e0f9b30cac6f41076f44099d5073f377  /tmp/miroflow-benchmarks.zip" \
      | sha256sum -c -
    unzip -P 'pf4*' /tmp/miroflow-benchmarks.zip \
-     -d /workspace/ModelZoo/MiroThinker-1.7/upstream
+     -d $MZ/MiroThinker-1.7/upstream
 
-   cd /workspace/ModelZoo/MiroThinker-1.7/upstream/apps/miroflow-agent
+   cd $MZ/MiroThinker-1.7/upstream/apps/miroflow-agent
    uv sync --frozen
    cp .env.example .env
    ```
@@ -176,19 +175,19 @@ tools
 2. 保存 NPU 服务结果。
 
    ```bash
-   mkdir -p /workspace/ModelZoo/MiroThinker-1.7/results
-   python /workspace/ModelZoo/tools/openai_service_eval.py \
+   mkdir -p $MZ/MiroThinker-1.7/results
+   python $MZ/tools/openai_service_eval.py \
      --base_url http://127.0.0.1:8002/v1 \
      --model MiroThinker-1.7 \
-     --prompts /workspace/ModelZoo/MiroThinker-1.7/test_data/service_prompts.jsonl \
-     --output /workspace/ModelZoo/MiroThinker-1.7/results/functional_npu.jsonl
+     --prompts $MZ/MiroThinker-1.7/test_data/service_prompts.jsonl \
+     --output $MZ/MiroThinker-1.7/results/functional_npu.jsonl
 
-   python /workspace/ModelZoo/tools/openai_service_eval.py \
+   python $MZ/tools/openai_service_eval.py \
      --base_url http://127.0.0.1:8002/v1 \
      --model MiroThinker-1.7 \
-     --prompts /workspace/ModelZoo/MiroThinker-1.7/eval_data/service_prompts_l2.jsonl \
+     --prompts $MZ/MiroThinker-1.7/eval_data/service_prompts_l2.jsonl \
      --request_logprobs \
-     --output /workspace/ModelZoo/MiroThinker-1.7/results/npu.jsonl
+     --output $MZ/MiroThinker-1.7/results/npu.jsonl
    ```
 
 3. 流式接口单独检查。
@@ -197,7 +196,7 @@ tools
    curl -N -s http://127.0.0.1:8002/v1/chat/completions \
      -H 'Content-Type: application/json' \
      -d '{"model":"MiroThinker-1.7","messages":[{"role":"user","content":"Return exactly: ready"}],"temperature":0,"max_tokens":8,"stream":true}' \
-     | tee /workspace/ModelZoo/MiroThinker-1.7/results/npu-stream.txt
+     | tee $MZ/MiroThinker-1.7/results/npu-stream.txt
    ```
 
 4. 在 CUDA 环境中使用相同 checkpoint 和参数启动并保存结果。
@@ -215,33 +214,33 @@ tools
      --compilation-config \
      '{"cudagraph_mode":"FULL_DECODE_ONLY","cudagraph_capture_sizes":[1,2,4,8,16,32,64,128]}'
 
-   python /workspace/ModelZoo/tools/openai_service_eval.py \
+   python $MZ/tools/openai_service_eval.py \
      --base_url http://127.0.0.1:8002/v1 \
      --model MiroThinker-1.7 \
-     --prompts /workspace/ModelZoo/MiroThinker-1.7/test_data/service_prompts.jsonl \
-     --output /workspace/ModelZoo/MiroThinker-1.7/results/functional_cuda.jsonl
+     --prompts $MZ/MiroThinker-1.7/test_data/service_prompts.jsonl \
+     --output $MZ/MiroThinker-1.7/results/functional_cuda.jsonl
 
-   python /workspace/ModelZoo/tools/openai_service_eval.py \
+   python $MZ/tools/openai_service_eval.py \
      --base_url http://127.0.0.1:8002/v1 \
      --model MiroThinker-1.7 \
-     --prompts /workspace/ModelZoo/MiroThinker-1.7/eval_data/service_prompts_l2.jsonl \
+     --prompts $MZ/MiroThinker-1.7/eval_data/service_prompts_l2.jsonl \
      --request_logprobs \
-     --output /workspace/ModelZoo/MiroThinker-1.7/results/cuda.jsonl
+     --output $MZ/MiroThinker-1.7/results/cuda.jsonl
    ```
 
 5. 比较 CUDA 与 NPU 服务结果。
 
    ```bash
-   python /workspace/ModelZoo/tools/compare_openai_service_results.py \
-     --baseline /workspace/ModelZoo/MiroThinker-1.7/results/functional_cuda.jsonl \
-     --candidate /workspace/ModelZoo/MiroThinker-1.7/results/functional_npu.jsonl \
-     --output /workspace/ModelZoo/MiroThinker-1.7/results/functional_cuda_vs_npu.json
+   python $MZ/tools/compare_openai_service_results.py \
+     --baseline $MZ/MiroThinker-1.7/results/functional_cuda.jsonl \
+     --candidate $MZ/MiroThinker-1.7/results/functional_npu.jsonl \
+     --output $MZ/MiroThinker-1.7/results/functional_cuda_vs_npu.json
 
-   python /workspace/ModelZoo/tools/compare_openai_service_results.py \
-     --baseline /workspace/ModelZoo/MiroThinker-1.7/results/cuda.jsonl \
-     --candidate /workspace/ModelZoo/MiroThinker-1.7/results/npu.jsonl \
+   python $MZ/tools/compare_openai_service_results.py \
+     --baseline $MZ/MiroThinker-1.7/results/cuda.jsonl \
+     --candidate $MZ/MiroThinker-1.7/results/npu.jsonl \
      --require_logprobs \
-     --output /workspace/ModelZoo/MiroThinker-1.7/results/cuda_vs_npu.json
+     --output $MZ/MiroThinker-1.7/results/cuda_vs_npu.json
    ```
 
 6. 启动 256K 服务用于官方 benchmark。
@@ -261,7 +260,7 @@ tools
 7. 执行四项 benchmark，对 CUDA 和 NPU endpoint 各运行一套：
 
    ```bash
-   cd /workspace/ModelZoo/MiroThinker-1.7/upstream/apps/miroflow-agent
+   cd $MZ/MiroThinker-1.7/upstream/apps/miroflow-agent
    export LLM_PROVIDER=qwen
    export LLM_MODEL=MiroThinker-1.7
    export BASE_URL=http://127.0.0.1:8002/v1
@@ -294,7 +293,7 @@ tools
 模型服务性能使用 `vllm bench serve` 测试，CUDA 与 NPU 执行同参命令：
 
 ```bash
-mkdir -p /workspace/ModelZoo/MiroThinker-1.7/results/performance
+mkdir -p $MZ/MiroThinker-1.7/results/performance
 vllm bench serve \
   --backend vllm \
   --base-url http://127.0.0.1:8002 \
@@ -309,7 +308,7 @@ vllm bench serve \
   --seed 42 \
   --save-result \
   --save-detailed \
-  --result-dir /workspace/ModelZoo/MiroThinker-1.7/results/performance \
+  --result-dir $MZ/MiroThinker-1.7/results/performance \
   --result-filename npu.json
 ```
 
