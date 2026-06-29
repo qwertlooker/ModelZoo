@@ -80,7 +80,10 @@ MOSS-TTSD-v0.5
 ├── requirements_eval.txt                       # 固定 TTSD-eval 直接依赖
 ├── patches
 │   ├── 0001-adapt-v0.5-inference-to-npu.patch  # v0.5 NPU 适配 patch
-│   └── 0002-adapt-ttsd-eval-to-npu.patch       # TTSD-eval NPU 适配 patch
+│   └── 0002-adapt-ttsd-eval-to-npu.patch       # TTSD-eval NPU 适配 patch（含 eval.sh / run_wer.sh 设备与输入路径透传、requirements.txt 去除 torch/torchaudio <=2.8.0 上限）
+│   └── 0003-fix-s3prl-hub-resilient-imports.patch           # s3prl hub.py espnet_hubert/mos_prediction 导入容错（兼容 TorchAudio 2.9+ 及 NLTK cmudict 损坏/离线环境）
+│   └── 0004-fix-wespeaker-float64-on-npu.patch              # wespeaker SimAM/pooling Python float 标量→float32 tensor（避免 NPU float64→float32 隐式转换导致 aclnnAddV3 崩溃）
+│   └── 0005-fix-torchaudio-kaldi-rfft-abs-on-npu.patch      # torchaudio kaldi.py rfft().abs()→sqrt(real^2+imag^2)（NPU FFT backend 复数取模返回全零 → sim=0.0000）
 ├── upstream-npu                                # 应用 patch 后的 NPU 路径（下载后）
 │   ├── inference.py                            # patch 后的推理入口
 │   ├── generation_utils.py                     # 生成和音频处理逻辑
@@ -98,6 +101,16 @@ MOSS-TTSD-v0.5
 │       └── weights/xy_tokenizer.ckpt           # 下载后的 codec checkpoint
 └── third_party
     └── TTSD-eval                               # 下载后的评测工程
+        ├── requirements.txt                         # patch 去除 torch/torchaudio <=2.8.0 版本上限，允许 2.9+
+    ├── eval.sh                                # 上游 ACC/SIM 评测入口（patch 增加 DEVICE/CACHE_DIR/MODEL_DIR/INPUT_JSONL_PATH 透传）
+        ├── run_wer.sh                              # 上游 WER 评测入口（patch 增加 DEVICE/WHISPER_MODEL_ID/INPUT_JSONL_PATH/LANGUAGE 透传）
+        ├── tools
+        │   ├── align.py                            # patch 后支持 NPU
+        │   ├── split.py
+        │   └── run_similarity.py                   # patch 后支持 NPU
+        └── wer
+            ├── whisper_asr.py                      # patch 后支持 NPU
+            └── run_wer.py
 ```
 
 ## 快速上手
@@ -130,44 +143,32 @@ MOSS-TTSD-v0.5
      ../patches/0001-adapt-v0.5-inference-to-npu.patch
    ```
 
-3. 安装 NPU 环境。
+3. 安装 NPU 环境。非必要不使用 venv；当 CANN 基础镜像或系统 Python 已满足要求时直接使用。仅在同一机器需多套不兼容的 Python/PyTorch 版本时才使用 venv 隔离，并在文档中写明隔离原因。
 
    ```bash
-   python3.11 -m venv .venv-npu
-   source .venv-npu/bin/activate
-   python -m pip install --upgrade pip
-   python -m pip install torch==2.9.0 torch-npu==2.9.0 torchaudio==2.9.0 \
+   pip install --upgrade pip
+   pip install torch==2.9.0 torch-npu==2.9.0 torchaudio==2.9.0 \
      -i https://mirrors.huaweicloud.com/repository/pypi/simple
-   python -m pip install "transformers==4.57.6"
-   python -m pip install -r upstream-npu/requirements.txt
-   python -m pip install -r upstream-npu/XY_Tokenizer/requirements.txt
+   pip install "transformers==4.57.6"
+   pip install -r upstream-npu/requirements.txt
+   pip install -r upstream-npu/XY_Tokenizer/requirements.txt
    python - <<'PY'
    import torch
    import torch_npu
    print(torch.__version__, torch.randn(1).to("npu").device)
    PY
-   deactivate
    ```
 
-4. （可选）原始 CUDA 和 patch 后 CUDA 对照组使用两个独立环境，均安装相同的 PyTorch、Transformers 和 CUDA `flash-attn`。本地不具备 CUDA 时可跳过本步，仅运行 NPU 组完成迁移验收。CUDA wheel/索引需按实际 CUDA 版本选择，不能用于 NPU 环境：
+4. （可选）若同一机器需独立 CUDA 环境做对照，可使用 venv 隔离。本地不具备 CUDA 时可跳过本步，仅运行 NPU 组完成迁移验收：
 
    ```bash
-   python3.11 -m venv .venv-cuda-original
-   source .venv-cuda-original/bin/activate
-   python -m pip install --upgrade pip
-   python -m pip install torch==2.9.0 torchaudio==2.9.0
-   python -m pip install "transformers==4.57.6" flash-attn
-   python -m pip install -r upstream-original/requirements.txt
-   python -m pip install -r upstream-original/XY_Tokenizer/requirements.txt
-   deactivate
-
-   python3.11 -m venv .venv-cuda-patched
-   source .venv-cuda-patched/bin/activate
-   python -m pip install --upgrade pip
-   python -m pip install torch==2.9.0 torchaudio==2.9.0
-   python -m pip install "transformers==4.57.6" flash-attn
-   python -m pip install -r upstream-npu/requirements.txt
-   python -m pip install -r upstream-npu/XY_Tokenizer/requirements.txt
+   python3.11 -m venv .venv-cuda
+   source .venv-cuda/bin/activate
+   pip install --upgrade pip
+   pip install torch==2.9.0 torchaudio==2.9.0
+   pip install "transformers==4.57.6" flash-attn
+   pip install -r upstream-npu/requirements.txt
+   pip install -r upstream-npu/XY_Tokenizer/requirements.txt
    deactivate
    ```
 
@@ -229,7 +230,7 @@ MOSS-TTSD-v0.5
 
 ### 准备 TTSD-eval 工程
 
-TTSD-eval 支持三种评测 profile，NPU 为必跑项，CUDA/CPU 为可选对照。NPU profile 复用推理环境 `.venv-npu`（`torch/torchaudio==2.9.0 + torch-npu==2.9.0`），并需对 TTSD-eval 工作树应用 `patches/0002-adapt-ttsd-eval-to-npu.patch`；CUDA/CPU profile 使用独立 venv（`torch/torchaudio==2.8.0`）。以下命令均从 `ACL_PyTorch/built-in/audio/MOSS-TTSD-v0.5` 执行。
+TTSD-eval 支持多种评测 profile，NPU 为必跑项。NPU profile 复用推理环境（`torch/torchaudio==2.9.0 + torch-npu==2.9.0`），并需对 TTSD-eval 工作树应用 `patches/0002-adapt-ttsd-eval-to-npu.patch`。若需 CPU 精度对照，可复用同一环境，仅需将 `--device` 改为 `cpu`。以下命令均从 `ACL_PyTorch/built-in/audio/MOSS-TTSD-v0.5` 执行。
 
 #### 获取固定源码和 testset
 
@@ -285,14 +286,85 @@ sudo apt-get install -y python3.11-venv git ffmpeg libsndfile1
 **NPU profile**（必跑）复用推理环境，无需独立 venv；先对 TTSD-eval 工作树应用设备适配补丁，再安装评测直接依赖（不安装 torch/torchaudio）：
 
 ```bash
-source .venv-npu/bin/activate
+pip install --upgrade pip
 git -C "$EVAL_ROOT" apply "$PWD/patches/0002-adapt-ttsd-eval-to-npu.patch"
-python -m pip install -r requirements_eval.txt
+
+# 分步安装评测依赖：
+# 1) 先安装全部 PyPI 包（含 onnxruntime）。若整文件安装因 wespeaker
+#    git 源不可达而失败，pip 会回退整个事务导致 onnxruntime 等关键依赖
+#    缺失，因此将 wespeaker 与其余包分开安装。
+grep -v '^wespeaker' requirements_eval.txt \
+  | python -m pip install -r /dev/stdin
+
+# 2) 从 GitHub 固定 commit 安装 wespeaker（需 GitHub 可达；
+#    若不可达可先配置代理或使用国内镜像）。wespeaker 的 diar 模块在
+#    包初始化时无条件导入 onnxruntime，因此 onnxruntime 必须在
+#    import wespeaker 之前已安装（上一步已完成）。
+python -m pip install \
+  "wespeaker @ git+https://github.com/wenet-e2e/wespeaker.git@c92349a14d6b426808c4e09b8b12e076864dfc11"
+
+# TorchAudio 2.9+ 移除 torchaudio.sox_effects，s3prl hub.py 全量导入
+# mos_prediction/espnet_hubert 时会分别因 sox_effects 移除和 NLTK cmudict
+# 损坏而失败；用 patch 包裹这两个 hubconf 导入为 try/except Exception
+# NLTK 数据准备（g2p_en 依赖 cmudict 和 averaged_perceptron_tagger）
+# 优先使用 curl/wget 下载，不依赖 nltk.download()——NPU 服务器代理可能
+# 拦截 NLTK data server 公网请求并静默返回损坏文件（HTML 被保存为 .zip）
+NLTK_DATA_DIR=$(python -c "import nltk; print(nltk.data.path[0])")
+mkdir -p "$NLTK_DATA_DIR/corpora" "$NLTK_DATA_DIR/taggers"
+curl -L --fail -o "$NLTK_DATA_DIR/corpora/cmudict.zip" \
+  https://raw.githubusercontent.com/nltk/nltk_data/gh-pages/packages/corpora/cmudict.zip
+curl -L --fail -o "$NLTK_DATA_DIR/taggers/averaged_perceptron_tagger.zip" \
+  https://raw.githubusercontent.com/nltk/nltk_data/gh-pages/packages/taggers/averaged_perceptron_tagger.zip
+file "$NLTK_DATA_DIR/corpora/cmudict.zip"  # 应显示 Zip archive data
+# 若 NLTK 数据目录无写入权限，改用用户目录：
+#   mkdir -p ~/nltk_data/corpora ~/nltk_data/taggers
+#   curl ... -o ~/nltk_data/corpora/cmudict.zip
+#   curl ... -o ~/nltk_data/taggers/averaged_perceptron_tagger.zip
+#   export NLTK_DATA=~/nltk_data  # 加入 eval.sh 运行前环境变量
+# 若当前机器无法访问 GitHub，参考下方「NLTK 离线准备」章节在可联网机器下载后传输
+
+# TorchAudio 2.9+ 移除 torchaudio.sox_effects，s3prl hub.py 全量导入
+# mos_prediction/espnet_hubert 时会分别因 sox_effects 移除和 NLTK cmudict
+# 损坏/缺失而失败；用 patch 包裹这两个 hubconf 导入为 try/except Exception
+# 若上方 NLTK 数据已正确安装，patch 仅用于兜底 sox_effects 移除问题；
+# 若 NLTK 数据无法安装，patch 也可兜底 cmudict 问题
+S3PRL_DIR=$(python -c "import importlib.util; print(importlib.util.find_spec('s3prl').submodule_search_locations[0])") && \
+cd "$S3PRL_DIR/../" && patch -p1 < "$MODEL_ROOT/patches/0003-fix-s3prl-hub-resilient-imports.patch"
+
+# NPU 不支持 float64；wespeaker SimAM 和 pooling 层中 Python float 标量
+# (1e-4, 0.5, 1e-7 等) 被 torch-npu 转为 float64 设备 tensor 后隐式
+# 转 float32，触发 double->float 警告并可能导致 aclnnAddV3 崩溃
+# (DDR address out of range, error code 507035)
+WESPEAKER_DIR=$(python -c "import importlib.util; print(importlib.util.find_spec('wespeaker').submodule_search_locations[0])") && \
+cd "$WESPEAKER_DIR/../" && patch -p1 < "$MODEL_ROOT/patches/0004-fix-wespeaker-float64-on-npu.patch"
+
+# NPU 的 torch.fft.rfft().abs() 对复数张量返回全零，导致 WeSpeaker
+# fbank 特征全零 → 嵌入全零 → sim=0.0000。手动用 sqrt(real^2+imag^2)
+# 替代 .abs()，数学等价。
+TORCHAUDIO_PATH=$(python -c "import torchaudio; import os; print(os.path.dirname(torchaudio.__file__))") && \
+cd "${TORCHAUDIO_PATH}/../" && \
+patch -p1 < "$MODEL_ROOT/patches/0005-fix-torchaudio-kaldi-rfft-abs-on-npu.patch"
 python -m pip check
 python -m pip freeze > results/ttsd_eval_setup/evaluator-pip-freeze.txt
 python -c 'import torch, torch_npu; print(torch.__version__, torch.npu.is_available(), torch.npu.device_count())'
+python -c 'import onnxruntime; print("onnxruntime", onnxruntime.__version__)'
+python -c 'import wespeaker; print("wespeaker ok")'
+python -c "import nltk; nltk.data.find('corpora/cmudict.zip'); print('cmudict ok')"
+python -c "
+import torchaudio.compliance.kaldi as k
+import inspect
+src = inspect.getsource(k.fbank)
+assert 'fft.real' in src and 'fft.imag' in src, 'torchaudio kaldi fbank patch NOT applied'
+print('torchaudio kaldi fbank patch verified')
+"
 deactivate
 ```
+
+> **注意**：`wespeaker` 的 diar 模块在包初始化时无条件导入 `onnxruntime`（`wespeaker.__init__` → `cli.speaker` → `diar.extract_emb` → `onnxruntime`），即使相似度评测仅使用说话人嵌入模型也需要该依赖。若 `onnxruntime` 未安装，`import wespeaker` 或 `run_similarity.py` 将报 `ModuleNotFoundError: No module named 'onnxruntime'`。上面两条 `python -c` 命令用于确认两者均可用；若 `onnxruntime` 缺失，单独执行 `python -m pip install onnxruntime==1.23.2` 补装即可。
+>
+> **onnxruntime 在 NPU 评测中的角色**：`onnxruntime` 在本评测中 **仅用于满足 `import wespeaker` 的无条件依赖**，不参与任何实际推理计算。`run_similarity.py` 只调用 `Speaker.compute_similarity()` → `Speaker.extract_embedding()` → PyTorch 前向推理（在 NPU 上执行），**从未调用** `Speaker.diarize()` 或 `diar.extract_emb` 中的 ONNX 推理路径。因此安装标准 CPU 版 `onnxruntime` 即可（`pip install onnxruntime==1.23.2`），无需 `onnxruntime-cann`（CANN EP）或 CUDA EP。标准 CPU wheel 不依赖 GPU/NPU 驱动，与 `torch-npu` 无冲突。
+>
+> 安装命令已将 PyPI 包（含 `onnxruntime`）与 `wespeaker` git 源分开安装，避免 wespeaker git 源不可达时 pip 回退整个事务导致 `onnxruntime` 等依赖缺失。若 GitHub 不可达导致 wespeaker 安装失败，可配置代理后重试，或将 wespeaker 仓库镜像至可访问的 Git 服务后修改安装 URL；最终以 `pip check` 和上述 import 验证通过为准。
 
 **CUDA profile**（可选对照，CUDA 12.8 wheel）：
 
@@ -306,6 +378,8 @@ python -m pip install -r requirements_eval.txt
 python -m pip check
 python -m pip freeze > results/ttsd_eval_setup/evaluator-pip-freeze.txt
 python -c 'import torch; print(torch.__version__, torch.cuda.is_available(), torch.cuda.device_count())'
+python -c 'import onnxruntime; print("onnxruntime", onnxruntime.__version__)'
+python -c 'import wespeaker; print("wespeaker ok")'
 deactivate
 ```
 
@@ -361,20 +435,29 @@ python -m pip install torch==2.8.0 torchaudio==2.8.0 \
      | sha256sum -c -
    ```
 
-2. 下载固定 S3 version ID 的 MMS-FA checkpoint：
+2. 下载固定 S3 version ID 的 MMS-FA checkpoint。
+
+   `align.py` 通过 `torch.hub.set_dir(cache_dir)` 将 hub 目录指向 `model/`，`load_state_dict_from_url` 在 `model/checkpoints/model.pt` 查找已缓存文件；文件必须完整且 SHA256 匹配，否则 `torch.load` 会报 `PytorchStreamReader failed reading zip archive` 错误。
+
+   以下下载命令包含 SHA256 和文件大小校验；若校验失败，删除后重新下载：
 
    ```bash
    EVAL_ROOT="$PWD/third_party/TTSD-eval"
    mkdir -p "$EVAL_ROOT/model/checkpoints"
+   MMS_PT="$EVAL_ROOT/model/checkpoints/model.pt"
+   rm -f "$MMS_PT"
    curl -L --fail --retry 5 --retry-all-errors \
-     -o "$EVAL_ROOT/model/checkpoints/model.pt" \
+     -o "$MMS_PT" \
      "https://dl.fbaipublicfiles.com/mms/torchaudio/ctc_alignment_mling_uroman/model.pt?versionId=dZWoHyjLHoCxDn.KL1FPSlVCD3CPRtOL"
-   echo "20ef12963ab4924bef49ac4fc7f58ad5da2ee43b2c11bc8c853c9b90ecdbc680  $EVAL_ROOT/model/checkpoints/model.pt" \
+   echo "20ef12963ab4924bef49ac4fc7f58ad5da2ee43b2c11bc8c853c9b90ecdbc680  $MMS_PT" \
      | sha256sum -c -
-   test "$(stat -c %s "$EVAL_ROOT/model/checkpoints/model.pt")" = "1262047414"
+   test "$(stat -c %s "$MMS_PT")" = "1262047414"
+   # 清理可能存在的错误位置同名文件（上游 README 的 wget 命令可能将 model.pt
+   # 写到 model/ 根目录而非 model/checkpoints/，导致混淆）
+   test -f "$EVAL_ROOT/model/model.pt" && rm -f "$EVAL_ROOT/model/model.pt"
    ```
 
-3. 下载固定 revision 的 Whisper-large-v3，并写入 revision marker。正式评测只从本地目录离线加载。以下使用 NPU 环境（必跑）；CUDA/CPU profile 改用 `.venv-ttsd-eval`：
+3. 下载固定 revision 的 Whisper-large-v3，并写入 revision marker。正式评测只从本地目录离线加载。以下使用 NPU 环境（必跑）；CPU 精度对照将 `--device npu` 改为 `--device cpu`：
 
    ```bash
    source .venv-npu/bin/activate
@@ -459,11 +542,14 @@ python -m pip install torch==2.8.0 torchaudio==2.8.0 \
    import os
 
    import torch
+   import onnxruntime
    import wespeaker
    from torchaudio.pipelines import MMS_FA
    from transformers import AutoModelForSpeechSeq2Seq, AutoProcessor
 
    root = os.environ["EVAL_ROOT"]
+   print("onnxruntime", onnxruntime.__version__)
+
    torch.hub.set_dir(os.path.join(root, "model"))
    mms = MMS_FA.get_model()
    del mms
@@ -490,8 +576,7 @@ python -m pip install torch==2.8.0 torchaudio==2.8.0 \
 
 ### 模型推理
 
-迁移验收以 NPU 推理为必跑项；下方步骤 1、2 为可选 CUDA 对照组，本地不具备 CUDA
-时可跳过，仅执行步骤 3 的 NPU 推理即可完成功能验证。
+迁移验收以 NPU 推理为必跑项；精度对比优先使用公开/官方指标，当无公开指标时使用 CPU 精度对照（`--device cpu`，复用同一环境）确认 NPU 适配正确性。本地不具备 CUDA 时可跳过 CUDA 对照组，仅执行 NPU 推理即可完成功能验证。CPU 精度对照为可选项。
 
 1. （可选）执行未应用 patch 的原始 CUDA baseline。
 
@@ -668,9 +753,11 @@ done
 
 ### ACC/SIM/WER 逐份评测
 
-TTSD-eval 的 prompt 路径相对 `testset/`，以下命令必须从该目录运行；输出路径使用绝对路径，避免切换目录后失效。NPU evaluator 为必跑项；CUDA、CPU evaluator 为可选对照，仅在本地具备对应环境且需要同口径对照时运行。所选 profile 须对所有已生成组结果保持一致，每组显式指定所有中间目录，避免 evaluator 默认目录互相污染。
+NPU 适配 patch 已为 `eval.sh` 和 `run_wer.sh` 增加环境变量 `DEVICE`、`CACHE_DIR`、`MODEL_DIR`、`WHISPER_MODEL_ID`、`INPUT_JSONL_PATH`、`LANGUAGE` 支持，使其可在 NPU 设备上直接 `bash` 执行原始评测脚本。`SCRIPT_DIR` 保持原项目 `"$0"` 不变——直接 `bash eval.sh` 时 `$0` 自然指向脚本自身，路径正确；不使用 `source` 是因为 `source` 时 `$0` 为父 shell 导致 `SCRIPT_DIR` 解析错误，且 `set -euo pipefail` / `trap` 会污染父进程。`INPUT_JSONL_PATH` 是标量环境变量（可 export），解决了 bash 数组不能跨进程传递的问题。以下命令从 `ACL_PyTorch/built-in/audio/MOSS-TTSD-v0.5` 执行。
 
 #### NPU evaluator（必跑）
+
+使用原项目 `eval.sh` 运行 ACC/SIM 评测，`run_wer.sh` 运行 WER 评测：
 
 ```bash
 set -o pipefail
@@ -679,8 +766,25 @@ EVAL_ROOT="$MODEL_ROOT/third_party/TTSD-eval"
 source "$MODEL_ROOT/.venv-npu/bin/activate"
 export HF_HUB_OFFLINE=1
 export TRANSFORMERS_OFFLINE=1
-ALIGN_DEVICE=npu
-cd "$EVAL_ROOT/testset"
+
+# ---- 预检：确认评测关键依赖可正常 import ----
+# 若任一项失败，按「常见故障」中 Step 3 条目排查后再继续。
+python - <<'PY'
+import sys
+ok = True
+for mod in ("onnxruntime", "wespeaker", "torch", "torch_npu", "s3prl", "whisper"):
+    try:
+        m = __import__(mod)
+        ver = getattr(m, "__version__", "ok")
+        print(f"  {mod}: {ver}")
+    except Exception as exc:
+        ok = False
+        print(f"  {mod}: IMPORT FAILED -> {exc}", file=sys.stderr)
+if not ok:
+    sys.exit("\nFATAL: one or more evaluator dependencies failed to import. "
+            "Fix before running eval.sh / run_wer.sh.")
+PY
+# ---- 预检结束 ----
 
 for LANG in zh en; do
   for GROUP in npu; do
@@ -688,201 +792,203 @@ for LANG in zh en; do
     [ -f "$INPUT" ] || continue
     STEM="${GROUP}_${LANG}"
     RUN_ROOT="$MODEL_ROOT/results/ttsd_eval_metrics/$STEM"
-    mkdir -p \
-      "$RUN_ROOT/alignment_files" \
-      "$RUN_ROOT/split_res" \
-      "$RUN_ROOT/audio_segments"
+    mkdir -p "$RUN_ROOT"
 
     {
-      python "$EVAL_ROOT/tools/align.py" \
-        --input_jsonl "$INPUT" \
-        --output_dir "$RUN_ROOT/alignment_files" \
-        --output_jsonl "$RUN_ROOT/alignment.jsonl" \
-        --cache_dir "$EVAL_ROOT/model" \
-        --device "$ALIGN_DEVICE"
-      test "$(wc -l < "$RUN_ROOT/alignment.jsonl")" -eq 50
+      # --- ACC/SIM via eval.sh ---
+      # eval.sh 内部按 alignment → split → similarity 顺序调用，
+      # 输出写到 TTSD-eval/output/ 并以时间戳命名。
+      # 直接 bash 执行，$0 指向脚本自身，SCRIPT_DIR 正确。
+      # 所有参数通过 export 的标量环境变量传递（INPUT_JSONL_PATH
+      # 代替不可 export 的 bash 数组），无需 source。
+      export DEVICE=npu
+      export CACHE_DIR="$EVAL_ROOT/model"
+      export MODEL_DIR="$EVAL_ROOT/model/voxblink2_samresnet100_ft"
+      export INPUT_JSONL_PATH="$INPUT"
+      bash "$EVAL_ROOT/eval.sh"
 
-      python "$EVAL_ROOT/tools/split.py" \
-        --input_jsonl "$RUN_ROOT/alignment.jsonl" \
-        --split_res_dir "$RUN_ROOT/split_res" \
-        --segment_dir "$RUN_ROOT/audio_segments" \
-        --output_jsonl "$RUN_ROOT/split.jsonl" \
-        --num_workers 8
-      test "$(wc -l < "$RUN_ROOT/split.jsonl")" -eq 50
-
-      python "$EVAL_ROOT/tools/run_similarity.py" \
-        --input_jsonl "$RUN_ROOT/split.jsonl" \
-        --output_jsonl "$RUN_ROOT/sim.jsonl" \
-        --metrics_txt "$RUN_ROOT/acc_sim.txt" \
-        --model_dir "$EVAL_ROOT/model/voxblink2_samresnet100_ft" \
-        --device npu
-      test "$(wc -l < "$RUN_ROOT/sim.jsonl")" -eq 50
-      test -s "$RUN_ROOT/acc_sim.txt"
-
-      python "$EVAL_ROOT/wer/whisper_asr.py" \
-        --input_jsonl "$INPUT" \
-        --output_jsonl "$RUN_ROOT/asr.jsonl" \
-        --model_id "$EVAL_ROOT/model/whisper-large-v3" \
-        --device npu
-      test "$(wc -l < "$RUN_ROOT/asr.jsonl")" -eq 50
-
-      python "$EVAL_ROOT/wer/run_wer.py" \
-        --lang "$LANG" \
-        --input_jsonl "$RUN_ROOT/asr.jsonl" \
-        --output_jsonl "$RUN_ROOT/wer.jsonl" \
-        --metrics_txt "$RUN_ROOT/wer.txt"
-      test "$(wc -l < "$RUN_ROOT/wer.jsonl")" -eq 50
-      test -s "$RUN_ROOT/wer.txt"
+      # --- WER via run_wer.sh ---
+      export DEVICE=npu
+      export WHISPER_MODEL_ID="$EVAL_ROOT/model/whisper-large-v3"
+      export INPUT_JSONL_PATH="$INPUT"
+      export LANGUAGE="$LANG"
+      bash "$EVAL_ROOT/run_wer.sh"
     } 2>&1 | tee "$RUN_ROOT/evaluator.log"
   done
 done
-cd "$MODEL_ROOT"
+
 deactivate
 ```
 
-#### CUDA evaluator（可选对照）
+> **说明**：`eval.sh` 和 `run_wer.sh` 是 TTSD-eval 官方评测脚本，NPU 适配 patch 为其增加 `DEVICE` / `CACHE_DIR` / `MODEL_DIR` / `WHISPER_MODEL_ID` / `INPUT_JSONL_PATH` / `LANGUAGE` 环境变量透传，不改变脚本内部流程与默认输出路径。`INPUT_JSONL_PATH` 是标量环境变量（可 export），设置后优先于原脚本中的 `INPUT_JSONL` 数组默认值；`LANGUAGE` 同理优先于 `language` 默认值。原始脚本不设置这些环境变量时行为与上游完全一致（auto-detect CUDA/CPU，使用 `data/example/output.jsonl` 和 `language=zh`）。输出文件位于 `TTSD-eval/output/` 目录，以 `<input_stem>_<timestamp>` 命名。若需指定自定义输出路径，可直接调用底层 Python 工具并传显式参数。
+
+> **常见故障**：
+>
+> - `Step 1: Alignment` 在 NPU 上报 `CAUTION: The operator 'torchaudio::forced_align' is not currently supported on the NPU backend and will fall back to run on the CPU`，表示 `torchaudio::forced_align` 自定义 C++ 算子无 NPU 后端实现。NPU 适配 patch 已在 `tools/align.py` 的 `_compute_alignments` 方法中显式将 emission 张量从 NPU 转移至 CPU 后再调用 aligner（`forced_align` 及后续 CTC 对齐运算均在 CPU 完成），wav2vec2 前向推理仍在 NPU 执行，不影响精度。若未应用最新 patch 或手动修改，该算子的 npu_cpu_fallback 机制可能导致设备不匹配或对齐结果异常。
+>
+> - `Step 1: Alignment` 报 `PytorchStreamReader failed reading zip archive: failed finding central directory`，表示 `CACHE_DIR/checkpoints/model.pt`（MMS-FA 权重）损坏或下载不完整。修复方法：删除后重新下载并校验 SHA256 和文件大小，参见「下载固定 S3 version ID 的 MMS-FA checkpoint」步骤。
+>
+> - `Step 3: Similarity` 报 `ModuleNotFoundError: No module named 'onnxruntime'`，表示 `onnxruntime` 未安装或其原生扩展库加载失败。`wespeaker` 的 diar 模块在包初始化时无条件导入 `onnxruntime`（导入链：`wespeaker.__init__` → `cli.speaker` → `diar.extract_emb` → `onnxruntime`），即使相似度评测仅使用说话人嵌入模型也需要该依赖。**在本评测中 `onnxruntime` 仅用于满足 import，不参与任何实际推理**——`run_similarity.py` 只调用 `Speaker.compute_similarity()` → PyTorch 前向推理（NPU），从未调用 `Speaker.diarize()` 或 ONNX 推理路径。因此安装标准 CPU 版 `onnxruntime` 即可，无需 `onnxruntime-cann`（CANN EP）或 CUDA EP。按以下步骤逐项排查：
+>
+>   1. **确认当前环境**：必须激活评测所用的 venv 再执行诊断，否则 `pip list` 和 `import` 可能指向不同的 Python 环境。执行 `which python && python -c "import sys; print(sys.executable, sys.prefix)"` 确认二进制路径和 venv 前缀一致。
+>
+>   2. **确认 onnxruntime 是否可 import**：`python -c "import onnxruntime; print(onnxruntime.__version__)"`。若此命令报错，即使 `pip list` 显示已安装，也说明原生 `.so` 无法 dlopen，继续下一步。
+>
+>   3. **查看详细加载错误**：`python -c "import importlib; importlib.import_module('onnxruntime')"`。此命令会显示完整的 `ImportError` 堆栈（包括缺少的 `.so` 依赖、GLIBC 版本不匹配或 CPU 架构 wheel 不一致等根因），而非 `wespeaker` 层面被截断的 `ModuleNotFoundError`。
+>
+>   4. **重装固定版本**：在激活的 venv 中执行 `python -m pip install --force-reinstall onnxruntime==1.23.2`。`--force-reinstall` 强制重新下载 wheel 并覆盖损坏的安装。若 1.23.2 wheel 与当前平台（aarch64 / x86_64）或 glibc 不兼容，可尝试 `python -m pip install --force-reinstall onnxruntime`（不固定版本）让 pip 自动选择兼容 wheel。
+>
+>   5. **验证**：`python -c "import onnxruntime; print(onnxruntime.__version__)"`。版本应与 `requirements_eval.txt` 固定值一致（NPU profile 为 1.23.2）；若因平台限制安装了其他版本，记录实际版本并在 `pip check` 通过后继续。
+>
+>   常见根因：① `pip install -r requirements_eval.txt` 因 wespeaker git 源不可达而整体回退，onnxruntime 未实际安装——安装命令已将 PyPI 包与 wespeaker 分开安装以避免此问题；② onnxruntime wheel 与平台 glibc/libstdc++ 不兼容（`importlib.import_module` 报 `OSError: /usr/lib/x86_64-linux-gnu/libstdc++.so.6: version GLIBCXX_3.4.30 not found` 等错误），需升级系统 libstdc++ 或安装兼容版本的 onnxruntime；③ pip 安装在系统 Python 而评测运行于 venv（或反过来），二者 site-packages 不互通。
+>
+> - `Step 3: Similarity` 报 `zipfile.BadZipFile: File is not a zip file`（或 `import wespeaker` / `run_similarity.py` 报 `BadZipFile`），表示 NLTK `cmudict.zip` 数据文件损坏或缺失，导致 `g2p_en` 模块导入失败。完整导入链：`wespeaker → s3prl.frontend → s3prl.nn → s3prl.hub → espnet_hubert.hubconf → espnet2.tasks.hubert → espnet2.text.phoneme_tokenizer → g2p_en → nltk.data.find('corpora/cmudict.zip')`。`nltk.data.find()` 找到 zip 文件后会尝试打开并验证，若文件损坏则抛出 `BadZipFile`（`Exception` 子类）；`g2p_en` 自身的 `except LookupError` 无法捕获，导致整个 `import wespeaker` 链崩溃。TTSD-eval 相似度评测不使用 `espnet_hubert` 和 `g2p_en`。
+>
+>   **修复方法一（推荐，修复根因）**：按上方「创建评测环境」NPU profile 中的 `curl` 命令下载正确的 NLTK 数据文件并安装。NPU 服务器代理可能拦截 NLTK data server 公网请求并静默返回损坏文件，**不要使用 `nltk.download()` 下载**——必须使用 `curl`/`wget`。若当前机器无法访问 GitHub，参考下方「NLTK cmudict.zip 损坏或缺失（离线环境）」章节在可联网机器下载后传输。
+>
+>   **修复方法二（补丁兜底）**：若无法安装正确的 NLTK 数据，应用 `0003-fix-s3prl-hub-resilient-imports.patch`，使 `espnet_hubert` 导入失败时静默跳过，无需修复 `cmudict.zip` 即可让评测正常运行：
+>
+>   ```bash
+>   S3PRL_DIR=$(python -c "import importlib.util; print(importlib.util.find_spec('s3prl').submodule_search_locations[0])") && \
+>   cd "$S3PRL_DIR/../" && patch -p1 < "$MODEL_ROOT/patches/0003-fix-s3prl-hub-resilient-imports.patch"
+>   python -c "import wespeaker; print('wespeaker import ok')"
+>   ```
+>
+>   **修复方法二（补丁兜底，不修复根因）**：若无法安装正确的 NLTK 数据，应用 `0003-fix-s3prl-hub-resilient-imports.patch`，使 `espnet_hubert` 导入失败时静默跳过。详见下方「NLTK cmudict.zip 损坏或缺失（离线环境）」条目。
+>
+> - `import wespeaker` 或 `run_similarity.py` 报 `ModuleNotFoundError: No module named 'torchaudio.sox_effects'`，表示 TorchAudio 2.9+ 已移除 SoX 后端，而 `s3prl==0.4.18` 的 `upstream/mos_prediction/expert.py` 仍顶层导入 `from torchaudio.sox_effects import apply_effects_tensor`（该函数在 expert.py 中实际未被调用）。`s3prl/hub.py` 对全部 upstream 做星号导入，导致 import 链 `wespeaker → s3prl → hub → mos_prediction → torchaudio.sox_effects` 必定失败。**此问题仅出现在 NPU profile（TorchAudio 2.9.0），CPU/CUDA profile 使用 TorchAudio 2.8.0 不受影响。**
+>
+>   上述 `0003` 补丁已同时包裹 `espnet_hubert` 和 `mos_prediction` 两个 hubconf 导入，应用一次即可修复 `BadZipFile` 和 `torchaudio.sox_effects` 两个问题。若未应用该补丁，按上面「修复方法一」执行即可。若 `pip install` 重装 s3prl 导致修改被覆盖，重新应用补丁即可。
+>
+> - `Step 3: Similarity` 报 `aclnnAddV3 failed, error code is 507035` 及 `The DDR address of the MTE instruction is out of range`，前面伴有 `Device do not support double dtype now, dtype cast replace with float` 警告。根因：wespeaker 的 `SimAM` 注意力模块和 ASP 等 pooling 层在 tensor 运算中使用 Python float 标量（`1e-4`、`0.5`、`1e-7`、`1e-5` 等），CPython 中这些均为 float64；torch-npu 将其转为 float64 设备 tensor 后隐式转换为 float32，转换后的 tensor 内存布局异常导致 `aclnnAddV3` 算子访问越界崩溃。完整导入链：`SimAMBasicBlock.forward → SimAM → v + lambda_p(1e-4) → float64 设备 tensor → 隐式 cast → float32 → out += self.downsample(x) → aclnnAddV3 崩溃`。
+>
+>   **修复**：应用 `0004-fix-wespeaker-float64-on-npu.patch`，将所有 Python float 标量替换为显式 float32 设备 tensor：
+>
+>   ```bash
+>   WESPEAKER_DIR=$(python -c "import importlib.util; print(importlib.util.find_spec('wespeaker').submodule_search_locations[0])") && \
+>   cd "$WESPEAKER_DIR/../" && patch -p1 < "$MODEL_ROOT/patches/0004-fix-wespeaker-float64-on-npu.patch"
+>   python -c "import wespeaker; from wespeaker.models.samresnet import SimAMBasicBlock; print('patch ok')"
+>   ```
+>
+>   若 `pip install` 重装 wespeaker 导致修改被覆盖，重新执行上述命令即可。
+>
+> - `Step 3: Similarity` 所有 case 的 `sim=0.0000`（ACC 正常），表示 WeSpeaker 嵌入提取产出了全零向量。根因：NPU `torch.fft.rfft()` 返回复数张量后 `.abs()` 返回全零（NPU FFT backend 对复数取模 `.abs()` 支持不完整），导致 `torchaudio.compliance.kaldi.fbank()` 提取的 fbank 特征全零 → 嵌入向量全零 → 余弦相似度恒为 0.0000。ACC 不受影响（仅依赖文本对齐结果）。
+>
+>   **修复**：应用 `0005-fix-torchaudio-kaldi-rfft-abs-on-npu.patch`，将 `rfft().abs()` 替换为手动实部/虚部分解 `sqrt(real^2 + imag^2)`（数学等价）：
+>
+>   ```bash
+>   TORCHAUDIO_PATH=$(python -c "import torchaudio; import os; print(os.path.dirname(torchaudio.__file__))") && \
+>   cd "${TORCHAUDIO_PATH}/../" && \
+>   patch -p1 < "$MODEL_ROOT/patches/0005-fix-torchaudio-kaldi-rfft-abs-on-npu.patch"
+>   # 验证
+>   python -c "import torchaudio.compliance.kaldi as k; import inspect; src = inspect.getsource(k.fbank); assert 'fft.real' in src; print('ok')"
+>   ```
+>
+>   若 `patch` 命令不可用，也可手动修改 `${TORCHAUDIO_PATH}/compliance/kaldi.py`：
+>   - 约 311 行：将 `fft.abs().pow(2.0)` 改为先计算 `fft_abs = torch.sqrt(fft.real.pow(2.0) + fft.imag.pow(2.0))` 再用 `fft_abs.pow(2.0)`
+>   - 约 616 行：将 `spectrum = torch.fft.rfft(strided_input).abs()` 改为 `_rfft = torch.fft.rfft(strided_input); spectrum = torch.sqrt(_rfft.real.pow(2.0) + _rfft.imag.pow(2.0))`
+>
+>   此问题仅影响 NPU profile；CPU/CUDA 的 `.abs()` 正常工作。若 `pip install --force-reinstall torchaudio` 导致修改被覆盖，重新应用补丁即可。
+>
+> **NLTK cmudict.zip 损坏或缺失（离线环境）**
+>
+> 若环境需要 `g2p_en` 用于其他用途（非 TTSD-eval），或希望修复 `cmudict.zip` 根因，按以下离线步骤操作。TTSD-eval 用户只需应用 `0003` 补丁即可，无需修复 `cmudict.zip`。
+>
+> 1. **在可联网机器上下载 NLTK 数据包**（优先使用 curl，不使用 `nltk.download()`——NPU 服务器代理可能拦截 NLTK data server 公网请求并静默返回损坏文件）：
+>
+>    ```bash
+>    # 从 GitHub 直接下载（优先方式，不依赖 NLTK data server）
+>    mkdir -p ~/nltk_offline
+>    curl -L --fail -o ~/nltk_offline/cmudict.zip \
+>      https://raw.githubusercontent.com/nltk/nltk_data/gh-pages/packages/corpora/cmudict.zip
+>    # 同样下载 POS tagger（g2p_en 也依赖）
+>    curl -L --fail -o ~/nltk_offline/averaged_perceptron_tagger.zip \
+>      https://raw.githubusercontent.com/nltk/nltk_data/gh-pages/packages/taggers/averaged_perceptron_tagger.zip
+>    ```
+>
+> 2. **计算校验值并打包传输**：
+>
+>    ```bash
+>    cd ~/nltk_offline
+>    sha256sum cmudict.zip averaged_perceptron_tagger.zip > checksums.txt
+>    cat checksums.txt
+>    tar czf nltk_data_offline.tar.gz cmudict.zip averaged_perceptron_tagger.zip checksums.txt
+>    ```
+>
+> 3. **传输至目标机器**（scp / USB / 共享目录等）：
+>
+>    ```bash
+>    scp nltk_data_offline.tar.gz user@npu-server:/tmp/
+>    ```
+>
+> 4. **在目标机器上安装**（需激活评测 venv）：
+>
+>    ```bash
+>    source .venv-npu/bin/activate
+>
+>    # 确认 NLTK 数据目录
+>    NLTK_DATA_DIR=$(python -c "import nltk; print(nltk.data.path[0])")
+>    echo "NLTK data dir: $NLTK_DATA_DIR"
+>
+>    # 解压离线包
+>    cd /tmp && tar xzf nltk_data_offline.tar.gz
+>    sha256sum -c checksums.txt
+>
+>    # 删除损坏文件并安装正确的数据
+>    mkdir -p "$NLTK_DATA_DIR/corpora" "$NLTK_DATA_DIR/taggers"
+>    rm -f "$NLTK_DATA_DIR/corpora/cmudict.zip" "$NLTK_DATA_DIR/taggers/averaged_perceptron_tagger.zip"
+>    cp cmudict.zip "$NLTK_DATA_DIR/corpora/"
+>    cp averaged_perceptron_tagger.zip "$NLTK_DATA_DIR/taggers/"
+>
+>    # 验证
+>    python -c "import nltk; nltk.data.find('corpora/cmudict.zip'); print('cmudict ok')"
+>    python -c "import g2p_en; print('g2p_en ok')"
+>    deactivate
+>    ```
+>
+>    若 NLTK 数据目录无写入权限（如 `/usr/local/python3.11.14/lib/python3.11/nltk_data`），使用用户目录并设置环境变量：
+>
+>    ```bash
+>    mkdir -p ~/nltk_data/corpora ~/nltk_data/taggers
+>    cp cmudict.zip ~/nltk_data/corpora/
+>    cp averaged_perceptron_tagger.zip ~/nltk_data/taggers/
+>    export NLTK_DATA=~/nltk_data
+>    # 将 export NLTK_DATA=~/nltk_data 加入 eval.sh 运行前的环境变量中
+>    ```
+>
+>    若 GitHub 也不可访问，可从国内镜像下载（如 gitee 镜像 `nltk_data` 仓库），或将可联网机器上已确认可用的 `~/nltk_data/corpora/` 和 `~/nltk_data/taggers/` 目录整个打包传输。注意：**不要使用 `nltk.download()` 在 NPU 服务器上下载**——代理拦截后返回的 HTML 错误页会被保存为 `.zip`，导致 `BadZipFile`。
+
+#### CUDA / CPU evaluator（可选对照）
+
+本地具备 CUDA 环境时，可用相同脚本做同口径对照，只需将 `DEVICE` 改为 `cuda` 或 `cpu`：
 
 ```bash
-set -o pipefail
-MODEL_ROOT="$PWD"
-EVAL_ROOT="$MODEL_ROOT/third_party/TTSD-eval"
+# CUDA 对照示例（需 .venv-ttsd-eval 环境与 CUDA 驱动）
 source "$MODEL_ROOT/.venv-ttsd-eval/bin/activate"
-export HF_HUB_OFFLINE=1
-export TRANSFORMERS_OFFLINE=1
-ALIGN_DEVICE=cuda
-SIM_NUM_GPUS=1
-WHISPER_NUM_GPUS=1
-cd "$EVAL_ROOT/testset"
+export DEVICE=cuda
+export CACHE_DIR="$EVAL_ROOT/model"
+export MODEL_DIR="$EVAL_ROOT/model/voxblink2_samresnet100_ft"
+export WHISPER_MODEL_ID="$EVAL_ROOT/model/whisper-large-v3"
+export INPUT_JSONL_PATH="$INPUT"
+bash "$EVAL_ROOT/eval.sh"
+export LANGUAGE="$LANG"
+bash "$EVAL_ROOT/run_wer.sh"
+deactivate
 
-for LANG in zh en; do
-  for GROUP in original_cuda patched_cuda; do
-    INPUT="$MODEL_ROOT/results/ttsd_eval/${GROUP}_${LANG}.jsonl"
-    [ -f "$INPUT" ] || continue
-    STEM="${GROUP}_${LANG}"
-    RUN_ROOT="$MODEL_ROOT/results/ttsd_eval_metrics/$STEM"
-    mkdir -p \
-      "$RUN_ROOT/alignment_files" \
-      "$RUN_ROOT/split_res" \
-      "$RUN_ROOT/audio_segments"
-
-    {
-      python "$EVAL_ROOT/tools/align.py" \
-        --input_jsonl "$INPUT" \
-        --output_dir "$RUN_ROOT/alignment_files" \
-        --output_jsonl "$RUN_ROOT/alignment.jsonl" \
-        --cache_dir "$EVAL_ROOT/model" \
-        --device "$ALIGN_DEVICE"
-      test "$(wc -l < "$RUN_ROOT/alignment.jsonl")" -eq 50
-
-      python "$EVAL_ROOT/tools/split.py" \
-        --input_jsonl "$RUN_ROOT/alignment.jsonl" \
-        --split_res_dir "$RUN_ROOT/split_res" \
-        --segment_dir "$RUN_ROOT/audio_segments" \
-        --output_jsonl "$RUN_ROOT/split.jsonl" \
-        --num_workers 8
-      test "$(wc -l < "$RUN_ROOT/split.jsonl")" -eq 50
-
-      python "$EVAL_ROOT/tools/run_similarity.py" \
-        --input_jsonl "$RUN_ROOT/split.jsonl" \
-        --output_jsonl "$RUN_ROOT/sim.jsonl" \
-        --metrics_txt "$RUN_ROOT/acc_sim.txt" \
-        --model_dir "$EVAL_ROOT/model/voxblink2_samresnet100_ft" \
-        --num_gpus "$SIM_NUM_GPUS"
-      test "$(wc -l < "$RUN_ROOT/sim.jsonl")" -eq 50
-      test -s "$RUN_ROOT/acc_sim.txt"
-
-      python "$EVAL_ROOT/wer/whisper_asr.py" \
-        --input_jsonl "$INPUT" \
-        --output_jsonl "$RUN_ROOT/asr.jsonl" \
-        --model_id "$EVAL_ROOT/model/whisper-large-v3" \
-        --num_gpus "$WHISPER_NUM_GPUS"
-      test "$(wc -l < "$RUN_ROOT/asr.jsonl")" -eq 50
-
-      python "$EVAL_ROOT/wer/run_wer.py" \
-        --lang "$LANG" \
-        --input_jsonl "$RUN_ROOT/asr.jsonl" \
-        --output_jsonl "$RUN_ROOT/wer.jsonl" \
-        --metrics_txt "$RUN_ROOT/wer.txt"
-      test "$(wc -l < "$RUN_ROOT/wer.jsonl")" -eq 50
-      test -s "$RUN_ROOT/wer.txt"
-    } 2>&1 | tee "$RUN_ROOT/evaluator.log"
-  done
-done
-cd "$MODEL_ROOT"
+# CPU 对照示例
+source "$MODEL_ROOT/.venv-ttsd-eval/bin/activate"
+export DEVICE=cpu
+export CACHE_DIR="$EVAL_ROOT/model"
+export MODEL_DIR="$EVAL_ROOT/model/voxblink2_samresnet100_ft"
+export WHISPER_MODEL_ID="$EVAL_ROOT/model/whisper-large-v3"
+export INPUT_JSONL_PATH="$INPUT"
+bash "$EVAL_ROOT/eval.sh"
+export LANGUAGE="$LANG"
+bash "$EVAL_ROOT/run_wer.sh"
 deactivate
 ```
 
-#### CPU evaluator（可选对照）
-
-```bash
-set -o pipefail
-MODEL_ROOT="$PWD"
-EVAL_ROOT="$MODEL_ROOT/third_party/TTSD-eval"
-source "$MODEL_ROOT/.venv-ttsd-eval/bin/activate"
-export HF_HUB_OFFLINE=1
-export TRANSFORMERS_OFFLINE=1
-ALIGN_DEVICE=cpu
-cd "$EVAL_ROOT/testset"
-
-for LANG in zh en; do
-  for GROUP in original_cuda patched_cuda npu; do
-    INPUT="$MODEL_ROOT/results/ttsd_eval/${GROUP}_${LANG}.jsonl"
-    [ -f "$INPUT" ] || continue
-    STEM="${GROUP}_${LANG}"
-    RUN_ROOT="$MODEL_ROOT/results/ttsd_eval_metrics/$STEM"
-    mkdir -p \
-      "$RUN_ROOT/alignment_files" \
-      "$RUN_ROOT/split_res" \
-      "$RUN_ROOT/audio_segments"
-
-    {
-      python "$EVAL_ROOT/tools/align.py" \
-        --input_jsonl "$INPUT" \
-        --output_dir "$RUN_ROOT/alignment_files" \
-        --output_jsonl "$RUN_ROOT/alignment.jsonl" \
-        --cache_dir "$EVAL_ROOT/model" \
-        --device "$ALIGN_DEVICE"
-      test "$(wc -l < "$RUN_ROOT/alignment.jsonl")" -eq 50
-
-      python "$EVAL_ROOT/tools/split.py" \
-        --input_jsonl "$RUN_ROOT/alignment.jsonl" \
-        --split_res_dir "$RUN_ROOT/split_res" \
-        --segment_dir "$RUN_ROOT/audio_segments" \
-        --output_jsonl "$RUN_ROOT/split.jsonl" \
-        --num_workers 8
-      test "$(wc -l < "$RUN_ROOT/split.jsonl")" -eq 50
-
-      python "$EVAL_ROOT/tools/run_similarity.py" \
-        --input_jsonl "$RUN_ROOT/split.jsonl" \
-        --output_jsonl "$RUN_ROOT/sim.jsonl" \
-        --metrics_txt "$RUN_ROOT/acc_sim.txt" \
-        --model_dir "$EVAL_ROOT/model/voxblink2_samresnet100_ft" \
-        --device cpu
-      test "$(wc -l < "$RUN_ROOT/sim.jsonl")" -eq 50
-      test -s "$RUN_ROOT/acc_sim.txt"
-
-      python "$EVAL_ROOT/wer/whisper_asr.py" \
-        --input_jsonl "$INPUT" \
-        --output_jsonl "$RUN_ROOT/asr.jsonl" \
-        --model_id "$EVAL_ROOT/model/whisper-large-v3" \
-        --device cpu
-      test "$(wc -l < "$RUN_ROOT/asr.jsonl")" -eq 50
-
-      python "$EVAL_ROOT/wer/run_wer.py" \
-        --lang "$LANG" \
-        --input_jsonl "$RUN_ROOT/asr.jsonl" \
-        --output_jsonl "$RUN_ROOT/wer.jsonl" \
-        --metrics_txt "$RUN_ROOT/wer.txt"
-      test "$(wc -l < "$RUN_ROOT/wer.jsonl")" -eq 50
-      test -s "$RUN_ROOT/wer.txt"
-    } 2>&1 | tee "$RUN_ROOT/evaluator.log"
-  done
-done
-cd "$MODEL_ROOT"
-deactivate
-```
-
-TTSD-eval 的部分工具会记录 warning 后跳过失败样本并以 0 退出，因此每阶段的 50 行检查是正式门禁，不得删除。上述命令直接复用固定 commit 的官方评测组件 `tools/align.py`、`tools/split.py`、`tools/run_similarity.py`、`wer/whisper_asr.py` 和 `wer/run_wer.py`，不修改 evaluator，也不使用简化指标。
+TTSD-eval 的部分工具会记录 warning 后跳过失败样本并以 0 退出；如需对每个阶段做 50 行门禁检查，可直接调用底层 Python 工具并逐阶段校验，参见 patch 后 `tools/align.py`、`tools/split.py`、`tools/run_similarity.py`、`wer/whisper_asr.py`、`wer/run_wer.py` 的 `--help`。
 
 ## 模型推理性能
 
