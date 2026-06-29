@@ -20,7 +20,9 @@
 - [ ] 明确非目标模型变体和不可比指标；
 - [ ] 区分上游源码 patch、当前新增入口、工作证据和正式候选文件；
 - [ ] NPU 差异限制在必要边界，保持 CPU/CUDA 行为不变；
-- [ ] 避免静默 fallback、site-packages 修改、运行时 monkey patch 和未记录手工覆盖；
+- [ ] 避免静默 fallback、未记录的 site-packages 修改、运行时 monkey patch 和未记录手工覆盖；必要的 site-packages 补丁必须按 9.1 生成、记录并提供可复现的应用/撤销命令；
+- [ ] 环境数据（权重、评测数据、NLTK/spacy 语料等）下载优先使用 `wget`/`curl`，不依赖 Python 库专用下载通道（`nltk.download()`、`huggingface-cli download`、`datasets.load_dataset()` 等）；`pip install` 走内部镜像不受此限制；若必须使用 Python 下载器，同时提供等价离线替代命令（详见 7.2）；
+- [ ] site-packages 第三方库补丁用 `importlib.util.find_spec()` 定位包路径，`patch -p1` 从 site-packages 根目录应用（详见 9.1）；
 - [ ] 权重下载支持固定版本、完整性检查和离线复用；
 - [ ] 数据准备生成固定 manifest/meta，样本数和文档声明一致；
 - [ ] 推理、评测、比较入口可以独立执行，并写入独立输出目录；
@@ -140,7 +142,7 @@ git -C <target_repo> log -1 --date=iso-strict \
 | S0 分析完成 | upstream/权重/参考版本、设备节点、官方测试集和指标取证 | “完成适配分析” |
 | S1 静态适配完成 | 最小 patch/infer、`git apply --check`、`py_compile`、静态扫描 | “静态门禁通过” |
 | S2 功能验证完成 | 干净环境安装、权重/功能输入准备、CPU/CUDA 或 NPU 至少一条真实端到端输出 | “某设备功能链路实测通过” |
-| S3 L2 迁移对齐完成 | NPU L2 精度/质量与性能结果、可比的官方/公开基线或必要的本地同设备回归、自动比较和报告 | “NPU L2 精度和性能对齐通过” |
+| S3 L2 迁移对齐完成 | NPU L2 精度/质量与性能结果、可比的官方/公开基线或必要的 CPU 精度对照、自动比较和报告 | "NPU L2 精度和性能对齐通过" |
 | S4 扩展验收通过 | 用户明确要求的 L3、长稳或业务扩展项完成 | “扩展验收通过” |
 
 硬规则：
@@ -162,7 +164,7 @@ git -C <target_repo> log -1 --date=iso-strict \
   -> 权重 metadata check 或实际下载
   -> 测试数据准备和 manifest/meta
   -> 原始公开/官方基线取证
-  -> 必要时补 patch 后 CPU/CUDA 回归
+  -> 必要时补 CPU 精度对照（--device cpu，复用同一环境）
   -> NPU 推理
   -> 自动比较数值/指标
   -> 验收报告
@@ -198,21 +200,27 @@ python3 tools/compare_openai_service_results.py --help
 2. **NPU candidate**：应用适配后的 NPU 结果，包含 L2 精度/质量和性能。
 
 只有在两者 checkpoint、数据集/split、metric、normalizer/后处理和关键推理参数一致
-或可明确换算时，才能直接判定对齐。下列情况必须增加**应用 patch 后的同设备
-CPU/CUDA 回归**：
+或可明确换算时，才能直接判定对齐。
 
-- 公开基线与 NPU 结果不可直接比较，且没有其他等价公开结果；
+NPU 适配项目一般不具备 GPU 环境，验收主线为 **NPU 必跑 + 公开指标对照**。CUDA 对照组
+为可选增强，不作为验收强制要求。下列情况需要增加**CPU 精度对照**（复用同一 Python
+环境，`--device cpu`）：
+
+- 公开基线不可比，且没有其他等价公开结果；
 - patch 修改了模型算法语义、预处理、后处理、decode、dtype 默认值或输出结构；
-- 适配问题可能来自上游版本漂移，需要隔离“版本差异”和“NPU 后端差异”；
+- 适配问题可能来自上游版本漂移，需要隔离"版本差异"和"NPU 后端差异"；
 - 目标仓维护者或用户明确要求本地回归。
 
-精确 upstream 未应用 patch 的本地运行属于增强证据。若已选择本地三组对照，三组必须
+CPU 精度对照仅用于确认 NPU 适配正确性，不用于性能对比。
+
+精确 upstream 未应用 patch 的本地运行属于增强证据。若已选择本地多组对照，各组必须
 使用同一 checkpoint、manifest、参数和 evaluator，并写入不同目录。禁止：
 
-- 让 CPU/CUDA/NPU 覆盖同一个结果文件；
+- 让 CPU/NPU 覆盖同一个结果文件；
 - 使用不同 batch/decode/normalizer 后直接比较；
 - 用截图、口头描述或历史 README 表格代替机器可读结果；
-- 公开基线不可比时仍直接宣称“无精度下降”。
+- 公开基线不可比时仍直接宣称"无精度下降"；
+- 使用 CPU 性能数据推断 NPU 加速比。
 
 若原始路径因能力缺失无法运行，可记录可重复的预期失败证据；但 patch 后同设备回归
 是否强制，仍按上面的可比性和 patch 风险判断，不能用下载失败、OOM 或缺包冒充能力
@@ -411,7 +419,7 @@ map_location="cuda"
 - **禁止吞错继续**：不要捕获宽泛 `Exception` 后继续执行；如必须捕获异常用于补充上下文，必须重新抛出，且不得切换到非官方替代实现。
 - **兼容处理必须有依据**：如果确实需要兼容多个官方版本或多个公开权重变体，必须在文档中列出版本边界、触发条件、验证命令和指标影响；不能把未验证的兼容逻辑混入默认路径。
 
-提交前应检查新增/修改脚本中是否存在不必要的 `try/except`、`hasattr/getattr`、`pass`、`fallback`、`auto`、`use_gpu`、硬编码设备、静默下载远端替代等模式；发现后要么删除，要么在文档中说明其必要性和验证结果。
+提交前应检查新增/修改脚本中是否存在不必要的 `try/except`、`hasattr/getattr`、`pass`、`fallback`、`auto`、`use_gpu`、硬编码设备、静默下载远端替代等模式；发现后要么删除，要么在文档中说明其必要性和验证结果。运行时自动下载（`nltk.download()`、`datasets.load_dataset()` 等）不得嵌入推理/评测脚本；所有环境数据必须在独立的准备步骤中完成，推理/评测脚本只读取本地已准备的数据（详见 7.2）。
 
 
 推荐：
@@ -504,19 +512,18 @@ CUDA_VISIBLE_DEVICES=0
 推荐结构：
 
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate
+# NPU 推理环境（当 CANN 基础镜像或系统 Python 已满足要求时直接使用，不额外创建 venv）
 pip install --upgrade pip
-
-# CPU 验证最小依赖
-pip install -r requirements_cpu.txt
 
 # NPU 推理依赖，版本以 CANN 对应版本为准
 pip install torch torch-npu
 pip install -r requirements.txt
+
+# CPU 精度对照可复用同一环境，只需改 --device cpu
 ```
 
-如果无法拆分 `requirements_cpu.txt` / `requirements.txt`，必须在文档中写明最小依赖建议。
+若同一机器需多套不兼容的 Python/PyTorch 版本，才使用 venv 隔离，并在文档中写明
+隔离原因。
 
 #### 6.0.1 CPU 与 NPU 环境安装命令必须物理分离
 
@@ -530,7 +537,7 @@ pip install torch-npu
 原因是第一条命令明确安装 CPU-only PyTorch，随后单独增加 `torch-npu` 不能证明该
 PyTorch wheel 与目标 CANN/torch-npu ABI 配套。正确要求：
 
-- CPU baseline 使用独立 venv/容器，可安装官方 CPU wheel；
+- CPU 精度对照复用 NPU 环境，只需改 `--device cpu`，不强制独立 venv；
 - NPU 环境使用 CANN 配套表指定的 `torch`、`torch-npu`、`torchaudio` wheel 和
   安装源，三者版本必须完整写出；
 - 不允许在 NPU 快速上手中只写 `pip install torch torch-npu`；
@@ -759,19 +766,18 @@ PY
 示例：
 
 ```bash
-mkdir -p <model_dir>/weights
-huggingface-cli download <org/model> \
-  --local-dir <model_dir>/weights/<model_name> \
-  --local-dir-use-symlinks False
+mkdir -p <model_dir>/weights/<model_name>
+# 单文件权重直接 wget/curl 下载
+curl -L --fail -o <model_dir>/weights/<model_name>/model.safetensors \
+  `https://huggingface.co/<org/model>/resolve/main/model.safetensors`
+# 校验
+sha256sum <model_dir>/weights/<model_name>/model.safetensors
 
 python infer.py --model <model_dir>/weights/<model_name> --device cpu ...
 ```
 
-如果需要登录：
-
-```bash
-huggingface-cli login
-```
+如果需要登录（`huggingface-cli login` 后方可访问的 gated 模型），可使用
+`huggingface-cli download`，但必须同时给出等价的 `curl` 离线替代命令（见 7.2）。
 
 必须在 `NPU_ADAPTATION.md` 记录实际验证使用的权重路径或权重来源。
 
@@ -795,7 +801,106 @@ MODEL_CHECK_ONLY=1 ./<model_dir>/scripts/download_weights.sh <target_dir>
 
 检查模式应验证：repo/model id、必需文件名、关键文件 URL、文件大小；不能下载多 GiB 大文件。
 
-若 URL 检查失败，必须修正下载源或在文档中记录真实失败原因和可执行替代方案，不能简单写“从官网下载”。
+若 URL 检查失败，必须修正下载源或在文档中记录真实失败原因和可执行替代方案，不能简单写"从官网下载"。
+
+#### 7.2 下载工具优先使用 wget/curl，必须提供离线替代命令
+
+NPU 服务器常处于受限网络（企业代理、防火墙、白名单）或完全离线环境。**`pip install` 走内部 PyPI 镜像，通常正常可用；问题在于 Python 库的专用下载通道**（NLTK data server、Hugging Face hub API、HF datasets parquet 等）绕过内部镜像走公网，被代理/防火墙拦截后存在以下已确认问题：
+
+1. **静默返回损坏文件**：代理/防火墙拦截 HTTP 请求后返回 HTML 错误页或重定向页面，Python 下载器将其保存为目标文件名，不校验内容类型和完整性。例如 `nltk.download('cmudict')` 将代理拦截页保存为 `cmudict.zip`，后续 `zipfile` 打开时报 `BadZipFile`；`datasets.load_dataset()` 将拦截页保存为 parquet 文件后解析失败。`wget`/`curl` 在内容类型不匹配时可通过 `--fail`（curl）或退出码/`file` 命令即时发现。
+
+2. **缺少校验环节**：`nltk.download()` 不校验 SHA256；`huggingface-cli download` 虽有 commit hash 校验但在网络异常时可能跳过；`datasets.load_dataset()` 在 parquet/webdataset 格式下只校验 shard 数不校验内容。`wget`/`curl` 下载后可直接执行 `sha256sum`、`file`、`head -c 200` 验证。
+
+3. **难以定位根因**：Python 下载器的错误信息被库内部截获和转换（如 `nltk.download` 失败只打印 `False`），原始 HTTP 状态码、响应头和响应体被丢弃。`curl -v` / `wget --server-response` 直接暴露完整的 HTTP 交互过程。
+
+4. **无法离线准备**：Python 下载器通常将文件存入库私有 cache 目录（如 `~/nltk_data/`、`~/.cache/huggingface/`），结构与 URL 无直接对应关系，难以在可联网机器上预下载后打包传输。`wget`/`curl` 下载的文件路径完全由命令行参数指定，可写入脚本在可联网机器执行，再用 `scp`/USB/共享目录传输到 NPU 服务器。
+
+**硬规则**：
+
+- **权重文件、评测数据集、NLTK/spacy 等语料库、辅助模型 checkpoint 等环境数据下载命令，必须优先使用 `wget`/`curl`**，并紧跟 `sha256sum` / `md5sum` 校验命令。不要只写 `nltk.download()`、`huggingface-cli download` 或 `python -c "from datasets import load_dataset; ..."` 作为唯一下载方式。
+- **若因上游项目结构必须使用 Python 下载器**（如 Hugging Face gated 模型需 `huggingface-cli login` 后下载多文件目录），**必须同时给出等价的 `wget`/`curl` 离线替代命令**，包括：直接下载 URL（如 ``https://huggingface.co/<org>/<model>/resolve/main/<file>``）、目标文件名和校验值。两种方式下载的产物必须可互换。
+- **`pip install` 不在本规则范围内**：NPU 服务器有内部 PyPI 镜像可用，pip 包安装正常。本规则只约束 Python 库的专用下载通道（NLTK data server、HF hub API、HF datasets CDN 等），这些通道绕过内部镜像走公网，是损坏文件的根因。
+- **Python 下载器不得在推理/评测脚本中作为运行时依赖调用**：不得在 `eval.sh`、`infer.py` 或 `run_*.py` 中嵌入 `nltk.download()`、`datasets.load_dataset()` 等自动下载调用。数据准备必须在独立的 `prepare_*.py` 或文档命令中完成，推理/评测脚本只读取本地已准备的数据。
+
+**推荐下载与校验模式**：
+
+```bash
+# 1. 单文件下载
+mkdir -p <target_dir>
+curl -L --fail -o <target_dir>/<filename> <url>
+# 或
+wget -O <target_dir>/<filename> <url>
+
+# 2. 校验
+file <target_dir>/<filename>              # 确认文件类型（zip/png/parquet 等）
+sha256sum <target_dir>/<filename>          # 校验完整性
+test $(sha256sum <target_dir>/<filename> | cut -d' ' -f1) = <expected_sha> || \
+  echo 'SHA256 mismatch' >&2 && exit 1
+
+# 3. Hugging Face 单文件离线替代
+#    替代 huggingface-cli download <org>/<model> <file>
+#    URL 格式：`https://huggingface.co/<org>/<model>/resolve/main/<file>`
+curl -L --fail -o <target_dir>/<file> \
+  `https://huggingface.co/<org>/<model>/resolve/main/<file>`
+
+# 4. NLTK 数据离线准备
+#    替代 nltk.download('cmudict')
+#    URL 格式：`https://raw.githubusercontent.com/nltk/nltk_data/gh-pages/packages/<category>/<package>.zip`
+curl -L --fail -o /tmp/cmudict.zip \
+  `https://raw.githubusercontent.com/nltk/nltk_data/gh-pages/packages/corpora/cmudict.zip`
+file /tmp/cmudict.zip  # 应显示 'Zip archive data'
+mkdir -p ~/nltk_data/corpora
+cp /tmp/cmudict.zip ~/nltk_data/corpora/
+export NLTK_DATA=~/nltk_data
+
+# 5. HF datasets parquet 离线准备
+#    替代 datasets.load_dataset('google/fleurs', 'en_us', split='test')
+curl -L --fail -o <data_dir>/test-00000-of-00001.parquet \
+  `https://huggingface.co/datasets/google/fleurs/resolve/main/parquet-data/en_us/test-00000-of-00001.parquet`
+```
+
+**离线传输工作流**：
+
+```bash
+# === 可联网机器 ===
+# 1. 下载所有环境数据到统一目录
+mkdir -p /tmp/npu_offline_data
+cd /tmp/npu_offline_data
+
+# 权重
+curl -L --fail -o model.safetensors `https://huggingface.co/<org>/<model>/resolve/main/model.safetensors`
+
+# NLTK 数据
+curl -L --fail -o cmudict.zip `https://raw.githubusercontent.com/nltk/nltk_data/gh-pages/packages/corpora/cmudict.zip`
+curl -L --fail -o averaged_perceptron_tagger.zip `https://raw.githubusercontent.com/nltk/nltk_data/gh-pages/packages/taggers/averaged_perceptron_tagger.zip`
+
+# 评测数据
+curl -L --fail -o test-00000-of-00001.parquet `https://huggingface.co/datasets/<ds>/resolve/main/parquet-data/<config>/test-00000-of-00001.parquet`
+
+# 2. 生成校验清单
+sha256sum * > checksums.txt
+
+# 3. 打包
+tar czf npu_offline_data.tar.gz *
+
+# === 传输到 NPU 服务器 ===
+scp npu_offline_data.tar.gz user@npu-server:/tmp/
+
+# === NPU 服务器 ===
+cd /tmp && tar xzf npu_offline_data.tar.gz
+sha256sum -c checksums.txt
+# 按 README 中的安装命令将文件放置到目标路径
+```
+
+**已确认的 Python 下载器损坏案例**（更新于 2026-06-24）：
+
+| Python 下载器 | 损坏表现 | 根因 | 影响模型 |
+|---|---|---|---|
+| `nltk.download('cmudict')` | 保存为非 zip 文件（HTML 错误页），`nltk.data.find()` 打开时报 `BadZipFile` | 企业代理拦截 HTTPS 请求返回 302/403 HTML 页，`nltk` 将响应体直接保存为 `.zip` | MOSS-TTSD-v0.5（`g2p_en → espnet2 → s3prl → wespeaker` 导入链崩溃） |
+| `datasets.load_dataset()` | parquet shard 被替换为 HTML，解析失败 | HF hub CDN 被代理拦截，绕过内部 PyPI 镜像走公网 | 评测数据准备（非特定模型） |
+| `huggingface-cli download` | 文件被替换为 HTML 错误页，本地文件损坏 | HF hub API 被代理拦截 | 权重/辅助模型下载（非特定模型） |
+
+后续发现新的损坏案例时应补充此表，并同步更新受影响模型的 README 常见故障条目。
 
 ---
 
@@ -871,7 +976,7 @@ Canary-1B/FLEURS 适配暴露出几个常见坑：`--task all` 会先触发不�
 
 #### 8.3 数据集在线/离线混合准备要求
 
-Canary-1B 的 FLEURS 与 LibriSpeech 数据准备进一步明确了一个通用要求：**评测数据脚本不应只依赖 Hugging Face cache 或用户浏览器下载；必须支持“指定项目目录、在线自动下载、离线复用本地文件”的混合模式**。后续模型的数据准备脚本优先按以下规范设计。
+Canary-1B 的 FLEURS 与 LibriSpeech 数据准备进一步明确了一个通用要求：**评测数据脚本不应只依赖 Hugging Face cache 或用户浏览器下载；必须支持"指定项目目录、在线自动下载、离线复用本地文件"的混合模式**。后续模型的数据准备脚本优先按以下规范设计。下载工具优先使用 `wget`/`curl`（详见 7.2），不依赖 Python 库内置下载器。
 
 1. **显式本地数据目录参数**
    - 为每个外部数据源提供独立路径参数，例如 `--fleurs_parquet_dir`、`--librispeech_dir`、`--dataset_dir`、`--manifest_dir`。
@@ -909,7 +1014,7 @@ Canary-1B 的 FLEURS 与 LibriSpeech 数据准备进一步明确了一个通用�
 
 4. **在线模式下载到指定目录，不把 cache 当交付路径**
    - 在线命令必须能把数据下载到项目指定目录，便于打包迁移到 NPU 离线环境。
-   - 可以使用 `urllib` / `wget` / `curl` / 官方 SDK 下载，但最终产物必须落到脚本参数指定目录。
+   - 优先使用 `wget`/`curl` 下载（详见 7.2）；可以使用 `urllib` / 官方 SDK 下载作为备选，但最终产物必须落到脚本参数指定目录，且必须提供等价的 `wget`/`curl` 离线替代命令。
    - 如果因某些库版本问题导致远程 URL 可用但 `datasets.load_dataset(data_files=...)` 解析失败，应提供本地文件 fallback：先下载到指定目录，再从本地文件加载。
 
 5. **手动下载与脚本下载必须等价**
@@ -954,7 +1059,72 @@ git -C <model_dir>/upstream apply --check ../patches/0001-xxx.patch
 如果没有修改上游已有文件：
 
 - 不生成空 patch；
-- 建议写 `patches/README.md`，说明“本次适配未修改上游源码，因此无 patch”。
+- 建议写 `patches/README.md`，说明"本次适配未修改上游源码，因此无 patch"。
+
+#### 9.1 已安装 Python 包的补丁（site-packages 内第三方库）
+
+NPU 适配常需修改 pip 安装的第三方包（如 s3prl、wespeaker、torchaudio 等
+site-packages 内文件）。此类补丁的目标路径不是 git 仓库而是 site-packages，
+必须使用标准化的定位和应用方法。
+
+**定位包路径**：使用 `importlib.util.find_spec()` 而非 `import <pkg>`，因为
+`import` 会触发包的 `__init__.py` 执行，若该包依赖链有问题（如 s3prl hub
+导入崩溃、NLTK BadZipFile），`import` 本身就会失败，导致无法定位路径。
+`find_spec()` 只读取元数据，不执行任何代码。
+
+```bash
+# ✅ 正确：不触发 import，只读元数据
+PKG_DIR=$(python -c "import importlib.util; print(importlib.util.find_spec('<pkg>').submodule_search_locations[0])")
+
+# ❌ 错误：import 触发 __init__.py，可能崩溃
+PKG_DIR=$(python -c "import <pkg>; import os; print(os.path.dirname(<pkg>.__file__))")
+```
+
+**应用补丁**：从 site-packages 根目录（`PKG_DIR` 的父目录）执行 `patch -p1`：
+
+```bash
+# 标准模式：补丁 diff 路径为 <pkg>/relative/path/to/file.py
+PKG_DIR=$(python -c "import importlib.util; print(importlib.util.find_spec('<pkg>').submodule_search_locations[0])") && \
+cd "$PKG_DIR/../" && patch -p1 < "$MODEL_ROOT/patches/<NNNN>-xxx.patch"
+```
+
+**撤销补丁**：
+
+```bash
+PKG_DIR=$(python -c "import importlib.util; print(importlib.util.find_spec('<pkg>').submodule_search_locations[0])") && \
+cd "$PKG_DIR/../" && patch -R -p1 < "$MODEL_ROOT/patches/<NNNN>-xxx.patch"
+```
+
+**补丁生成**：在 site-packages 根目录初始化临时 git 仓库，修改后 diff：
+
+```bash
+# 1. 进入 site-packages 根，初始化临时 git
+cd "$PKG_DIR/../"
+git init && git add -A && git commit -m "original"
+
+# 2. 修改目标文件（如 s3prl/hub.py）
+#    ... 手工编辑 ...
+
+# 3. 生成补丁
+git diff > <model_dir>/patches/<NNNN>-xxx.patch
+
+# 4. 清理临时 git（可选）
+rm -rf .git
+```
+
+**硬规则**：
+
+1. 定位 site-packages 包路径必须使用 `importlib.util.find_spec()`，禁止
+   使用 `import <pkg>` + `__file__` 或 `os.path.dirname()`。
+2. site-packages 补丁的 diff 路径必须以 `<pkg_name>/` 开头（如
+   `s3prl/hub.py`、`wespeaker/models/samresnet.py`），使 `patch -p1` 从
+   site-packages 根目录正确应用。
+3. 每个 site-packages 补丁必须在 `patches/README.md` 中记录：目标包名、版本、
+   修改文件、应用/撤销命令、SHA256。
+4. 若补丁应用失败，优先 `pip install --force-reinstall <pkg>==<version>`
+   恢复原始文件后重新应用，而非手工修改。
+5. README 中补丁应用命令必须可直接复制执行，不得省略 `cd` 或依赖用户
+   手动定位 site-packages 路径。
 
 ---
 
@@ -984,8 +1154,8 @@ git -C <model_dir>/upstream apply --check ../patches/0001-xxx.patch
 
 ### Step 11：当前环境轻量执行与可选 CPU 回归
 
-当前环境必须执行静态检查、`--help`、数据 fixture 或 dry-run。CPU/CUDA 端到端回归
-是否强制按“基线证据按可比性分层”决定；不能用 CPU smoke 代替 NPU 功能验证或 S3。
+当前环境必须执行静态检查、`--help`、数据 fixture 或 dry-run。CPU 精度对照
+是否需要按"基线证据按可比性分层"决定；不能用 CPU smoke 代替 NPU 功能验证或 S3。
 
 #### 11.1 先做轻量静态验证
 
@@ -1096,7 +1266,7 @@ python <model_dir>/infer.py --device cpu <model_args> <input_args>
 
 1. **原始模型测试集是什么**：记录官方/论文/模型卡/README 使用的数据集、config、split、样本数或时长、manifest 生成方式、测试数据下载来源。
 2. **原始模型指标是多少**：记录官方公开指标、metric、normalizer/后处理、decode/推理参数、checkpoint/版本、硬件和来源链接。
-3. **NPU 如何对齐原始结果**：同 checkpoint、同测试集或同一固定 manifest、同官方或等价评测脚本、同推理参数下，优先直接比较官方/公开基线与 NPU 结果；公开基线不可比或 patch 风险较高时，再补应用 patch 后的 CPU/CUDA 同设备回归。通过线必须与实际证据类型一致。
+3. **NPU 如何对齐原始结果**：同 checkpoint、同测试集或同一固定 manifest、同官方或等价评测脚本、同推理参数下，优先直接比较官方/公开基线与 NPU 结果；公开基线不可比或 patch 风险较高时，再补 CPU 精度对照（复用同一环境，`--device cpu`）。通过线必须与实际证据类型一致。CUDA 对照组为可选增强，不作为验收强制要求。
 
 如果官方没有发布正式测试集或指标，必须在 `ACCEPTANCE_PLAN.md` 中明确写“官方未发布测试集/指标”，并说明当前只能使用官方示例、公开替代集或内部固定集做迁移对齐；不得编造官方指标，也不得把内部集、人工抽检、第三方榜单或 smoke test 说成原始模型官方结果。
 
@@ -1120,8 +1290,8 @@ python <model_dir>/infer.py --device cpu <model_args> <input_args>
 - **功能验证**：固定最小真实样例，覆盖核心入口、主要功能开关和输出结构；
 - **L2 正式验收**：使用可获取公开数据或内部固定集，计算原始模型主要精度/质量指标；
 - **功能矩阵**：覆盖所有核心任务、语言/模态、batch、长输入、异常输入；
-- **精度/质量验收**：优先围绕原始测试集和原始指标设计；指标、normalizer/后处理、CPU/CUDA 原始路径 vs NPU 对齐阈值、对官方/公开精度指标的允许差异必须写清楚；
-- **性能验收**：在 L2 同一数据或固定性能 manifest 上记录 latency、throughput、RTF/RTFx、tokens/s、峰值 HBM/RSS 等适用指标；官方有公开硬件结果时按官方配置对齐，否则报告 NPU 绝对结果，并在需要或可行时补同设备相对比较；
+- **精度/质量验收**：优先围绕原始测试集和原始指标设计；指标、normalizer/后处理、与公开/官方指标对齐阈值、必要时 CPU 精度对照（`--device cpu`）阈值、对官方/公开精度指标的允许差异必须写清楚；
+- **性能验收**：在 L2 同一数据或固定性能 manifest 上记录 latency、throughput、RTF/RTFx、tokens/s、峰值 HBM/RSS 等适用指标；官方有公开硬件结果时按官方配置对齐，否则报告 NPU 绝对结果（至少 3 次取中位数），不使用 CPU 性能数据推断加速比；
 - **最低正式验收清单**：资源受限时也必须执行的最小集合；
 - **报告模板**：环境、功能、L2 精度/质量、L2 性能和结论。
 
@@ -1130,7 +1300,8 @@ python <model_dir>/infer.py --device cpu <model_args> <input_args>
 示例判定原则：
 
 - NPU 适配本身优先要求同 checkpoint、同数据、同脚本下对齐原始公开/官方指标；
-  无法直接比较时，使用 patch 后同设备 CPU/CUDA 结果校准；
+  无法直接比较时，使用 CPU 精度对照（`--device cpu`，复用同一环境）校准；
+  CUDA 对照组为可选增强，不作为验收强制要求；
 - 只有使用原始公开数据全量、官方或等价评测脚本、匹配解码/后处理配置时，才可宣称复现原始公开指标；
 - 只有性能数据的硬件、精度、batch、输入输出长度和计时口径一致时，才可与官方
   性能表直接比较；否则报告 NPU 绝对结果，并在可行时补充本地同设备相对结果；
@@ -1235,8 +1406,8 @@ ACCEPTANCE_PLAN.md
 #### ACCEPTANCE_PLAN.md：验收方案与结果
 
 - 记录原始模型功能、测试集、官方/公开精度指标、normalizer/后处理、decode 参数、checkpoint 和来源；
-- 记录数据准备和评测方案、固定 manifest、CPU/CUDA/NPU 对齐方式、功能验证、L2、功能矩阵、精度/质量与性能标准、最低验收清单和报告模板；
-- 正式验收完成后，在同一文档补充实际 NPU 结果、与原始/CPU/CUDA 结果的差异、结论和经验，不另建专项评测或案例总结文档。
+- 记录数据准备和评测方案、固定 manifest、NPU 与官方/公开指标对齐方式、必要时 CPU 精度对照、功能验证、L2、功能矩阵、精度/质量与性能标准、最低验收清单和报告模板；
+- 正式验收完成后，在同一文档补充实际 NPU 结果、与原始/公开指标或 CPU 精度对照结果的差异、结论和经验，不另建专项评测或案例总结文档。
 - 必须包含“最低正式验收清单”；清单项要能指向命令或产物，不能只有抽象描述。
 
 #### 文档收敛原则
@@ -1287,7 +1458,7 @@ MODEL_CHECK_ONLY=1 <model_dir>/scripts/download_weights.sh <weights_dir>
 <model_dir>/scripts/download_test_data.sh <test_data_dir>
 <inspect_test_data_command>
 
-# 7. 当前环境轻量验证；如 CPU/CUDA 回归为必需项，执行同设备回归
+# 7. 当前环境轻量验证；如 CPU 精度对照为必需项，执行 --device cpu
 python3 <model_dir>/infer.py --help
 python3 <model_dir>/infer.py --device cpu <model_args> <input_args>
 
@@ -1332,7 +1503,7 @@ python3 tools/audit_model_delivery.py <model_dir> \
 | install/import | Python、框架版本、关键 import、NPU tensor/provider |
 | weights | revision、文件清单、大小、SHA 或 metadata check |
 | data | 下载/复用日志、manifest/meta、样本数、时长/字段 |
-| baseline | 官方/公开来源；若本地回归为必需项，再附独立命令和输出 |
+| baseline | 官方/公开来源；若需要 CPU 精度对照，再附独立命令和输出 |
 | NPU | 命令、独立输出、实际 device/provider |
 | compare | 比较脚本输出、退出码、阈值来源 |
 | report | 当前 S0-S4 状态和未完成项 |
@@ -1354,8 +1525,7 @@ clean-room 审查必须特别寻找：
 - 功能验证和 L2 声明样本数是否与实际文件或生成 metadata 一致；
 - vLLM JSON/嵌套配置是否误写为 CLI 点号参数；
 - 外部数据集、evaluator 和 agent 仓库 clone 后是否 checkout 固定 commit；
-- 有 patch 的模型是否真实保留原始、patch 后同设备、NPU 三个独立工作目录或
-  可重复恢复步骤；仅当本模型已选择或被要求进行本地三组对照时适用。
+- 有 patch 的模型是否保留 patch 前后可重复恢复步骤；仅当本模型已选择或被要求进行本地多组对照时适用。
 - README 目录树和命令引用的候选文件是否真实存在；
 - README 是否引用了未进入候选目录的内部证据；
 - 许可证、版权头、`modelzoo_level.txt`、自测试入口等当前 PR 门禁是否逐项核对，
@@ -1375,7 +1545,7 @@ clean-room 审查必须特别寻找：
 | 环境可安装 | clean-room 安装和 import 输出 | 已证实/缺失 |
 | 数据可准备 | manifest/meta 和可读性输出 | 已证实/缺失 |
 | 原始 baseline | 官方/公开来源及可比性 | 已证实/缺失 |
-| patch 回归 | 风险判断；若强制则提供同设备结果 | 已证实/不适用/缺失 |
+| patch 回归 | 风险判断；若需要则提供 CPU 精度对照结果 | 已证实/不适用/缺失 |
 | NPU 对齐 | NPU 结果和 compare 报告 | 已证实/缺失 |
 | 正式指标 | L2 evaluator 输出 | 已证实/缺失 |
 | L2 性能 | NPU 性能日志；必要时含同设备对照 | 已证实/缺失 |
@@ -1400,6 +1570,8 @@ clean-room 审查必须特别寻找：
 - [ ] 已记录目标仓最新 commit、拟合入路径、同名目录处理和参考模型；
 - [ ] 参考模型已按最后实质变更时间排序，并记录参考目录的 commit/date；
 - [ ] 已列出正式上库文件清单，README 不依赖被排除的内部证据；
+- [ ] 环境数据下载命令优先使用 `wget`/`curl`（`pip install` 走内部镜像不受此限），若使用 Python 下载器已提供等价离线替代命令；推理/评测脚本不含运行时自动下载；
+- [ ] site-packages 内第三方库补丁定位包路径使用 `importlib.util.find_spec()`（非 `import <pkg>` + `__file__`），补丁应用命令可直接复制执行；
 - [ ] 已完成上游许可证、文件版权头、数据/权重链接和当前目标仓 PR 门禁核对；
 - [ ] 已从独立候选目录完成最低正式路径 clean-room 重放；
 - [ ] 只有达到 S3 且上库门禁全部通过时，才标记“上库候选就绪”。

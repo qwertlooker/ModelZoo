@@ -115,7 +115,7 @@ NPU/CANN 运行环境和模型权重，因此真实 NPU 数值、性能和官方
 - 推理入口建议统一命名为 `infer.py` 或 `infer_npu.py`；评测入口建议统一命名为 `eval_*.py` 或 `benchmark.py`；数据准备入口建议统一命名为 `prepare_eval_data.py`。
 - 数据准备必须支持“指定目录、存在即复用、缺失才下载、`--offline` 下不联网”。
 - 权重下载必须写明官方 URL/ModelScope/Hugging Face 模型名、目标目录和完整性校验方式。
-- 精度/性能对比不能只写“跑通”，必须写明对比对象：同 checkpoint、同数据、同评测脚本下的 CPU/CUDA/源仓结果。
+- 精度/性能对比不能只写"跑通"，必须写明对比对象：同 checkpoint、同数据、同评测脚本下，优先与公开/官方指标对比；无公开指标时与 CPU 精度对照结果对比（`--device cpu`，复用同一环境）；性能以 NPU 实测为准，不使用 CPU 性能数据推断加速比。
 - 不添加未验证的 CPU fallback、远程下载 fallback、非官方指标替代官方指标；缺失依赖或缺失官方字段应快速失败并暴露原始错误。
 
 ### 0.4 FlashAttention / SDPA 适配结论
