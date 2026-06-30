@@ -14,8 +14,9 @@ import json
 import re
 import sys
 import time
+import urllib.request
 import urllib.parse
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 import requests
@@ -39,6 +40,13 @@ class Note:
     title: str
     author: str
     body: str
+
+
+@dataclass
+class PrRecord:
+    detail: dict
+    touched_paths: list[str] = field(default_factory=list)
+    matched_paths: list[str] = field(default_factory=list)
 
 
 def clean_text(text: str) -> str:
@@ -99,6 +107,36 @@ def fetch_pr(session: requests.Session, base: str, repo: str, pr: int, headers: 
     return detail, notes
 
 
+
+def fetch_diff_paths(base: str, repo: str, pr: int, timeout: int = 30) -> list[str]:
+    """Return changed file paths from a public .diff URL, best effort."""
+    url = f"{base}/{repo}/pull/{pr}.diff"
+    req = urllib.request.Request(url, headers={"User-Agent": "ascend-model-adapter/1.0"})
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            text = resp.read().decode("utf-8", errors="replace")
+    except Exception:
+        return []
+    paths: list[str] = []
+    for m in re.finditer(r"^diff --git a/(.*?) b/(.*?)$", text, flags=re.M):
+        path = m.group(2)
+        if path not in paths:
+            paths.append(path)
+    return paths
+
+
+def match_paths(touched: list[str], required: list[str]) -> list[str]:
+    if not required:
+        return []
+    out: list[str] = []
+    normalized = [p.rstrip("/") for p in required]
+    for path in touched:
+        for prefix in normalized:
+            if path == prefix or path.startswith(prefix + "/"):
+                if prefix not in out:
+                    out.append(prefix)
+    return out
+
 def classify(notes: list[Note]) -> dict[str, list[Note]]:
     groups: dict[str, list[Note]] = collections.defaultdict(list)
     for note in notes:
@@ -118,13 +156,19 @@ def classify(notes: list[Note]) -> dict[str, list[Note]]:
     return groups
 
 
-def render_markdown(details: list[dict], notes: list[Note]) -> str:
+def render_markdown(records: list[PrRecord], notes: list[Note], required_paths: list[str] | None = None) -> str:
     lines = ["# GitCode PR review sample", ""]
+    details = [r.detail for r in records]
     lines.append(f"Sampled PRs: {', '.join('#'+str(d.get('iid')) for d in details if d.get('iid'))}")
     lines.append("")
-    lines += ["## PR details", "", "| PR | Title | Discussions |", "|---:|---|---:|"]
-    for d in details:
-        lines.append(f"| {d.get('iid','')} | {str(d.get('title','')).replace('|','\\|')} | {d.get('_discussion_total','')} |")
+    lines += ["## PR details", "", "| PR | Title | Discussions | Path match |", "|---:|---|---:|---|"]
+    for r in records:
+        d = r.detail
+        if required_paths:
+            match = ", ".join(r.matched_paths) if r.matched_paths else "UNVERIFIED"
+        else:
+            match = "not checked"
+        lines.append(f"| {d.get('iid','')} | {str(d.get('title','')).replace('|','\\|')} | {d.get('_discussion_total','')} | {match} |")
     lines.append("")
     counts = collections.Counter()
     for note in notes:
@@ -155,6 +199,8 @@ def main() -> int:
     ap.add_argument("--repo", default=DEFAULT_REPO)
     ap.add_argument("--base", default=DEFAULT_BASE)
     ap.add_argument("--prs", nargs="+", type=int, required=True, help="PR numbers to sample")
+    ap.add_argument("--paths", nargs="*", default=[], help="Sampled ModelZoo paths that each PR should touch, e.g. ACL_PyTorch/built-in/cv/F3Net")
+    ap.add_argument("--require-path-match", action="store_true", help="Fail if any sampled PR does not touch one of --paths")
     ap.add_argument("--out", type=Path, default=None, help="Markdown output path")
     ap.add_argument("--json-out", type=Path, default=None, help="Raw notes JSON output path")
     args = ap.parse_args()
@@ -166,21 +212,29 @@ def main() -> int:
         "X-Requested-With": "XMLHttpRequest",
     }
     session = requests.Session()
-    details: list[dict] = []
+    records: list[PrRecord] = []
     notes: list[Note] = []
+    bad: list[int] = []
     for pr in args.prs:
         detail, pr_notes = fetch_pr(session, args.base, args.repo, pr, headers)
-        details.append(detail)
+        touched = fetch_diff_paths(args.base, args.repo, pr) if args.paths else []
+        matched = match_paths(touched, args.paths)
+        if args.paths and not matched:
+            bad.append(pr)
+        records.append(PrRecord(detail=detail, touched_paths=touched, matched_paths=matched))
         notes.extend(pr_notes)
         time.sleep(0.1)
-    md = render_markdown(details, notes)
+    if bad and args.require_path_match:
+        print(f"error: PRs without sampled path match: {bad}", file=sys.stderr)
+        return 3
+    md = render_markdown(records, notes, args.paths)
     if args.out:
         args.out.parent.mkdir(parents=True, exist_ok=True)
         args.out.write_text(md, encoding="utf-8")
     else:
         print(md)
     if args.json_out:
-        args.json_out.write_text(json.dumps([note.__dict__ for note in notes], ensure_ascii=False, indent=2), encoding="utf-8")
+        args.json_out.write_text(json.dumps({"records": [r.__dict__ for r in records], "notes": [note.__dict__ for note in notes]}, ensure_ascii=False, indent=2), encoding="utf-8")
     return 0
 
 

@@ -10,7 +10,7 @@ description: 将 Hugging Face、GitHub、PyTorch、ONNX、Paddle、vLLM、TorchA
 ## 工作方式
 
 1. **确定模型与目标目录**：确认模型 URL、模型名、任务类型、目标目录、目标芯片、数据集/指标、是否允许下载权重和数据。
-2. **参考最新 ModelZoo 样本**：运行 `scripts/modelzoo_sampler.py --count 20 --clone --out /tmp/modelzoo_samples.md`；优先读取与当前任务同类型、且最近合入的 README、patch、requirements、导出/推理脚本。若 PR discussion 可访问，可用 `scripts/gitcode_pr_review_sampler.py --prs <PR号...>` 抽取检视意见；网络失败时读取 `references/modelzoo-sampling.md`。
+2. **参考最新 ModelZoo 样本**：运行 `scripts/modelzoo_sampler.py --count 20 --clone --out /tmp/modelzoo_samples.md`；优先读取与当前任务同类型、且最近合入的 README、patch、requirements、导出/推理脚本；需要写源码补丁时同时读取 `references/patch-modification-patterns.md`；如果本地已有完整/扩大 checkout，可运行 `scripts/patch_pattern_miner.py <ACL_PyTorch/built-in> --out /tmp/modelzoo_patch_patterns.md` 扩大 patch 参考范围。PR 检视意见只从这些已采样目录对应的上库 PR 中抽取：优先使用 sampler 表格里的 PR 号，并用 PR diff/变更文件确认触达该 `ACL_PyTorch/built-in/<category>/<model>` 路径；无法确认路径对应关系的 PR 只能作为“补充风格参考”，不得当作该模型样本的审查依据。可用 `scripts/gitcode_pr_review_sampler.py --prs <PR号...> --paths <采样目录...>` 抽取并校验；网络失败时读取 `references/modelzoo-sampling.md`。
 3. **确定适配路线并生成工程**：按模型结构直接选择 `onnx-om`、`torch-npu`、`torchair`、`vllm-ascend` 或拆图混合路线。新项目可用 `python scripts/scaffold_adapter.py <model_url> <project_dir> --category <category> --route <route>` 生成脚手架。
 4. **实现 baseline、导出、转换和推理**：按下面“适配流程”补齐源码 patch、CPU/upstream baseline、Ascend 推理脚本、精度脚本和性能脚本。
 5. **整理上库材料**：读取 `references/output-contract.md`，按 ModelZoo 风格完成 README、requirements、patch、脚本、日志、结果表和 checklist。
@@ -26,9 +26,10 @@ description: 将 Hugging Face、GitHub、PyTorch、ONNX、Paddle、vLLM、TorchA
 - 看到 vLLM/TorchAir/服务化模型时，默认提供服务启动命令、客户端命令、预热/编译缓存说明、并发配置和端到端性能口径。
 - 看到离线部署或多权重依赖时，默认写清权重清单、目录树、下载源、缓存方式和最小验证数据。
 - 看到首次编译、CPU 回退、长时间 ATC、环境隔离、patch 只能执行一次等情况时，默认写入 README 的 FAQ/注意事项。
-- 上库前默认按近期 PR 检视口径自查：精度数据是否可复现、性能单位是否匹配任务、芯片/机器型号是否准确、上游 commit 是否固定、权重与配置是否成套、外部数据文件是否说明来源、debug code/重复文档/残留 import 是否清理。
+- 写源码 patch 时默认采用参考 patch 的最小化模式：设备选择参数化、推理后端只替换核心调用、保留原预后处理、对不支持算子用等价表达/拆图/明确 CPU fallback，并保证 `git apply --check` 可复现。
+- 上库前默认按“已采样目录对应上库 PR”的检视口径自查：精度数据是否可复现、性能单位是否匹配任务、芯片/机器型号是否准确、上游 commit 是否固定、权重与配置是否成套、外部数据文件是否说明来源、debug code/重复文档/残留 import 是否清理。若 PR 与采样目录没有可验证路径对应关系，只吸收通用 CI/文档风格，不作为模型特定证据。
 
-详细启发式见 `references/adaptation-heuristics.md`；上库前审查口径见 `references/pr-review-heuristics.md`。这些参考只用于影响实现和文档写法，不作为额外交付物。
+详细启发式见 `references/adaptation-heuristics.md`；patch 修改模式见 `references/patch-modification-patterns.md`；上库前审查口径见 `references/pr-review-heuristics.md`。这些参考只用于影响实现和文档写法，不作为额外交付物。
 
 ## 环境原则
 

@@ -1,6 +1,6 @@
 # PR 检视启发式
 
-来源：抽样读取 GitCode `Ascend/ModelZoo-PyTorch` 近期合入 PR 的 discussions、CI 机器人评论、AI summary/AI review 和人工检视意见。样本包括 GraspNet #7630、InstantID #7624、PromptIR #7623、YingMusic-SVC #7609、F3Net #7610、IsaacGR00T #7616、SAM2 #7613、FocalFormer3D #7595、chronos-2 #7581、SAM3 #7604、Canary-1B #7592、PaddleOCR-VL/PP-DocLayout #7594、vla/pi0 #7590、Chinese_CLIP #7537、Index-TTS-vLLM-v2 #7579、D-FINE #7573、Fun-ASR-Nano #7556、Buffalo_l #7538、RT-DETRv2 #7553 等。
+来源规则：只把“已采样 ModelZoo 目录对应的上库 PR”作为主要检视样本。对应关系必须来自目录页 PR 信号，或 PR diff/变更文件中能看到相同 `ACL_PyTorch/built-in/<category>/<model>` 路径。未能验证路径对应关系的近期 PR，不写成该样本来源；最多作为通用 CI/README 风格的补充参考。
 
 这些不是额外交付步骤，而是生成适配工程时要默认规避的 review 问题。
 

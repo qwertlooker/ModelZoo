@@ -10,8 +10,8 @@
 
 ## 源码 patch
 
-- 大多数适配项目都有 patch。常见修改点：设备选择、CUDA 假设、custom op、导出脚本、attention/位置编码、数据加载、后处理、评测脚本。
-- patch 要基于固定 commit，README 写明应用位置和 `git apply --check`。如果 patch 只能执行一次，写入 FAQ。
+- 大多数适配项目都有 patch。常见修改点：设备选择、CUDA 假设、custom op、导出脚本、attention/位置编码、数据加载、后处理、评测脚本。详细修改模式见 `patch-modification-patterns.md`。
+- patch 要基于固定 commit，README 写明应用位置和 `git apply --check`。如果 patch 只能执行一次，写入 FAQ。默认保持最小补丁：只改适配必需路径，不把调试输出、本地路径、无关重构带入。
 - 遇到 `cuda`、`torch.cuda`、`USE_CUDA`、CUDA extension、`setup.py` 编译扩展时，优先改为 NPU 等价路径；不能改的部分标明 CPU fallback。
 
 ## ONNX 与 OM
