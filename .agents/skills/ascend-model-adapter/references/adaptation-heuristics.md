@@ -43,16 +43,23 @@
 - 对每个组件检查：是否有 PyTorch 实现、能否 `.to(device)` 迁移到 NPU、是否有不支持算子、是否被硬编码到 ONNX/TF/Paddle/OpenVINO 等后端、是否有等价 PyTorch 路径。
 - CPU fallback 必须有具体技术阻塞，不能只因为上游默认 CPU-only 后端就照搬。
 
+## 源仓指标对齐
+
+- 上游 README、论文、release notes、benchmark 脚本、评测日志中已有 accuracy/performance 数据时，默认把这些数据作为 NPU 适配后的首选对齐目标。
+- 对齐前记录：checkpoint/权重版本、数据集或子集、输入规格、batch/并发、随机种子、预处理/后处理、metric、warmup/loop、是否包含数据加载/后处理/首次编译。
+- NPU 结果优先复用上游评测/benchmark 脚本或 patch 后的同一入口；不能复用时，README 必须解释差异，不能直接换成更容易或更好看的口径。
+- 若硬件不同导致性能不可直接比较，仍保留源仓数据作为参考基线，并明确写“硬件/口径不同，不直接比较”；同时给出 NPU 可复现命令和结果。
+
 ## 精度指标
 
-- 默认复用原始项目的官方 metric、数据集和预处理后处理。
+- 默认复用原始项目的官方 metric、数据集和预处理后处理；源仓已有 accuracy 表或评测命令时，优先对齐该表/命令。
 - 若官方评测不可复现，用 CPU/upstream baseline 与 NPU 对齐，并说明替代原因。
 - 常见任务口径：分类 top-1/top-5，检测 mAP，分割 IoU/mIoU，OCR/VLM 用官方 end-to-end 指标，ASR 用 WER/CER/BLEU，TTS/音频生成同时给样例和 RTF/RTFx，embedding/reranker 用检索或排序指标，LLM/VLM 服务用任务评测或语义一致性样例。
 - 指标计算方式不同则不与官方直接比较。
 
 ## 性能指标
 
-- 优先复用原始项目或同类 ModelZoo 样本的性能口径。
+- 优先复用原始项目已有 benchmark/performance 口径或同类 ModelZoo 样本口径；源仓有 benchmark 脚本时优先 patch 后在 NPU 运行。
 - OM 纯模型默认 `ais_bench` latency/FPS；服务模型默认 QPS、tokens/s、端到端 latency；音频默认 RTF/RTFx；pipeline 默认同时给纯模型和端到端。
 - 每个性能表都写芯片、batch/并发、输入规格、精度模式、warmup、loop、工具、是否包含数据加载/后处理/CPU fallback。
 

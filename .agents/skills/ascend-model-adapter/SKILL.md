@@ -20,6 +20,7 @@ description: 将 Hugging Face、GitHub、PyTorch、ONNX、Paddle、vLLM、TorchA
 这些规则不要作为用户交付物单独输出，而要在写脚本、README 和 patch 时自然体现：
 
 - 看到上游 `requirements.txt` 可能安装 `torch/torch_npu/torchvision/torchaudio` 时，默认生成过滤版依赖或写明安装顺序，避免破坏 Ascend 镜像内置版本。
+- 看到源仓 README、论文、release、脚本或日志中已有 benchmark、accuracy 或 performance 数据时，默认把这些数据当作 NPU 适配后的优先对齐目标：复用同一 checkpoint、数据集/子集、预处理后处理、batch/并发、metric、warmup/loop 和统计口径；无法复现时必须说明差异。
 - 如果使用者提供了 checkpoint、权重目录或模型包，默认以使用者提供的 artifact 为准；只在它缺失、不成套或无法复现时，才建议替代下载源或官方默认权重，并在 README 写清差异。
 - 看到 `cuda`、`torch.cuda`、CUDA extension、`setup.py` 编译扩展、custom op 时，默认检查是否需要 NPU 等价实现、第三方 Ascend SDK、拆图或明确 CPU fallback。
 - 看到上游硬编码推理后端选择（`onnxruntime`、`tensorrt`、`tf.saved_model`、`paddle.inference`、`OpenVINO` 等）时，默认评估 PyTorch/torch_npu/TorchAir 等价路径是否能让组件部署到 NPU；源码路由 patch 通常比运行时 monkey-patch 更清洁。
@@ -54,7 +55,7 @@ description: 将 Hugging Face、GitHub、PyTorch、ONNX、Paddle、vLLM、TorchA
 ## 适配流程
 
 1. **上游审计**
-   - 固定源码 commit/revision、权重版本、license、模型任务、输入输出、预处理/后处理、评测数据和官方指标；如使用者提供 checkpoint，优先围绕该 checkpoint 确认配置、版本和评测口径。
+   - 固定源码 commit/revision、权重版本、license、模型任务、输入输出、预处理/后处理、评测数据和官方指标；如使用者提供 checkpoint，优先围绕该 checkpoint 确认配置、版本和评测口径。主动查找源仓 README/论文/release/benchmark 脚本/评测日志中的 accuracy 与 performance 数据，并记录原始命令、数据集、batch/并发、输入规格和统计口径。
    - 同时检查依赖是否覆盖镜像栈、是否硬编码 CUDA、是否有 custom op、是否有动态 shape、是否在线下载权重/数据、是否存在多组件流水线。
    - 固定上游 commit，确认模型版本、权重、配置文件成套；如 README 示例使用变体版本，必须解释对应关系。
    - 审计推理后端路由：若上游硬编码 ONNX Runtime、TensorFlow、Paddle inference 等 CPU-only/非 Ascend 后端，先评估是否有 PyTorch/torch_npu/TorchAir 等价路径。
@@ -63,7 +64,7 @@ description: 将 Hugging Face、GitHub、PyTorch、ONNX、Paddle、vLLM、TorchA
    - 目标是最大化 NPU 利用率；CPU fallback 必须有具体阻塞原因，不能只写“上游默认用 CPU/ONNX Runtime”。
 3. **建立 baseline**
    - 实现最小 CPU/upstream 推理，保存样例输入输出、shape、dtype、任务指标或语义输出。
-   - baseline 默认使用上游原始预处理、后处理、数据集和指标；无法跑完整数据集时，至少提供单样例和小集合。
+   - baseline 默认使用上游原始预处理、后处理、数据集、指标和 benchmark 口径；源仓已有结果时，先在 CPU/upstream 或原始后端复现这些结果或解释无法复现原因。无法跑完整数据集时，至少提供与原始口径一致的小集合。
    - 对 ASR/OCR/检测/分割/检索/生成等任务，按原始任务指标计算，不要用“能输出文件/截图”替代精度。
 4. **实现 Ascend 路径**
    - 源码修改统一做成 `diff.patch` 或 `<model>_NPU.patch`，README 写明应用路径、固定 commit、`git apply --check` 和是否可重复执行。
@@ -82,10 +83,10 @@ description: 将 Hugging Face、GitHub、PyTorch、ONNX、Paddle、vLLM、TorchA
 
 ## 精度与性能指标选择
 
-- **Accuracy 默认使用上游原始指标**：优先复用原始项目或论文/官方 README 的评测数据、预处理后处理、metric 和阈值；同类 ModelZoo 样本已有固定口径时，优先保持 ModelZoo 口径一致。
+- **Accuracy 默认使用上游原始指标**：优先复用原始项目或论文/官方 README 的评测数据、预处理后处理、metric 和阈值；如果源仓已经给出 accuracy 数字或评测表，NPU 结果应尽量对齐同一 checkpoint、数据集/子集、随机种子、阈值和脚本口径。同类 ModelZoo 样本已有固定口径时，优先保持 ModelZoo 口径一致。
 - 如果原始指标无法复现，使用同一输入集的 CPU/upstream baseline 与 NPU 输出对齐，并说明替代原因；数值模型给出 atol/rtol 或 cosine similarity，任务模型给出任务指标差异。
 - 不要随意创造更好看的指标。指标口径不同（例如 UVDoc 类样本）时，明确写“不能与官方直接比较”。
-- **Benchmark 默认使用原始项目可比口径**；没有原始性能口径时，按路线选择 ModelZoo 常用口径：OM 用 `ais_bench` latency/FPS，服务模型用 QPS/tokens/s/端到端 latency，音频/TTS/ASR 用 RTF/RTFx 或任务吞吐，pipeline 同时给纯模型和端到端。
+- **Benchmark 默认使用原始项目可比口径**；如果源仓已有性能数据或 benchmark 脚本，NPU 结果应尽量复用同一输入规格、batch/并发、warmup/loop、统计区间、端到端/纯模型定义和单位。没有原始性能口径时，才按路线选择 ModelZoo 常用口径：OM 用 `ais_bench` latency/FPS，服务模型用 QPS/tokens/s/端到端 latency，音频/TTS/ASR 用 RTF/RTFx 或任务吞吐，pipeline 同时给纯模型和端到端。
 - 首次图编译/首次 warmup、数据加载、CPU fallback、后处理耗时要单独说明，不混入稳定纯推理性能。
 - 性能表、脚本输出和 README/PR 描述中的数字与单位必须一致。
 
@@ -106,7 +107,7 @@ description: 将 Hugging Face、GitHub、PyTorch、ONNX、Paddle、vLLM、TorchA
 - 目录符合 `ACL_PyTorch/built-in/<category>/<model>` 风格。
 - 干净 clone + 指定镜像可复现主要命令。
 - 已在目标 Ascend 芯片执行 NPU 推理；CPU-only 只算材料准备完成。
-- 精度与 CPU/官方指标有明确容差或任务指标对比。
-- 性能测试可复现，说明 warmup/loop/batch/并发/输入规格/芯片。
+- 精度与源仓/CPU/官方指标有明确容差或任务指标对比；源仓已有 accuracy 数据时优先对齐源仓口径。
+- 性能测试可复现；源仓已有 benchmark/performance 数据时优先对齐源仓口径，并说明 warmup/loop/batch/并发/输入规格/芯片。
 - 已记录已知问题、限制芯片、长时间编译、custom op、离线下载和依赖冲突。
 - 已通过本地自检避免常见 PR 检视问题：CodeCheck/SCA/Antipoison、模板占位、缺精度数据、缺芯片获取步骤、未固定 commit、性能口径不匹配、外部文件来源不明。
