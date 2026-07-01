@@ -24,7 +24,7 @@
 
 | 类型 | 典型样本 patch | 抽取出的修改模式 | 运行时默认动作 |
 |---|---|---|---|
-| 音频/TTS/vLLM | `Index-TTS-vLLM-v2/*.patch`、`CosyVoice3/diff.patch`、`YingMusic-SVC_for_Pytorch/diff.patch` | CUDA 设备选择改 NPU；vLLM-Ascend 环境变量；speaker/cache 预热；FFT/kaldi/STFT 复数算子拆解；部分音频前处理 CPU fallback | 先查 `torch.cuda`、`torch.fft`、`torchaudio.compliance.kaldi`、vLLM engine 参数；把可缓存的 speaker/style/静态 embedding 缓存；把 CPU fallback 和端到端耗时分开写 |
+| 音频/TTS/vLLM | `Index-TTS-vLLM-v2/*.patch`、`MMAudio/diff_torchaudio_kaldi.patch`、`whisper/whisper_torchair/patches/kaldi.patch`、`YingMusic-SVC_for_Pytorch/diff.patch` | CUDA 设备选择改 NPU；speaker/cache 预热；kaldi/fbank/FFT 的复数取模拆解或局部 CPU fallback；vLLM-Ascend 环境变量 | 先查 `torch.cuda`、`torch.fft`、`torchaudio.compliance.kaldi`、`fft_device` 等信号；参考样本决定保留 NPU、拆 `rfft().abs()`，或显式 CPU fallback；把 CPU fallback 和端到端耗时分开写 |
 | CV/生成/检测 | `InstantID/*.patch`、`D-FINE_NPU.patch`、`F3Net.patch`、`PromptIR.patch` | `torch_npu`/`transfer_to_npu` 注入；`cuda()`/`.to('cuda')` 替换；ONNXRuntime session 替换为 `ais_bench.InferSession`；dtype 从 fp64/bf16 调整到 fp32/fp16；grid/attention 相关算子转 fp16 | 先全局搜索 CUDA 假设和 onnxruntime session；统一设备参数；必要时用 `InferSession.infer` 替换 ORT `session.run`；确保输入 dtype/shape 与 OM 一致 |
 | 3D/机器人/embodied | `FocalFormer3D_for_Pytorch/diff.patch`、`IsaacGR00T/diff.patch`、`GraspNet/*.patch` | custom CUDA op 条件编译；DrivingSDK/NPU op 需要真 NPU tensor；动态 split/attention/视觉静态量缓存；bf16 改 fp16；FFN split/矩阵重排提升 cube 利用率 | 遇 custom op 先判断能否跳过 CUDA build 或绑定 Ascend SDK；不要只依赖 CUDA alias；对视觉/动作模型优先缓存静态 shape、pos-embedding、cu_seqlens |
 | OCR/Paddle/文档 | `PP-DocLayoutV2/3/paddlex.patch`、`UVDoc/*.patch` | PaddleX predictor 注入 OM session；动态 shape `dymshape` 和 `custom_sizes`；长 timeout；MagicONNX API 兼容；后处理/纹理变换张量搬迁 | 对 pipeline 只替换核心 detector/recognizer/VLM 子模型；保留原预后处理；动态 shape 写清 `custom_sizes` 和输入范围；第三方工具 API 变更用最小兼容 patch |
@@ -66,6 +66,12 @@
 - dtype：fp64 常改 fp32；bf16 不支持时改 fp16；grid/attention/sampling 等算子常需 fp16 输入。
 - attention：可用 `torch_npu.npu_fusion_attention`、TorchAir/vLLM-Ascend 编译配置，或把动态 split 改 reshape + 静态缓存。
 - custom op：先判断是否能条件跳过 CUDA extension；必要时绑定 Ascend SDK 或拆子图。不能改的 custom op 要标 CPU fallback，并把性能口径拆开。
+
+### 3b. 音频 fbank/FFT patch 模式
+
+- 搜索信号：`torchaudio.compliance.kaldi.fbank`、`torch.fft.rfft`、`.abs()`、`view_as_real`、`fft_device`、`device.type == "mps"`、`kaldi.py`。
+- 已有样本有三类做法：保留 NPU 并拆 `rfft().abs()`；按 SOC/设备能力局部 CPU fallback；直接把 fbank 放 CPU 后将结果送回 NPU。
+- 写 patch 前先确认实际设备路由，不要仅凭 warning 判断是否 fallback。修改时优先参考 MMAudio/Index-TTS/Whisper/YingMusic 的 patch，保持改动最小，并在 README 性能口径里标明 CPU fallback。
 
 ### 4. 动态 shape 和固定 batch 的处理
 
