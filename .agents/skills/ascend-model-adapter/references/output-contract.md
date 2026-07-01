@@ -43,8 +43,8 @@
    - TorchAir：图编译设置、缓存位置、首次运行编译说明、NPU ID。
    - vLLM-Ascend：镜像 tag、server 启动、显存/环境变量、client 命令。
 9. 推理：NPU 上的精确命令；可行时 patch 上游命令。
-10. 精度验证：数据集、原始/上游指标、源仓已有 accuracy 数据或表格、命令、CPU/官方结果、NPU 结果、容差或 delta。
-11. 性能验证：源仓已有 benchmark/performance 数据、命令/工具、warmup、loop、batch/并发、精度模式、latency/FPS/QPS/RTF、芯片。
+10. 精度验证：数据集、原始/上游指标、源仓已有 accuracy 数据或表格、命令、CPU/upstream 替代 baseline（仅在无源仓精度时）、NPU 结果、容差或 delta。
+11. 性能验证：源仓已有 benchmark/performance 数据、NPU 命令/工具、warmup、loop、batch/并发、精度模式、latency/FPS/QPS/RTF、芯片；不默认要求 CPU 性能对比。
 12. FAQ/已知问题：unsupported ops、ATC 长时间编译、依赖冲突、离线下载、CPU fallback 原因、patch 排障。
 13. 公网地址说明：引用外部 URL 时提供。
 
@@ -55,8 +55,8 @@
 
 ## 指标选择
 
-- 精度：尽量使用上游原始指标、数据集 split、预处理、后处理和阈值。源仓已有 accuracy 数据时，NPU 结果优先对齐同一 checkpoint、数据集/子集、随机种子和评测脚本口径。若原始指标无法复现，则在相同输入上对比 NPU 与 CPU/upstream baseline，并说明替代原因。
-- 性能：优先使用原始项目已有 benchmark/performance 脚本和可比性能指标，尽量对齐输入规格、batch/并发、warmup/loop、统计区间、端到端/纯模型定义和单位。否则按路线采用常用口径：OM 用 `ais_bench` latency/FPS，vLLM 服务用 QPS/tokens/s/latency，音频用 RTF/RTFx，pipeline 同时报告纯模型和端到端 latency。
+- 精度：尽量使用上游原始指标、数据集 split、预处理、后处理和阈值。源仓已有 accuracy 数据时，NPU 结果优先对齐同一 checkpoint、数据集/子集、随机种子和评测脚本口径。只有在源仓没有可复现 accuracy/官方指标或原始指标无法复现时，才在相同输入上对比 NPU 与 CPU/upstream baseline，并说明替代原因。
+- 性能：优先使用原始项目已有 benchmark/performance 脚本和可比性能指标，尽量对齐输入规格、batch/并发、warmup/loop、统计区间、端到端/纯模型定义和单位。性能结果只要求 NPU 可复现，不默认采集或比较本地 CPU 性能。否则按路线采用常用口径：OM 用 `ais_bench` latency/FPS，vLLM 服务用 QPS/tokens/s/latency，音频用 RTF/RTFx，pipeline 同时报告纯模型和端到端 latency。
 - 始终说明 warmup、loop 次数、batch/并发、输入 shape、精度模式、芯片，以及是否包含首次编译或 CPU fallback。
 
 ## 容器命令模板
@@ -99,7 +99,8 @@ python3 -c "import torch, torch_npu; print(torch.__version__, torch_npu.__versio
 - [ ] 上游 URL 与 commit/revision 已固定。
 - [ ] 许可证与再分发限制已检查。
 - [ ] 容器镜像和宿主机 driver/CANN 兼容性已说明。
-- [ ] CPU/upstream baseline 输出或指标已记录；源仓已有 accuracy/performance 数据时，已记录原始口径和 NPU 对齐结果或差异说明。
+- [ ] 精度证据已记录：优先源仓 accuracy/官方指标；无可复现源仓精度时才记录 CPU/upstream baseline 与 NPU 对齐。
+- [ ] 性能证据已记录：源仓已有 benchmark/performance 数据时，已记录原始口径、NPU 对齐结果或差异说明；未默认要求 CPU 性能对比。
 - [ ] 如适用，ONNX 导出成功且记录 ONNX checker/simplifier 结果。
 - [ ] 如适用，ATC 成功且记录 `.om` 产物路径。
 - [ ] NPU 单样例推理成功。

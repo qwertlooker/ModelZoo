@@ -32,14 +32,14 @@
 
 - 默认要求有精度验证数据；不能只写“推理正常”。
 - 精度对比优先基于论文、官方公开数据集或 ModelZoo 同类可复现数据集；如果源仓 README/论文/release 已给出 accuracy 表，默认要求说明 NPU 结果是否按同一 checkpoint、数据集和 metric 对齐。
-- 如果无法使用官方指标，必须说明原因，并保证 CPU/upstream 与 NPU 使用同一评测脚本、同一数据划分、同一随机种子/阈值/top-k/IoU 策略。
+- 如果无法使用官方指标或源仓没有可复现 accuracy，必须说明原因；此时才使用 CPU/upstream 与 NPU 对齐，并保证同一评测脚本、同一数据划分、同一随机种子/阈值/top-k/IoU 策略。
 - 对 ASR 等任务，推理结果写文件不等于精度；必须单独计算 WER/CER/BLEU 等任务指标，并给出计算命令。
 - 生成/多模态/机器人模型至少提供可复现的小集合评测或语义/数值对齐说明；不要只贴截图。
 - Pipeline 模型若有 CPU fallback，必须说明具体技术阻塞（纯 NumPy/SciPy 算法、NPU 不支持算子、框架限制等）；不能只写“上游默认用 ONNX Runtime/CPU”。若有 PyTorch 等价路径，应优先评估 NPU 化。
 
 ## 性能检视
 
-- 性能指标必须符合任务：ASR/TTS/音频默认 RTF/RTFx 或音频时长归一化指标；检测/分类/OM 默认 latency/FPS；服务模型默认 QPS/tokens/s/latency。源仓已有 benchmark/performance 数据时，reviewer 会关注是否复用了同一 benchmark 口径，或是否解释了硬件/输入/batch/统计差异。
+- 性能指标必须符合任务：ASR/TTS/音频默认 RTF/RTFx 或音频时长归一化指标；检测/分类/OM 默认 latency/FPS；服务模型默认 QPS/tokens/s/latency。源仓已有 benchmark/performance 数据时，reviewer 会关注是否复用了同一 benchmark 口径，或是否解释了硬件/输入/batch/统计差异；不会默认要求本地 CPU 性能对比。
 - 指标单位要明确，性能表不要混淆 ms、s、FPS、RTF、QPS。
 - 端到端耗时和纯模型耗时分开；包含数据加载、后处理、CPU fallback、首次编译时必须单列说明。
 - 若更新性能结果，README 表格、脚本输出、PR 描述中的数字要一致。
