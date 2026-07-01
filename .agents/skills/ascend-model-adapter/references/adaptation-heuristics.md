@@ -7,12 +7,17 @@
 - 近期样本多次强调不要在 Ascend 镜像中重装 `torch`/`torch_npu`。处理上游 requirements 时，默认过滤或固定会覆盖镜像栈的包。
 - `torch_npu` 导入的 `undefined symbol`、`aclruntime` wheel ABI、Python 版本不匹配通常是版本栈问题，先查环境再改模型。
 - Paddle、vLLM、TorchAir、DrivingSDK、OpenCV、tesseract 等依赖容易互相冲突；多组件流水线默认允许拆环境。
+- 使用者提供 checkpoint、权重目录或模型包时，默认以该 artifact 为准；只在文件缺失、配置不成套或无法复现时建议替代权重，并记录差异。
+- PyTorch 2.6+ 的 `torch.load` 默认安全策略会使用 `weights_only=True`；可信旧 checkpoint 若包含自定义类并触发 `UnpicklingError`，可 patch 为 `weights_only=False`，但必须确认来源可信。lightning/pyannote 等框架自带 load 包装也要同步检查。
+- torchaudio 2.9+ 的 `torchaudio.load` 会改用 TorchCodec，`backend` 参数会被忽略；Ascend 镜像中若因 torchcodec/FFmpeg/ABI 失败，直接改用 `soundfile`/`librosa` 读写音频。
 
 ## 源码 patch
 
 - 大多数适配项目都有 patch。常见修改点：设备选择、CUDA 假设、custom op、导出脚本、attention/位置编码、数据加载、后处理、评测脚本。详细修改模式见 `patch-modification-patterns.md`。
 - patch 要基于固定 commit，README 写明应用位置和 `git apply --check`。如果 patch 只能执行一次，写入 FAQ。默认保持最小补丁：只改适配必需路径，不把调试输出、本地路径、无关重构带入。
 - 遇到 `cuda`、`torch.cuda`、`USE_CUDA`、CUDA extension、`setup.py` 编译扩展时，优先改为 NPU 等价路径；不能改的部分标明 CPU fallback。
+- 优先 patch 上游推理/评测脚本：如果上游已有入口，通过 patch 增加 NPU 设备参数；只有上游没有统一入口或需要组合多个子模块时才新增脚本。
+- 推理后端路由 patch：当上游根据配置硬编码 ONNX Runtime、TF SavedModel、Paddle inference、OpenVINO 等后端时，先评估同一项目内是否有 PyTorch 等价类可迁移到 NPU。在 ModelZoo Ascend 默认 PyTorch/torch_npu 适配场景中，ONNX Runtime 通常不能直接驱动 Ascend NPU，容易退化为 CPU 路径。
 
 ## ONNX 与 OM
 
@@ -22,7 +27,7 @@
 
 ## 推理运行
 
-- OM 路线默认提供 `infer_npu.py` 和可用 `ais_bench` 的 benchmark；TorchAir/vLLM 路线默认提供服务启动、客户端脚本、编译缓存和并发说明。
+- OM 路线默认提供导出/转换与可用 `ais_bench` 的 benchmark 说明；推理入口优先 patch 上游脚本，确需新增时使用单一脚本和 `--device npu/cpu` 参数，不默认拆成 `infer_cpu.py`/`infer_npu.py`。TorchAir/vLLM 路线默认提供服务启动、客户端脚本、编译缓存和并发说明。
 - vLLM/TorchAir 首次图编译耗时不能直接算入稳定性能，除非表格单独标明。
 - 若 pipeline 中存在 CPU 回退，性能结果要拆分纯 NPU 子模型与端到端耗时。
 
@@ -31,6 +36,12 @@
 - 多权重模型默认写权重清单、来源、目录树、离线缓存方式。
 - 大数据集默认写容量、分包和最小验证子集；缺文件会导致评测阶段失败。
 - 评测依赖和推理依赖可分开，例如 `requirements_eval.txt`。
+
+## Pipeline 组件部署分析
+
+- 多组件流水线（diarization、OCR、VLM、TTS、检测+识别等）默认逐组件评估 NPU 可行性。
+- 对每个组件检查：是否有 PyTorch 实现、能否 `.to(device)` 迁移到 NPU、是否有不支持算子、是否被硬编码到 ONNX/TF/Paddle/OpenVINO 等后端、是否有等价 PyTorch 路径。
+- CPU fallback 必须有具体技术阻塞，不能只因为上游默认 CPU-only 后端就照搬。
 
 ## 精度指标
 

@@ -39,6 +39,20 @@
 - 搜索：`cuda`、`.cuda()`、`torch.cuda`、`device='cuda'`、`accelerator='gpu'`、`map_location`、`set_device`。
 - 默认模式：先尝试 `import torch_npu`，若 `torch.npu.is_available()` 则使用 `npu:<id>`，否则保持 CUDA/CPU fallback；NPU 验证脚本中显式 `torch.npu.set_device`。
 - 对 Lightning/第三方框架保守处理：如果框架仍使用 `accelerator='gpu'` 才能触发 transfer shim，README 写清原因，不要盲目改成不存在的 `accelerator='npu'`。
+- 设备选择优先参数化：通过 `--device`、`--device-id` 或环境变量暴露 CPU/NPU 切换，使 CPU baseline 和 NPU 推理尽量共用同一入口。
+
+### 1b. 推理后端路由 patch
+
+- 问题模式：上游代码按关键字或配置硬编码选择 ONNX Runtime、TF SavedModel、Paddle inference、OpenVINO 等后端，使组件无法走 torch_npu/TorchAir。
+- 修改模式：优先查找同一项目内 PyTorch 等价类，patch 路由分支或 import，使该组件接受 `device` 并可 `.to(npu)`；源码 patch 通常比运行时 monkey-patch 更小、更可维护。
+- 注意：在 ModelZoo Ascend 默认 PyTorch/torch_npu 适配场景中，ONNX Runtime 通常不能直接驱动 Ascend NPU，容易退化为 CPU 路径；若确需 CPU fallback，README 必须写具体阻塞原因。
+- 若使用者提供 checkpoint，默认围绕该 checkpoint 做路由切换和加载适配，不擅自更换权重；checkpoint 加载方式可能随 PyTorch/ONNX 后端不同而变化。
+
+### 1c. checkpoint 加载 patch
+
+- 使用者提供 checkpoint 时优先使用该 checkpoint，并确认配置、类别数、tokenizer、speaker/label 映射等成套文件。
+- PyTorch 2.6+ `torch.load` 默认安全策略使用 `weights_only=True`；可信旧 checkpoint 包含自定义类并报 `UnpicklingError` 时，可在对应加载点 patch `weights_only=False`。
+- 只对可信来源 checkpoint 使用 `weights_only=False`；不可信模型优先转换为 state_dict 或使用安全 allowlist。
 
 ### 2. 推理后端从 ONNXRuntime/Paddle 原生 infer 替换为 OM InferSession
 
@@ -70,6 +84,7 @@
 - 避免 requirements 覆盖镜像内 torch/torch_npu；业务依赖和评测依赖分开。
 - 第三方库 API 变更只做最小兼容，例如 `onnx.mapping` 改 `onnx.helper`、`np.int` 改 `int`。
 - 如果必须 patch site-packages（如 torchaudio kaldi），要单独成 patch，README 写明目标版本、应用路径、校验命令和恢复方式。
+- torchaudio 2.9+ `torchaudio.load` 会使用 TorchCodec，`backend` 参数会被忽略；遇到 Ascend 镜像中的 torchcodec/FFmpeg/ABI 问题时，直接改用 `soundfile`/`librosa` 读写，不要只依赖 `backend='soundfile'`。
 
 ### 7. 评测/性能脚本补丁
 
