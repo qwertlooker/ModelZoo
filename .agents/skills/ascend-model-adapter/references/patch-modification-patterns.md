@@ -62,7 +62,7 @@
 
 ### 3. NPU 不支持或低效算子用等价表达/CPU fallback/拆图
 
-- 复数/FFT：`torch.fft.rfft(...).abs()` 可拆为 `view_as_real` 后平方和开方；若 STFT/ISTFT 在 NPU 不可用，可明确把该前后处理放 CPU，再把结果送回 NPU。
+- 复数/FFT：遇到 `torch.fft.rfft(...).abs()` 报错或数值异常时，可先 `r = torch.fft.rfft(x)`，再用 `sqrt(r.real**2 + r.imag**2)`；也可 `view_as_real(r)` 后对实部/虚部平方和开方。若 STFT/ISTFT 在 NPU 不可用，可明确把该前后处理放 CPU，再把结果送回 NPU。
 - dtype：fp64 常改 fp32；bf16 不支持时改 fp16；grid/attention/sampling 等算子常需 fp16 输入。
 - attention：可用 `torch_npu.npu_fusion_attention`、TorchAir/vLLM-Ascend 编译配置，或把动态 split 改 reshape + 静态缓存。
 - custom op：先判断是否能条件跳过 CUDA extension；必要时绑定 Ascend SDK 或拆子图。不能改的 custom op 要标 CPU fallback，并把性能口径拆开。
@@ -71,7 +71,7 @@
 
 - 搜索信号：`torchaudio.compliance.kaldi.fbank`、`torch.fft.rfft`、`.abs()`、`view_as_real`、`fft_device`、`device.type == "mps"`、`kaldi.py`。
 - 已有样本有三类做法：保留 NPU 并拆 `rfft().abs()`；按 SOC/设备能力局部 CPU fallback；直接把 fbank 放 CPU 后将结果送回 NPU。
-- 写 patch 前先确认实际设备路由，不要仅凭 warning 判断是否 fallback。修改时优先参考 MMAudio/Index-TTS/Whisper/YingMusic 的 patch，保持改动最小，并在 README 性能口径里标明 CPU fallback。
+- 写 patch 前先确认实际设备路由，不要仅凭 warning 判断是否 fallback。若需改 `torchaudio/compliance/kaldi.py`，单独成 patch 并写明目标版本、应用路径和恢复方式；优先参考 MMAudio/Index-TTS/Whisper/YingMusic 的最小改法，并在 README 性能口径里标明 CPU fallback。
 
 ### 4. 动态 shape 和固定 batch 的处理
 
