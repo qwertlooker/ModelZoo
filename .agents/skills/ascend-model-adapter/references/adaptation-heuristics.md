@@ -64,6 +64,13 @@
 - OM 纯模型默认 `ais_bench` latency/FPS；服务模型默认 QPS、tokens/s、端到端 latency；音频默认 RTF/RTFx；pipeline 默认同时给纯模型和端到端。
 - 每个性能表都写芯片、batch/并发、输入规格、精度模式、warmup、loop、工具、是否包含数据加载/后处理/CPU fallback；不默认加入 CPU 性能列。
 
+## 过程记录与反思改进
+
+- ModelZoo README 中常见的 FAQ/注意事项（如 msit 安装失败、TorchAir cache 需删除、patch 只能执行一次、环境隔离、动态库路径、下载失败、依赖冲突）通常来自实际踩坑。适配时先把完整排障过程写入不上库的过程记录，再把用户需要复现的结论提炼到 README。
+- 遇到耗时较久、反复出现、依赖外部提示、导致路线变更或 CPU fallback 的问题，必须记录：症状、阶段、失败尝试、根因、最终修复、耗时、是否外部提示、是否应反向改进 skill。
+- 每个关键决策都要能回溯依据：为什么选 ONNX-OM/TorchAir/vLLM/拆图，为什么 patch 上游入口，为什么接受 CPU fallback，为什么替换依赖或权重。
+- 适配完成后做一次反思：哪些问题本应由 skill 提前提示？如果是通用规律，更新 `adaptation-heuristics.md`、`patch-modification-patterns.md`、`output-contract.md` 或脚本；如果只是本模型私有问题，只保留在过程记录和 README FAQ。
+
 ## PR 检视默认自检
 
 - 提交前按 `pr-review-heuristics.md` 的审查口径自检，但不要把它变成用户交付物。

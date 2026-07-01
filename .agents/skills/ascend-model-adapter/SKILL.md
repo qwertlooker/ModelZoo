@@ -9,11 +9,12 @@ description: 将 Hugging Face、GitHub、PyTorch、ONNX、Paddle、vLLM、TorchA
 
 ## 工作方式
 
-1. **确定模型与目标目录**：确认模型 URL、模型名、任务类型、目标目录、目标芯片、数据集/指标、是否允许下载权重和数据。
+1. **确定模型与目标目录**：确认模型 URL、模型名、任务类型、目标目录、目标芯片、数据集/指标、是否允许下载权重和数据；同时按 `references/adaptation-process-log.md` 在工作区创建不上库的适配过程记录。
 2. **参考最新 ModelZoo 样本**：运行 `scripts/modelzoo_sampler.py --count 20 --clone --out /tmp/modelzoo_samples.md`；优先读取与当前任务同类型、且最近合入的 README、patch、requirements、导出/推理脚本；需要写源码补丁时同时读取 `references/patch-modification-patterns.md`；如果本地已有完整/扩大 checkout，可运行 `scripts/patch_pattern_miner.py <ACL_PyTorch/built-in> --out /tmp/modelzoo_patch_patterns.md` 扩大 patch 参考范围。PR 检视意见只从这些已采样目录对应的上库 PR 中抽取：优先使用 sampler 表格里的 PR 号，并用 PR diff/变更文件确认触达该 `ACL_PyTorch/built-in/<category>/<model>` 路径；无法确认路径对应关系的 PR 只能作为“补充风格参考”，不得当作该模型样本的审查依据。可用 `scripts/gitcode_pr_review_sampler.py --prs <PR号...> --paths <采样目录...>` 抽取并校验；网络失败时读取 `references/modelzoo-sampling.md`。
 3. **确定适配路线并生成工程**：按模型结构直接选择 `onnx-om`、`torch-npu`、`torchair`、`vllm-ascend` 或拆图混合路线。新项目可用 `python scripts/scaffold_adapter.py <model_url> <project_dir> --category <category> --route <route>` 生成脚手架。
 4. **实现 baseline、导出、转换和推理**：按下面“适配流程”补齐源码 patch、CPU/upstream baseline、Ascend 推理脚本、精度脚本和性能脚本。
-5. **整理上库材料**：读取 `references/output-contract.md`，按 ModelZoo 风格完成 README、requirements、patch、脚本、日志、结果表和 checklist。
+5. **整理上库材料**：读取 `references/output-contract.md`，按 ModelZoo 风格完成 README、requirements、patch、脚本、日志、结果表和 checklist；把过程记录中的可复用问题沉淀到 README FAQ/已知问题，不把过程记录本身上库。
+6. **反思改进 skill**：如果某问题耗时很久、反复出现、依赖外部提示才解决，或导致路线/patch 重大调整，回看过程记录，判断是否应更新本 skill 的启发式、patch 模式、交付契约或脚本。
 
 ## 从样本内化出的默认判断
 
@@ -30,11 +31,11 @@ description: 将 Hugging Face、GitHub、PyTorch、ONNX、Paddle、vLLM、TorchA
 - 看到 pipeline 模型（OCR/VLM、CLIP、VLA、TTS、检测+识别）时，默认拆组件分别评估 NPU 可行性，优先将可 NPU 化组件部署至 NPU；只有存在具体技术阻塞时才接受 CPU fallback，并在 README FAQ 记录原因。
 - 看到 vLLM/TorchAir/服务化模型时，默认提供服务启动命令、客户端命令、预热/编译缓存说明、并发配置和端到端性能口径。
 - 看到离线部署或多权重依赖时，默认写清权重清单、目录树、下载源、缓存方式和最小验证数据。
-- 看到首次编译、CPU 回退、长时间 ATC、环境隔离、patch 只能执行一次等情况时，默认写入 README 的 FAQ/注意事项。
+- 看到首次编译、CPU 回退、长时间 ATC、环境隔离、patch 只能执行一次等情况时，默认先写入不上库的适配过程记录，再把用户需要复现/避坑的结论整理进 README FAQ/注意事项。
 - 写源码 patch 时默认采用参考 patch 的最小化模式：设备选择参数化、推理后端只替换核心调用、保留原预后处理、对不支持算子用等价表达/拆图/明确 CPU fallback，并保证 `git apply --check` 可复现。优先 patch 上游推理/评测入口支持 NPU；只有上游没有统一入口时才新增脚本。
 - 上库前默认按“已采样目录对应上库 PR”的检视口径自查：精度数据是否可复现、性能单位是否匹配任务、芯片/机器型号是否准确、上游 commit 是否固定、权重与配置是否成套、外部数据文件是否说明来源、debug code/重复文档/残留 import 是否清理。若 PR 与采样目录没有可验证路径对应关系，只吸收通用 CI/文档风格，不作为模型特定证据。
 
-详细启发式见 `references/adaptation-heuristics.md`；patch 修改模式见 `references/patch-modification-patterns.md`；上库前审查口径见 `references/pr-review-heuristics.md`。这些参考只用于影响实现和文档写法，不作为额外交付物。
+详细启发式见 `references/adaptation-heuristics.md`；patch 修改模式见 `references/patch-modification-patterns.md`；适配过程记录模板见 `references/adaptation-process-log.md`；上库前审查口径见 `references/pr-review-heuristics.md`。这些参考只用于影响实现和文档写法，不作为额外交付物；其中过程记录明确不上库。
 
 ## 环境原则
 
@@ -78,8 +79,12 @@ description: 将 Hugging Face、GitHub、PyTorch、ONNX、Paddle、vLLM、TorchA
    - 记录芯片、batch/并发、输入 shape、精度模式、warmup、loop、latency/FPS/QPS/RTF、日志路径。
 6. **文档与上库**
    - 按 `references/output-contract.md` 完成目录和 README。
+   - 从适配过程记录中提取用户复现需要知道的 FAQ/已知问题，例如依赖冲突、cache 清理、patch 只能执行一次、环境隔离、动态库路径、下载替代源；不要把完整过程记录上库。
    - 清理 debug code、无用注释、重复段落、残留 import 和不清晰变量名；PR 描述不能保留模板占位。
    - 结果没有实测时写 `待 NPU 验证`；不要用“理论支持”代替验证结果。
+7. **反思与回写**
+   - 如果某个问题排查超过约 30 分钟、需要外部提示才解决、反复出现、导致路线变更，或暴露 skill 没有覆盖的检查点，必须在过程记录中写明症状、无效尝试、根因、最终修复和可复用性。
+   - 只有当问题具备通用性时，才反向更新 skill 的参考文件或脚本；模型私有路径、账号、临时日志和内部数据不得写入 skill。
 
 ## 精度与性能指标选择
 
@@ -109,5 +114,5 @@ description: 将 Hugging Face、GitHub、PyTorch、ONNX、Paddle、vLLM、TorchA
 - 已在目标 Ascend 芯片执行 NPU 推理；CPU-only 只算材料准备完成。
 - 精度与源仓/CPU/官方指标有明确容差或任务指标对比；源仓已有 accuracy 数据时优先对齐源仓口径。
 - NPU 性能测试可复现；源仓已有 benchmark/performance 数据时优先对齐源仓口径，并说明 warmup/loop/batch/并发/输入规格/芯片；不要求提供本地 CPU 性能对比。
-- 已记录已知问题、限制芯片、长时间编译、custom op、离线下载和依赖冲突。
+- 已记录已知问题、限制芯片、长时间编译、custom op、离线下载和依赖冲突；复杂排障和关键决策已写入不上库的适配过程记录，并提炼必要 FAQ。
 - 已通过本地自检避免常见 PR 检视问题：CodeCheck/SCA/Antipoison、模板占位、缺精度数据、缺芯片获取步骤、未固定 commit、性能口径不匹配、外部文件来源不明。

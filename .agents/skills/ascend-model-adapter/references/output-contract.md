@@ -45,7 +45,7 @@
 9. 推理：NPU 上的精确命令；可行时 patch 上游命令。
 10. 精度验证：数据集、原始/上游指标、源仓已有 accuracy 数据或表格、命令、CPU/upstream 替代 baseline（仅在无源仓精度时）、NPU 结果、容差或 delta。
 11. 性能验证：源仓已有 benchmark/performance 数据、NPU 命令/工具、warmup、loop、batch/并发、精度模式、latency/FPS/QPS/RTF、芯片；不默认要求 CPU 性能对比。
-12. FAQ/已知问题：unsupported ops、ATC 长时间编译、依赖冲突、离线下载、CPU fallback 原因、patch 排障。
+12. FAQ/已知问题：unsupported ops、ATC 长时间编译、依赖冲突、离线下载、CPU fallback 原因、patch 排障；从不上库的适配过程记录中提炼用户需要复现的结论。
 13. 公网地址说明：引用外部 URL 时提供。
 
 复杂 pipeline 可选补充：
@@ -92,6 +92,7 @@ python3 -c "import torch, torch_npu; print(torch.__version__, torch_npu.__versio
 - 精度不能只用截图或输出文件表示；必须包含任务指标命令和结果。
 - 性能指标和单位匹配任务，并在 README、脚本、PR 描述中保持一致。
 - Pipeline CPU fallback 有具体技术原因，不能只写“上游默认 backend”。
+- Long-running issues and route-changing decisions are recorded in a private process log; only reusable/user-facing conclusions are reflected in README FAQ.
 - 本地 lint/import/help 检查通过；预期 Antipoison、CodeCheck、SCA 和 PR 流水线可通过。
 
 ## 验证证据清单
