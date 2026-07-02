@@ -21,6 +21,7 @@ description: 将 Hugging Face、GitHub、PyTorch、ONNX、Paddle、vLLM、TorchA
 这些规则不要作为用户交付物单独输出，而要在写脚本、README 和 patch 时自然体现：
 
 - 看到上游 `requirements.txt` 可能安装 `torch/torch_npu/torchvision/torchaudio` 时，默认生成过滤版依赖或写明安装顺序，避免破坏 Ascend 镜像内置版本。
+- 看到需要升级核心框架版本时，默认先找成套 Ascend 镜像/CANN/torch/torch_npu；不要把低版本 CANN 镜像里 pip 升级另一套 torch/torch_npu 写成推荐可复现环境，除非已实测并解释配套来源。
 - 看到源仓 README、论文、release、脚本或日志中已有 accuracy、benchmark 或 performance 数据时，默认分开处理：精度优先对齐源仓 accuracy 口径；性能只要求 NPU 结果对齐源仓 benchmark 口径或说明差异，不要求也不默认做本地 CPU 性能对比。
 - 如果使用者提供了 checkpoint、权重目录或模型包，默认以使用者提供的 artifact 为准；只在它缺失、不成套或无法复现时，才建议替代下载源或官方默认权重，并在 README 写清差异。
 - 看到 `cuda`、`torch.cuda`、CUDA extension、`setup.py` 编译扩展、custom op 时，默认检查是否需要 NPU 等价实现、第三方 Ascend SDK、拆图或明确 CPU fallback。
@@ -30,7 +31,7 @@ description: 将 Hugging Face、GitHub、PyTorch、ONNX、Paddle、vLLM、TorchA
 - 看到动态输入、符号 shape、多输入多输出、控制流、attention、RoPE、后处理入图时，默认准备 ONNX fix/shape 固化/onnxsim/onnxslim/MagicONNX/msit surgeon 或拆子图。
 - 看到 pipeline 模型（OCR/VLM、CLIP、VLA、TTS、检测+识别）时，默认拆组件分别评估 NPU 可行性，优先将可 NPU 化组件部署至 NPU；只有存在具体技术阻塞时才接受 CPU fallback，并在 README FAQ 记录原因。
 - 看到 vLLM/TorchAir/服务化模型时，默认提供服务启动命令、客户端命令、预热/编译缓存说明、并发配置和端到端性能口径。
-- 看到离线部署或多权重依赖时，默认写清权重清单、目录树、下载源、缓存方式和最小验证数据。
+- 看到离线部署、多权重、标准数据集或测试样例时，默认写清权重/数据/评测工具/protocol/reference label 的来源、目录树、生成命令、缓存方式和最小验证数据；不能只写“用户自行准备”。
 - 看到首次编译、CPU 回退、长时间 ATC、环境隔离、patch 只能执行一次等情况时，默认先写入不上库的适配过程记录，再把用户需要复现/避坑的结论整理进 README FAQ/注意事项。
 - 写源码 patch 时默认采用参考 patch 的最小化模式：设备选择参数化、推理后端只替换核心调用、保留原预后处理、对不支持算子用等价表达/拆图/明确 CPU fallback，并保证 `git apply --check` 可复现。优先 patch 上游推理/评测入口支持 NPU；只有上游没有统一入口时才新增脚本。
 - 上库前默认按“已采样目录对应上库 PR”的检视口径自查：精度数据是否可复现、性能单位是否匹配任务、芯片/机器型号是否准确、上游 commit 是否固定、权重与配置是否成套、外部数据文件是否说明来源、debug code/重复文档/残留 import 是否清理。若 PR 与采样目录没有可验证路径对应关系，只吸收通用 CI/文档风格，不作为模型特定证据。
