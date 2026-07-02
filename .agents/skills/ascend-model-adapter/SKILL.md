@@ -20,18 +20,20 @@ description: 将 Hugging Face、GitHub、PyTorch、ONNX、Paddle、vLLM、TorchA
 
 这些规则不要作为用户交付物单独输出，而要在写脚本、README 和 patch 时自然体现：
 
-- 看到上游 `requirements.txt` 可能安装 `torch/torch_npu/torchvision/torchaudio` 时，默认生成过滤版依赖或写明安装顺序，避免破坏 Ascend 镜像内置版本。
+- 看到上游或子模块的 `requirements.txt`、`setup.py`、`pyproject.toml` 可能安装 `torch/torch_npu/torchvision/torchaudio` 时，默认生成过滤版依赖、patch 依赖约束或写明安装顺序，避免破坏 Ascend 镜像内置版本；过滤后要用推理入口做 import smoke test，补齐遗漏业务依赖。
 - 看到需要升级核心框架版本时，默认先找成套 Ascend 镜像/CANN/torch/torch_npu；不要把低版本 CANN 镜像里 pip 升级另一套 torch/torch_npu 写成推荐可复现环境，除非已实测并解释配套来源。
 - 看到源仓 README、论文、release、脚本或日志中已有 accuracy、benchmark 或 performance 数据时，默认分开处理：精度优先对齐源仓 accuracy 口径；性能只要求 NPU 结果对齐源仓 benchmark 口径或说明差异，不要求也不默认做本地 CPU 性能对比。
+- 看到模型有多个变体、配置文件或论文实验设置时，默认确认当前 checkpoint 对应的评测配置、聚类/阈值/beam/search 参数和数据预处理；不要只按默认 config 猜测。
 - 如果使用者提供了 checkpoint、权重目录或模型包，默认以使用者提供的 artifact 为准；只在它缺失、不成套或无法复现时，才建议替代下载源或官方默认权重，并在 README 写清差异。
 - 看到 `cuda`、`torch.cuda`、CUDA extension、`setup.py` 编译扩展、custom op 时，默认检查是否需要 NPU 等价实现、第三方 Ascend SDK、拆图或明确 CPU fallback。
 - 看到上游硬编码推理后端选择（`onnxruntime`、`tensorrt`、`tf.saved_model`、`paddle.inference`、`OpenVINO` 等）时，默认评估 PyTorch/torch_npu/TorchAir 等价路径是否能让组件部署到 NPU；源码路由 patch 通常比运行时 monkey-patch 更清洁。
+- 写推理后端替换时，区分“同架构同权重的后端替换”和“换模型/换权重”：前者默认做数值等效性验证，后者必须重新按任务指标评测并声明不能直接比较源仓结果。
 - 看到 `torch.load` 加载可信旧 checkpoint 报 `UnpicklingError` 时，默认检查是否因 PyTorch 2.6+ `weights_only=True` 默认安全策略导致；只有在 checkpoint 来源可信时才准备 `weights_only=False` patch，框架自带 load 包装也要同步检查。
 - 看到音频模型使用 `torchaudio.load` 时，默认检查 torchaudio 2.9+ 改用 TorchCodec 且 `backend` 参数被忽略带来的兼容问题；必要时用 `soundfile`/`librosa` 直接替代音频 I/O。
 - 看到动态输入、符号 shape、多输入多输出、控制流、attention、RoPE、后处理入图时，默认准备 ONNX fix/shape 固化/onnxsim/onnxslim/MagicONNX/msit surgeon 或拆子图。
 - 看到 pipeline 模型（OCR/VLM、CLIP、VLA、TTS、检测+识别）时，默认拆组件分别评估 NPU 可行性，优先将可 NPU 化组件部署至 NPU；只有存在具体技术阻塞时才接受 CPU fallback，并在 README FAQ 记录原因。
 - 看到 vLLM/TorchAir/服务化模型时，默认提供服务启动命令、客户端命令、预热/编译缓存说明、并发配置和端到端性能口径。
-- 看到离线部署、多权重、标准数据集或测试样例时，默认写清权重/数据/评测工具/protocol/reference label 的来源、目录树、生成命令、缓存方式和最小验证数据；不能只写“用户自行准备”。
+- 看到离线部署、多权重、标准数据集或测试样例时，默认写清权重/数据/评测工具/protocol/reference label 的来源、目录树、生成命令、缓存方式和最小验证数据；音频/图像等预处理必须按上游 README/论文/评测脚本精确复现，不能只写“用户自行准备”。
 - 看到首次编译、CPU 回退、长时间 ATC、环境隔离、patch 只能执行一次等情况时，默认先写入不上库的适配过程记录，再把用户需要复现/避坑的结论整理进 README FAQ/注意事项。
 - 写源码 patch 时默认采用参考 patch 的最小化模式：设备选择参数化、推理后端只替换核心调用、保留原预后处理、对不支持算子用等价表达/拆图/明确 CPU fallback，并保证 `git apply --check` 可复现。优先 patch 上游推理/评测入口支持 NPU；只有上游没有统一入口时才新增脚本。
 - 上库前默认按“已采样目录对应上库 PR”的检视口径自查：精度数据是否可复现、性能单位是否匹配任务、芯片/机器型号是否准确、上游 commit 是否固定、权重与配置是否成套、外部数据文件是否说明来源、debug code/重复文档/残留 import 是否清理。若 PR 与采样目录没有可验证路径对应关系，只吸收通用 CI/文档风格，不作为模型特定证据。
@@ -58,8 +60,8 @@ description: 将 Hugging Face、GitHub、PyTorch、ONNX、Paddle、vLLM、TorchA
 
 1. **上游审计**
    - 固定源码 commit/revision、权重版本、license、模型任务、输入输出、预处理/后处理、评测数据和官方指标；如使用者提供 checkpoint，优先围绕该 checkpoint 确认配置、版本和评测口径。主动查找源仓 README/论文/release/benchmark 脚本/评测日志中的 accuracy 与 performance 数据；分别记录精度命令/数据集/metric，以及性能命令/batch/并发/输入规格/warmup/loop/统计口径。
-   - 同时检查依赖是否覆盖镜像栈、是否硬编码 CUDA、是否有 custom op、是否有动态 shape、是否在线下载权重/数据、是否存在多组件流水线。
-   - 固定上游 commit，确认模型版本、权重、配置文件成套；如 README 示例使用变体版本，必须解释对应关系。
+   - 同时检查依赖是否覆盖镜像栈、是否硬编码 CUDA、是否有 custom op、是否有动态 shape、是否在线下载权重/数据、是否存在多组件流水线；依赖检查要覆盖子模块和本地 vendor 包的 requirements/setup/pyproject。
+   - 固定上游 commit，确认模型版本、权重、配置文件成套；如 README 示例使用变体版本，必须解释对应关系，并确认该变体对应的评测参数、数据预处理和后处理配置。
    - 审计推理后端路由：若上游硬编码 ONNX Runtime、TensorFlow、Paddle inference 等 CPU-only/非 Ascend 后端，先评估是否有 PyTorch/torch_npu/TorchAir 等价路径。
 2. **Pipeline 组件部署分析**（多组件流水线默认执行）
    - 列出每个可独立推理的子模型/组件，评估是否有 PyTorch 实现、能否迁移 NPU、是否存在 NPU 不支持算子或框架限制。

@@ -5,9 +5,11 @@
 ## 环境与依赖
 
 - 近期样本多次强调不要在 Ascend 镜像中重装 `torch`/`torch_npu`。处理上游 requirements 时，默认过滤或固定会覆盖镜像栈的包。
-- README 中的安装命令必须明确当前工作目录和 requirements 来源；在上游仓内执行 `pip install -r requirements.txt` 时，先确认该文件不会安装/升级 `torch`、`torch_npu`、`torchvision`、`torchaudio`。否则提供过滤版 requirements 或显式 `grep -vE`/`--no-deps` 命令。
+- README 中的安装命令必须明确当前工作目录和 requirements 来源；在上游仓、子模块或 vendor 包内执行 `pip install -r requirements.txt`、`pip install -e .`、`pip install .` 时，先审计 `requirements.txt`、`setup.py`、`pyproject.toml` 是否会安装/升级 `torch`、`torch_npu`、`torchvision`、`torchaudio`。否则提供过滤版 requirements、patch 依赖约束，或显式 `grep -vE`/`--no-deps` 命令。
+- 过滤或 patch 依赖后，默认用上游推理/评测入口做 import smoke test（例如 `python -c` 导入入口模块或跑 `--help`/单样例），补齐被过滤掉但实际需要的业务依赖；不要只凭 requirements 文件静态推断。
 - `torch_npu` 导入的 `undefined symbol`、`aclruntime` wheel ABI、Python 版本不匹配通常是版本栈问题，先查环境再改模型。
 - 默认给出已验证的配套环境：镜像/CANN/torch/torch_npu/torchvision/torchaudio/Python 必须成套。不要在低版本 CANN 镜像中直接 pip 升级到另一套 torch/torch_npu 作为推荐环境；若确需自建环境，写成 Dockerfile 或明确“待验证”，并给出配套来源。
+- 基于已有适配材料重新验证时，先列环境差异表（芯片、CANN、Python、torch、torch_npu、torchvision/torchaudio、关键第三方库），逐条判断旧 patch 是否仍必要或变成冗余；版本相关 FAQ 只能按当前验证环境和兼容环境分条件描述。
 - README 的镜像、Python、CANN、torch/torch_npu/torchaudio 版本、FAQ 和 patch 说明必须相互一致；只在对应版本会触发的问题前标注版本条件，避免用 torch 2.1 镜像却无条件写 PyTorch 2.6+/torchaudio 2.9+ 问题。
 - Paddle、vLLM、TorchAir、DrivingSDK、OpenCV、tesseract 等依赖容易互相冲突；多组件流水线默认允许拆环境。
 - 使用者提供 checkpoint、权重目录或模型包时，默认以该 artifact 为准；只在文件缺失、配置不成套或无法复现时建议替代权重，并记录差异。
@@ -21,6 +23,7 @@
 - 遇到 `cuda`、`torch.cuda`、`USE_CUDA`、CUDA extension、`setup.py` 编译扩展时，优先改为 NPU 等价路径；不能改的部分标明 CPU fallback。
 - 优先 patch 上游推理/评测脚本：如果上游已有入口，通过 patch 增加 NPU 设备参数；只有上游没有统一入口或需要组合多个子模块时才新增脚本。
 - 推理后端路由 patch：当上游根据配置硬编码 ONNX Runtime、TF SavedModel、Paddle inference、OpenVINO 等后端时，先评估同一项目内是否有 PyTorch 等价类可迁移到 NPU。在 ModelZoo Ascend 默认 PyTorch/torch_npu 适配场景中，ONNX Runtime 通常不能直接驱动 Ascend NPU，容易退化为 CPU 路径。
+- 后端替换与模型替换要分清：同一架构同一权重从 ORT/TF/Paddle 切到 PyTorch/torch_npu 属于后端替换，默认做 logits/embedding/输出张量数值等效性验证；若更换 checkpoint、模型类、tokenizer、聚类策略、阈值或预后处理，则属于口径变化，必须重新跑任务指标并声明不能直接比较源仓结果。
 
 ## ONNX 与 OM
 
@@ -39,6 +42,7 @@
 - 多权重模型默认写权重清单、来源、目录树、离线缓存方式。
 - 大数据集默认写容量、分包、官方来源、申请入口或生成脚本，以及最小验证子集；测试数据、评测工具、protocol、reference label/RTTM 都必须可追溯，不能只写“用户自行准备”。
 - README 中提到的每个外部资源都要进入公网地址说明，包括 issue/release note、论文、数据集、评测工具、protocol、样例数据来源和关键预处理工具；不要依赖未列入交付件清单的相对文档链接。
+- 音频/图像/视频预处理必须精确复现上游 README、论文实验设置或评测脚本，包括多声道到单声道、采样率、裁剪/resize/crop、归一化、padding、重采样工具和命令；不能用“等价直觉”替代。若改动预处理，必须做中间结果或任务指标对齐。
 - 评测依赖和推理依赖可分开，例如 `requirements_eval.txt`。
 
 ## Pipeline 组件部署分析
@@ -51,7 +55,8 @@
 ## 源仓指标对齐
 
 - 上游 README、论文、release notes、benchmark 脚本、评测日志中已有 accuracy/performance 数据时，默认分开处理：精度对齐源仓 accuracy 口径；性能对齐源仓 benchmark 口径并给出 NPU 结果。
-- 精度对齐前记录：checkpoint/权重版本、数据集或子集、随机种子、预处理/后处理、metric、阈值、评测工具版本和关键选项（如 collar、overlap、ignore 区域）。源仓没有可复现 accuracy 时，才使用 CPU/upstream baseline 与 NPU 输出对齐。
+- 精度对齐前记录：checkpoint/权重版本、模型变体、数据集或子集、随机种子、预处理/后处理、metric、阈值、聚类/beam/search 参数、评测工具版本和关键选项（如 collar、overlap、ignore 区域）。源仓没有可复现 accuracy 时，才使用 CPU/upstream baseline 与 NPU 输出对齐。
+- 多模型变体或多套配置时，优先查 README benchmark 表、论文实验章节和 release 说明，确认当前 checkpoint 对应哪套评测配置；不要只看默认 config 或示例脚本。若默认 config 与 benchmark 口径不同，README 必须显式说明。
 - 只有模型组件、checkpoint、预处理/后处理和评测脚本口径与源仓一致时，才能把 NPU 结果和源仓 accuracy 表直接对齐；若替换了嵌入模型、tokenizer、label map、聚类策略或阈值，只能写“参考源仓指标，当前口径不同”，并给出当前口径验证。
 - 性能对齐前记录：输入规格、batch/并发、warmup/loop、统计区间、端到端/纯模型定义、是否包含数据加载/后处理/首次编译。性能只要求 NPU 可复现，不默认采集或比较本地 CPU 性能。
 - NPU 结果优先复用上游评测/benchmark 脚本或 patch 后的同一入口；不能复用时，README 必须解释差异，不能直接换成更容易或更好看的口径。

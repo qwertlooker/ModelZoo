@@ -13,13 +13,26 @@
 - 适配路线：ONNX-OM / torch_npu / TorchAir / vLLM-Ascend / 拆图混合
 - 源仓 accuracy/performance 口径：
 
+## 环境差异（复用旧适配材料时必填）
+
+| 项目 | 旧材料/参考环境 | 当前验证环境 | 影响与处理 |
+|---|---|---|---|
+| 芯片 |  |  |  |
+| 镜像/CANN |  |  |  |
+| Python |  |  |  |
+| torch/torch_npu |  |  |  |
+| torchvision/torchaudio |  |  |  |
+| 关键第三方库 |  |  |  |
+
+逐条判断旧 patch、FAQ、依赖安装方式和性能/精度结论是否仍适用；版本相关 workaround 只在对应环境下保留。
+
 ## 决策记录
 
 | 时间 | 决策 | 依据 | 备选方案 | 影响 | 是否写入 README/FAQ |
 |---|---|---|---|---|---|
 |  |  |  |  |  |  |
 
-需要记录的决策包括：路线选择、是否拆图、是否保留 CPU fallback、是否替换推理后端、是否 patch 上游入口、是否更换依赖安装方式、是否使用使用者提供 checkpoint 以外的权重。
+需要记录的决策包括：路线选择、是否拆图、是否保留 CPU fallback、是否替换推理后端、是否 patch 上游入口、是否更换依赖安装方式、是否 patch 子模块依赖、是否使用使用者提供 checkpoint 以外的权重、当前模型变体对应哪套评测配置。
 
 ## 问题记录
 
@@ -34,6 +47,8 @@
 - 一开始选错路线，后来改为 ONNX-OM/TorchAir/vLLM/拆图/CPU fallback。
 - accuracy 或 performance 口径与源仓不一致，需要解释。
 - patch 出现只能执行一次、依赖冲突、环境隔离、TorchAir cache、ATC 长时间编译、动态 shape、custom op、音频 I/O、checkpoint 加载等问题。
+- 数据预处理、模型变体、评测参数、聚类/解码策略或评测工具选项与源仓不一致。
+- 过滤依赖后出现 import 缺失，或子模块 requirements/setup/pyproject 试图升级镜像内 torch 栈。
 
 ## 验证记录
 

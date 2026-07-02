@@ -36,14 +36,14 @@
 3. 输入输出数据：tensor 名称、shape、dtype、layout；OM 路线必须提供。
 4. 推理环境准备：固件/驱动、CANN、Python、PyTorch、torch_npu、torchvision/torchaudio、额外 SDK、vLLM/TorchAir/ais_bench/msit 版本。除非有明确理由，否则说明不要重装镜像已提供的 `torch/torch_npu`；推荐环境必须是成套且已验证的镜像/软件栈，不要把低版本 CANN 镜像内 pip 升级到另一套 torch/torch_npu 作为默认方案。若只能自建环境，给出 Dockerfile/安装来源并标注验证状态。
 5. 镜像启动：docker pull/run、NPU 设备挂载、环境变量，以及 `source /usr/local/Ascend/ascend-toolkit/set_env.sh`。
-6. 快速上手：克隆 ModelZoo、按固定 commit 克隆上游、应用 patch、安装业务依赖、准备权重/数据；patch 命令应包含 `git apply --check` 或 `patch --dry-run`，site-packages patch 要自动定位目标路径并写清目标版本、应用路径和恢复方式。
-7. 准备权重和数据：权重清单、来源或用户提供路径、目录树、离线缓存配置；数据集、评测工具、protocol、reference label/RTTM、最小测试音频/图片/文本样例都必须给出明确来源、生成命令或随仓文件路径，不能只写“用户自行准备”；多权重/多组件模型要说明每个权重与 config/tokenizer/label-map/speaker-map/聚类配置的配套关系，替换任一权重都要声明与源仓指标口径的差异。
+6. 快速上手：克隆 ModelZoo、按固定 commit 克隆上游、应用 patch、安装业务依赖、准备权重/数据；patch 命令应包含 `git apply --check` 或 `patch --dry-run`，site-packages patch 要自动定位目标路径并写清目标版本、应用路径和恢复方式。安装业务依赖时说明 requirements/setup/pyproject 来源，子模块和 editable install 也要避免升级镜像内 torch 栈；过滤依赖后给出 import/`--help`/单样例 smoke test。
+7. 准备权重和数据：权重清单、来源或用户提供路径、目录树、离线缓存配置；数据集、评测工具、protocol、reference label/RTTM、最小测试音频/图片/文本样例都必须给出明确来源、生成命令或随仓文件路径，不能只写“用户自行准备”；多权重/多组件模型要说明每个权重与 config/tokenizer/label-map/speaker-map/聚类配置的配套关系，替换任一权重都要声明与源仓指标口径的差异。音频/图像/视频预处理命令必须与上游 README/论文/评测脚本一致，尤其是多声道混音、采样率、crop/resize、归一化、padding。
 8. 模型导出/转换或服务启动：
    - ONNX/OM：导出 ONNX、校验 ONNX、携带 `--soc_version` 执行 ATC、提供 OM 样例推理。
    - TorchAir：图编译设置、缓存位置、首次运行编译说明、NPU ID。
    - vLLM-Ascend：镜像 tag、server 启动、显存/环境变量、client 命令。
 9. 推理：NPU 上的精确命令；可行时 patch 上游命令；列出关键参数/环境变量的含义、默认值、可选值、路径格式和是否必填，并给出最小输入样例及期望输出位置/格式。
-10. 精度验证：数据集、原始/上游指标、源仓已有 accuracy 数据或表格、命令、CPU/upstream 替代 baseline（仅在无源仓精度时）、NPU 结果、容差或 delta；如果使用标准数据集，写明数据集来源、split、manifest/protocol/reference label 或 RTTM 的准备方式、评测工具安装方式和关键选项（如 collar、overlap、ignore 区域）；如果只做小样本对齐，写清输入来源、对齐脚本/命令和替代指标名称。
+10. 精度验证：数据集、原始/上游指标、源仓已有 accuracy 数据或表格、命令、CPU/upstream 替代 baseline（仅在无源仓精度时）、NPU 结果、容差或 delta；如果使用标准数据集，写明数据集来源、split、manifest/protocol/reference label 或 RTTM 的准备方式、评测工具安装方式和关键选项（如 collar、overlap、ignore 区域）。多变体模型要写明当前 checkpoint 对应的评测配置、阈值、聚类/beam/search 参数；若后端替换保持同权重同架构，提供张量/embedding/logits 等效性证据；如果只做小样本对齐，写清输入来源、对齐脚本/命令和替代指标名称。
 11. 性能验证：源仓已有 benchmark/performance 数据、NPU 命令/工具、warmup、loop、batch/并发、精度模式、latency/FPS/QPS/RTF、芯片；不默认要求 CPU 性能对比；明确计时是否包含音频/图片读取、前处理、后处理、聚类、模型加载、首次编译或 cache miss，并给出可执行 benchmark 命令。纯模型耗时与 pipeline 端到端耗时必须分开命名或分表。
 12. FAQ/已知问题：unsupported ops、ATC 长时间编译、依赖冲突、离线下载、CPU fallback 原因、patch 排障；从不上库的适配过程记录中提炼用户需要复现的结论。
 13. 公网地址说明：引用外部 URL 时提供；README 中出现的源码、权重、数据集、评测工具、protocol、测试样例来源、issue/release note、论文和关键预处理工具都要列入，若数据受限不能直链下载，也要列出官方主页/申请入口/论文或数据说明页。
@@ -92,11 +92,14 @@ python3 -c "import torch, torch_npu; print(torch.__version__, torch_npu.__versio
 - 尊重用户提供的 checkpoint/weights，并与正确的 config/tokenizer/label map 配套；任何替换都必须显式说明。
 - README 中用于推理、精度或性能的测试数据、标准数据集、评测工具、protocol 和 reference label/RTTM 均有可追溯来源或生成命令；不得只写“用户自行准备”。
 - 源仓 accuracy 只在 checkpoint、模型组件、预处理/后处理、评测脚本和阈值一致时直接对齐；若替换了嵌入模型、tokenizer、聚类策略、label map 或任一子模型，README 必须声明与源仓指标不可直接比较。
+- 当前 checkpoint 对应的模型变体、配置文件、评测参数、预处理命令和后处理/聚类/解码策略已核对；不得只使用默认 config 推断 benchmark 口径。
+- 推理后端替换已说明是否同架构同权重；同架构同权重需提供数值等效性证据，换模型/换权重则必须重新跑任务指标。
 - CPU/NPU 小样本输出对齐不能写成官方任务 metric；没有 GT/reference 时，用“输出对齐/边界差/cosine diff”等名称，不要写 DER/WER/mAP。
 - README 包含芯片/主机信息，以及在设置 `SOC_VERSION` 或 `chip_name` 前获取芯片名称的命令。
 - README 内部口径一致：概述、Pipeline 组件表、FAQ、性能表不能互相矛盾；版本相关 FAQ 要标明触发版本；支持芯片只写实际验证芯片或明确“待验证”。
 - 推荐镜像、CANN、torch、torch_npu、torchvision/torchaudio、Python 版本彼此配套；不得推荐在不匹配镜像中直接 pip 升级核心框架作为可复现环境。
 - 安装命令明确工作目录和 requirements 来源；不得在上游目录中无检查地 `pip install -r requirements.txt` 导致覆盖镜像内 torch/torch_npu/torchaudio。
+- 依赖审计覆盖上游仓、子模块、vendor 包的 requirements/setup/pyproject；过滤或 patch 后已做 import/`--help`/单样例 smoke test，避免遗漏业务依赖。
 - README 中所有 shell/Python 命令经过静态自检或实际执行；不得存在明显语法错误、错误环境变量、未定义脚本、错误相对路径或不可复现的“假设路径”。
 - 精度不能只用截图或输出文件表示；必须包含任务指标命令和结果。
 - 性能指标和单位匹配任务，并在 README、脚本、PR 描述中保持一致；主表默认只给 NPU 性能，不加入本地 CPU 性能对比列；纯模型和端到端口径不能混用。
