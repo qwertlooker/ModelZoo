@@ -37,9 +37,9 @@
 ### 1. 设备选择从 CUDA 单分支改为 NPU 优先但保留 fallback
 
 - 搜索：`cuda`、`.cuda()`、`torch.cuda`、`device='cuda'`、`accelerator='gpu'`、`map_location`、`set_device`。
-- 默认模式：先尝试 `import torch_npu`，若 `torch.npu.is_available()` 则使用 `npu:<id>`，否则保持 CUDA/CPU fallback；NPU 验证脚本中显式 `torch.npu.set_device`。
+- 默认模式：先尝试 `import torch_npu`，若 `torch.npu.is_available()` 则使用设备字符串 `npu`，否则保持 CUDA/CPU fallback；选择物理卡通过 `ASCEND_RT_VISIBLE_DEVICES=<id>` 控制，不写 `npu:<id>`。
 - 对 Lightning/第三方框架保守处理：如果框架仍使用 `accelerator='gpu'` 才能触发 transfer shim，README 写清原因，不要盲目改成不存在的 `accelerator='npu'`。
-- 设备选择优先参数化：通过 `--device`、`--device-id` 或环境变量暴露 CPU/NPU 切换，使 CPU baseline 和 NPU 推理尽量共用同一入口。
+- 设备选择优先参数化：通过 `--device` 暴露 CPU/NPU 切换，使 CPU baseline 和 NPU 推理尽量共用同一入口；默认值必须是 NPU（如 `--device npu`）。物理卡选择统一使用 `export ASCEND_RT_VISIBLE_DEVICES=<id>`，不要用 `npu:0`/`npu:<id>` 或脚本默认 `--device-id`。CPU 只能显式选择。
 
 ### 1b. 推理后端路由 patch
 
@@ -56,9 +56,9 @@
 
 ### 2. 推理后端从 ONNXRuntime/Paddle 原生 infer 替换为 OM InferSession
 
-- 常见改法：导入 `from ais_bench.infer.interface import InferSession`；初始化 `InferSession(device_id, om_path)`；用 `session.infer(feeds=[...])` 或 `session.infer(batch_inputs, mode='dymshape', custom_sizes=...)` 替换 `session.run(...)` / `self.infer(...)`。
+- 常见改法：导入 `from ais_bench.infer.interface import InferSession`；在当前可见卡下初始化 `InferSession(0, om_path)`；用 `session.infer(feeds=[...])` 或 `session.infer(batch_inputs, mode='dymshape', custom_sizes=...)` 替换 `session.run(...)` / `self.infer(...)`。
 - 保留原预处理和后处理；只替换核心模型调用，降低精度漂移。
-- OM 路径、device_id、batch、dynamic shape 不硬编码；样本中有硬编码时，新适配要参数化并在 README 写默认值。
+- OM 路径、batch、dynamic shape 不硬编码；物理卡选择使用 `ASCEND_RT_VISIBLE_DEVICES`。若 ais_bench API 需要 device id，在当前可见卡内传 `0`，不要用 `npu:<id>` 表示物理卡。
 
 ### 3. NPU 不支持或低效算子用等价表达/CPU fallback/拆图
 

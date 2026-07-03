@@ -18,9 +18,9 @@
 ## README 与文档结构
 
 - 不重复写同一段获取源码/安装步骤；冗余段落会被要求删除。
-- README 要写清“配套信息”：上游 commit、权重版本、配置文件版本、数据集版本、芯片/机器型号、CANN/torch_npu/镜像版本。
-- README 要补充获取芯片型号的步骤，例如 `npu-smi info` 与 `SOC_VERSION`/`chip_name` 如何设置。
-- 硬件字段要准确：区分芯片型号、机器型号、Atlas 300I DUO/Pro、Atlas 800I A2/A3、单芯/整卡等表述。
+- README 要写清“配套信息”：上游 commit、权重版本、配置文件版本、数据集版本、对外硬件型号（如 Atlas 800I A2）、CANN/torch_npu/镜像版本。
+- README 要写清对外硬件型号（如 Atlas 800I A2）；`SOC_VERSION`/`chip_name` 只作为转换或脚本参数说明，不作为公开性能表的硬件字段。
+- 硬件字段要使用对外产品/整机型号，例如 Atlas 300I DUO/Pro、Atlas 800I A2/A3；不要在 README/PR 性能表中暴露详细芯片型号、芯片步进或内部代号。
 - 如果模型名/标题与实际示例版本不同（例如 SAM2 vs SAM2.1），必须说明模型、配置、权重成套使用，避免 review 质疑。
 - 如果依赖外部小文件或清单（例如 `val_wav.scp`），README 必须说明来源、生成方式或上游自带路径。
 - 若更新 `ACL_PyTorch/ModeList.md`，表头“built-in/contrib 合计”和“项目中合计共”必须与表格实际行数一致；有 GPL 外链模型时单独扣除/加回，不能只按直觉加一。
@@ -29,7 +29,8 @@
 ## 可复现性
 
 - 上游源码必须固定 commit/revision；否则 reviewer 会担心原仓更新后 patch 无法应用。
-- 导出/转换/推理脚本不要只写死本地路径或输出名；把 onnx output、权重路径、batch、soc_version、device_id 等暴露为参数，并提供默认值。
+- 推理、评测和 benchmark 入口默认设备必须是 NPU；README 主命令、脚本默认参数和 `--help` 要一致。CPU 只能作为显式 baseline/fallback 命令，不能成为默认模式。
+- 导出/转换/推理脚本不要只写死本地路径或输出名；把 onnx output、权重路径、batch、soc_version、数据路径等暴露为参数，并提供默认值；物理卡选择用 `ASCEND_RT_VISIBLE_DEVICES=<id>`，不要在 README 主命令中使用 `npu:<id>`。
 - 如果把 shell 脚本改成 Python 脚本更易提供默认参数和跨环境复现，优先 Python。
 - 下载脚本只有在原生 HF/ModelScope 命令在常见网络下不可用或需要特殊目录结构时才保留；README 解释必要性。
 - 数据准备脚本优先单一 Python 主入口（如 `prepare_data.py`），不要同时维护功能重复的 `.sh` 包装和 Python 脚本。每个 dataset 分支都要做最小 dry run：构造小型 tar/zip、最短音频和最小 reference label/RTTM，验证输出 scp、reference 路径和 README 命令一致。尤其检查 GitHub zip 常见的顶层目录嵌套（如 `repo-master/repo-master/...`）。
@@ -39,7 +40,8 @@
 ## 精度检视
 
 - 默认要求有精度验证数据；不能只写“推理正常”。
-- 精度对比优先基于论文、官方公开数据集或 ModelZoo 同类可复现数据集；如果源仓 README/论文/release 已给出 accuracy 表，默认要求说明 NPU 结果是否按同一 checkpoint、数据集和 metric 对齐。
+- 精度对比优先基于论文、官方公开完整数据集/split 或 ModelZoo 同类可复现数据集；如果源仓 README/论文/release 已给出 accuracy 表，默认要求说明 NPU 结果是否按同一 checkpoint、官方相同完整数据集/split 和 metric 对齐，不要求 CPU 精度对比。
+- 如果官方列出多个数据集，允许 PR 只评测其中一部分，但必须列明已评测/未评测数据集；对已评测数据集必须跑完整官方 split。小样本或子集只能作为 smoke test/输出对齐，不能直接对比官方完整集指标。
 - 如果无法使用官方指标或源仓没有可复现 accuracy，必须说明原因；此时才使用 CPU/upstream 与 NPU 对齐，并保证同一评测脚本、同一数据划分、同一随机种子/阈值/top-k/IoU 策略。
 - 对 ASR 等任务，推理结果写文件不等于精度；必须单独计算 WER/CER/BLEU 等任务指标，并给出计算命令。
 - 生成/多模态/机器人模型至少提供可复现的小集合评测或语义/数值对齐说明；不要只贴截图。
@@ -47,7 +49,7 @@
 
 ## 性能检视
 
-- 性能指标必须符合任务：ASR/TTS/音频默认 RTF/RTFx 或音频时长归一化指标；检测/分类/OM 默认 latency/FPS；服务模型默认 QPS/tokens/s/latency。源仓已有 benchmark/performance 数据时，reviewer 会关注是否复用了同一 benchmark 口径，或是否解释了硬件/输入/batch/统计差异；不会默认要求本地 CPU 性能对比。
+- 性能指标必须符合任务：ASR/TTS/音频默认 RTF 或音频时长归一化指标，RTFx=1/RTF 可作为补充；检测/分类/OM 默认 latency/FPS；服务模型默认 QPS/tokens/s/latency。源仓已有官方/GPU benchmark/performance 数据时，reviewer 会关注是否复用了同一 benchmark 口径，或是否解释了硬件/输入/batch/统计差异；默认没有本地 GPU 环境时使用官方性能作参考。CPU 性能对比对 GPU→NPU 迁移没有意义，不应在 README/PR 中体现。
 - 指标单位要明确，性能表不要混淆 ms、s、FPS、RTF、QPS。
 - 端到端耗时和纯模型耗时分开；包含数据加载、后处理、CPU fallback、首次编译时必须单列说明。
 - 若更新性能结果，README 表格、脚本输出、PR 描述中的数字要一致。

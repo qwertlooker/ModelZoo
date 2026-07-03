@@ -42,4 +42,4 @@
 - 近期图像优先 README 往往包含“版本配套表”，并提醒不要重装镜像已提供的 `torch`/`torch_npu`。
 - OM 项目通常包含 `export_onnx.py`/`pth2onnx.py`、可选 ONNX 修复/优化脚本、`convert_om.sh` 或内嵌 `atc` 命令、`infer.py`、`eval_accuracy.py`、`eval_performance.py`/`benchmark.sh`。
 - vLLM/TorchAir 项目重点记录容器启动、服务命令、NPU 显存/环境变量和任务专用客户端脚本，而不是 ATC 转换。
-- 精度证据可以是数值张量 diff、任务指标（WER/BLEU/mAP/IoU/overall）或端到端服务评测；性能证据必须说明芯片、batch/并发、输入 shape、精度模式、warmup/loop 次数和测试工具。
+- 精度证据可以是数值张量 diff、任务指标（WER/BLEU/mAP/IoU/overall）或端到端服务评测；性能证据必须说明对外硬件型号、batch/并发、输入 shape、精度模式、warmup/loop 次数和测试工具。

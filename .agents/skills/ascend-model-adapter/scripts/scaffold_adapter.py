@@ -37,14 +37,15 @@ def write(path: Path, content: str, executable: bool = False, force: bool = Fals
         path.chmod(path.stat().st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
 
 
-def readme(model: str, url: str, category: str, route: str, image: str, soc: str) -> str:
+def readme(model: str, url: str, category: str, route: str, image: str, hardware_model: str) -> str:
     if route == "onnx-om":
         route_note = f"""
 ## 模型导出/转换
 
 ```bash
 python3 export_onnx.py --model-path <checkpoint_or_repo> --output model.onnx
-bash convert_om.sh model.onnx model {soc}
+export SOC_VERSION=<ATC转换所需soc_version>
+bash convert_om.sh model.onnx model ${{SOC_VERSION}}
 ```
 
 TODO：补充 ONNX checker/简化结果、ATC 日志、OM 路径和样例推理命令。
@@ -78,10 +79,10 @@ TODO：根据实际路线补充。ONNX/OM 需要导出和 ATC；torch_npu/TorchA
 - 上游模型：{url}
 - ModelZoo 类别：{category or 'TODO'}
 - 推荐适配路线：{route}
-- 目标芯片：{soc}
+- 目标硬件型号：{hardware_model}
 - 交付范围：Ascend NPU 镜像环境、源码 patch、推理、精度与性能验证。
 
-TODO：补充任务简介、论文/项目链接、license、固定 commit/revision、checkpoint/权重版本、支持输入输出和限制。复杂 pipeline 才补组件表；简单模型不要为了模板完整性新增冗余章节。
+TODO：补充任务简介、论文/项目链接、license、固定 commit/revision、checkpoint/权重版本、支持输入输出和限制。公开文档硬件字段使用 `Atlas 800I A2` 这类对外型号，不写详细芯片型号、芯片步进或内部代号；`SOC_VERSION` 仅作为 ATC 转换参数。复杂 pipeline 才补组件表；简单模型不要为了模板完整性新增冗余章节。
 
 ## 推理环境准备
 
@@ -179,7 +180,7 @@ TODO：如需数据准备脚本，优先提供单一 `prepare_data.py`，直接�
 {route_note}
 ## 模型推理
 
-优先运行 patch 后的上游推理入口。输入输出 tensor 名称、shape、dtype、layout 可放在本节；OM 固定输入输出时必须列清。
+优先运行 patch 后的上游推理入口。推理、评测和 benchmark 脚本默认设备必须是 NPU；如果提供 `--device`，默认值设为 `npu`，CPU 仅用于显式 `--device cpu` baseline/fallback；切换物理卡时在命令前 `export ASCEND_RT_VISIBLE_DEVICES=<id>`，不要写 `npu:0`。输入输出 tensor 名称、shape、dtype、layout 可放在本节；OM 固定输入输出时必须列清。
 
 ```bash
 # python3 <upstream_infer.py> --model <checkpoint_or_repo> --device npu --input <sample_input> --output outputs
@@ -189,19 +190,19 @@ TODO：如需数据准备脚本，优先提供单一 `prepare_data.py`，直接�
 
 ## 精度与性能验证
 
-默认复用上游原始指标、数据集切分、预处理和后处理；无法复现原始指标时，使用同一输入集的 CPU/upstream baseline 与 NPU 输出对齐，并说明替代原因。精度表合并官方/源仓/GPU/CPU baseline 与 NPU 结果，不拆重复章节。
+默认复用上游原始指标、官方完整数据集/split、预处理和后处理。本适配是 GPU/上游实现到 NPU 的迁移：源仓已有官方/GPU 精度指标时，不要求 CPU 精度对比，直接用 NPU 结果对齐官方/GPU 口径。若官方有多个数据集，可只评测其中一部分并列明未评测项；对已选择的数据集必须完整评测。无法复现原始指标或无官方指标时，才使用同一输入集的 CPU/upstream baseline 与 NPU 输出对齐，并说明替代原因。
 
-| 数据集 | 指标 | 官方/源仓/GPU/CPU baseline | NPU 结果 | 差异 | 结论 |
+| 数据集/split | 指标 | 官方/源仓/GPU 精度 | NPU 结果 | 差异 | 结论 |
 |---|---|---:|---:|---:|---|
-| TODO | 原始指标/TODO | TODO | TODO | TODO | 待 NPU 验证 |
+| TODO（完整官方 split） | 原始指标/TODO | TODO | TODO | TODO | 待 NPU 验证 |
 
-性能默认优先复用上游或同类 ModelZoo benchmark 口径；没有可比口径时，OM 用 `ais_bench` latency/FPS，服务模型用 QPS/tokens/s/latency，音频用 RTF/RTFx，pipeline 同时给纯模型和端到端。首次编译、CPU fallback、数据加载/后处理耗时需单列。
+性能默认优先复用上游官方/GPU 或同类 ModelZoo benchmark 口径；默认没有本地 GPU 环境时使用官方发布性能作为参考，没有官方/GPU 性能时只报告 NPU 性能。CPU 性能对比对 GPU→NPU 迁移没有意义，默认不在 README/PR 中体现。没有可比口径时，OM 用 `ais_bench` latency/FPS，服务模型用 QPS/tokens/s/latency，音频默认用 RTF（耗时/音频时长，越低越好）为主，可补充 RTFx=1/RTF（实时倍速，越高越好），pipeline 同时给纯模型和端到端。首次编译、CPU fallback、数据加载/后处理耗时需单列。
 
-| 芯片 | Batch/并发 | 输入规格 | 精度模式 | 工具/loop | 性能口径 | 性能 |
+| 硬件型号 | Batch/并发 | 输入规格 | 精度模式 | 工具/loop | 性能口径 | NPU 性能 |
 |---|---:|---|---|---|---|---:|
-| {soc} | TODO | TODO | TODO | TODO | 原始口径/ais_bench/E2E | 待 NPU 验证 |
+| {hardware_model} | TODO | TODO | TODO | TODO | 原始口径/ais_bench/E2E | 待 NPU 验证 |
 
-多数据集/多 split 可在多张空闲 NPU 上并行运行，例如为不同任务传 `--device npu:0`、`--device npu:1`，日志和输出目录按数据集/device_id 区分。
+多数据集/多 split 可在多张空闲 NPU 上并行运行，例如为不同任务分别执行 `export ASCEND_RT_VISIBLE_DEVICES=0`、`export ASCEND_RT_VISIBLE_DEVICES=1`，脚本参数仍传 `--device npu`，日志和输出目录按数据集/可见卡 ID 区分。
 
 ## FAQ 与已知问题
 
@@ -223,8 +224,10 @@ TODO：如需数据准备脚本，优先提供单一 `prepare_data.py`，直接�
 - [ ] 使用者提供 checkpoint 时已记录目录树和配套配置；没有静默替换权重。
 - [ ] patch 可通过 `git apply --check`。
 - [ ] 依赖安装不会覆盖镜像内 `torch/torch_npu/torchvision/torchaudio`，并已做 import/`--help`/单样例 smoke test。
-- [ ] NPU 精度与 CPU/官方指标对齐；精度不是只靠截图或输出文件证明。
-- [ ] NPU 性能结果可复现，指标和单位适合该任务。
+- [ ] 推理、评测和 benchmark 入口默认设备为 NPU，CPU 只作为显式 fallback/baseline。
+- [ ] README/PR/性能表使用对外硬件型号（如 Atlas 800I A2），未暴露详细芯片型号或内部代号。
+- [ ] 源仓有官方精度时，NPU 精度使用相同完整数据集/split 对齐官方指标，无需 CPU 对比；无官方指标时才做 CPU/upstream baseline 对齐。
+- [ ] NPU 性能结果可复现，指标和单位适合该任务；如有官方/GPU 性能，已记录参考口径；未展示 CPU 性能对比。
 - [ ] CPU fallback 有具体技术阻塞说明。
 - [ ] README 无未处理 TODO 或已明确标记 `待 NPU 验证`。
 """
@@ -260,7 +263,11 @@ def convert_om() -> str:
 set -euo pipefail
 ONNX_PATH=${1:-model.onnx}
 OUTPUT_PREFIX=${2:-model}
-SOC_VERSION=${3:-${SOC_VERSION:-Ascend910B}}
+SOC_VERSION=${3:-${SOC_VERSION:-}}
+if [ -z "${SOC_VERSION}" ]; then
+  echo "ERROR: set SOC_VERSION for ATC conversion." >&2
+  exit 2
+fi
 INPUT_SHAPE=${INPUT_SHAPE:-"TODO_input:1,3,224,224"}
 INPUT_FORMAT=${INPUT_FORMAT:-NCHW}
 PRECISION_MODE=${PRECISION_MODE:-mixed_float16}
@@ -298,7 +305,6 @@ def main():
     parser.add_argument("--input", required=True, help="input data path")
     parser.add_argument("--output", default="outputs", help="output directory")
     parser.add_argument("--device", choices=["npu", "cpu"], default="npu")
-    parser.add_argument("--device-id", type=int, default=0)
     args = parser.parse_args()
     Path(args.output).mkdir(parents=True, exist_ok=True)
 
@@ -321,7 +327,7 @@ def main() -> int:
     ap.add_argument("--category", default="TODO")
     ap.add_argument("--route", choices=ROUTES, default="auto")
     ap.add_argument("--image", default=DEFAULT_IMAGE)
-    ap.add_argument("--soc-version", default="Ascend910B")
+    ap.add_argument("--hardware-model", default="Atlas 800I A2", help="Public-facing hardware model for README/performance tables")
     ap.add_argument("--force", action="store_true")
     ap.add_argument("--with-infer", action="store_true", help="Generate optional infer.py only when upstream lacks an inference entry")
     args = ap.parse_args()
@@ -331,7 +337,7 @@ def main() -> int:
     out.mkdir(parents=True, exist_ok=True)
 
     files = {
-        "README.md": readme(model, args.model_url, args.category, args.route, args.image, args.soc_version),
+        "README.md": readme(model, args.model_url, args.category, args.route, args.image, args.hardware_model),
         "requirements.txt": "# Add business dependencies here with minimal changes from upstream.\n# Do not list image-provided torch/torch_npu/torchvision/torchaudio unless intentionally changing the whole verified stack.\n# Remove only blocking/conflicting GPU/CUDA-only packages; keep harmless upstream dependencies to reduce review risk.\n",
     }
     executable: set[str] = set()

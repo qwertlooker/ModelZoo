@@ -9,7 +9,7 @@
 - 模型/上游链接：
 - 固定 commit/revision：
 - 使用者提供 checkpoint/权重目录：
-- 目标芯片/镜像/CANN/torch_npu：
+- 目标对外硬件型号/镜像/CANN/torch_npu：
 - 适配路线：ONNX-OM / torch_npu / TorchAir / vLLM-Ascend / 拆图混合
 - 源仓 accuracy/performance 口径：
 
@@ -17,7 +17,7 @@
 
 | 项目 | 旧材料/参考环境 | 当前验证环境 | 影响与处理 |
 |---|---|---|---|
-| 芯片 |  |  |  |
+| 对外硬件型号 |  |  |  |
 | 镜像/CANN |  |  |  |
 | Python |  |  |  |
 | torch/torch_npu |  |  |  |

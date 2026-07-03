@@ -13,7 +13,8 @@
 - 过滤或 patch 依赖后，默认用上游推理/评测入口做 import smoke test（例如 `python -c` 导入入口模块或跑 `--help`/单样例），补齐被过滤掉但实际需要的业务依赖；不要只凭 requirements 文件静态推断。
 - `torch_npu` 导入的 `undefined symbol`、`aclruntime` wheel ABI、Python 版本不匹配通常是版本栈问题，先查环境再改模型。
 - 默认给出已验证的配套环境：镜像/CANN/torch/torch_npu/torchvision/torchaudio/Python 必须成套。不要在低版本 CANN 镜像中直接 pip 升级到另一套 torch/torch_npu 作为推荐环境；若确需自建环境，写成 Dockerfile 或明确“待验证”，并给出配套来源。
-- 基于已有适配材料重新验证时，先列环境差异表（芯片、CANN、Python、torch、torch_npu、torchvision/torchaudio、关键第三方库），逐条判断旧 patch 是否仍必要或变成冗余；版本相关 FAQ 只能按当前验证环境和兼容环境分条件描述。
+- 基于已有适配材料重新验证时，先列环境差异表（对外硬件型号、CANN、Python、torch、torch_npu、torchvision/torchaudio、关键第三方库），逐条判断旧 patch 是否仍必要或变成冗余；版本相关 FAQ 只能按当前验证环境和兼容环境分条件描述。
+- README、性能表和 PR 描述中的硬件字段默认写对外产品/整机型号（如 `Atlas 800I A2`、`Atlas 800I A3`、`Atlas 300I DUO/Pro`），不要写详细芯片型号、芯片步进或内部代号。`SOC_VERSION` 可作为 ATC/脚本参数记录，但不要当作公开性能表的硬件型号。
 - README 的镜像、Python、CANN、torch/torch_npu/torchaudio 版本、FAQ 和 patch 说明必须相互一致；只在对应版本会触发的问题前标注版本条件，避免用 torch 2.1 镜像却无条件写 PyTorch 2.6+/torchaudio 2.9+ 问题。
 - Paddle、vLLM、TorchAir、DrivingSDK、OpenCV、tesseract 等依赖容易互相冲突；多组件流水线默认允许拆环境。
 - 使用者提供 checkpoint、权重目录或模型包时，默认以该 artifact 为准；只在文件缺失、配置不成套或无法复现时建议替代权重，并记录差异。
@@ -25,7 +26,7 @@
 - 大多数适配项目都有 patch。常见修改点：设备选择、CUDA 假设、custom op、导出脚本、attention/位置编码、数据加载、后处理、评测脚本。详细修改模式见 `patch-modification-patterns.md`。
 - patch 要基于固定 commit，README 写明应用位置和 `git apply --check`。如果 patch 只能执行一次，写入 FAQ。默认保持最小补丁：只改适配必需路径，不把调试输出、本地路径、无关重构带入。
 - 遇到 `cuda`、`torch.cuda`、`USE_CUDA`、CUDA extension、`setup.py` 编译扩展时，优先改为 NPU 等价路径；不能改的部分标明 CPU fallback。
-- 优先 patch 上游推理/评测脚本：如果上游已有入口，通过 patch 增加 NPU 设备参数；只有上游没有统一入口或需要组合多个子模块时才新增脚本。
+- 优先 patch 上游推理/评测脚本：如果上游已有入口，通过 patch 增加 NPU 设备参数，并把默认设备设为 NPU（如 `--device npu`）；需要指定物理卡时在命令前 `export ASCEND_RT_VISIBLE_DEVICES=<id>`，不要使用 `npu:0`/`npu:<id>`。CPU 只作为显式 fallback/baseline。只有上游没有统一入口或需要组合多个子模块时才新增脚本。
 - 推理后端路由 patch：当上游根据配置硬编码 ONNX Runtime、TF SavedModel、Paddle inference、OpenVINO 等后端时，先评估同一项目内是否有 PyTorch 等价类可迁移到 NPU。在 ModelZoo Ascend 默认 PyTorch/torch_npu 适配场景中，ONNX Runtime 通常不能直接驱动 Ascend NPU，容易退化为 CPU 路径。
 - 后端替换与模型替换要分清：同一架构同一权重从 ORT/TF/Paddle 切到 PyTorch/torch_npu 属于后端替换，默认做 logits/embedding/输出张量数值等效性验证；若更换 checkpoint、模型类、tokenizer、聚类策略、阈值或预后处理，则属于口径变化，必须重新跑任务指标并声明不能直接比较源仓结果。
 
@@ -37,10 +38,11 @@
 
 ## 推理运行
 
-- OM 路线默认提供导出/转换与可用 `ais_bench` 的 benchmark 说明；推理入口优先 patch 上游脚本，确需新增时使用单一脚本和 `--device npu/cpu` 参数，不默认拆成 `infer_cpu.py`/`infer_npu.py`。TorchAir/vLLM 路线默认提供服务启动、客户端脚本、编译缓存和并发说明。
+- OM 路线默认提供导出/转换与可用 `ais_bench` 的 benchmark 说明；推理入口优先 patch 上游脚本，确需新增时使用单一脚本和 `--device npu/cpu` 参数，默认值必须是 `npu`，不默认拆成 `infer_cpu.py`/`infer_npu.py`。TorchAir/vLLM 路线默认提供服务启动、客户端脚本、编译缓存和并发说明。
+- 评测和 benchmark 入口同样默认 NPU：README 主命令、脚本默认参数和 help 文案应体现“不传 `--device` 时走 NPU”；CPU baseline/排障命令放在附注或 FAQ，并要求显式 `--device cpu`。
 - vLLM/TorchAir 首次图编译耗时不能直接算入稳定性能，除非表格单独标明。
 - 若 pipeline 中存在 CPU 回退，性能结果要拆分纯 NPU 子模型与端到端耗时。
-- 多数据集、多 split 或多模型变体评测在多卡机器上可并行：先用 `npu-smi info -t usages -i <id>`（必要时带 `-c <chip>`）和进程检查确认 HBM/AI Core 空闲，再分别传 `--device npu:<id>`、`--device-id <id>` 或 `ASCEND_RT_VISIBLE_DEVICES=<id>`。每个数据集单独写日志和输出目录，避免并发写同一 cache/manifest。
+- 多数据集、多 split 或多模型变体评测在多卡机器上可并行：先用 `npu-smi info -t usages -i <id>`（必要时带 `-c <chip>`）和进程检查确认 HBM/AI Core 空闲，再分别 `export ASCEND_RT_VISIBLE_DEVICES=<id>` 并传 `--device npu`。每个数据集单独写日志和输出目录，避免并发写同一 cache/manifest。不要用 `--device npu:<id>` 表示物理卡。
 - 不要为省时依赖脆弱的 `npu-smi info` 表格 awk 列位置；不同 CANN/硬件输出格式会变。优先解析 `npu-smi info -t usages` 中的 `Memory/HBM Usage Rate(%)` 与 `Aicore Usage Rate(%)` 键值行，或用 `npu-smi info proc` 判断进程占用；检测不到时要求显式指定 device，而不是静默选 0 卡。
 
 ## 权重、数据和离线部署
@@ -61,28 +63,29 @@
 
 ## 源仓指标对齐
 
-- 上游 README、论文、release notes、benchmark 脚本、评测日志中已有 accuracy/performance 数据时，默认分开处理：精度对齐源仓 accuracy 口径；性能对齐源仓 benchmark 口径并给出 NPU 结果。
-- 精度对齐前记录：checkpoint/权重版本、模型变体、数据集或子集、随机种子、预处理/后处理、metric、阈值、聚类/beam/search 参数、评测工具版本和关键选项（如 collar、overlap、ignore 区域）。源仓没有可复现 accuracy 时，才使用 CPU/upstream baseline 与 NPU 输出对齐。
+- 上游 README、论文、release notes、benchmark 脚本、评测日志中已有 accuracy/performance 数据时，默认分开处理：精度直接对齐源仓/官方（通常是 GPU）accuracy 口径，不再额外要求 CPU 精度对比；性能对齐源仓/官方（通常是 GPU）benchmark 口径并给出 NPU 结果。当前默认没有本地 GPU 环境，使用官方发布结果作为参考，不要求重新跑 GPU。
+- 精度对齐前记录：checkpoint/权重版本、模型变体、官方数据集和 split、随机种子、预处理/后处理、metric、阈值、聚类/beam/search 参数、评测工具版本和关键选项（如 collar、overlap、ignore 区域）。源仓没有可复现 accuracy 时，才使用 CPU/upstream baseline 与 NPU 输出对齐。
+- 官方精度对比必须使用与官方相同的完整数据集/split 和评测脚本；如果官方列出多个数据集，可只选择其中一部分评测，但要明确哪些已评测、哪些未评测，且被选择的数据集不能只跑小样本。小样本/子集结果只能命名为 smoke test、输出对齐或子集验证，不能直接与官方完整集 accuracy 比较。
 - 多模型变体或多套配置时，优先查 README benchmark 表、论文实验章节和 release 说明，确认当前 checkpoint 对应哪套评测配置；不要只看默认 config 或示例脚本。若默认 config 与 benchmark 口径不同，README 必须显式说明。
 - 只有模型组件、checkpoint、预处理/后处理和评测脚本口径与源仓一致时，才能把 NPU 结果和源仓 accuracy 表直接对齐；若替换了嵌入模型、tokenizer、label map、聚类策略或阈值，只能写“参考源仓指标，当前口径不同”，并给出当前口径验证。
-- 性能对齐前记录：输入规格、batch/并发、warmup/loop、统计区间、端到端/纯模型定义、是否包含数据加载/后处理/首次编译。性能只要求 NPU 可复现，不默认采集或比较本地 CPU 性能。
+- 性能对齐前记录官方/GPU 口径：输入规格、batch/并发、warmup/loop、统计区间、端到端/纯模型定义、是否包含数据加载/后处理/首次编译。性能只要求 NPU 可复现并尽量对齐官方/GPU 口径；默认不采集、不比较、不展示本地 CPU 性能。
 - NPU 结果优先复用上游评测/benchmark 脚本或 patch 后的同一入口；不能复用时，README 必须解释差异，不能直接换成更容易或更好看的口径。
-- 若硬件不同导致性能不可直接比较，仍保留源仓数据作为参考基线，并明确写“硬件/口径不同，不直接比较”；同时给出 NPU 可复现命令和结果。
+- 若 NPU 硬件与官方/GPU 硬件不同导致性能不可直接比较，仍保留官方/GPU 数据作为参考基线，并明确写“硬件/口径不同，不直接比较”；同时给出 NPU 可复现命令和结果。
 
 ## 精度指标
 
-- 默认复用原始项目的官方 metric、数据集和预处理后处理；源仓已有 accuracy 表或评测命令时，优先对齐该表/命令。
+- 默认复用原始项目的官方 metric、完整数据集/split 和预处理后处理；源仓已有 accuracy 表或评测命令时，优先对齐该表/命令，不要求 CPU 精度对比。
 - 只有源仓没有可复现 accuracy/官方指标或官方评测不可复现时，才用 CPU/upstream baseline 与 NPU 对齐，并说明替代原因。
 - CPU/NPU 输出对齐不能冒充任务指标：没有 reference label/RTTM/GT 时，不要把边界差、输出一致率写成 DER、WER、mAP 等官方 metric；应命名为“输出对齐/RTTM 边界差/cosine diff”等替代指标。
-- 常见任务口径：分类 top-1/top-5，检测 mAP，分割 IoU/mIoU，OCR/VLM 用官方 end-to-end 指标，ASR 用 WER/CER/BLEU，TTS/音频生成同时给样例和 RTF/RTFx，embedding/reranker 用检索或排序指标，LLM/VLM 服务用任务评测或语义一致性样例。
+- 常见任务口径：分类 top-1/top-5，检测 mAP，分割 IoU/mIoU，OCR/VLM 用官方 end-to-end 指标，ASR 用 WER/CER/BLEU，TTS/音频生成同时给样例和 RTF；如需要可补充 RTFx=1/RTF，embedding/reranker 用检索或排序指标，LLM/VLM 服务用任务评测或语义一致性样例。
 - 指标计算方式不同则不与官方直接比较。
 
 ## 性能指标
 
-- 优先复用原始项目已有 benchmark/performance 口径或同类 ModelZoo 样本口径；源仓有 benchmark 脚本时优先 patch 后在 NPU 运行。性能数据不要求与本地 CPU 对比。
-- OM 纯模型默认 `ais_bench` latency/FPS；服务模型默认 QPS、tokens/s、端到端 latency；音频默认 RTF/RTFx；pipeline 默认同时给纯模型和端到端。
-- 每个性能表都写芯片、batch/并发、输入规格、精度模式、warmup、loop、工具、是否包含数据加载/前处理/后处理/聚类/模型加载/首次编译/cache miss/CPU fallback；纯模型耗时和 pipeline 端到端耗时不能混写，必要时分两张表。
-- 性能表默认只放 NPU；如为了排障临时测了 CPU，放入过程记录或附注，不作为主表对比项，除非用户或上库规范明确要求。
+- 优先复用原始项目已有官方/GPU benchmark/performance 口径或同类 ModelZoo 样本口径；源仓有 benchmark 脚本时优先 patch 后在 NPU 运行。性能数据不与本地 CPU 对比；如果没有官方/GPU 性能，只报告 NPU 性能。
+- OM 纯模型默认 `ais_bench` latency/FPS；服务模型默认 QPS、tokens/s、端到端 latency；音频默认 RTF（耗时/音频时长，越低越好）为主，RTFx=1/RTF（实时倍速，越高越好）为可选补充；pipeline 默认同时给纯模型和端到端。
+- 每个性能表都写对外硬件型号（如 Atlas 800I A2）、batch/并发、输入规格、精度模式、warmup、loop、工具、是否包含数据加载/前处理/后处理/聚类/模型加载/首次编译/cache miss/CPU fallback；纯模型耗时和 pipeline 端到端耗时不能混写，必要时分两张表。
+- 性能表默认只放 NPU 结果，可在文字中引用官方/GPU 参考性能和口径；不要加入本地 CPU 性能列。若为了排障临时测了 CPU，只放入不上库的过程记录，不在 README/PR 中体现。
 
 ## 过程记录与反思改进
 
@@ -94,7 +97,7 @@
 ## PR 检视默认自检
 
 - 提交前按 `pr-review-heuristics.md` 的审查口径自检，但不要把它变成用户交付物。
-- 默认补齐精度验证数据、性能单位、芯片/机器型号、上游 commit、权重/配置成套关系、外部数据文件来源。
+- 默认补齐精度验证数据、性能单位、对外硬件型号、上游 commit、权重/配置成套关系、外部数据文件来源。
 - README 中的命令必须至少做静态自检，避免明显语法错误、错误环境变量名、错误相对路径、未定义脚本或未随仓交付的辅助文件。
 - 默认清理 debug code、重复 README 段落、无用注释、残留 import、硬编码路径和不清晰变量名。
 - 默认确保 PR 描述不保留模板占位，Self-test 写出环境、转换、推理、精度和性能证据。
