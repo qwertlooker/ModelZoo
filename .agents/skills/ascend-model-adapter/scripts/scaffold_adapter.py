@@ -2,6 +2,7 @@
 """Create a minimal ModelZoo-PyTorch Ascend adaptation scaffold.
 
 Generated files follow actual ACL_PyTorch/built-in conventions:
+- Generate directly into the final flat project root, not an adapter subdir.
 - Prefer upstream code + patch over duplicate scripts.
 - Do not default-generate env_check.py, docker_run.sh, collect_report.py, or adaptation_config.yaml.
 - Do not default-generate infer.py; use --with-infer only when upstream lacks an inference entry.
@@ -15,7 +16,7 @@ import stat
 from pathlib import Path
 from urllib.parse import urlparse
 
-DEFAULT_IMAGE = "swr.cn-south-1.myhuaweicloud.com/ascendhub/torch-onnx-inference:cann8.3.rc1_torch2.1.0-800I-A2-ubuntu22.04-py3.11-aarch64"
+DEFAULT_IMAGE = "swr.cn-south-1.myhuaweicloud.com/ascendhub/torch-onnx-inference:cann8.3.rc1_torch2.1.0-800I-A2-openeuler24.03-py3.11-aarch64"
 ROUTES = ["auto", "onnx-om", "torch-npu", "torchair", "vllm-ascend"]
 
 
@@ -45,6 +46,8 @@ def readme(model: str, url: str, category: str, route: str, image: str, soc: str
 python3 export_onnx.py --model-path <checkpoint_or_repo> --output model.onnx
 bash convert_om.sh model.onnx model {soc}
 ```
+
+TODO：补充 ONNX checker/简化结果、ATC 日志、OM 路径和样例推理命令。
 """
     elif route == "torchair":
         route_note = """
@@ -68,7 +71,7 @@ TODO：根据实际路线补充。ONNX/OM 需要导出和 ATC；torch_npu/TorchA
     return f"""
 # {model}-推理指导
 
-> 状态：脚手架已生成。请补齐 TODO，并在 NPU 环境完成验证后再上库。
+> 状态：脚手架已生成。请删除 TODO 或明确标记 `待 NPU 验证`，并在 NPU 环境完成验证后再上库。
 
 ## 概述
 
@@ -78,22 +81,7 @@ TODO：根据实际路线补充。ONNX/OM 需要导出和 ATC；torch_npu/TorchA
 - 目标芯片：{soc}
 - 交付范围：Ascend NPU 镜像环境、源码 patch、推理、精度与性能验证。
 
-TODO：补充任务简介、论文/项目链接、license、固定 commit/revision、支持输入输出和限制。
-
-## Pipeline 组件部署（多组件模型填写）
-
-| 组件 | 上游默认后端 | 选定后端 | NPU 可行性 | CPU fallback 原因 |
-|---|---|---|---|---|
-| TODO | TODO | torch_npu/OM/TorchAir/CPU | TODO | TODO |
-
-CPU fallback 必须有具体技术阻塞，不能只写“上游默认 CPU”。
-
-## 输入输出数据
-
-| 名称 | dtype | shape | layout | 说明 |
-|---|---|---|---|---|
-| TODO_input | TODO | TODO | TODO | TODO |
-| TODO_output | TODO | TODO | TODO | TODO |
+TODO：补充任务简介、论文/项目链接、license、固定 commit/revision、checkpoint/权重版本、支持输入输出和限制。复杂 pipeline 才补组件表；简单模型不要为了模板完整性新增冗余章节。
 
 ## 推理环境准备
 
@@ -103,25 +91,38 @@ CPU fallback 必须有具体技术阻塞，不能只写“上游默认 CPU”。
 | CANN | TODO | `source /usr/local/Ascend/ascend-toolkit/set_env.sh` |
 | Python | TODO | 镜像内置或业务环境 |
 | PyTorch / torch_npu | TODO | 镜像内置，通常不要重装 |
+| torchvision / torchaudio | TODO | 与镜像内 torch ABI 配套，通常不要重装 |
 | 推理工具 | TODO | ATC / ais_bench / msit / TorchAir / vLLM-Ascend |
 
-请勿在容器内用 pip 重装镜像内置的 `torch/torch_npu`，除非 README 明确解释原因。
+请勿在容器内用 pip 重装镜像内置的 `torch/torch_npu/torchvision/torchaudio`，除非 README 明确解释成套版本来源、恢复命令和验证范围。
 
-### 默认镜像
+### 创建并进入容器
+
+将 `<container-name>` 替换为容器名，将 `<宿主机工程目录>` 替换为本目录在宿主机上的绝对路径。
 
 ```bash
 export IMAGE={image}
 docker pull ${{IMAGE}}
-docker run -it --rm --net=host --privileged=true --shm-size=256g \\
+
+docker run -itd -u root --net=host --privileged=true \\
+  --name <container-name> \\
+  --shm-size=256g \\
+  --ipc=host \\
   --device=/dev/davinci0 \\
   --device=/dev/davinci_manager \\
   --device=/dev/devmm_svm \\
   --device=/dev/hisi_hdc \\
-  -v /usr/local/Ascend/driver:/usr/local/Ascend/driver:ro \\
-  -v /usr/local/sbin/npu-smi:/usr/local/sbin/npu-smi:ro \\
-  -v /etc/ascend_install.info:/etc/ascend_install.info:ro \\
-  -v $PWD:/workspace -w /workspace \\
-  ${{IMAGE}} bash
+  -v /usr/local/Ascend/driver:/usr/local/Ascend/driver \\
+  -v /usr/local/Ascend/firmware:/usr/local/Ascend/firmware:ro \\
+  -v /usr/local/dcmi:/usr/local/dcmi \\
+  -v /usr/local/sbin/npu-smi:/usr/local/sbin/npu-smi \\
+  -v /etc/ascend_install.info:/etc/ascend_install.info \\
+  -v <宿主机工程目录>:<宿主机工程目录> \\
+  -v /root/.cache:/root/.cache \\
+  ${{IMAGE}} bash -i
+
+docker exec -it <container-name> bash
+cd <宿主机工程目录>
 source /usr/local/Ascend/ascend-toolkit/set_env.sh
 npu-smi info
 python3 -c "import torch, torch_npu; print(torch.__version__, torch_npu.__version__, torch.npu.is_available())"
@@ -129,56 +130,99 @@ python3 -c "import torch, torch_npu; print(torch.__version__, torch_npu.__versio
 
 ## 快速上手
 
+### 获取源码并应用 patch
+
 ```bash
 git clone https://gitcode.com/Ascend/ModelZoo-PyTorch.git
+cd ModelZoo-PyTorch/ACL_PyTorch/built-in/{category}/{model}
 # TODO：clone 上游源码并固定 commit/revision
-# git clone {url}
+# git clone {url} <upstream_dir>
 # cd <upstream_dir>
 # git reset --hard <commit>
+# git apply --check ../diff.patch
 # git apply ../diff.patch
+```
+
+### 安装依赖
+
+安装前先预检核心栈和已知业务依赖；`requirements.txt` 只做最小化修改，不要无理由删除不冲突依赖。
+
+```bash
+python3 - <<'PY'
+mods = ["torch", "torch_npu"]  # 按任务追加 transformers/torchaudio/pyannote 等
+missing = []
+for name in mods:
+    try:
+        mod = __import__(name)
+        print(name + ": " + str(getattr(mod, "__version__", "ok")))
+    except Exception as exc:
+        missing.append((name, repr(exc)))
+if missing:
+    raise SystemExit("missing/failed imports: " + str(missing))
+PY
+
 pip install -r requirements.txt
+# 如有 editable 子包：
+# pip install -e ./<subpkg>
+# 顶层包默认禁止解析依赖，避免覆盖镜像 torch 栈：
+# pip install --no-deps -e .
+
+# smoke test
+# python3 <infer_or_eval_entry>.py --help
 ```
 
 ## 准备权重和数据
 
 TODO：优先记录使用者提供的 checkpoint/权重目录；列出配置、tokenizer、label-map、speaker-map 等成套文件和目录树。若替换为其他权重，必须说明原因和差异。
+
+TODO：如需数据准备脚本，优先提供单一 `prepare_data.py`，直接处理 tar/zip、manifest/scp/reference 生成和必要的音频/图像转换；不要再加功能重复的 shell 包装。
 {route_note}
 ## 模型推理
 
-优先运行 patch 后的上游推理入口，例如：
+优先运行 patch 后的上游推理入口。输入输出 tensor 名称、shape、dtype、layout 可放在本节；OM 固定输入输出时必须列清。
 
 ```bash
-# python3 <upstream_infer.py> --model <checkpoint_or_repo> --device npu --input <sample_input>
+# python3 <upstream_infer.py> --model <checkpoint_or_repo> --device npu --input <sample_input> --output outputs
 ```
 
 仅当上游没有统一入口时，使用本目录通过 `--with-infer` 生成的 `infer.py`。
 
-## 精度验证
+## 精度与性能验证
 
-默认复用上游原始指标、数据集切分、预处理和后处理；无法复现原始指标时，使用同一输入集的 CPU/upstream baseline 与 NPU 输出对齐，并说明替代原因。
+默认复用上游原始指标、数据集切分、预处理和后处理；无法复现原始指标时，使用同一输入集的 CPU/upstream baseline 与 NPU 输出对齐，并说明替代原因。精度表合并官方/源仓/GPU/CPU baseline 与 NPU 结果，不拆重复章节。
 
-| 数据集 | 指标 | CPU/官方精度 | NPU 精度 | 差异 | 结论 |
+| 数据集 | 指标 | 官方/源仓/GPU/CPU baseline | NPU 结果 | 差异 | 结论 |
 |---|---|---:|---:|---:|---|
 | TODO | 原始指标/TODO | TODO | TODO | TODO | 待 NPU 验证 |
 
-## 性能验证
-
-默认优先复用上游或同类 ModelZoo benchmark 口径；没有可比口径时，OM 用 `ais_bench` latency/FPS，服务模型用 QPS/tokens/s/latency，音频用 RTF/RTFx，pipeline 同时给纯模型和端到端。首次编译、CPU fallback、数据加载/后处理耗时需单列。
+性能默认优先复用上游或同类 ModelZoo benchmark 口径；没有可比口径时，OM 用 `ais_bench` latency/FPS，服务模型用 QPS/tokens/s/latency，音频用 RTF/RTFx，pipeline 同时给纯模型和端到端。首次编译、CPU fallback、数据加载/后处理耗时需单列。
 
 | 芯片 | Batch/并发 | 输入规格 | 精度模式 | 工具/loop | 性能口径 | 性能 |
 |---|---:|---|---|---|---|---:|
 | {soc} | TODO | TODO | TODO | TODO | 原始口径/ais_bench/E2E | 待 NPU 验证 |
+
+多数据集/多 split 可在多张空闲 NPU 上并行运行，例如为不同任务传 `--device npu:0`、`--device npu:1`，日志和输出目录按数据集/device_id 区分。
 
 ## FAQ 与已知问题
 
 - TODO：列出不支持算子、动态 shape、长时间 ATC 编译、依赖冲突、离线权重下载问题、CPU fallback 原因。
 - CPU-only 运行只能生成材料，不能声明 NPU 验证通过。
 
+## 公网地址说明
+
+只列本 README 实际使用或实测相关的源码、权重、数据集、评测工具、protocol、测试样例、论文、issue/release note、关键预处理工具 URL；不要堆砌未验证地址。
+
+| 名称 | 地址 | 说明 |
+|---|---|---|
+| 上游源码 | {url} | 固定到 TODO commit |
+
 ## 上库自检
 
+- [ ] 脚手架直接位于 `ACL_PyTorch/built-in/<category>/<model>` 根目录，README 中无 `ascend_adapter/` 等开发期路径。
 - [ ] 固定上游 URL 和 commit/revision，并提供 checkout 命令。
 - [ ] 使用者提供 checkpoint 时已记录目录树和配套配置；没有静默替换权重。
 - [ ] patch 可通过 `git apply --check`。
+- [ ] 依赖安装不会覆盖镜像内 `torch/torch_npu/torchvision/torchaudio`，并已做 import/`--help`/单样例 smoke test。
 - [ ] NPU 精度与 CPU/官方指标对齐；精度不是只靠截图或输出文件证明。
 - [ ] NPU 性能结果可复现，指标和单位适合该任务。
 - [ ] CPU fallback 有具体技术阻塞说明。
@@ -288,7 +332,7 @@ def main() -> int:
 
     files = {
         "README.md": readme(model, args.model_url, args.category, args.route, args.image, args.soc_version),
-        "requirements.txt": "# Add business dependencies here. Do not list image-provided torch/torch_npu unless explicitly required.\n# If torchvision/torchaudio is needed, install with --no-deps unless intentionally changing torch stack.\n",
+        "requirements.txt": "# Add business dependencies here with minimal changes from upstream.\n# Do not list image-provided torch/torch_npu/torchvision/torchaudio unless intentionally changing the whole verified stack.\n# Remove only blocking/conflicting GPU/CUDA-only packages; keep harmless upstream dependencies to reduce review risk.\n",
     }
     executable: set[str] = set()
     if args.route == "onnx-om":

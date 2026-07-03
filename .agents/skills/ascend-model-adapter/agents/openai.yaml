@@ -1,4 +1,4 @@
 interface:
   display_name: "Ascend Model Adapter"
-  short_description: "生成昇腾 NPU ModelZoo 适配与上库材料"
-  default_prompt: "使用 $ascend-model-adapter 将这个 Hugging Face 或 GitHub 模型适配到昇腾 NPU，并生成可上 ModelZoo 的材料。"
+  short_description: "生成或检视昇腾 NPU ModelZoo 上库材料"
+  default_prompt: "使用 $ascend-model-adapter 将这个模型适配到昇腾 NPU，或检视这个 ModelZoo PR 并执行本地 dry run。"

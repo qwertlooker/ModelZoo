@@ -88,6 +88,8 @@
 ### 6. 依赖与第三方库兼容补丁
 
 - 避免 requirements 覆盖镜像内 torch/torch_npu；业务依赖和评测依赖分开。
+- requirements/setup/pyproject patch 必须最小化：只删除或替换会导致安装失败、拉取 CUDA/GPU runtime、或覆盖 Ascend 镜像核心栈的条目（`torch*`、不适配的 `onnxruntime-gpu` 等），只新增经 import/`--help`/单样例验证确实缺失的业务依赖。不要把上游依赖列表大幅改写成短白名单，除非已证明原依赖会整体阻塞且 README 解释原因。
+- 有 editable 子包时，优先通过 README 安装顺序和 `--no-deps` 控制依赖解析；只有 metadata 本身会误导用户或 CI 时才 patch `setup.py/pyproject.toml`。典型顺序：业务 requirements → 子包 editable → 顶层 `pip install --no-deps -e .`。
 - 第三方库 API 变更只做最小兼容，例如 `onnx.mapping` 改 `onnx.helper`、`np.int` 改 `int`。
 - 如果必须 patch site-packages（如 torchaudio kaldi），要单独成 patch，README 写明目标版本、应用路径、校验命令和恢复方式。
 - torchaudio 2.9+ `torchaudio.load` 会使用 TorchCodec，`backend` 参数会被忽略；遇到 Ascend 镜像中的 torchcodec/FFmpeg/ABI 问题时，直接改用 `soundfile`/`librosa` 读写，不要只依赖 `backend='soundfile'`。

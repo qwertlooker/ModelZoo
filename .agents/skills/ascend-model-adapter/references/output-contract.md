@@ -4,7 +4,7 @@
 
 ## 目录结构
 
-优先在 `ACL_PyTorch/built-in/<category>/<model>` 下使用扁平的 ModelZoo 风格目录。只提交必要文件；能通过 patch 修改上游代码时，优先 patch 上游代码，避免复制重复脚本。部分 ModelZoo 项目接近 README + patch + requirements 的极简形态；另一些只额外保留少量辅助或修复脚本。
+优先在最终上库路径 `ACL_PyTorch/built-in/<category>/<model>` 下使用扁平的 ModelZoo 风格目录。脚手架和 patch 从一开始就放在该根目录，不要先生成 `ascend_adapter/diff.patch`、`adapter/README.md` 等临时子目录再搬迁，避免 README 路径来回修改。只提交必要文件；能通过 patch 修改上游代码时，优先 patch 上游代码，避免复制重复脚本。部分 ModelZoo 项目接近 README + patch + requirements 的极简形态；另一些只额外保留少量辅助或修复脚本。
 
 ```text
 <ModelName>/
@@ -17,6 +17,7 @@
     ├── infer.py / ascend_infer.py    # 仅当上游缺少推理入口时新增
     ├── validate_acc.py / eval_accuracy.py
     ├── validate_perf.py / benchmark.sh
+    ├── prepare_data.py               # 需要数据准备入口时优先单一 Python 脚本
     └── 上述脚本需要的 helper/fix 文件
 ```
 
@@ -25,33 +26,34 @@
 - 如果上游已有推理/评测入口（`inference.py`、`infer.py`、`test.py`、`demo.py`、shell 命令等），优先 patch 这些入口以支持 NPU，不要新增重复脚本。
 - 可行时使用单一 `--device npu/cpu` 参数或环境变量；不要默认拆成 `infer_cpu.py` 与 `infer_npu.py`。
 - 不要把 agent 内部文件作为上库交付物，例如 `env_check.py`、`docker_run.sh`、`collect_report.py`、`adaptation_config.yaml`。环境检查、Docker 命令和证据收集命令应写入 README。
+- 数据准备脚本默认一个主入口 `prepare_data.py`；不要同时提交功能重复的 `prepare_data.sh` 和 Python 脚本。若保留 shell，必须只是必要的系统工具编排，README 只引用一个主入口。
 - 对用户提供的 checkpoint/weights，必须记录实际产物路径、期望目录树，以及 config/tokenizer/label-map 等配套关系；不得静默替换成其他 checkpoint。
 
 ## README 章节
 
-包含以下章节或等价命名：
+README 结构优先跟随 `scripts/modelzoo_sampler.py --count 20 --clone` 抽到的同任务近期样本；不要机械套旧 13 章模板。推荐骨架如下，可按样本合并或改名，但信息必须可复现：
 
-1. 标题：`<ModelName>-推理指导` 或 `<ModelName>(路线)-推理指导`。
-2. 概述：任务、上游链接、固定 commit/revision、用户提供或官方 checkpoint 信息、许可证、适配范围、支持芯片；模型名、权重名、变体名必须一致，若如 `s80`/`s80-md` 属于不同命名层级需解释对应关系。
-3. 输入输出数据：tensor 名称、shape、dtype、layout；OM 路线必须提供。
-4. 推理环境准备：固件/驱动、CANN、Python、PyTorch、torch_npu、torchvision/torchaudio、额外 SDK、vLLM/TorchAir/ais_bench/msit 版本。除非有明确理由，否则说明不要重装镜像已提供的 `torch/torch_npu`；推荐环境必须是成套且已验证的镜像/软件栈，不要把低版本 CANN 镜像内 pip 升级到另一套 torch/torch_npu 作为默认方案。若只能自建环境，给出 Dockerfile/安装来源并标注验证状态。
-5. 镜像启动：docker pull/run、NPU 设备挂载、环境变量，以及 `source /usr/local/Ascend/ascend-toolkit/set_env.sh`。
-6. 快速上手：克隆 ModelZoo、按固定 commit 克隆上游、应用 patch、安装业务依赖、准备权重/数据；patch 命令应包含 `git apply --check` 或 `patch --dry-run`，site-packages patch 要自动定位目标路径并写清目标版本、应用路径和恢复方式。安装业务依赖时说明 requirements/setup/pyproject 来源，子模块和 editable install 也要避免升级镜像内 torch 栈；过滤依赖后给出 import/`--help`/单样例 smoke test。
-7. 准备权重和数据：权重清单、来源或用户提供路径、目录树、离线缓存配置；数据集、评测工具、protocol、reference label/RTTM、最小测试音频/图片/文本样例都必须给出明确来源、生成命令或随仓文件路径，不能只写“用户自行准备”；多权重/多组件模型要说明每个权重与 config/tokenizer/label-map/speaker-map/聚类配置的配套关系，替换任一权重都要声明与源仓指标口径的差异。音频/图像/视频预处理命令必须与上游 README/论文/评测脚本一致，尤其是多声道混音、采样率、crop/resize、归一化、padding。
-8. 模型导出/转换或服务启动：
-   - ONNX/OM：导出 ONNX、校验 ONNX、携带 `--soc_version` 执行 ATC、提供 OM 样例推理。
-   - TorchAir：图编译设置、缓存位置、首次运行编译说明、NPU ID。
-   - vLLM-Ascend：镜像 tag、server 启动、显存/环境变量、client 命令。
-9. 推理：NPU 上的精确命令；可行时 patch 上游命令；列出关键参数/环境变量的含义、默认值、可选值、路径格式和是否必填，并给出最小输入样例及期望输出位置/格式。
-10. 精度验证：数据集、原始/上游指标、源仓已有 accuracy 数据或表格、命令、CPU/upstream 替代 baseline（仅在无源仓精度时）、NPU 结果、容差或 delta；如果使用标准数据集，写明数据集来源、split、manifest/protocol/reference label 或 RTTM 的准备方式、评测工具安装方式和关键选项（如 collar、overlap、ignore 区域）。多变体模型要写明当前 checkpoint 对应的评测配置、阈值、聚类/beam/search 参数；若后端替换保持同权重同架构，提供张量/embedding/logits 等效性证据；如果只做小样本对齐，写清输入来源、对齐脚本/命令和替代指标名称。
-11. 性能验证：源仓已有 benchmark/performance 数据、NPU 命令/工具、warmup、loop、batch/并发、精度模式、latency/FPS/QPS/RTF、芯片；不默认要求 CPU 性能对比；明确计时是否包含音频/图片读取、前处理、后处理、聚类、模型加载、首次编译或 cache miss，并给出可执行 benchmark 命令。纯模型耗时与 pipeline 端到端耗时必须分开命名或分表。
-12. FAQ/已知问题：unsupported ops、ATC 长时间编译、依赖冲突、离线下载、CPU fallback 原因、patch 排障；从不上库的适配过程记录中提炼用户需要复现的结论。
-13. 公网地址说明：引用外部 URL 时提供；README 中出现的源码、权重、数据集、评测工具、protocol、测试样例来源、issue/release note、论文和关键预处理工具都要列入，若数据受限不能直链下载，也要列出官方主页/申请入口/论文或数据说明页。
+1. **标题与概述**：`<ModelName>-推理指导` 或 `<ModelName>(路线)-推理指导`；说明任务、上游链接、固定 commit/revision、checkpoint/权重、许可证、适配路线、验证芯片和支持范围。模型名、权重名、变体名必须一致，命名层级不同要解释。
+2. **推理环境准备 / 环境与版本声明**：固件/驱动、CANN、Python、PyTorch、torch_npu、torchvision/torchaudio、额外 SDK、vLLM/TorchAir/ais_bench/msit 版本；推荐环境必须是成套且已验证的镜像/软件栈，说明镜像内置 `torch/torch_npu/torchvision/torchaudio` 不要重装。
+3. **镜像启动 / 创建容器**：使用后台容器 `docker run -itd` + `docker exec` 模式，保留 `<container-name>`、`<宿主机工程目录>` 占位符，挂载 NPU 设备、driver、dcmi、npu-smi 和工程目录；进入容器后 `source set_env.sh` 并做版本/可用性检查。
+4. **快速上手 / 操作步骤**：克隆 ModelZoo、进入最终上库目录、按固定 commit 克隆上游、执行 `git apply --check`/应用 patch、安装业务依赖、准备权重/数据。安装依赖必须写清工作目录和来源；有 editable 子包时写明顺序：`pip install -r requirements.txt` → `pip install -e ./<subpkg>` → 顶层 `pip install --no-deps -e .`。
+5. **准备权重和数据**：权重清单、来源或用户提供路径、目录树、离线缓存；数据集、评测工具、protocol、reference label/RTTM、最小样例的来源和生成命令。数据准备默认只提供一个主入口 `prepare_data.py`，不要同时维护功能重复的 `.sh`。
+6. **模型导出/转换或服务启动**：ONNX/OM 写导出 ONNX、校验、ATC/OM 转换和样例推理；TorchAir 写图编译、缓存、首次编译说明；vLLM-Ascend 写镜像 tag、server、client、显存/并发配置。
+7. **模型推理**：NPU 上的精确命令、关键参数/环境变量、默认值、必填项、路径格式、最小输入样例和输出位置/格式。输入输出 tensor 名称、shape、dtype、layout 可放在本节或转换节；OM 固定输入输出时必须列清，但不强制单独成“输入输出数据”章。
+8. **精度与性能验证**：精度优先用一张表合并“官方/源仓/GPU/CPU baseline”和“NPU 结果”，写数据集、metric、命令、差异和结论；不要拆成互相重复的“上游官方精度”和“NPU 精度验证”两章。性能写源仓 benchmark 口径、NPU 命令、warmup、loop、batch/并发、精度模式、latency/FPS/QPS/RTF、芯片；纯模型与端到端必须区分。
+9. **FAQ/已知问题**：unsupported ops、ATC 长时间编译、依赖冲突、离线下载、CPU fallback 原因、patch 只能执行一次、cache 清理等，从不上库的适配过程记录提炼用户可复现结论。
+10. **公网地址说明**：只列 README/命令实际使用或实测相关的源码、权重、数据集、评测工具、protocol、测试样例、论文、issue/release note、关键预处理工具 URL；不要堆砌未验证或未引用的地址。
 
-复杂 pipeline 可选补充：
+不推荐单独成章的内容：
 
-- Pipeline 组件部署：列出每个组件、上游 backend、选定 backend、NPU 可行性和 CPU fallback 原因。diarization/OCR/VLM/TTS pipeline 推荐提供；简单模型不要泛化成额外交付物。
-- 交付件清单：在有帮助时列出提交文件及说明。
+- **适配修改说明**：通常信息已由 `diff.patch`、patch 应用命令和 FAQ 体现；除非样本/任务确有必要，否则不要单独列冗余“修改点”章节。
+- **输入输出数据**：可合并到推理或转换节；只有 OM/固定 shape 场景需要明显表格时才单列。
+- **Pipeline 组件部署**：只在 diarization/OCR/VLM/TTS/机器人等复杂 pipeline 中保留；简单模型不要为了模板完整性增加。
+
+可选补充：
+
+- **交付件清单 / 文件目录**：当项目包含多个 patch、子目录或辅助脚本时列出提交文件及作用；极简 README+patch+requirements 项目可省略。
+- **Pipeline 组件表**：列出组件、上游 backend、选定 backend、NPU 可行性和 CPU fallback 原因；概述、FAQ、性能表必须与组件表一致。
 
 ## 指标选择
 
@@ -61,25 +63,105 @@
 
 ## 容器命令模板
 
+近期样本默认使用后台容器 + `docker exec` 进入，README 中保留占位符并要求用户替换：
+
+- `<container-name>`：容器名，例如 `<model>-infer`。
+- `<宿主机工程目录>`：当前 ModelZoo 项目目录在宿主机上的绝对路径。
+
 ```bash
 export IMAGE=<ascend-image-tag>
 docker pull ${IMAGE}
-docker run -it --rm --net=host --privileged=true --shm-size=256g \
+
+docker run -itd -u root --net=host --privileged=true \
+  --name <container-name> \
+  --shm-size=256g \
+  --ipc=host \
   --device=/dev/davinci0 \
   --device=/dev/davinci_manager \
   --device=/dev/devmm_svm \
   --device=/dev/hisi_hdc \
-  -v /usr/local/Ascend/driver:/usr/local/Ascend/driver:ro \
-  -v /usr/local/sbin/npu-smi:/usr/local/sbin/npu-smi:ro \
-  -v /etc/ascend_install.info:/etc/ascend_install.info:ro \
-  -v $PWD:/workspace -w /workspace \
-  ${IMAGE} bash
+  -v /usr/local/Ascend/driver:/usr/local/Ascend/driver \
+  -v /usr/local/Ascend/firmware:/usr/local/Ascend/firmware:ro \
+  -v /usr/local/dcmi:/usr/local/dcmi \
+  -v /usr/local/sbin/npu-smi:/usr/local/sbin/npu-smi \
+  -v /etc/ascend_install.info:/etc/ascend_install.info \
+  -v <宿主机工程目录>:<宿主机工程目录> \
+  -v /root/.cache:/root/.cache \
+  ${IMAGE} bash -i
+
+docker exec -it <container-name> bash
+cd <宿主机工程目录>
 source /usr/local/Ascend/ascend-toolkit/set_env.sh
 npu-smi info
 python3 -c "import torch, torch_npu; print(torch.__version__, torch_npu.__version__, torch.npu.is_available())"
 ```
 
-根据 Atlas A2/A3 服务器和选定 NPU ID 调整设备数量。若宿主机使用 `/usr/local/bin/npu-smi`，需增加该路径挂载。
+根据目标机器调整 `--device=/dev/davinci*` 数量（8 卡可挂载 0-7），以及 `/usr/local/sbin/npu-smi` 或 `/usr/local/bin/npu-smi` 的实际路径；部分样本需要额外挂载 `/usr/local/sbin`、`/usr/local/Ascend/driver` 只读或设置 `PYTORCH_NPU_ALLOC_CONF`，以同任务近期样本和实测环境为准。
+
+## 依赖安装模板
+
+安装前先预检，再一次性补齐业务依赖，避免反复“跑一下缺一个包”。示例：
+
+```bash
+# 1. 核心栈来自镜像，不要随意重装。
+python3 - <<'PY'
+mods = ["torch", "torch_npu", "torchaudio"]  # 按任务追加 transformers/pyannote/... 等
+missing = []
+for name in mods:
+    try:
+        mod = __import__(name)
+        print(f"{name}: {getattr(mod, '__version__', 'ok')}")
+    except Exception as exc:
+        missing.append((name, repr(exc)))
+if missing:
+    raise SystemExit("missing/failed imports: " + str(missing))
+PY
+
+# 2. 只安装业务依赖；过滤会覆盖镜像栈或 GPU/CUDA-only 的包。
+pip install -r requirements.txt
+
+# 3. 如果有 editable 子包，先安装子包；最后安装顶层包时默认 --no-deps。
+pip install -e ./<subpkg>
+pip install --no-deps -e .
+
+# 4. smoke test：import/--help/单样例至少做一个。
+python3 -c "import <entry_module>; print('import ok')"
+python3 <infer_or_eval_entry>.py --help
+```
+
+`requirements.txt` patch 应最小化：只删除会阻塞或冲突的条目（例如不适配的 `onnxruntime-gpu`、会覆盖镜像栈的 `torch*` 版本），只新增 smoke test 证明缺失的业务依赖；不影响安装和验证的上游依赖尽量保留。
+
+## 多卡并行与空闲 NPU 检测
+
+多数据集/多 split 评测可在多张空闲 NPU 上并行运行，命令中显式传 `--device npu:<id>`、`--device-id <id>` 或设置 `ASCEND_RT_VISIBLE_DEVICES=<id>`，日志和输出目录按数据集/device_id 区分。
+
+优先用 `npu-smi info -t usages` 的键值行判断空闲，不要依赖 `npu-smi info` 表格固定列。可在评测脚本中复用以下 bash 函数（阈值按任务调整，检测失败时要求用户显式指定 device）：
+
+```bash
+find_free_npu() {
+  local max_mem=${1:-10}      # Memory/HBM Usage Rate(%) <= max_mem
+  local max_aicore=${2:-5}    # Aicore Usage Rate(%) <= max_aicore
+  local ids=${NPU_IDS:-"0 1 2 3 4 5 6 7"}
+  local id out mem aicore chip_arg=()
+  if [ -n "${NPU_CHIP_ID:-}" ]; then
+    chip_arg=(-c "${NPU_CHIP_ID}")
+  fi
+  for id in ${ids}; do
+    out=$(npu-smi info -t usages -i "${id}" "${chip_arg[@]}" 2>/dev/null || true)
+    [ -z "${out}" ] && continue
+    mem=$(printf '%s\n' "${out}" | awk -F: '/(Memory|HBM) Usage Rate\(%\)/ {gsub(/[^0-9.]/,"",$2); print $2; exit}')
+    aicore=$(printf '%s\n' "${out}" | awk -F: '/Aicore Usage Rate\(%\)/ {gsub(/[^0-9.]/,"",$2); print $2; exit}')
+    [ -z "${mem}" ] && continue
+    [ -z "${aicore}" ] && aicore=0
+    if awk -v m="${mem}" -v a="${aicore}" -v mm="${max_mem}" -v ma="${max_aicore}" \
+      'BEGIN { exit !((m <= mm) && (a <= ma)) }'; then
+      echo "${id}"
+      return 0
+    fi
+  done
+  return 1
+}
+```
 
 ## PR 就绪自检
 
@@ -91,6 +173,9 @@ python3 -c "import torch, torch_npu; print(torch.__version__, torch_npu.__versio
 - README 不引用未随仓提交、未列入交付件清单或在公网地址说明中不可追溯的相对文档；必要背景直接写入 README FAQ/说明。
 - 尊重用户提供的 checkpoint/weights，并与正确的 config/tokenizer/label map 配套；任何替换都必须显式说明。
 - README 中用于推理、精度或性能的测试数据、标准数据集、评测工具、protocol 和 reference label/RTTM 均有可追溯来源或生成命令；不得只写“用户自行准备”。
+- 若数据准备脚本支持多个数据集，每个分支至少用最小合成 tar/zip、短音频和最小 reference label/RTTM 做 dry run，确认输出目录、scp 路径和 README 命令一致；GitHub zip/top-level 目录嵌套要实际验证。默认只有一个主入口 `prepare_data.py`，不要让 README 在 `.py` 与 `.sh` 间来回引用。
+- 上库目录保持扁平：README 中的 patch、requirements、脚本路径均相对 `ACL_PyTorch/built-in/<category>/<model>` 根目录；不得残留 `ascend_adapter/diff.patch`、`run_all_eval.sh` 等开发期旧路径或未提交脚本名。
+- README 引用的评测工具、子模块和脚本路径必须真实存在或提供获取命令；上游 submodule 需写明 `git submodule update --init <name>`，不得残留本地临时路径名。
 - 源仓 accuracy 只在 checkpoint、模型组件、预处理/后处理、评测脚本和阈值一致时直接对齐；若替换了嵌入模型、tokenizer、聚类策略、label map 或任一子模型，README 必须声明与源仓指标不可直接比较。
 - 当前 checkpoint 对应的模型变体、配置文件、评测参数、预处理命令和后处理/聚类/解码策略已核对；不得只使用默认 config 推断 benchmark 口径。
 - 推理后端替换已说明是否同架构同权重；同架构同权重需提供数值等效性证据，换模型/换权重则必须重新跑任务指标。
@@ -98,14 +183,52 @@ python3 -c "import torch, torch_npu; print(torch.__version__, torch_npu.__versio
 - README 包含芯片/主机信息，以及在设置 `SOC_VERSION` 或 `chip_name` 前获取芯片名称的命令。
 - README 内部口径一致：概述、Pipeline 组件表、FAQ、性能表不能互相矛盾；版本相关 FAQ 要标明触发版本；支持芯片只写实际验证芯片或明确“待验证”。
 - 推荐镜像、CANN、torch、torch_npu、torchvision/torchaudio、Python 版本彼此配套；不得推荐在不匹配镜像中直接 pip 升级核心框架作为可复现环境。
-- 安装命令明确工作目录和 requirements 来源；不得在上游目录中无检查地 `pip install -r requirements.txt` 导致覆盖镜像内 torch/torch_npu/torchaudio。
-- 依赖审计覆盖上游仓、子模块、vendor 包的 requirements/setup/pyproject；过滤或 patch 后已做 import/`--help`/单样例 smoke test，避免遗漏业务依赖。
+- 安装命令明确工作目录、requirements 来源、依赖预检和安装顺序；不得在上游目录中无检查地 `pip install -r requirements.txt` 或 `pip install -e .` 导致覆盖镜像内 `torch/torch_npu/torchvision/torchaudio`。有 editable 子包时，顶层安装默认 `pip install --no-deps -e .`。
+- 依赖审计覆盖上游仓、子模块、vendor 包的 requirements/setup/pyproject；requirements patch 保持最小化，过滤或 patch 后已做 import/`--help`/单样例 smoke test，避免遗漏业务依赖。
 - README 中所有 shell/Python 命令经过静态自检或实际执行；不得存在明显语法错误、错误环境变量、未定义脚本、错误相对路径或不可复现的“假设路径”。
+- 脚本 `--help`、脚本尾部提示和 README 后续步骤必须指向真实命令；删除未提交的 `run_eval.sh`、内部工具名、旧目录名等模板残留。
 - 精度不能只用截图或输出文件表示；必须包含任务指标命令和结果。
-- 性能指标和单位匹配任务，并在 README、脚本、PR 描述中保持一致；主表默认只给 NPU 性能，不加入本地 CPU 性能对比列；纯模型和端到端口径不能混用。
+- 性能指标和单位匹配任务，并在 README、脚本、PR 描述中保持一致；性能命令、脚本默认参数和结果表的 batch/warmup/loop/并发/是否包含模型加载必须一致；主表默认只给 NPU 性能，不加入本地 CPU 性能对比列；纯模型和端到端口径不能混用。
 - Pipeline CPU fallback 有具体技术原因，不能只写“上游默认 backend”。
 - Long-running issues and route-changing decisions are recorded in a private process log; only reusable/user-facing conclusions are reflected in README FAQ.
-- 本地 lint/import/help 检查通过；预期 Antipoison、CodeCheck、SCA 和 PR 流水线可通过。
+- 本地 lint/import/help 检查通过；`ACL_PyTorch/ModeList.md` 无冲突标记且统计数与表格行数一致；可用 `scripts/modelzoo_pr_quickcheck.py` 做提交前快检；预期 Antipoison、CodeCheck、SCA 和 PR 流水线可通过。
+
+## PR 描述模板
+
+PR 描述不要临时拼凑或保留占位符。默认使用以下结构，Self-test 表格里的命令、结果和 README 数字必须一致：
+
+```markdown
+## Motivation
+
+- 适配 <ModelName> 到 Ascend NPU，覆盖 <路线/芯片/任务>。
+
+## Modification
+
+- 新增/更新 `ACL_PyTorch/built-in/<category>/<model>/README.md`、`requirements.txt`、`diff.patch` 等。
+- 说明核心改动：设备参数化、后端替换、导出/转换、评测/性能脚本、依赖最小化处理。
+
+## Self-test
+
+| 项目 | 环境/命令 | 结果 | 日志/备注 |
+|---|---|---|---|
+| 环境 | `npu-smi info`; `python3 -c "import torch, torch_npu; ..."` | PASS/TODO | 芯片、CANN、torch_npu |
+| Patch | `git apply --check diff.patch` | PASS/TODO | 固定 commit |
+| 依赖 | `pip install -r requirements.txt`; `pip install --no-deps -e .`; import/`--help` | PASS/TODO | 未重装 torch 栈 |
+| 转换/编译 | `<export/atc/torchair/vllm 命令>` | PASS/TODO | ONNX/OM/cache 路径 |
+| 单样例推理 | `<infer 命令>` | PASS/TODO | 输出路径 |
+| 精度 | `<eval 命令>` | PASS/TODO | metric、baseline、delta |
+| 性能 | `<benchmark 命令>` | PASS/TODO | batch、warmup、loop、单位 |
+
+## BC-breaking
+
+- 无 / 有：说明依赖、接口、数据格式或权重路径变化。
+
+## Checklist
+
+- [ ] README 无占位符，公网地址只列实测相关资源。
+- [ ] 精度与性能结果和脚本输出一致。
+- [ ] CodeCheck/SCA/Antipoison/本地 lint 预期通过。
+```
 
 ## 验证证据清单
 

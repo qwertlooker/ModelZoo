@@ -5,7 +5,11 @@
 ## 环境与依赖
 
 - 近期样本多次强调不要在 Ascend 镜像中重装 `torch`/`torch_npu`。处理上游 requirements 时，默认过滤或固定会覆盖镜像栈的包。
-- README 中的安装命令必须明确当前工作目录和 requirements 来源；在上游仓、子模块或 vendor 包内执行 `pip install -r requirements.txt`、`pip install -e .`、`pip install .` 时，先审计 `requirements.txt`、`setup.py`、`pyproject.toml` 是否会安装/升级 `torch`、`torch_npu`、`torchvision`、`torchaudio`。否则提供过滤版 requirements、patch 依赖约束，或显式 `grep -vE`/`--no-deps` 命令。
+- README 中的安装命令必须明确当前工作目录和 requirements 来源；在上游仓、子模块或 vendor 包内执行 `pip install -r requirements.txt`、`pip install -e .`、`pip install .` 时，先审计 `requirements.txt`、`setup.py`、`pyproject.toml` 是否会安装/升级 `torch`、`torch_npu`、`torchvision`、`torchaudio`。否则提供最小过滤版 requirements、patch 依赖约束，或显式 `grep -vE`/`--no-deps` 命令。
+- 安装前先做一轮依赖预检，避免“跑一次缺一个包”：用 `python3 - <<'PY'` 或多条 `python3 -c "import ..."` 检查核心栈（`torch, torch_npu`）、任务入口和已知业务依赖；缺包清单写入过程记录，统一补到 requirements 或安装命令。
+- 过滤版 requirements 遵循最小化原则：只删除会阻塞安装、触发 CUDA/GPU runtime、或覆盖 Ascend 镜像栈的条目（如不适配的 `onnxruntime-gpu`、`torch*` 族冲突版本），只新增实际 smoke test 证明缺失的业务依赖；不要把上游 20 多行依赖无理由改成极短白名单。
+- 有 editable 子包或 vendor 包时，默认安装顺序为：`pip install -r requirements.txt` → `pip install -e ./<subpkg>`（如该子包自身依赖安全）→ 顶层 `pip install --no-deps -e .`。最后一步优先带 `--no-deps`，避免顶层/子包 metadata 把 `torch/torch_npu/torchvision/torchaudio` 拉成另一套版本；若子包也会拉核心栈，则对子包同样 patch 依赖或使用 `--no-deps` 并手动补业务依赖。
+- `torch/torch_npu/torchvision/torchaudio` 默认由镜像锁定；`torchaudio` 也不要随意重装，因为它通常与镜像内 `torch` ABI 配套。必须变更时先说明成套版本来源、恢复命令和已验证范围。
 - 过滤或 patch 依赖后，默认用上游推理/评测入口做 import smoke test（例如 `python -c` 导入入口模块或跑 `--help`/单样例），补齐被过滤掉但实际需要的业务依赖；不要只凭 requirements 文件静态推断。
 - `torch_npu` 导入的 `undefined symbol`、`aclruntime` wheel ABI、Python 版本不匹配通常是版本栈问题，先查环境再改模型。
 - 默认给出已验证的配套环境：镜像/CANN/torch/torch_npu/torchvision/torchaudio/Python 必须成套。不要在低版本 CANN 镜像中直接 pip 升级到另一套 torch/torch_npu 作为推荐环境；若确需自建环境，写成 Dockerfile 或明确“待验证”，并给出配套来源。
@@ -36,11 +40,14 @@
 - OM 路线默认提供导出/转换与可用 `ais_bench` 的 benchmark 说明；推理入口优先 patch 上游脚本，确需新增时使用单一脚本和 `--device npu/cpu` 参数，不默认拆成 `infer_cpu.py`/`infer_npu.py`。TorchAir/vLLM 路线默认提供服务启动、客户端脚本、编译缓存和并发说明。
 - vLLM/TorchAir 首次图编译耗时不能直接算入稳定性能，除非表格单独标明。
 - 若 pipeline 中存在 CPU 回退，性能结果要拆分纯 NPU 子模型与端到端耗时。
+- 多数据集、多 split 或多模型变体评测在多卡机器上可并行：先用 `npu-smi info -t usages -i <id>`（必要时带 `-c <chip>`）和进程检查确认 HBM/AI Core 空闲，再分别传 `--device npu:<id>`、`--device-id <id>` 或 `ASCEND_RT_VISIBLE_DEVICES=<id>`。每个数据集单独写日志和输出目录，避免并发写同一 cache/manifest。
+- 不要为省时依赖脆弱的 `npu-smi info` 表格 awk 列位置；不同 CANN/硬件输出格式会变。优先解析 `npu-smi info -t usages` 中的 `Memory/HBM Usage Rate(%)` 与 `Aicore Usage Rate(%)` 键值行，或用 `npu-smi info proc` 判断进程占用；检测不到时要求显式指定 device，而不是静默选 0 卡。
 
 ## 权重、数据和离线部署
 
 - 多权重模型默认写权重清单、来源、目录树、离线缓存方式。
 - 大数据集默认写容量、分包、官方来源、申请入口或生成脚本，以及最小验证子集；测试数据、评测工具、protocol、reference label/RTTM 都必须可追溯，不能只写“用户自行准备”。
+- 数据准备优先提供单一 `prepare_data.py`：在 Python 中完成 tar/zip 解包、目录规范化、manifest/scp/RTTM/reference 生成、最小样例检查和必要的 `soundfile/librosa/sox` 转换调用。只有必须编排系统服务或大量 shell pipeline 时才提供 `.sh`，且 README 只引用一个主入口，避免 `prepare_data.py`/`prepare_data.sh` 功能重复和命令漂移。
 - README 中提到的每个外部资源都要进入公网地址说明，包括 issue/release note、论文、数据集、评测工具、protocol、样例数据来源和关键预处理工具；不要依赖未列入交付件清单的相对文档链接。
 - 音频/图像/视频预处理必须精确复现上游 README、论文实验设置或评测脚本，包括多声道到单声道、采样率、裁剪/resize/crop、归一化、padding、重采样工具和命令；不能用“等价直觉”替代。若改动预处理，必须做中间结果或任务指标对齐。
 - 评测依赖和推理依赖可分开，例如 `requirements_eval.txt`。

@@ -6,10 +6,13 @@
 
 ## CI 与代码规范
 
-- CodeCheck 是最常见失败项；提交前默认运行格式化、lint、基础 import 检查和脚本 help 检查。
+- CodeCheck 是最常见失败项；提交前默认运行格式化、lint、基础 import 检查和脚本 help 检查。检视 PR 时可先运行 `scripts/modelzoo_pr_quickcheck.py <repo> --target ACL_PyTorch/built-in/<category>/<model>`，再补充模型特定 dry run。
+- 首先 grep 变更目录和 `ACL_PyTorch/ModeList.md` 的 `<<<<<<<`、`=======`、`>>>>>>>`；任何冲突标记都是阻塞问题。
+- Python 脚本默认至少跑 `python -m py_compile`、`ruff check`（或仓库等价 lint）、`--help`；ruff 的 `F401`、`F541` 等小问题也要在提交前清掉。
 - 检测到 `# noqa`、`pylint disable`、`flake8` 抑制注释时，默认删除；确实需要时在代码旁写清原因，因为 CI 会提示“请 Committer 检视其合理性”。
 - 删除无用注释、debug code、临时打印、无意义变量名；变量名不要用 `m` 这类不清晰缩写。
 - 删除或替换已移除模块的残留 import；删除文件后全仓 grep 一遍旧模块名。
+- 清理 PR 中非必要的行尾空格、CRLF、过长调试 docstring；patch 文件中的上下文空行可保留，但不要让脚本/README 带明显格式噪声。
 - PR 必须让 Antipoison、CodeCheck、SCA、流水线全部通过。SCA/开源片段失败时，优先检查第三方代码片段、license、复制的大段源码和下载脚本。
 
 ## README 与文档结构
@@ -20,6 +23,8 @@
 - 硬件字段要准确：区分芯片型号、机器型号、Atlas 300I DUO/Pro、Atlas 800I A2/A3、单芯/整卡等表述。
 - 如果模型名/标题与实际示例版本不同（例如 SAM2 vs SAM2.1），必须说明模型、配置、权重成套使用，避免 review 质疑。
 - 如果依赖外部小文件或清单（例如 `val_wav.scp`），README 必须说明来源、生成方式或上游自带路径。
+- 若更新 `ACL_PyTorch/ModeList.md`，表头“built-in/contrib 合计”和“项目中合计共”必须与表格实际行数一致；有 GPL 外链模型时单独扣除/加回，不能只按直觉加一。
+- README 中引用评测工具、子模块或外部脚本时，路径必须真实存在或给出获取命令，例如上游 submodule 需写 `git submodule update --init <name>`；不要把本地临时名（如 `dscore_tool/`）写成可复现路径。
 
 ## 可复现性
 
@@ -27,6 +32,9 @@
 - 导出/转换/推理脚本不要只写死本地路径或输出名；把 onnx output、权重路径、batch、soc_version、device_id 等暴露为参数，并提供默认值。
 - 如果把 shell 脚本改成 Python 脚本更易提供默认参数和跨环境复现，优先 Python。
 - 下载脚本只有在原生 HF/ModelScope 命令在常见网络下不可用或需要特殊目录结构时才保留；README 解释必要性。
+- 数据准备脚本优先单一 Python 主入口（如 `prepare_data.py`），不要同时维护功能重复的 `.sh` 包装和 Python 脚本。每个 dataset 分支都要做最小 dry run：构造小型 tar/zip、最短音频和最小 reference label/RTTM，验证输出 scp、reference 路径和 README 命令一致。尤其检查 GitHub zip 常见的顶层目录嵌套（如 `repo-master/repo-master/...`）。
+- 脚本打印的 next step 必须是仓内真实存在的脚本或 README 中已有命令；删除 `run_eval.sh` 等从模板继承但未提交的残留提示。
+- site-packages patch 必须在 README 中自动定位目标文件，并对声明版本执行 `patch --dry-run`；源码 patch 必须在干净上游 commit 上执行 `git apply --check`。
 
 ## 精度检视
 
@@ -43,6 +51,7 @@
 - 指标单位要明确，性能表不要混淆 ms、s、FPS、RTF、QPS。
 - 端到端耗时和纯模型耗时分开；包含数据加载、后处理、CPU fallback、首次编译时必须单列说明。
 - 若更新性能结果，README 表格、脚本输出、PR 描述中的数字要一致。
+- 性能命令、脚本默认参数和性能表口径必须一致，尤其是 `batch_size`、warmup、loop、并发和是否包含模型加载。若表格按 `batch_size=64`，命令要显式传参或脚本默认值/参数表也写 64。
 - Pipeline 中包含 CPU 组件时，性能表要拆分纯 NPU 子模型与端到端；说明 CPU 组件是否已评估过迁移 NPU，CPU fallback 应是评估后的选择。
 
 ## Patch 与算子支持
@@ -53,6 +62,6 @@
 
 ## PR 描述与自测
 
-- PR 描述不要保留模板占位文字。Motivation、Modification、Self-test、BC-breaking 要写模型适配事实。
-- Self-test 默认包含：环境、转换/编译、单样例推理、精度、性能；截图只能作为补充，不能替代命令和结果表。
+- PR 描述不要保留模板占位文字。默认包含 Motivation、Modification、Self-test、BC-breaking、Checklist 五段，并写模型适配事实。
+- Self-test 默认使用表格，至少包含：环境、patch 检查、依赖安装/import smoke test、转换/编译、单样例推理、精度、性能；截图只能作为补充，不能替代命令和结果表。
 - 如果有兼容性或依赖变化，必须在 BC-breaking/FAQ 中说明。
