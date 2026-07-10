@@ -1,72 +1,54 @@
-# 适配过程记录模板（不上库）
+# 项目级适配日志
 
-此文件是适配过程的内部工作日志模板，用于回溯决策、沉淀问题和反向改进 skill。不要提交到 `ACL_PyTorch/built-in`；只把用户需要知道的结论整理进 README 的 FAQ/已知问题。
+每个项目只使用自己的私有日志：
 
-建议路径：`<workdir>/.adaptation-notes/<model>-process.md` 或任务工作区外的等价位置。
+```text
+<workspace>/.ascend-adaptation/<category>__<model>/worklog.json
+```
 
-## 基本信息
+不要把多个项目写入同一个固定文件，也不要把 `.ascend-adaptation` 提交到 ModelZoo。`scripts/project_log.py init` 会拒绝覆盖已有日志，并在 Git 工作区的 `.git/info/exclude` 中加入本地排除项。该 JSON 不替代模型工作区必须维护的 `README.md`、`NPU_ADAPTATION.md`、`ACCEPTANCE_PLAN.md`。
 
-- 模型/上游链接：
-- 固定 commit/revision：
-- 使用者提供 checkpoint/权重目录：
-- 目标对外硬件型号/镜像/CANN/torch_npu：
-- 适配路线：ONNX-OM / torch_npu / TorchAir / vLLM-Ascend / 拆图混合
-- 源仓 accuracy/performance 口径：
+## 基本字段
 
-## 环境差异（复用旧适配材料时必填）
+- `project_id`：稳定项目标识，推荐 `<category>__<model>`。
+- `model_url`、`target_repo_commit`、`target_path`、`target_path_exists`、`mode`、`route`、`hardware_model`、`patch_required`。
+- `source_revision`、`checkpoint`：审计后用 `update-context` 从 `unconfirmed` 改为固定值；不适用时显式写 `not-applicable`。
+- `status`：未定级或 S0–S4；`target_ready` 与技术状态分开。
+- `evidence`：命令、退出码、claim、环境、日志和产物 SHA256。
+- `decisions`：路线、权重、fallback、依赖和口径决策。
+- `issues`：症状、无效尝试、根因、修复和复用价值。
 
-| 项目 | 旧材料/参考环境 | 当前验证环境 | 影响与处理 |
-|---|---|---|---|
-| 对外硬件型号 |  |  |  |
-| 镜像/CANN |  |  |  |
-| Python |  |  |  |
-| torch/torch_npu |  |  |  |
-| torchvision/torchaudio |  |  |  |
-| 关键第三方库 |  |  |  |
+## 添加证据
 
-逐条判断旧 patch、FAQ、依赖安装方式和性能/精度结论是否仍适用；版本相关 workaround 只在对应环境下保留。
+```bash
+python3 "$SKILL_DIR/scripts/project_log.py" add-evidence \
+  --workspace <工作区> --project-id <category>__<model> \
+  --type npu_accuracy --command '<完整命令>' --exit-code 0 \
+  --claim '指定完整 split 的 NPU metric 已产生' \
+  --environment 'Atlas 800I A2; CANN ...; torch_npu ...' \
+  --log-path <日志> --artifact <输出文件>
+```
 
-## 决策记录
+失败命令同样记录真实非零退出码；它不会解锁状态。不要为通过门禁修改退出码或把静态检查记成 NPU 证据。
 
-| 时间 | 决策 | 依据 | 备选方案 | 影响 | 是否写入 README/FAQ |
-|---|---|---|---|---|---|
-|  |  |  |  |  |  |
+## 提升状态
 
-需要记录的决策包括：路线选择、是否拆图、是否保留 CPU fallback、是否替换推理后端、是否 patch 上游入口、是否更换依赖安装方式、是否 patch 子模块依赖、是否使用使用者提供 checkpoint 以外的权重、当前模型变体对应哪套评测配置。
+前序状态和该级全部证据齐全后再执行，例如当前已是 S2 且 S3 三项证据已记录：
 
-## 问题记录
+```bash
+python3 "$SKILL_DIR/scripts/project_log.py" set-status \
+  --workspace <工作区> --project-id <category>__<model> \
+  --status S3
+```
 
-| 时间 | 症状/报错 | 阻塞阶段 | 已尝试但无效 | 根因 | 最终修复 | 耗时/是否外部提示 | 是否应反向改进 skill |
-|---|---|---|---|---|---|---|---|
-|  |  | 环境/导出/转换/推理/精度/性能/文档 |  |  |  |  |  |
+脚本只允许逐级提升。S0 后 target/upstream/weight baseline 冻结，S2 后 route/硬件冻结；需要改变时另建项目日志，避免旧证据解锁新上下文。达到 S3/S4 后仍需 `target_audit` 和 `clean_room_replay`，再运行 `set-target-ready`。
 
-触发“必须记录”的条件：
+## 必须记录的问题
 
-- 一个问题排查超过约 30 分钟或反复出现。
-- 需要用户、外部文档、reviewer 或其他人提示后才解决。
-- 一开始选错路线，后来改为 ONNX-OM/TorchAir/vLLM/拆图/CPU fallback。
-- accuracy 或 performance 口径与源仓不一致，需要解释。
-- patch 出现只能执行一次、依赖冲突、环境隔离、TorchAir cache、ATC 长时间编译、动态 shape、custom op、音频 I/O、checkpoint 加载等问题。
-- 数据预处理、模型变体、评测参数、聚类/解码策略或评测工具选项与源仓不一致。
-- 过滤依赖后出现 import 缺失，或子模块 requirements/setup/pyproject 试图升级镜像内 torch 栈。
+- 排查耗时较长、反复出现或依赖外部提示。
+- 导致路线、权重、评测配置或 CPU fallback 变化。
+- patch/安装/下载/helper 错误未传播，曾造成假成功。
+- accuracy/performance 口径、数据 split 或计时边界发生变化。
+- 动态 shape、custom op、cache、长时间编译、依赖冲突、数据生成或许可证问题。
 
-## 验证记录
-
-| 阶段 | 命令 | 关键输出/日志路径 | 结论 |
-|---|---|---|---|
-| 环境 |  |  |  |
-| 单样例 |  |  |  |
-| 精度 |  |  |  |
-| 性能 |  |  |  |
-
-## 反思与 skill 改进候选
-
-每次解决阻塞后问：
-
-1. 这个问题是否能通过 skill 的默认审计提前发现？
-2. 是否应该新增搜索信号、patch 模式、README FAQ 模板或脚手架参数？
-3. 是否已有 ModelZoo 样本或对应 PR 提供相同规律？
-4. 该问题是模型特有，还是可复用为通用规则？
-5. 是否需要更新 `adaptation-heuristics.md`、`patch-modification-patterns.md`、`output-contract.md` 或脚本？
-
-只把可复用、非一次性的规律写回 skill；不要把本次模型私有路径、账号、临时日志、内部数据写入 skill。
+完成后只把用户复现所需结论提炼到 README FAQ；账号、内部路径、临时日志和完整排障历史留在项目日志中。
