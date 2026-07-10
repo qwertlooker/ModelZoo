@@ -1,69 +1,63 @@
 # PR 检视启发式
 
-来源规则：只把“已采样 ModelZoo 目录对应的上库 PR”作为主要检视样本。对应关系必须来自目录页 PR 信号，或 PR diff/变更文件中能看到相同 `ACL_PyTorch/built-in/<category>/<model>` 路径。未能验证路径对应关系的近期 PR，不写成该样本来源；最多作为通用 CI/README 风格的补充参考。
+## 来源与边界
 
-这些不是额外交付步骤，而是生成适配工程时要默认规避的 review 问题。
+2026-07-10 使用精确 `PR=ModelZoo path` 映射抽取了 21 个近期 PR、24 个模型目录的讨论；所有样本均由 PR diff 验证路径，共取得 220 条去重前后可分析记录。只把这些评论用于发现通用缺陷模式；历史 CI、系统事件和 AI review 失败不作为当前 head 的结论。
 
-## CI 与代码规范
+## 阻塞级检查
 
-- CodeCheck 是最常见失败项；提交前默认运行格式化、lint、基础 import 检查和脚本 help 检查。检视 PR 时可先运行 `scripts/modelzoo_pr_quickcheck.py <repo> --target ACL_PyTorch/built-in/<category>/<model>`，再补充模型特定 dry run。
-- 首先 grep 变更目录和 `ACL_PyTorch/ModeList.md` 的 `<<<<<<<`、`=======`、`>>>>>>>`；任何冲突标记都是阻塞问题。
-- Python 脚本默认至少跑 `python -m py_compile`、`ruff check`（或仓库等价 lint）、`--help`；ruff 的 `F401`、`F541` 等小问题也要在提交前清掉。
-- 检测到 `# noqa`、`pylint disable`、`flake8` 抑制注释时，默认删除；确实需要时在代码旁写清原因，因为 CI 会提示“请 Committer 检视其合理性”。
-- 删除无用注释、debug code、临时打印、无意义变量名；变量名不要用 `m` 这类不清晰缩写。
-- 删除或替换已移除模块的残留 import；删除文件后全仓 grep 一遍旧模块名。
-- 清理 PR 中非必要的行尾空格、CRLF、过长调试 docstring；patch 文件中的上下文空行可保留，但不要让脚本/README 带明显格式噪声。
-- PR 必须让 Antipoison、CodeCheck、SCA、流水线全部通过。SCA/开源片段失败时，优先检查第三方代码片段、license、复制的大段源码和下载脚本。
+- PR head、base、目标目录和本地 checkout 必须一致；评论引用的旧 commit 只作线索。
+- 每次重新查询目标 `master` HEAD、拟合入路径和近期实质样本；`NPU_ADAPTATION.md` 必须记录日期/commit/参考目录/贡献门禁/候选清单。
+- 冲突标记、语法错误、未定义变量/参数、错误脚本名、下载到 HTML、patch 失败却退出 0 都会直接破坏复现。
+- wrapper 中的 `subprocess.run` 必须检查返回码或使用 `check=True`；推理/转换子进程失败时父进程不能返回成功。
+- patch helper 在改变 cwd 前把 patch 路径解析成绝对路径；文件不存在、dry run 失败、应用失败均返回非零。
+- site-packages patch 用 `find_spec()` 定位且从 site-packages 根目录 `patch -p1`；不能 import 包只为取得 `__file__`。
+- 用户可见下载命令验证 URL 是原始文件端点；Hugging Face 文件不能误用返回网页的 blob 地址。重要权重/配置记录大小或 SHA256。
+- README 中每个 requirements、patch、脚本、配置和数据文件名与仓内实际大小写完全一致。
 
-## README 与文档结构
+## CLI 和代码正确性
 
-- 不重复写同一段获取源码/安装步骤；冗余段落会被要求删除。
-- README 要写清“配套信息”：上游 commit、权重版本、配置文件版本、数据集版本、对外硬件型号（如 Atlas 800I A2）、CANN/torch_npu/镜像版本。
-- README 要写清对外硬件型号（如 Atlas 800I A2）；`SOC_VERSION`/`chip_name` 只作为转换或脚本参数说明，不作为公开性能表的硬件字段。
-- 硬件字段要使用对外产品/整机型号，例如 Atlas 300I DUO/Pro、Atlas 800I A2/A3；不要在 README/PR 性能表中暴露详细芯片型号、芯片步进或内部代号。
-- 如果模型名/标题与实际示例版本不同（例如 SAM2 vs SAM2.1），必须说明模型、配置、权重成套使用，避免 review 质疑。
-- 如果依赖外部小文件或清单（例如 `val_wav.scp`），README 必须说明来源、生成方式或上游自带路径。
-- 若更新 `ACL_PyTorch/ModeList.md`，表头“built-in/contrib 合计”和“项目中合计共”必须与表格实际行数一致；有 GPL 外链模型时单独扣除/加回，不能只按直觉加一。
-- README 中引用评测工具、子模块或外部脚本时，路径必须真实存在或给出获取命令，例如上游 submodule 需写 `git submodule update --init <name>`；不要把本地临时名（如 `dscore_tool/`）写成可复现路径。
+- 运行 `py_compile`、lint 和 `--help`，并检查拼写、缩进、未定义 args、未定义输出、残留 import 和 debug code。
+- 对 `--traj-ids 0 1 --flag value` 等多值参数构造回归用例，确保解析循环不会吞掉后续 flag。
+- 为输出数量、空输出、异常 shape 和未来新增输出写显式分支；不要只覆盖当前常见 `len(outputs)`。
+- 参数拒绝零/负 loop、record、batch 和空数据集，避免除零或假成功。
+- 公共 helper 去重；推理和评测重复逻辑提取到实际提交的模块，并检查删除旧模块后的引用。
+- 删除无必要的 `# noqa`/lint 抑制、临时注释和乱码；确需抑制时写具体理由和范围。
 
-## 可复现性
+## NPU 正确性与性能
 
-- 上游源码必须固定 commit/revision；否则 reviewer 会担心原仓更新后 patch 无法应用。
-- 推理、评测和 benchmark 入口默认设备必须是 NPU；README 主命令、脚本默认参数和 `--help` 要一致。CPU 只能作为显式 baseline/fallback 命令，不能成为默认模式。
-- 导出/转换/推理脚本不要只写死本地路径或输出名；把 onnx output、权重路径、batch、soc_version、数据路径等暴露为参数，并提供默认值；物理卡选择用 `ASCEND_RT_VISIBLE_DEVICES=<id>`，不要在 README 主命令中使用 `npu:<id>`。
-- 如果把 shell 脚本改成 Python 脚本更易提供默认参数和跨环境复现，优先 Python。
-- 下载脚本只有在原生 HF/ModelScope 命令在常见网络下不可用或需要特殊目录结构时才保留；README 解释必要性。
-- 数据准备脚本优先单一 Python 主入口（如 `prepare_data.py`），不要同时维护功能重复的 `.sh` 包装和 Python 脚本。每个 dataset 分支都要做最小 dry run：构造小型 tar/zip、最短音频和最小 reference label/RTTM，验证输出 scp、reference 路径和 README 命令一致。尤其检查 GitHub zip 常见的顶层目录嵌套（如 `repo-master/repo-master/...`）。
-- 脚本打印的 next step 必须是仓内真实存在的脚本或 README 中已有命令；删除 `run_eval.sh` 等从模板继承但未提交的残留提示。
-- site-packages patch 必须在 README 中自动定位目标文件，并对声明版本执行 `patch --dry-run`；源码 patch 必须在干净上游 commit 上执行 `git apply --check`。
+- 推理、评测、benchmark 默认 NPU；物理卡通过 `ASCEND_RT_VISIBLE_DEVICES` 选择。
+- 纯模型 NPU 计时在区间前后 synchronize；端到端计时可保留完整流程，但必须标明边界，不能混称纯模型性能。
+- 首次编译、cache miss、数据加载、后处理、网络、排队和 CPU fallback 分开记录。
+- 性能命令、脚本默认值和表格中的 batch/并发/warmup/loop/单位一致；音频优先 RTF，可同时列来源明确的 RTFx。
+- 正式性能至少独立执行 3 次并报告中位数；保留每次结果，CPU 性能不用于推断加速比。
+- unsupported op 的范围要按硬件/软件栈说明，不能把某型号或某版本的限制扩大成所有 Ascend 设备结论。
+- wrapper 和 benchmark 的失败路径、空输入、OOM/子进程失败至少做一次负向测试。
 
-## 精度检视
+## 精度、数据与配置来源
 
-- 默认要求有精度验证数据；不能只写“推理正常”。
-- 精度对比优先基于论文、官方公开完整数据集/split 或 ModelZoo 同类可复现数据集；如果源仓 README/论文/release 已给出 accuracy 表，默认要求说明 NPU 结果是否按同一 checkpoint、官方相同完整数据集/split 和 metric 对齐，不要求 CPU 精度对比。
-- 如果官方列出多个数据集，允许 PR 只评测其中一部分，但必须列明已评测/未评测数据集；对已评测数据集必须跑完整官方 split。小样本或子集只能作为 smoke test/输出对齐，不能直接对比官方完整集指标。
-- 如果无法使用官方指标或源仓没有可复现 accuracy，必须说明原因；此时才使用 CPU/upstream 与 NPU 对齐，并保证同一评测脚本、同一数据划分、同一随机种子/阈值/top-k/IoU 策略。
-- 对 ASR 等任务，推理结果写文件不等于精度；必须单独计算 WER/CER/BLEU 等任务指标，并给出计算命令。
-- 生成/多模态/机器人模型至少提供可复现的小集合评测或语义/数值对齐说明；不要只贴截图。
-- Pipeline 模型若有 CPU fallback，必须说明具体技术阻塞（纯 NumPy/SciPy 算法、NPU 不支持算子、框架限制等）；不能只写“上游默认用 ONNX Runtime/CPU”。若有 PyTorch 等价路径，应优先评估 NPU 化。
+- 不能只写“精度持平”；给出数据集/split、样本数、metric、命令和实际结果。
+- 生成的归一化统计、label map、manifest 或配置文件必须说明原始数据、生成脚本和命令；原仓没有的文件尤其如此。
+- 区分用户需要下载的原始数据、脚本生成的中间文件和仓内自带 fixture；每个路径写清生产者与消费者。
+- 环境数据优先 wget/curl + file/size/SHA 校验；Python 专用下载器必须有固定版本离线替代，offline 缺文件时严格失败。
+- 多语言/多 split 数据准备参数要与 README 示例一致，并解释为何选择不同数据源。
+- 模型标题、配置和权重必须成套；示例使用 SAM2.1 等变体时不能只用 SAM2 泛称而不解释。
+- 许可证检查不仅确认文件存在，还要判断模型、权重和数据是否允许当前分发/商用方式。
 
-## 性能检视
+## README 与上库结构
 
-- 性能指标必须符合任务：ASR/TTS/音频默认 RTF 或音频时长归一化指标，RTFx=1/RTF 可作为补充；检测/分类/OM 默认 latency/FPS；服务模型默认 QPS/tokens/s/latency。源仓已有官方/GPU benchmark/performance 数据时，reviewer 会关注是否复用了同一 benchmark 口径，或是否解释了硬件/输入/batch/统计差异；默认没有本地 GPU 环境时使用官方性能作参考。CPU 性能对比对 GPU→NPU 迁移没有意义，不应在 README/PR 中体现。
-- 指标单位要明确，性能表不要混淆 ms、s、FPS、RTF、QPS。
-- 端到端耗时和纯模型耗时分开；包含数据加载、后处理、CPU fallback、首次编译时必须单列说明。
-- 若更新性能结果，README 表格、脚本输出、PR 描述中的数字要一致。
-- 性能命令、脚本默认参数和性能表口径必须一致，尤其是 `batch_size`、warmup、loop、并发和是否包含模型加载。若表格按 `batch_size=64`，命令要显式传参或脚本默认值/参数表也写 64。
-- Pipeline 中包含 CPU 组件时，性能表要拆分纯 NPU 子模型与端到端；说明 CPU 组件是否已评估过迁移 NPU，CPU fallback 应是评估后的选择。
+- 固定上游 commit/revision，并提供干净 clone 的 patch 命令。
+- 对外硬件字段使用准确产品型号；不要用过宽或不适用的系列名掩盖实际验证设备。
+- 输出路径、ONNX/OM 路径、权重、batch、SOC_VERSION、数据和并发参数对用户暴露；不要把开发期路径写死。
+- 数据准备脚本优先单一 Python 入口；以最小 tar/zip/音频/图片/label fixture 验证目录展开和输出清单。
+- README 的 next step、脚本打印提示和 PR Self-test 只能引用真实存在的命令/文件。
+- 工作区三类主文档职责分离；正式候选 README 自包含，不依赖默认排除的 NPU_ADAPTATION/ACCEPTANCE_PLAN。
+- S0–S4 只按真实证据提升；至少 S3 + target-readiness 审计 + 独立候选 clean-room 重放，才能写“上库候选就绪”。
+- ModeList 统计、表格空单元格、重复段落和模板占位在提交前清理。
 
-## Patch 与算子支持
+## CI 与审查证据
 
-- patch 必须覆盖实际不支持的算子或代码路径；例如原始代码中有 `split` 等 ATC 不支持算子时，patch 需要真正替换，而不是只在文档说明。
-- 删除 custom op 或替换实现后，全链路 import、setup、requirements、README 都要同步。
-- 对 ONNX/OM 导出脚本暴露关键参数；不要把内部调试脚本原样上库。
-
-## PR 描述与自测
-
-- PR 描述不要保留模板占位文字。默认包含 Motivation、Modification、Self-test、BC-breaking、Checklist 五段，并写模型适配事实。
-- Self-test 默认使用表格，至少包含：环境、patch 检查、依赖安装/import smoke test、转换/编译、单样例推理、精度、性能；截图只能作为补充，不能替代命令和结果表。
-- 如果有兼容性或依赖变化，必须在 BC-breaking/FAQ 中说明。
+- 区分 Antipoison、CodeCheck、SCA；流水线总失败时查具体阶段，不凭总状态猜原因。
+- 最新 head 的 CI 才决定当前状态；旧 commit 的失败/成功记录不能覆盖当前结果。
+- AI review 摘要需回到实际 diff 验证；AI review 超时或失败只记“未获得意见”。
+- 正式审查报告列出未执行的 NPU 精度/性能测试，不能用评论或截图替代。

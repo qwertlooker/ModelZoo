@@ -2,6 +2,15 @@
 
 来源：扩大到当前 checkout 的 `ACL_PyTorch/built-in` patch/diff 文件（本轮挖掘 115 个 patch/diff、80 个模型目录，覆盖 audio、cv、ocr、foundation_models、embodied_ai、nlp）。此文件只作为运行时写 patch 的内化参考；不要把“修改模式清单”作为用户交付物，除非用户明确要求说明依据。
 
+## 目录
+
+1. 读 patch 的顺序
+2. 统计信号与任务模式
+3. 设备/后端/checkpoint
+4. 算子、shape、服务和依赖
+5. 任务专用模式
+6. 写 patch 前自检
+
 ## 读 patch 的默认顺序
 
 1. 先读同任务/同路线样本 patch：`find <sample_dir> -maxdepth 3 -type f \( -name '*.patch' -o -name '*.diff' \)`。如需要扩大范围，先在完整或扩大 sparse checkout 上运行 `scripts/patch_pattern_miner.py <ACL_PyTorch/built-in> --out /tmp/modelzoo_patch_patterns.md`，再按当前任务筛选相近 patch。
@@ -37,7 +46,7 @@
 ### 1. 设备选择从 CUDA 单分支改为 NPU 优先但保留 fallback
 
 - 搜索：`cuda`、`.cuda()`、`torch.cuda`、`device='cuda'`、`accelerator='gpu'`、`map_location`、`set_device`。
-- 默认模式：先尝试 `import torch_npu`，若 `torch.npu.is_available()` 则使用设备字符串 `npu`，否则保持 CUDA/CPU fallback；选择物理卡通过 `ASCEND_RT_VISIBLE_DEVICES=<id>` 控制，不写 `npu:<id>`。
+- 默认模式：推理/评测入口显式接受 `--device npu/cpu` 且默认 `npu`；只有 CPU fallback 入口需要延迟导入 torch_npu。不要用静默 CUDA/CPU fallback 掩盖 NPU 不可用；选择物理卡通过 `ASCEND_RT_VISIBLE_DEVICES=<id>` 控制。
 - 对 Lightning/第三方框架保守处理：如果框架仍使用 `accelerator='gpu'` 才能触发 transfer shim，README 写清原因，不要盲目改成不存在的 `accelerator='npu'`。
 - 设备选择优先参数化：通过 `--device` 暴露 CPU/NPU 切换，使 CPU baseline 和 NPU 推理尽量共用同一入口；默认值必须是 NPU（如 `--device npu`）。物理卡选择统一使用 `export ASCEND_RT_VISIBLE_DEVICES=<id>`，不要用 `npu:0`/`npu:<id>` 或脚本默认 `--device-id`。CPU 只能显式选择。
 
@@ -91,7 +100,7 @@
 - requirements/setup/pyproject patch 必须最小化：只删除或替换会导致安装失败、拉取 CUDA/GPU runtime、或覆盖 Ascend 镜像核心栈的条目（`torch*`、不适配的 `onnxruntime-gpu` 等），只新增经 import/`--help`/单样例验证确实缺失的业务依赖。不要把上游依赖列表大幅改写成短白名单，除非已证明原依赖会整体阻塞且 README 解释原因。
 - 有 editable 子包时，优先通过 README 安装顺序和 `--no-deps` 控制依赖解析；只有 metadata 本身会误导用户或 CI 时才 patch `setup.py/pyproject.toml`。典型顺序：业务 requirements → 子包 editable → 顶层 `pip install --no-deps -e .`。
 - 第三方库 API 变更只做最小兼容，例如 `onnx.mapping` 改 `onnx.helper`、`np.int` 改 `int`。
-- 如果必须 patch site-packages（如 torchaudio kaldi），要单独成 patch，README 写明目标版本、应用路径、校验命令和恢复方式。
+- 如果必须 patch site-packages（如 torchaudio kaldi），要单独成 patch；用 `importlib.util.find_spec()` 定位包目录，diff 路径从 `<pkg>/` 开始，从 site-packages 根目录 `patch -p1`，README 写明目标版本、dry run、恢复方式。不要 import 包只为读取 `__file__`。
 - torchaudio 2.9+ `torchaudio.load` 会使用 TorchCodec，`backend` 参数会被忽略；遇到 Ascend 镜像中的 torchcodec/FFmpeg/ABI 问题时，直接改用 `soundfile`/`librosa` 读写，不要只依赖 `backend='soundfile'`。
 
 ### 7. 评测/性能脚本补丁
@@ -99,6 +108,7 @@
 - 评测脚本常见修改：batch 调小、尾 batch padding、输出保存格式修正、设备名从 GPU 改 NPU、删除参数统计中依赖 CUDA 的部分。
 - 不把“脚本能运行”当 accuracy；仍要回到上游原始指标，或说明 CPU/upstream vs NPU 对齐替代口径。
 - 性能中若包含 CPU 前后处理、服务端排队、cache miss，要在 README 表格拆列。
+- 正式 NPU 性能至少独立执行 3 次并报告中位数；脚本保存每次结果，纯模型计时前后 synchronize。
 
 ### 8. ASR/多子模型 adapter 模式
 
