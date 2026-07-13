@@ -79,6 +79,8 @@ python3 "$SKILL_DIR/scripts/modelzoo_pr_quickcheck.py" <repo> \
 
 随后执行 patch dry run、数据最小样例、脚本 `--help`、单样例推理、精度和性能核验。在含 `tools/audit_model_delivery.py` 的工作仓中同时运行基础审计；准备上库时追加 `--target-readiness --target-path ...`，并从独立候选目录 clean-room 重放 README 最低正式路径。历史 CI 只用于发现模式；是否通过以当前 head 对应的最新流水线为准。
 
+采样结果必须确认 discussion 的 `fetched/total` 完整且按 `created_at` 查看最新意见；截断或缺页按证据缺口处理。每次 push 后重新确认 PR head 已更新，并等待该 head 之后启动的文档、CodeCheck、SCA 等门禁进入终态；旧失败标签被移除或流水线显示 running 都不等于通过。
+
 ## 资源导航
 
 - 适配执行与阶段产物：`references/workflow-adaptation.md`

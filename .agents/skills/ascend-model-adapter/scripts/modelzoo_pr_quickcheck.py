@@ -16,6 +16,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import urllib.parse
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -263,6 +264,87 @@ def check_readme_references(root: Path, target: Path) -> list[Finding]:
     return findings
 
 
+def _markdown_heading_slugs(text: str) -> set[str]:
+    slugs: set[str] = set()
+    counts: dict[str, int] = {}
+    in_fence = False
+    fence_char = ""
+    for line in text.splitlines():
+        stripped = line.lstrip()
+        fence = re.match(r"^(`{3,}|~{3,})", stripped)
+        if fence:
+            marker = fence.group(1)[0]
+            if not in_fence:
+                in_fence = True
+                fence_char = marker
+            elif marker == fence_char:
+                in_fence = False
+                fence_char = ""
+            continue
+        if in_fence:
+            continue
+        heading = re.match(r"^#{1,6}\s+(.+?)\s*#*\s*$", line)
+        if not heading:
+            continue
+        base = re.sub(r"[^\w\- ]", "", heading.group(1).lower())
+        base = re.sub(r"\s+", "-", base.strip())
+        if not base:
+            continue
+        duplicate = counts.get(base, 0)
+        counts[base] = duplicate + 1
+        slugs.add(base if duplicate == 0 else f"{base}-{duplicate}")
+    return slugs
+
+
+def check_readme_markdown(root: Path, target: Path) -> list[Finding]:
+    readme = target / "README.md"
+    if not readme.exists():
+        return []
+    raw = readme.read_bytes()
+    text = raw.decode("utf-8", errors="ignore")
+    findings: list[Finding] = []
+    if raw and not raw.endswith(b"\n"):
+        findings.append(
+            Finding("ERROR", f"{rel(readme, root)}: Markdown file lacks final newline")
+        )
+
+    in_fence = False
+    fence_char = ""
+    for line_number, line in enumerate(text.splitlines(), 1):
+        stripped = line.lstrip()
+        fence = re.match(r"^(`{3,}|~{3,})(.*)$", stripped)
+        if not fence:
+            continue
+        marker = fence.group(1)[0]
+        if not in_fence:
+            in_fence = True
+            fence_char = marker
+            if not fence.group(2).strip():
+                findings.append(
+                    Finding(
+                        "ERROR",
+                        f"{rel(readme, root)}:{line_number}: fenced code block lacks a language",
+                    )
+                )
+        elif marker == fence_char:
+            in_fence = False
+            fence_char = ""
+
+    slugs = _markdown_heading_slugs(text)
+    for match in re.finditer(r"\]\(#([^)]+)\)", text):
+        anchor = urllib.parse.unquote(match.group(1)).lower()
+        if anchor not in slugs:
+            line = text.count("\n", 0, match.start()) + 1
+            findings.append(
+                Finding(
+                    "ERROR",
+                    f"{rel(readme, root)}:{line}: internal Markdown anchor does "
+                    f"not match a heading: #{anchor}",
+                )
+            )
+    return findings
+
+
 def check_review_patterns(root: Path, target: Path) -> list[Finding]:
     findings: list[Finding] = []
     for path in target.rglob("*.py"):
@@ -294,6 +376,23 @@ def check_review_patterns(root: Path, target: Path) -> list[Finding]:
                 Finding(
                     "WARN",
                     f"{rel(path, root)}: subprocess.run may not propagate child failure",
+                )
+            )
+        if re.search(r"\bInferSession\s*\(", text) and ".free_resource" not in text:
+            findings.append(
+                Finding(
+                    "WARN",
+                    f"{rel(path, root)}: ais_bench InferSession is created without explicit free_resource cleanup",
+                )
+            )
+        if re.search(r"\bInferenceSession\s*\(", text) and not any(
+            marker in text
+            for marker in ("finally:", "ExitStack", "contextmanager", ".clear()")
+        ):
+            findings.append(
+                Finding(
+                    "WARN",
+                    f"{rel(path, root)}: ONNX Runtime InferenceSession ownership has no explicit scope-exit cleanup",
                 )
             )
     for path in target.rglob("*"):
@@ -466,6 +565,7 @@ def main() -> int:
     findings += check_stale_commands(root, target)
     findings += check_batch_size_consistency(root, target)
     findings += check_readme_references(root, target)
+    findings += check_readme_markdown(root, target)
     findings += check_review_patterns(root, target)
     findings += check_template_placeholders(root, target)
     findings += check_modelzoo_constraints(root, target)

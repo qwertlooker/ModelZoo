@@ -22,6 +22,8 @@
 - 为输出数量、空输出、异常 shape 和未来新增输出写显式分支；不要只覆盖当前常见 `len(outputs)`。
 - 参数拒绝零/负 loop、record、batch 和空数据集，避免除零或假成功。
 - 公共 helper 去重；推理和评测重复逻辑提取到实际提交的模块，并检查删除旧模块后的引用。
+- ais_bench/ACL 等持有设备资源的会话必须在上下文管理器或 `finally` 中调用公开释放接口（如 `free_resource()`）；覆盖正常退出、业务异常和第二个会话构造失败等部分初始化路径。
+- ONNX Runtime `InferenceSession` 没有公共 close API 时，作用域退出必须清空最后持有引用；不要调用私有 `_sess`/`_reset_session`。用 fake session + weakref 或等价夹具验证引用释放，同时验证 OM 会话释放次数。
 - 删除无必要的 `# noqa`/lint 抑制、临时注释和乱码；确需抑制时写具体理由和范围。
 
 ## NPU 正确性与性能
@@ -51,6 +53,7 @@
 - 输出路径、ONNX/OM 路径、权重、batch、SOC_VERSION、数据和并发参数对用户暴露；不要把开发期路径写死。
 - 数据准备脚本优先单一 Python 入口；以最小 tar/zip/音频/图片/label fixture 验证目录展开和输出清单。
 - README 的 next step、脚本打印提示和 PR Self-test 只能引用真实存在的命令/文件。
+- README 目录锚点按实际标题 slug 校验，尤其不能漏掉中文字符；同时检查 fenced code language、末尾换行和相对链接。文档门禁通过前不要只凭本地渲染判断。
 - 工作区三类主文档职责分离；正式候选 README 自包含，不依赖默认排除的 NPU_ADAPTATION/ACCEPTANCE_PLAN。
 - S0–S4 只按真实证据提升；至少 S3 + target-readiness 审计 + 独立候选 clean-room 重放，才能写“上库候选就绪”。
 - ModeList 统计、表格空单元格、重复段落和模板占位在提交前清理。
@@ -59,5 +62,6 @@
 
 - 区分 Antipoison、CodeCheck、SCA；流水线总失败时查具体阶段，不凭总状态猜原因。
 - 最新 head 的 CI 才决定当前状态；旧 commit 的失败/成功记录不能覆盖当前结果。
+- GitCode discussion API 默认页可能只含较早的 20 条记录；正式结论要求 `fetched/total` 完整并按 `created_at` 取最新。每次 push 后等待该 head 之后的新门禁从 running 进入 success/failed，删除旧标签不代表成功。
 - AI review 摘要需回到实际 diff 验证；AI review 超时或失败只记“未获得意见”。
 - 正式审查报告列出未执行的 NPU 精度/性能测试，不能用评论或截图替代。

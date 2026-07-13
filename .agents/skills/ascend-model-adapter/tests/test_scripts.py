@@ -61,6 +61,98 @@ class ReviewSamplerTests(unittest.TestCase):
         self.assertTrue(self.module.is_noise("changed the description"))
         self.assertTrue(self.module.is_noise("AI 代码审查执行失败，请稍后重试"))
 
+    def test_fetches_full_discussion_page_and_sorts_newest_first(self):
+        module = self.module
+
+        class FakeSession:
+            def __init__(self):
+                self.urls = []
+
+            def get(self, url, headers, timeout):
+                self.urls.append(url)
+                if url.endswith("/pull/12"):
+                    return module.HttpResponse(200, "{}")
+                if url.endswith("/isource/merge_requests/12"):
+                    return module.HttpResponse(
+                        200, json.dumps({"iid": 12, "title": "Demo", "sha": "abc"})
+                    )
+                return module.HttpResponse(
+                    200,
+                    json.dumps(
+                        {
+                            "total": 2,
+                            "content": {
+                                "data": [
+                                    {
+                                        "notes": [
+                                            {
+                                                "body": "old review",
+                                                "created_at": "2026-07-13T10:00:00",
+                                                "author": {"username": "bot"},
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "notes": [
+                                            {
+                                                "body": "new review",
+                                                "created_at": "2026-07-13T11:00:00",
+                                                "author": {"username": "bot"},
+                                            },
+                                        ]
+                                    }
+                                ]
+                            },
+                        }
+                    ),
+                )
+
+        session = FakeSession()
+        detail, notes = module.fetch_pr(
+            session, "https://gitcode.example", "Ascend/ModelZoo-PyTorch", 12, {}
+        )
+        self.assertIn("page=1&per_page=100", session.urls[-1])
+        self.assertEqual(2, detail["_discussion_total"])
+        self.assertEqual(2, detail["_discussion_fetched"])
+        self.assertEqual(
+            ["new review", "old review"],
+            [note.body for note in module.newest_notes_first(notes)],
+        )
+        duplicate_statuses = [
+            module.Note(
+                12, "Demo", "robot", "pipeline passed", "2026-07-13T10:00:00"
+            ),
+            module.Note(
+                12, "Demo", "robot", "pipeline passed", "2026-07-13T12:00:00"
+            ),
+        ]
+        deduped = module.dedupe_notes(duplicate_statuses)
+        self.assertEqual(1, len(deduped))
+        self.assertEqual("2026-07-13T12:00:00", deduped[0].created_at)
+
+    def test_truncated_discussions_fail_closed(self):
+        module = self.module
+
+        class FakeSession:
+            def get(self, url, headers, timeout):
+                if url.endswith("/pull/12"):
+                    return module.HttpResponse(200, "{}")
+                if url.endswith("/isource/merge_requests/12"):
+                    return module.HttpResponse(200, json.dumps({"iid": 12}))
+                return module.HttpResponse(
+                    200,
+                    json.dumps({"total": 101, "content": {"data": [{}]}}),
+                )
+
+        detail, _ = module.fetch_pr(
+            FakeSession(),
+            "https://gitcode.example",
+            "Ascend/ModelZoo-PyTorch",
+            12,
+            {},
+        )
+        self.assertIn("truncated", detail["_discussion_error"])
+
 
 class QuickcheckTests(unittest.TestCase):
     @classmethod
@@ -102,6 +194,51 @@ class QuickcheckTests(unittest.TestCase):
             ]
             self.assertTrue(any("child failure" in message for message in messages))
             self.assertTrue(any("download HTML" in message for message in messages))
+
+    def test_catches_runtime_cleanup_and_markdown_gate_failures(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            target = root / "ACL_PyTorch/built-in/audio/Demo"
+            target.mkdir(parents=True)
+            (target / "README.md").write_text(
+                "# 模型推理性能与精度\n[结果](#模型推理性能精度)\n```\ntext\n```",
+                encoding="utf-8",
+            )
+            (target / "verify.py").write_text(
+                "om = InferSession(0, 'demo.om')\n"
+                "ort_session = ort.InferenceSession('demo.onnx')\n",
+                encoding="utf-8",
+            )
+            findings = [
+                *self.module.check_readme_markdown(root, target),
+                *self.module.check_review_patterns(root, target),
+            ]
+            messages = [finding.message for finding in findings]
+            self.assertTrue(any("final newline" in message for message in messages))
+            self.assertTrue(any("lacks a language" in message for message in messages))
+            self.assertTrue(
+                any("anchor does not match" in message for message in messages)
+            )
+            self.assertTrue(any("free_resource" in message for message in messages))
+            self.assertTrue(any("scope-exit cleanup" in message for message in messages))
+
+            (target / "verify.py").write_text(
+                "with ExitStack() as cleanup:\n"
+                "    sessions = {}\n"
+                "    sessions['om'] = InferSession(0, 'demo.om')\n"
+                "    cleanup.callback(sessions['om'].free_resource)\n"
+                "    sessions['ort'] = ort.InferenceSession('demo.onnx')\n"
+                "    cleanup.callback(sessions.clear)\n",
+                encoding="utf-8",
+            )
+            fixed_messages = [
+                finding.message
+                for finding in self.module.check_review_patterns(root, target)
+            ]
+            self.assertFalse(any("free_resource" in message for message in fixed_messages))
+            self.assertFalse(
+                any("scope-exit cleanup" in message for message in fixed_messages)
+            )
 
     def test_modelzoo_constraints_catch_device_and_runtime_download(self):
         with tempfile.TemporaryDirectory() as temp:
