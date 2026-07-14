@@ -1,4 +1,4 @@
-name: Update Skill Split Branch
+name: Update Skill Split Branch (main -> skill/ascend-model-adapter)
 
 on:
   push:
@@ -12,6 +12,7 @@ on:
 jobs:
   update-split-branch:
     runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, '[skip-split-sync]')"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
