@@ -102,6 +102,7 @@ python3 -c "import torch, torch_npu; print(torch.__version__, torch_npu.__versio
 - [ ] 精度使用完整声明数据集/split；性能计时边界和 NPU 同步正确。
 - [ ] README、脚本输出、项目日志和 PR 描述中的结果一致。
 - [ ] 对外硬件型号准确；未泄露内部代号或详细芯片信息。
+- [ ] 交付脚本无 `sys.exit()` / 分号多语句 / 算术操作符缺空格等编码规范问题；已通过 `ruff check` 或等价静态检查零错误。
 - [ ] strict quickcheck、ModeList、CodeCheck/SCA/Antipoison 预检完成。
 - [ ] 工作区三类主文档职责分离且相互一致，README 不依赖内部证据。
 - [ ] 已运行 `tools/audit_model_delivery.py` 基础审计；上库时运行 target-readiness。

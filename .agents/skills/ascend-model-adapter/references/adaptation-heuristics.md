@@ -7,7 +7,8 @@
 3. Pipeline 与后端
 4. ONNX/OM
 5. 数据与预处理
-6. 服务和性能
+6. 编码规范与代码质量
+7. 服务和性能
 
 这些是排查信号，不替代实测、官方兼容矩阵或项目日志证据。
 
@@ -57,7 +58,26 @@
 - 音频/图像/视频预处理精确复现采样率、声道、resize/crop、归一化、padding 和重采样工具；改动后对齐中间结果或任务指标。
 - 原仓没有的 norm stats、label map 或配置必须提供生成依据和命令。
 
-## 6. 服务和性能
+## 6. 编码规范与代码质量
+
+所有交付脚本（推理、评测、导出、benchmark、数据准备）必须通过基础静态检查（pylint / ruff / flake8 等），不得在 S1 前遗留以下典型问题：
+
+### 错误处理
+- **禁止 `sys.exit()` 和 `raise SystemExit()`**：函数体内不得调用 `sys.exit()` 或 `raise SystemExit()`，主进程入口 `if __name__ == "__main__"` 除外。依赖缺失应 `raise RuntimeError(...)`，参数校验失败应 `raise argparse.ArgumentTypeError(...)` 或 `raise ValueError(...)`，验证不通过应 `raise SystemExit(...)` 仅限 `main()` 或其直接委托的终态判定。
+- **异常链保留**：`except ... as exc` 后用 `raise ... from exc` 保留原始堆栈，不要吞掉上下文。
+
+### 格式
+- **算术操作符两侧必须有空格**：`a + b`，`a - b`，`a * b`，`a / b`，`a ** b`，`a // b`，`a % b`。`a+b`、`a-b` 均不合规范。
+- **一行只写一条语句**：禁止用分号 `;` 将多条语句写在同一行。例如 `ps.infer([pi]); ms.infer([mi])` 应拆为两行。
+- **紧凑计时模式**：性能测试中避免 `t = time.perf_counter(); func(); lat.append(time.perf_counter() - t)` 这类一行多语句写法，应拆为独立赋值、调用、记录三行。
+
+### 导入
+- 移除不再使用的 `import sys` 等废弃导入；`sys.exit` 全部替换后同步删除 `import sys`。
+
+### 自检
+- S1 门禁前对全部交付脚本执行 `ruff check` 或等价工具，零错误才可通过；发现的规则违反必须修复，不得用 `noqa` 压制后进入候选目录。
+
+## 7. 服务和性能
 
 - vLLM/TorchAir 提供 server、client、health check、预热/编译缓存、并发、显存和恢复说明。
 - vLLM 嵌套配置按固定版本实际 `--help` 的 JSON/CLI 语法书写；server 的 served model、context、client 和 benchmark 名称保持一致。外部 evaluator/agent/tool 仓固定 commit。
