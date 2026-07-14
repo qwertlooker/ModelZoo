@@ -1,0 +1,38 @@
+name: Update Skill Split Branch
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.agents/skills/ascend-model-adapter/**'
+
+  workflow_dispatch:
+
+jobs:
+  update-split-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Run subtree split and update skill branch
+        run: |
+          SKILL_PATH=".agents/skills/ascend-model-adapter"
+          SPLIT_BRANCH="skill/ascend-model-adapter"
+
+          echo "Running subtree split for $SKILL_PATH..."
+          SPLIT_HASH=$(git subtree split --prefix=$SKILL_PATH)
+          echo "Split hash: $SPLIT_HASH"
+
+          git push origin $SPLIT_HASH:refs/heads/$SPLIT_BRANCH --force
+
+          echo "Successfully updated $SPLIT_BRANCH to $SPLIT_HASH"
