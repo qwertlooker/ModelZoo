@@ -31,6 +31,7 @@
 当前贡献规范若要求许可证文件、`modelzoo_level.txt`、自测试入口或其他元数据，按实时目标仓规则加入候选；不能因历史目录缺失而跳过，也不能生成未执行的虚假文件。
 
 - 优先 patch 上游已有入口，不复制重复脚本。
+- `ModeList.md` 合计数字不要重新计数；在远端上游当前数字基础上 +1（或按实际新增模型数叠加）。合并上游后同样先取上游最新数字再加本地增量，不能回退到旧计数。
 - `requirements.txt` 只放业务依赖；不要重装镜像配套的 torch/torch_npu/vision/audio。
 - 数据准备默认一个 Python 主入口；shell 只用于必要系统工具编排。
 - `.ascend-adaptation`、`NPU_ADAPTATION.md`、`ACCEPTANCE_PLAN.md`、临时 clone、cache、权重、数据和大体积日志默认不进入 ACL 候选。
