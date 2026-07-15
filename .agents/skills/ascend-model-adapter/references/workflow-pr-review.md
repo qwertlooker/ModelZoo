@@ -31,6 +31,10 @@
 按顺序审查，先报阻塞问题：
 
 1. **范围与完整性**：变更目录、ModeList、冲突标记、误删文件、上游 commit、license、贡献门禁和目标路径已有文件处理。
+   - 数据准备章节：来源、目录结构、获取命令；精度/性能表引用的类别名与
+     目录结构对应。
+   - 公网地址声明列出实际 URL 清单，非泛化描述。
+   - README 代码块命令可直接执行：占位符已由前文环境变量定义，无手动替换项。
 2. **执行正确性**：语法、未定义参数/变量、拼写、输出数量分支、CLI 多值参数与 flag 顺序、子进程退出码、原生推理会话生命周期。
 3. **Patch 与下载**：patch 路径、cwd 变化、非零退出、原始文件 URL、哈希/大小、生成配置来源。
 4. **NPU 正确性**：设备默认值、异步计时同步、unsupported op、dtype、shape、CPU fallback。
@@ -53,6 +57,10 @@
 - Markdown：检查内部锚点与真实 heading slug 一致、代码块语言、末尾换行和本地链接；push 后等待当前 head 的文档门禁终态。
 - NPU：CPU-only dry run 不能替代真实精度与性能。
 - 仓库门禁：只运行当前目标 checkout 自带的 `tools/audit_model_delivery.py`；不要借用另一个 clone 中按 `__file__` 推导 repo root 的脚本。脚本缺失时记录未执行。声明上库候选就绪时追加 target-readiness，并从独立候选目录 clean-room 重放。
+- README 可执行性：用 `audit_readme.py` 提取所有 bash 代码块，检查 `<...>`
+  占位符是否在前文有 export 定义；逐条验证 cd、python3、atc 等命令引用的
+  路径与变量一致；检查公网地址声明是否列出所有实际 URL；检查数据准备章节
+  是否覆盖精度表引用的类别。
 
 ## 5. 输出结论
 

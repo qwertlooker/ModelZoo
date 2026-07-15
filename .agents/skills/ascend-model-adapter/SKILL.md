@@ -10,7 +10,10 @@ description: 将 Hugging Face、GitHub、PyTorch、ONNX、Paddle、vLLM、TorchA
 ## 先确定模式
 
 - **adapt**：从上游模型生成新的 ModelZoo 适配工程。读取 `references/workflow-adaptation.md`。
-- **review**：审查已有目录或 PR。读取 `references/workflow-pr-review.md` 和 `references/pr-review-heuristics.md`。
+- **review**：审查已有目录或 PR。读取 `references/workflow-pr-review.md` 和
+  `references/pr-review-heuristics.md`。对交付目录中的 README.md 先运行
+  `python3 "$SKILL_DIR/scripts/audit_readme.py"`，阻塞项未清零前不输出
+  "可上库"或"验证通过"结论。
 - **resume**：继续已有项目。先读取该项目自己的 `worklog.json`，从当前状态后的第一道门禁继续；不要重建或覆盖日志。
 
 开始前把本 `SKILL.md` 所在目录的绝对路径记为 `SKILL_DIR`。所有 bundled script 均用 `python3 "$SKILL_DIR/scripts/<name>.py"` 调用；不要假设当前目录是 Skill 根目录，也不要使用可能不存在的 `python` 命令。

@@ -49,11 +49,16 @@
 3. 容器启动、环境检查和工作目录。
 4. 源码、patch、依赖安装；写明子包和顶层 `--no-deps` 顺序。
 5. 权重、数据、评测工具、protocol/label 的来源、目录树和生成命令。
+   **数据准备是必需章节**，不能只写 `./datasets/your_folder` 等占位路径；
+   精度/性能表引用的类别名必须与数据目录结构中的目录名一一对应。
 6. 路线命令：导出/ATC、TorchAir 编译或 vLLM server/client。
 7. NPU 推理、输入输出 contract、默认参数和结果路径。
 8. 精度与性能：官方/GPU 参考来源、NPU 实测、命令、完整口径和差异；正式性能至少 3 次并报告中位数。
 9. FAQ：只放用户复现需要知道的依赖、cache、长编译、unsupported op 和 CPU fallback。
-10. README 实际引用的公网地址。
+10. README 实际引用的公网地址。**必须以表格或列表形式列出所有 URL**
+    （源码、权重、数据、文档、镜像），不能只写泛化描述。
+11. 所有代码块命令可直接复制执行。路径占位符用前文 export 定义的环境变量
+    替代（如 `${MODEL_DIR}`），不使用 `<占位符>` 要求用户手动替换。
 
 不要把 TODO、内部路径、未提交脚本、理论结果或 CPU 性能带入最终 README。没有真实 NPU 证据时标记 `待 NPU 验证`。
 
@@ -108,6 +113,9 @@ python3 -c "import torch, torch_npu; print(torch.__version__, torch_npu.__versio
 - [ ] 工作区三类主文档职责分离且相互一致，README 不依赖内部证据。
 - [ ] 已运行 `tools/audit_model_delivery.py` 基础审计；上库时运行 target-readiness。
 - [ ] 已从独立候选目录完成 clean-room 最低路径重放。
+- [ ] README 代码块无未定义占位符；所有命令可直接复制执行。
+- [ ] 公网地址声明以表格列出所有实际 URL，非泛化描述。
+- [ ] 数据准备章节覆盖来源/目录结构/获取命令；精度表类别名与目录结构一致。
 - [ ] 技术状态真实达到 S3/S4，并单独满足 `target_ready=true`；否则明确列出未完成门禁。
 
 ## 5. PR 描述
