@@ -1,0 +1,46 @@
+name: Sync .agents Submodule
+
+on:
+  schedule:
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+jobs:
+  sync-submodule:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout with submodules
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Update .agents submodule to latest
+        id: update
+        run: |
+          cd .agents
+          git fetch origin
+          LATEST=$(git rev-parse origin/HEAD)
+          CURRENT=$(git rev-parse HEAD)
+          echo "Current submodule commit: $CURRENT"
+          echo "Latest upstream commit:  $LATEST"
+          if [ "$CURRENT" = "$LATEST" ]; then
+            echo "already_up_to_date=true" >> $GITHUB_OUTPUT
+          else
+            echo "already_up_to_date=false" >> $GITHUB_OUTPUT
+            git checkout "$LATEST"
+          fi
+        working-directory: ${{ github.workspace }}
+
+      - name: Commit and push if updated
+        if: steps.update.outputs.already_up_to_date == 'false'
+        run: |
+          git add .agents
+          git commit -m "chore: sync .agents submodule to latest upstream"
+          git push origin main
+          echo "Submodule updated and pushed to main."
