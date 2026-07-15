@@ -55,8 +55,12 @@
 - README 的 next step、脚本打印提示和 PR Self-test 只能引用真实存在的命令/文件。
 - README 目录锚点按实际标题 slug 校验，尤其不能漏掉中文字符；同时检查 fenced code language、末尾换行和相对链接。文档门禁通过前不要只凭本地渲染判断。
 - 工作区三类主文档职责分离；正式候选 README 自包含，不依赖默认排除的 NPU_ADAPTATION/ACCEPTANCE_PLAN。
-- S0–S4 只按真实证据提升；至少 S3 + target-readiness 审计 + 独立候选 clean-room 重放，才能写“上库候选就绪”。
+- S0–S4 只按真实证据提升；至少 S3 + target-readiness 审计 + 独立候选 clean-room 重放，才能写"上库候选就绪"。
 - ModeList 统计、表格空单元格、重复段落和模板占位在提交前清理。
+  **ModeList.md 合计数字不能重新从头计数**：必须在远端上游 `master` 当前
+  合计数字基础上 +N（N 为本 PR 实际新增模型数）。合并上游/变基后必须重新
+  查询上游最新数字并叠加本地增量，禁止回退到旧快照的计数。GPL/built-in+contrib
+  两个合计行分别校验。
 
 ## README 内容深度检查
 
