@@ -1,0 +1,2 @@
+# Runtime packages are provided by quay.io/ascend/vllm-ascend:v0.18.0.
+# Do not reinstall torch, torch_npu, vllm, or vllm-ascend in that image.
