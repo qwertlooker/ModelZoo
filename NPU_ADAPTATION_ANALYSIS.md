@@ -436,3 +436,38 @@ NPU/CANN 运行环境和模型权重，因此真实 NPU 数值、性能和官方
 - 每个仓库的精度验证必须至少选一个公开数据集或明确人工评测协议，与源仓 CPU/CUDA/官方指标做对比。
 - 数据准备脚本必须支持离线复用，禁止在评测阶段隐式联网下载。
 - 缺少官方指标或官方组件时应在文档中明确“缺失/待补”，不能用简化指标或第三方非官方实现冒充官方评测。
+
+---
+## 7. MechVL-4B-RL
+
+### 7.1 仓库观察与路线
+
+- 2026-07-16 固定 Hugging Face `XiaofengAlg/MechVL-4B-RL` revision
+  `2c6fda8a16e57d8a6fe1019412092d09a0363850`，架构为 Qwen3-VL-4B；15 个运行时
+  文件的 SHA256/字节数已写入模型目录。
+- 固定上游 `xiaofengShi/MechVQA` commit
+  `8841ee083c2704f2d8ccf426a8c0bb61ad911890`，公开评测集为 1,185 条 QA、562 张图，
+  source manifest SHA256 为 `e9ff49a26742d24ac6c1cdff5279aa4eb75e3a17787da54efe75faff2adaeba2`。
+- 选择 vLLM Ascend 0.18.0 路线。官方支持矩阵覆盖 Qwen3-VL 4B，且原项目推理和
+  evaluator 都采用 vLLM/OpenAI-compatible 语义，因此无需修改第三方源码。
+- 拟合入 `ACL_PyTorch/built-in/foundation_models/MechVL-4B-RL`；目标仓
+  `c9d4e7dc8a951fb9365e5ebe42601b0101d34ba3` 下该路径不存在。
+
+### 7.2 已交付与当前状态
+
+- 已交付固定权重下载/校验、单卡 NPU 服务、单样例客户端、公开集准备、三裁判配置、
+  精度门禁和三轮端到端性能脚本，以及 README/适配记录/验收计划。
+- Python 编译、Ruff、CLI help、shell syntax、公开集完整性、3 条 payload dry-run 和
+  15 个固定权重 URL 可达性检查通过。
+- 构建机没有 Ascend NPU 和 Docker，当前真实状态为 S1；dry-run 不作为 NPU 功能、
+  精度或性能证据，也不生成 `modelzoo_level.txt`。
+
+### 7.3 后续验收
+
+- 在 Atlas 800I A2 或 Atlas 800 A3 上使用官方 `vllm-ascend:v0.18.0` 对单图、前 5 条、
+  多图和 16K 边界做 S2 功能验证，禁止 CPU fallback。
+- 以 GPT-OSS-120B、DeepSeek-V3.2、Kimi-k2 三裁判对 1,185 条 public test 全量评估。
+  论文/模型卡 `Total=84.85` 仅作公开参考；默认最大绝对下降 0.01 是待维护者校准的
+  工程阈值，不冒充官方门槛。
+- 固定同一服务参数做至少三轮端到端性能，归档镜像摘要、`npu-smi`、HBM、启动日志、
+  原始响应与 comparison report，完成 clean-room 重放后再考虑目标仓上库。

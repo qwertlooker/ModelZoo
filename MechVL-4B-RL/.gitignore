@@ -1,0 +1,12 @@
+runtime/
+weights/
+eval_data*/
+eval_results*/
+results*/
+outputs*/
+.venv*/
+__pycache__/
+*.py[cod]
+*.log
+*.tmp
+eval_config*.json

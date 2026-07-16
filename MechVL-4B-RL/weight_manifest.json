@@ -1,0 +1,21 @@
+{
+  "model_id": "XiaofengAlg/MechVL-4B-RL",
+  "revision": "2c6fda8a16e57d8a6fe1019412092d09a0363850",
+  "files": {
+    "model-00001-of-00003.safetensors": 4408849992,
+    "model-00002-of-00003.safetensors": 4466861016,
+    "model-00003-of-00003.safetensors": 777920752,
+    "tokenizer.json": 11422654,
+    "added_tokens.json": 707,
+    "chat_template.jinja": 5292,
+    "config.json": 1643,
+    "generation_config.json": 169,
+    "merges.txt": 1671853,
+    "model.safetensors.index.json": 64836,
+    "preprocessor_config.json": 782,
+    "special_tokens_map.json": 613,
+    "tokenizer_config.json": 5492,
+    "video_preprocessor_config.json": 817,
+    "vocab.json": 2776833
+  }
+}
