@@ -65,6 +65,10 @@ MechVL-4B-RL/
 ├── make_eval_config.py       # 生成三裁判官方 evaluator 配置
 ├── compare_accuracy.py       # 质量门禁
 ├── benchmark.py              # 三轮端到端性能测试
+├── batch_test.py             # 一键批量测试（对接 vLLM-Ascend 服务）
+├── batch_test.sh             # 一键批量测试启动器
+├── tests/make_fixtures.py     # 生成自包含样例图片（纯标准库）
+├── tests/fixtures/prompt.txt  # 自包含提示词
 └── requirements.txt
 ```
 
@@ -171,6 +175,40 @@ python3 infer.py \
 通过标准：服务模型 ID 是 `MechVL-4B-RL`；命令退出码为 0；输出 JSON 中
 `device=npu`、`provider=vllm-ascend-openai-compatible`，`raw_response` 和提取后的
 `answer` 非空；日志无 CPU fallback、CUDA-only 或设备不一致错误。
+
+### 3.5 一键批量测试
+
+`batch_test.sh` 仿照 `batch_analyze_mechvl.ps1` 的用法，把多张图纸一次性送进
+`serve.sh` 部署的 vLLM-Ascend 服务，每图写出一份 Markdown 特征表，并汇总成
+`mechvl_test_overall.csv` / `mechvl_test_overall.md`。测试用例与脚本均自包含于
+本目录：默认使用 `tests/fixtures/` 下的样例图片与提示词（由
+`tests/make_fixtures.py` 用纯标准库生成，无联网），也可用 `IMAGES_DIR` /
+`PROMPT_FILE` 指向 `runtime/MechVQA/benchmark_data` 等真实数据。
+
+```bash
+# 前提：服务已由 serve.sh 在 127.0.0.1:8000 启动
+./batch_test.sh
+
+# 一键拉起服务并测试（容器内）
+SERVE=1 MODEL_DIR=runtime/weights/MechVL-4B-RL ./batch_test.sh
+
+# 无 NPU 时校验端到端管线（mock 表格，不连接服务）
+MOCK=1 ./batch_test.sh
+
+# 只打印计划，不加载模型
+DRY_RUN=1 ./batch_test.sh
+
+# 指向真实数据
+IMAGES_DIR=runtime/MechVQA/benchmark_data/images/59 \
+  PROMPT_FILE=tests/fixtures/prompt.txt \
+  OUTPUT_DIR=runtime/batch_results_real ./batch_test.sh
+```
+
+主要环境变量：`BASE_URL`、`MODEL`、`MAX_TOKENS`、`TEMPERATURE`、`TOP_P`、
+`TOP_K`、`IMAGES_DIR`、`PROMPT_FILE`、`OUTPUT_DIR`、`SERVE`、`MODEL_DIR`、
+`MOCK`、`DRY_RUN`、`KEEP_RAW`、`STOP_ON_FAILURE`。脚本会在样例图片缺失时自动
+调用 `tests/make_fixtures.py` 生成；单图测试可用 `python3 batch_test.py --pic
+<图>`。
 
 ### 4. 精度验证
 
