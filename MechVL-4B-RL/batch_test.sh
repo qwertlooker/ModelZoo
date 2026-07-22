@@ -51,15 +51,10 @@ cleanup() {
 }
 trap cleanup EXIT
 
-# 1. 确保有自包含测试图片：缺则用 make_fixtures.py 生成（纯标准库，无联网）。
+# 1. 校验自包含测试图片与提示词（tests/fixtures/images 下为已上库的真实图纸）。
 if [[ ! -d "${IMAGES_DIR}" ]] || [[ -z "$(find "${IMAGES_DIR}" -maxdepth 1 -type f \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.webp' -o -iname '*.gif' \) -print -quit 2>/dev/null || true)" ]]; then
-    if [[ "${IMAGES_DIR}" == "${SCRIPT_DIR}/tests/fixtures/images" ]]; then
-        echo "[batch_test] 未发现自包含样例图片，生成中：${IMAGES_DIR}"
-        "${PYTHON}" tests/make_fixtures.py
-    else
-        echo "[ERROR] 图片目录为空或不存在：${IMAGES_DIR}" >&2
-        exit 1
-    fi
+    echo "[ERROR] 图片目录为空或不存在：${IMAGES_DIR}" >&2
+    exit 1
 fi
 
 if [[ ! -f "${PROMPT_FILE}" ]]; then

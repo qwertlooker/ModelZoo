@@ -67,7 +67,6 @@ MechVL-4B-RL/
 ├── benchmark.py              # 三轮端到端性能测试
 ├── batch_test.py             # 一键批量测试（对接 vLLM-Ascend 服务）
 ├── batch_test.sh             # 一键批量测试启动器
-├── tests/make_fixtures.py     # 生成自包含样例图片（纯标准库）
 ├── tests/fixtures/prompt.txt  # 自包含提示词
 └── requirements.txt
 ```
@@ -181,9 +180,10 @@ python3 infer.py \
 `batch_test.sh` 仿照 `batch_analyze_mechvl.ps1` 的用法，把多张图纸一次性送进
 `serve.sh` 部署的 vLLM-Ascend 服务，每图写出一份 Markdown 特征表，并汇总成
 `mechvl_test_overall.csv` / `mechvl_test_overall.md`。测试用例与脚本均自包含于
-本目录：默认使用 `tests/fixtures/` 下的样例图片与提示词（由
-`tests/make_fixtures.py` 用纯标准库生成，无联网），也可用 `IMAGES_DIR` /
-`PROMPT_FILE` 指向 `runtime/MechVQA/benchmark_data` 等真实数据。
+本目录：默认使用 `tests/fixtures/images/` 下已上库的 7 张真实机械图纸
+（与 cad_prompt--openrouter 用例一致）和 `tests/fixtures/prompt.txt`；
+也可用 `IMAGES_DIR` / `PROMPT_FILE` 指向 `runtime/MechVQA/benchmark_data`
+等其它数据。
 
 ```bash
 # 前提：服务已由 serve.sh 在 127.0.0.1:8000 启动
@@ -206,9 +206,7 @@ IMAGES_DIR=runtime/MechVQA/benchmark_data/images/59 \
 
 主要环境变量：`BASE_URL`、`MODEL`、`MAX_TOKENS`、`TEMPERATURE`、`TOP_P`、
 `TOP_K`、`IMAGES_DIR`、`PROMPT_FILE`、`OUTPUT_DIR`、`SERVE`、`MODEL_DIR`、
-`MOCK`、`DRY_RUN`、`KEEP_RAW`、`STOP_ON_FAILURE`。脚本会在样例图片缺失时自动
-调用 `tests/make_fixtures.py` 生成；单图测试可用 `python3 batch_test.py --pic
-<图>`。
+`MOCK`、`DRY_RUN`、`KEEP_RAW`、`STOP_ON_FAILURE`。单图测试可用 `python3 batch_test.py --pic <图>`。
 
 ### 4. 精度验证
 
