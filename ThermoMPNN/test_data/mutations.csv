@@ -1,0 +1,4 @@
+id,pdb,chain,position,wildtype,mutation
+1UBQ:A:M1A,1UBQ.pdb,A,0,M,A
+1UBQ:A:Q2A,1UBQ.pdb,A,1,Q,A
+1UBQ:A:I3A,1UBQ.pdb,A,2,I,A
