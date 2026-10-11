@@ -1,5 +1,27 @@
 # Ascend-SACT 模型 NPU 适配整合分析报告
 
+## 2026-10-11 蛋白分子模型逐项分析
+
+本轮用户指定先适配 MHCflurry，随后确认无 NPU 环境、仅做模拟适配。以下
+分析不表示其余三项已迁移；MHCflurry 的代码/来源/验收事实以模型目录的
+三份主文档为准。原引用聊天的助手正文未能取回，仅取到四模型名称，所有结论
+重新依据上游和官方资料核实。
+
+| 模型 | 当前取证和路线分析 | 本轮状态与主要边界 |
+|---|---|---|
+| AlphaFold-Multimer | [MindSPONGE 官方结构预测表](https://www.mindspore.cn/mindsponge/docs/en/stable/user/structure_prediction.html)明确列出 AlphaFold-Multimer 推理支持 GPU/Ascend；原始 [AlphaFold](https://github.com/google-deepmind/alphafold/tree/c77e5d2a8961d1a353632c462914ff0a32a950f6) HEAD 已固定取证 | 已有官方 MindSpore 昇腾实现线索，应优先审计复用；并非证明原始 JAX 仓能直接运行 NPU。仍需确认 Multimer 权重版本/转换、MSA/template 数据、recycle、结构指标和真实硬件配套；本轮仅分析，未进行适配或 S0 完整定级 |
+| DeepAb | [原始仓](https://github.com/RosettaCommons/DeepAb/tree/70488c1a010ebac40263ef4d768c26abc900fd9a) HEAD 已查询，PyTorch 神经网络 + PyRosetta 结构实现；优先 hybrid，神经网络迁移 torch_npu，PyRosetta 保留 CPU | 当前检索未发现可核实官方 NPU 交付；此结论不证明不存在。Rosetta-DL 代码/数据/权重许可及 PyRosetta 授权必须先核实，AbNum renumber 会发送序列到外部服务；本轮只分析，不执行外部服务或模型 |
+| MHCflurry | [最新上游](https://github.com/openvax/mhcflurry/tree/20f03d45358dd104df9df0e28e2e0ccea11c9bfb)是 PyTorch 2.3.14，固定 2.3.0 presentation bundle；hybrid：affinity/processing 网络走 torch_npu eager，编码/集成/sklearn 后处理 CPU | **S1 静态适配完成**；见 [README](MHCflurry/README.md)、[适配事实](MHCflurry/NPU_ADAPTATION.md)、[验收](MHCflurry/ACCEPTANCE_PLAN.md)。无 NPU，未报告真实精度/性能；不能沿用旧 TensorFlow 路线描述 |
+| ThermoMPNN | [原始仓](https://github.com/Kuhlman-Lab/ThermoMPNN/tree/370f76ec62bd929f7425e311d8df04a0d094990f) HEAD 已查询；结构输入、ProteinMPNN 特征及稳定性变化预测，优先 torch_npu eager，先审计 CUDA 硬编码、图索引/邻居聚合和 checkpoint 加载 | 当前检索未发现可核实官方 NPU 交付；需固定原始单点突变模型与 ProteinMPNN 依赖/权重，ThermoMPNN-D 不在同一边界。本聊天仅分析；收尾时检测到仓内另一个任务已提交 [ThermoMPNN S1 模拟适配](ThermoMPNN/NPU_ADAPTATION.md)，其证据由对应文档负责 |
+
+检索日期 2026-10-11；对 DeepAb、MHCflurry、ThermoMPNN 的无结果检索不作为
+“绝对无适配”的证据。MHCflurry 为本聊天唯一新增代码目录，其余若继续实施，应
+逐一重新读取标准流程、固定上游/权重/官方数据，先打通真实最小设备探针。
+
+模拟硬件参考当前官方目标仓 master `7eb681e0b8da5390fa8d8a26e7ea1106468bcd38`，
+nlp 最近实质合入 Laya `4ab9116cd4b32d43e28b0f39f665f74dc95062e9`（2026-09-29），
+Atlas 800I A2 单卡；具体配套和未完成门禁记录在 MHCflurry 文档中。
+
 本文整合原 `参考原始仓库.md`、`NPU_ADAPTATION_ANALYSIS.md`、`DETAILED_NPU_ADAPTATION_ANALYSIS.md` 三份文档，统一记录各模型目录的参考原始仓库、版本边界、NPU 适配静态评估、后续适配/验证工作量与落地建议。
 
 > 基准检查日期：2026-05-25（原 9 个仓库版本边界） / 2026-05-22（原静态分析） / 2026-06-20（本轮六模型专项复查）。后续适配前需按《模型 NPU 适配标准流程》重新确认上游版本、权重校验值、依赖版本和评测数据可用性。

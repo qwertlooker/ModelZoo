@@ -1,0 +1,5 @@
+id,peptide,alleles,n_flank,c_flank
+demo-01,SIINFEKL,HLA-A*02:01,AAA,CCC
+demo-02,NLVPMVATV,HLA-A*02:01,AAA,CCC
+demo-03,GILGFVFTL,HLA-A*03:01,AAA,CCC
+demo-04,LLFGYPVYV,HLA-A*02:01,AAA,CCC

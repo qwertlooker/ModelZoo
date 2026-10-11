@@ -1,0 +1,11 @@
+# Business dependencies only; protect the preinstalled CANN torch with constraints.txt.
+pandas==2.3.3
+numpy==2.2.6
+appdirs==1.4.4
+ahocorasick-rs==0.22.2
+scikit-learn==1.7.2
+threadpoolctl==3.6.0
+matplotlib==3.10.7
+mhcgnomes==3.33.6
+PyYAML==6.0.3
+tqdm==4.67.1

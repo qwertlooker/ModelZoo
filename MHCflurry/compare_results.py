@@ -1,0 +1,117 @@
+# Licensed under the Apache License, Version 2.0.
+"""Compare matching real CPU/NPU outputs; fixtures cannot produce an S3 report."""
+
+import argparse
+import csv
+import json
+import statistics
+from pathlib import Path
+
+from adapter_utils import finite_float, sha256, write_json
+
+
+def read_result(directory):
+    directory = Path(directory)
+    meta = json.loads((directory / "run.json").read_text(encoding="utf-8"))
+    if meta["simulation"]:
+        raise ValueError("Simulation output cannot be accepted as model evidence")
+    if sha256(directory / "predictions.csv") != meta["predictions_sha256"]:
+        raise ValueError("Prediction file hash mismatch")
+    with (directory / "predictions.csv").open(encoding="utf-8", newline="") as stream:
+        rows = list(csv.DictReader(stream))
+    by_id = {row["id"]: row for row in rows}
+    if not rows or len(by_id) != len(rows) or len(rows) != meta["rows"]:
+        raise ValueError("Empty, duplicate or inconsistent result IDs")
+    return meta, by_id
+
+
+def compare(reference, candidate, atol, rtol):
+    atol, rtol = finite_float(atol), finite_float(rtol)
+    if atol < 0 or rtol < 0:
+        raise ValueError("Negative tolerance")
+    left_meta, left = read_result(reference)
+    right_meta, right = read_result(candidate)
+    if left_meta["device"] != "cpu" or right_meta["device"] != "npu":
+        raise ValueError("Requires explicit CPU baseline and real NPU candidate")
+    for key in (
+        "manifest_sha256",
+        "weights_sha256",
+        "source_revision",
+        "mhcflurry",
+        "torch",
+        "task",
+        "batch_size",
+        "optimization_level",
+        "compile",
+    ):
+        if left_meta[key] != right_meta[key]:
+            raise ValueError("Incomparable provenance: " + key)
+    if set(left) != set(right):
+        raise ValueError("Result ID mismatch")
+    if (
+        any(devices != ["npu"] for devices in right_meta["network_devices"])
+        or not right_meta["network_devices"]
+    ):
+        raise ValueError("Missing actual NPU network placement")
+    times = [finite_float(value) for value in right_meta["run_seconds"]]
+    if len(times) < 3 or any(value <= 0 for value in times):
+        raise ValueError("Requires >=3 valid NPU timing runs")
+    columns = {
+        "affinity": ("affinity",),
+        "processing": ("processing_score",),
+        "presentation": (
+            "affinity",
+            "processing_score",
+            "presentation_score",
+            "presentation_percentile",
+        ),
+    }[right_meta["task"]]
+    errors = {}
+    passed = True
+    for column in columns:
+        absolute = []
+        failures = 0
+        for identity in sorted(left):
+            a, b = (
+                finite_float(left[identity][column]),
+                finite_float(right[identity][column]),
+            )
+            error = abs(a - b)
+            absolute.append(error)
+            failures += int(error > atol + rtol * abs(a))
+        errors[column] = {
+            "max_abs": max(absolute),
+            "mean_abs": statistics.mean(absolute),
+            "failed_rows": failures,
+        }
+        passed = passed and failures == 0
+    return {
+        "numeric_pass": passed,
+        "status": "S3 pending L2 cohort/metric review",
+        "rows": len(left),
+        "atol": atol,
+        "rtol": rtol,
+        "threshold_source": "provisional engineering tolerance; baseline calibration required",
+        "errors": errors,
+        "npu_median_seconds": statistics.median(times),
+        "npu_peptides_per_second": len(right) / statistics.median(times),
+    }
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--reference", required=True)
+    parser.add_argument("--candidate", required=True)
+    parser.add_argument("--report", required=True)
+    parser.add_argument("--atol", type=finite_float, default=0.001)
+    parser.add_argument("--rtol", type=finite_float, default=0.001)
+    args = parser.parse_args()
+    report = compare(args.reference, args.candidate, args.atol, args.rtol)
+    write_json(args.report, report)
+    print(report)
+    if not report["numeric_pass"]:
+        raise SystemExit(1)
+
+
+if __name__ == "__main__":
+    main()

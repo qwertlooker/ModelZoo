@@ -1,0 +1,51 @@
+diff --git a/mhcflurry/common.py b/mhcflurry/common.py
+index b9a05b1..feb85f6 100644
+--- a/mhcflurry/common.py
++++ b/mhcflurry/common.py
+@@ -572,7 +572,7 @@ _TENSORFLOW_BACKEND_ALIASES = {
+     "tensorflow-gpu": "gpu",
+     "tensorflow-cpu": "cpu",
+ }
+-_VALID_PYTORCH_BACKENDS = ("auto", "gpu", "mps", "cpu")
++_VALID_PYTORCH_BACKENDS = ("auto", "gpu", "mps", "cpu", "npu")
+
+
+ def normalize_pytorch_backend(backend):
+@@ -609,7 +609,7 @@ def configure_pytorch(backend=None, gpu_device_nums=None, num_threads=None):
+     Parameters
+     ----------
+     backend : str, optional
+-        Device backend: "auto", "gpu", "mps", or "cpu".
++        Device backend: "auto", "gpu", "mps", "cpu", or explicit "npu".
+         "auto" selects the best available device (GPU > MPS > CPU).
+     gpu_device_nums : list of str or int, optional
+         CUDA device identifiers to expose via CUDA_VISIBLE_DEVICES. An empty
+@@ -678,7 +678,12 @@ def get_pytorch_device():
+
+     backend = _pytorch_backend
+
+-    if backend == "gpu":
++    if backend == "npu":
++        import torch_npu
++        if not torch_npu.npu.is_available():
++            raise RuntimeError("Backend npu requested but NPU is not available")
++        return torch.device("npu")
++    elif backend == "gpu":
+         if not torch.cuda.is_available():
+             raise RuntimeError(
+                 "Backend 'gpu' requested but CUDA is not available")
+diff --git a/mhcflurry/pytorch_sizing.py b/mhcflurry/pytorch_sizing.py
+index e6edc2b..01e1228 100644
+--- a/mhcflurry/pytorch_sizing.py
++++ b/mhcflurry/pytorch_sizing.py
+@@ -275,7 +275,9 @@ def synchronize_device(device):
+         import torch
+     except ImportError:
+         return
+-    if device.type == "cuda":
++    if device.type == "npu":
++        torch.npu.synchronize()
++    elif device.type == "cuda":
+         torch.cuda.synchronize(device)
+     elif device.type == "mps" and hasattr(torch.mps, "synchronize"):
+         torch.mps.synchronize()
