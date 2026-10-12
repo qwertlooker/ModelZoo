@@ -30,7 +30,7 @@
 
 结构固定为 Zenodo 7992926 的 AlphaFold_model_PDBs.zip，按 README 的 curl 和 prepare_megascale.py 命令准备并校验发布 MD5，记录 SHA256；不得替换为 RCSB 同名蛋白或重新预测的结构。README 已提供实际功能样例及固定数据盘点/准备命令；2026-10-12 已准备 28 个 PDB 和 28,172 条 manifest；缺文件时准备入口显式失败，不静默丢样本。chain A 的单链假设必须与官方 `MegaScaleDataset` 做全量核对。保持官方只覆盖总序列 seq 的行为，seq_chain_A 保留结构序列；WT 用于突变校验。
 
-CPU 精度基线使用与 NPU 相同 Python 环境、同权重和 manifest 的 `--device cpu`。还需用固定官方 `MegaScaleDataset`/`TransferModelPL` 原始预处理校对新增单链入口，确认解析坐标、WT 序列、缺失残基和样本过滤等价；官方 benchmarking 硬编码 CUDA，不直接调用它在 CPU 上伪造对照。CUDA 组是可选增强。
+CPU 精度基线复用 NPU Python 环境、同权重和 manifest。先按 README 运行 `baseline_upstream.py`：直接使用固定官方 `MegaScaleDataset` test split、原始 CSV/PDB 和 `TransferModelPL`，在 CPU 上预测，并输出 `baseline.json` 的来源 SHA；独立输出缓存避免历史解析污染。再运行 `infer.py --device cpu` 并比较两者，隔离新增单链预处理和样本过滤差异；NPU 数值直接对照官方 CPU 输出。官方 benchmarking 硬编码 CUDA，不修改它或伪造 CUDA 对照。CUDA 组是可选增强。
 
 ## 功能验证矩阵
 
@@ -60,6 +60,8 @@ CPU 精度基线使用与 NPU 相同 Python 环境、同权重和 manifest 的 `
 
 运行前核对 CANN/驱动/固件/Python/torch/torch_npu/pip freeze、物理可见卡与进程逻辑卡映射。检查 stderr/profiler 的 fallback，输出 tensor 位于 NPU 不足以证明所有核心算子均在 NPU 上运行。
 
+schema 3 的性能汇总要求 Python、逻辑设备编号、ASCEND_HOME_PATH、实际 CANN 版本、NPU 型号和主机名一致；缺失或未知环境证据立即失败。旧 schema 2 记录不能补填计划版本后继续使用，必须重新推理。主机名和设备型号不代替物理卡/驱动/固件实机证据。
+
 ## 最低正式验收清单
 
 - README 的安装、模型/evaluator imports 和 NPU tensor 实测通过。
@@ -88,3 +90,5 @@ CPU 精度基线使用与 NPU 相同 Python 环境、同权重和 manifest 的 `
 升级 S3 后在本文件追加实际设备、软件版本、全量样本数、指标、误差分布、三次性能数据、命令和日志路径；不得覆盖此次模拟事实。
 
 2026-10-12 检视修复：预处理恢复固定上游序列字段语义；补充固定结构归档下载、校验、离线选择提取；独立进程性能汇总及负向测试已补齐。真实 NPU 结果仍未产生，状态保持 S1。
+
+2026-10-12 后续修复：新增独立官方 CPU 基线入口与来源/身份校验，README 给出官方 CPU → 新入口 CPU → NPU 的完整比较命令。补齐性能环境一致性门禁与 schema 3 运行记录。19 项离线回归通过；真实模型 CPU/NPU 回归仍受目标依赖和硬件阻塞，不据 Mock 升级状态。

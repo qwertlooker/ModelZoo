@@ -88,7 +88,7 @@
 
 ## 上库文件清单和排除项
 
-候选文件：`README.md`、`LICENSE`、`infer.py`、`delivery_utils.py`、`prepare_eval_data.py`、`prepare_megascale.py`、`compare_results.py`、`eval_metrics.py`、`report_acceptance.py`、`requirements.txt`、`constraints-npu.txt`、`test_data/mutations.csv`、`tests/test_delivery.py`。
+候选文件：`README.md`、`LICENSE`、`infer.py`、`baseline_upstream.py`、`delivery_utils.py`、`prepare_eval_data.py`、`prepare_megascale.py`、`compare_results.py`、`eval_metrics.py`、`report_acceptance.py`、`requirements.txt`、`constraints-npu.txt`、`test_data/mutations.csv`、`tests/test_delivery.py`、`tests/test_upstream_baseline.py`。
 
 排除：`NPU_ADAPTATION.md`、`ACCEPTANCE_PLAN.md`、`upstream/`、下载/运行生成的 `source/`、权重、PDB、dataset、manifest、输出、日志、`.venv*/`、`__pycache__/`、`.codex-reference/`。`LICENSE` 原样保留上游 MIT 版权；新增代码的正式目标仓版权头规则需上库前确认，不冒用华为版权归属。
 
@@ -136,5 +136,17 @@
 - 候选目录 `.codex-reference/thermompnn-repair-20261012/candidate` 从精确清单组装，使用新建无 pip venv 隔离 stdlib 重放；从公开仓重新 clone/checkout 固定源码，重新下载功能 PDB 与正式 ZIP，实际生成 3 条功能 manifest 和 28,172 条正式 manifest（28 个 PDB）。该 venv 只用于 clean-room 隔离，不是推荐部署环境。
 - 14 项离线测试覆盖预处理差异、归档校验/选择/复用/失败、独立进程汇总/配置不一致/重复证据以及报告 CLI 成功和失败。README 审计、基础结构门禁通过。
 - 真实模型安装/CPU/NPU、L2 指标及实机独立进程性能仍未执行。Windows infer --help 缺 OmegaConf，候选 stdlib 环境缺 NumPy；没有为了 help 延迟必需依赖导入。无 NPU 硬件，保持 S1，不能标记上库候选就绪。当前预处理和计时元数据变更后，旧运行产物不得作为新版本验收证据。
+
+## 2026-10-12 性能环境与官方 CPU 基线修复
+
+- 本次重新查询目标 master 为 `e779117e8cfeba296a7105e26adac0741ab04768`；该 commit 下拟合入路径不存在，仍按新增处理。按最新实质变更选择 `nlp/Laya`（同 commit，2026-10-12）；`cv/OVRCOAT`、`cv/RSGPNet` 的参考 commit/date 和选择原因沿用上表，并已在当前目标 commit 下复核。
+- `infer.py` 在计时前读取实际 Python、逻辑卡、ASCEND_HOME_PATH、CANN 版本、NPU 型号和主机名，生成 schema 3。固定 TorchNPU `v2.1.0-7.2.0` 的 `utils/collect_env.py` 和初始化源码确认 `torch.version.cann` 来自安装信息采集；未使用新版 TorchNPU 的不兼容 API。缺失/未知证据报错，不回退为计划版本。性能汇总逐项比较这些字段，拒绝混合主机、设备或软件环境；旧记录缺字段须重跑。
+- 新增 `baseline_upstream.py`，直接使用固定官方 `config.yaml`、`MegaScaleDataset` 原始 CSV/test split/PDB 解析、`TransferModelPL` 的 CPU 路径；不调用 infer.py 或规范转换器构建模型输入。固定 test CSV SHA，固定 `mega_splits.pkl` SHA `9e06230fe8febd8f07f8fab374f153328d4bdde20b78de15ead93b39e61ca1eb`；实际核对 split 28 个蛋白与 CSV 名称集合完全相等。manifest 仅用于结构 SHA、身份/标签验证和输出 ID 映射，重复实验保留；官方解析缓存写入新的 baseline 输出目录。
+- README 自包含补齐官方 CPU 基线、适配 CPU 回归、直接对照官方 CPU 的 NPU 比较和双方指标命令；候选清单同步加入新入口和测试。没有改上游源码或 site-packages。
+- 19 项 stdlib/Mock 回归通过，覆盖环境字段差异/缺失/未知、CLI 非零退出、官方输入对象直接传入模型、标签/WT/样本不一致、重复实验、固定数据 SHA 和输出防覆盖。Mock 不是官方模型预测证据。
+- 当前控制机仍缺 OmegaConf、Lightning、pandas/BioPython 和 torch-npu，且 Python 3.14 并非目标 3.10；不修改系统依赖。真实官方 CPU 预测、新入口 CPU 回归和 NPU 精度/性能保持待验收。旧静态/运行证据不能替代本次版本的真实验证。
+- 本次独立候选目录为 `.codex-reference/thermompnn-environment-baseline-fix-20261012/candidate`，只复制上述 15 项候选文件；由已核验 clean 的固定上游 clone 本地独立克隆 source（无 hardlink），离线复用已校验的 1UBQ/Zenodo ZIP。10 个 Python 文件 py_compile、Windows/WSL 隔离 stdlib 环境的 19 项测试、四个无依赖 CLI help、3 条功能 manifest 和 28,172 条正式 manifest 重建通过。隔离 venv 仅用于 clean-room，并非部署推荐。
+- Windows 通过映射盘重建全量 manifest 过慢；核实本轮进程命令和父子关系、Stop-Process WhatIf 后仅停止该准备子进程，保留 `replay.json` 中的退出码 4294967295，改用 WSL 原生路径同一 CLI 成功重放。没有停止其他用户进程。`native_replay.json` 记录 Linux 等价命令和结果；其中 infer/baseline/evaluator help 因缺 NumPy 退出 1。控制机运行 evaluator 已知数值 fixture 通过，baseline help 因缺 OmegaConf 退出 1。真实模型路径未通过，clean-room 仍为部分重放。
+- `tools/tests` 的 6 项仓库门禁回归通过；README 和基础交付审计通过。target-readiness 因 S1/待验收仍退出 1，符合当前未就绪状态。审计、CLI 和 fixture 原始结果记录在同目录 `checks.json`，不合入正式候选。
 
 **当前状态：S1 静态模拟适配完成。** 升级 S2 需要真实 CPU 或 NPU 功能输出；升级 S3 需要完整 NPU L2 精度/性能和可比基线。Mock、数据盘点和静态审计不改变该状态。

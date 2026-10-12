@@ -3,6 +3,7 @@ import argparse
 from collections import defaultdict
 import json
 import os
+import platform
 from pathlib import Path
 import statistics
 import subprocess
@@ -46,6 +47,12 @@ def runtime_metadata(name):
         metadata['torch_npu'] = torch_npu.__version__
         metadata['logical_device'] = torch.npu.current_device()
         metadata['ascend_home_path'] = os.environ.get('ASCEND_HOME_PATH')
+        metadata['cann_version'] = torch.version.cann
+        metadata['device_name'] = torch.npu.get_device_name(metadata['logical_device'])
+        metadata['hostname'] = platform.node()
+        for key in ('ascend_home_path', 'cann_version', 'device_name', 'hostname'):
+            if not isinstance(metadata[key], str) or metadata[key].strip() in ('', 'not known', 'N/A'):
+                raise ValueError(f'Missing NPU environment evidence: {key}')
     elif name == 'cuda':
         metadata['logical_device'] = torch.cuda.current_device()
     return metadata
@@ -79,6 +86,7 @@ def main():
             raise ValueError('PDB SHA mismatch')
         groups[row['pdb'], row['chain']].append(row)
     device = select_device(args.device)
+    environment = runtime_metadata(args.device)
     torch.manual_seed(0)
     np.random.seed(0)
     cfg = OmegaConf.create({
@@ -134,8 +142,8 @@ def main():
         for row in predictions:
             stream.write(json.dumps(row, allow_nan=False) + '\n')
     write_json(output / 'run.json', {
-        **runtime_metadata(args.device),
-        'schema': 2, 'run_id': str(uuid.uuid4()), 'simulated': False, 'device': str(device), 'dtype': 'float32',
+        **environment,
+        'schema': 3, 'run_id': str(uuid.uuid4()), 'simulated': False, 'device': str(device), 'dtype': 'float32',
         'command': sys.argv, 'upstream_commit': revision, 'torch': torch.__version__,
         'manifest_sha256': sha256(args.manifest), 'checkpoint_sha256': sha256(args.checkpoint),
         'backbone_sha256': sha256(backbone), 'predictions_sha256': sha256(output / 'predictions.jsonl'),

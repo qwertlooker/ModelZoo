@@ -37,6 +37,7 @@ ThermoMPNN/
 ├── README.md
 ├── LICENSE
 ├── infer.py
+├── baseline_upstream.py
 ├── delivery_utils.py
 ├── prepare_eval_data.py
 ├── prepare_megascale.py
@@ -48,7 +49,8 @@ ThermoMPNN/
 ├── test_data/
 │   └── mutations.csv
 └── tests/
-    └── test_delivery.py
+    ├── test_delivery.py
+    └── test_upstream_baseline.py
 ```
 
 下列命令均从本文件所在的 ThermoMPNN 目录执行。`source/`、`weights/`、`eval_data/` 和输出目录由准备步骤生成，不作为上库源码提交。
@@ -127,20 +129,27 @@ eval_data/
 └── mega_test.jsonl       # 运行后生成，共 28,172 条突变
 ```
 
-规范脚本固定链 A。保持固定上游 `MegaScaleDataset` 语义：实验 WT 只覆盖总序列 `seq` 并用于突变检查；特征化使用的 `seq_chain_A` 保留结构序列。两者长度必须相同，不擅自修正上游行为。全量真实模型输出仍需与官方路径做 CPU 回归。
+规范脚本固定链 A。保持固定上游 `MegaScaleDataset` 语义：实验 WT 只覆盖总序列 `seq` 并用于突变检查；特征化使用的 `seq_chain_A` 保留结构序列。两者长度必须相同，不擅自修正上游行为。
+
+先运行独立官方 CPU 基线，再验证新增入口的 CPU 输出，最后进行 NPU 对齐。`baseline_upstream.py` 直接读取固定原始 CSV、`dataset_splits/mega_splits.pkl` 的 test split 和官方 `config.yaml`，执行未修改的 `MegaScaleDataset`（含原始 `parse_PDB`）及 `TransferModelPL`；不调用 infer.py 的预处理或规范 CSV。它核验源码/权重/CSV/split SHA、结构 SHA、蛋白集合、实验 WT、每条突变和标签，将官方输出映射到 manifest 的稳定 ID；重复实验保留各自 ID。输出目录内生成独立 `cache/`，不复用旧解析缓存。此入口仅支持完整 Megascale test，功能样例不适用。
 
 ```bash
 python3 prepare_eval_data.py --csv eval_data/mega_normalized.csv --pdb-dir eval_data/megascale_pdbs --dataset ThermoMPNN-Megascale --split test --output eval_data/mega_test.jsonl
+python3 baseline_upstream.py --checkpoint weights/thermoMPNN_default.pt --manifest eval_data/mega_test.jsonl --pdb-dir eval_data/megascale_pdbs --output-dir outputs_mega_upstream_cpu
 python3 infer.py --device cpu --checkpoint weights/thermoMPNN_default.pt --manifest eval_data/mega_test.jsonl --output-dir outputs_mega_cpu
+python3 compare_results.py --baseline outputs_mega_upstream_cpu/predictions.jsonl --candidate outputs_mega_cpu/predictions.jsonl --atol 0.001 --rtol 0.001 --report upstream_cpu_comparison.json
 for run in 1 2 3; do
   python3 infer.py --device npu --checkpoint weights/thermoMPNN_default.pt --manifest eval_data/mega_test.jsonl --output-dir "outputs_mega_npu_${run}" --warmup 1 --runs 3 || exit 1
 done
-python3 compare_results.py --baseline outputs_mega_cpu/predictions.jsonl --candidate outputs_mega_npu_1/predictions.jsonl --atol 0.001 --rtol 0.001 --report mega_comparison.json
+python3 compare_results.py --baseline outputs_mega_upstream_cpu/predictions.jsonl --candidate outputs_mega_npu_1/predictions.jsonl --atol 0.001 --rtol 0.001 --report mega_comparison.json
+python3 eval_metrics.py --predictions outputs_mega_upstream_cpu/predictions.jsonl --report upstream_cpu_metrics.json
 python3 eval_metrics.py --predictions outputs_mega_npu_1/predictions.jsonl --report mega_metrics.json
 python3 report_acceptance.py --run-dir outputs_mega_npu_1 --performance-dirs outputs_mega_npu_1 outputs_mega_npu_2 outputs_mega_npu_3 --comparison mega_comparison.json --metrics mega_metrics.json --output acceptance_report.json
 ```
 
 指标采用 pooled mutations 的 Pearson、Spearman、MSE、RMSE、R²；SciPy 相关系数为等价数学实现。FireProt、S669、SSYM 等需要其各自的序列对齐与 split 规则，不能直接套用 Megascale 转换器。报告入口只收集证据，拒绝 CPU/显式模拟结果，不自动认证 S3 或上库就绪。上述循环独立启动三个 NPU 进程。报告校验不同 run_id、目录、预测 SHA 及一致的 manifest/权重/软件/设备可见性/计时配置，先取各进程内部耗时中位数，再取进程间中位数，给出 mutations/s 和 proteins/s。不传 `--performance-dirs` 时明确列出独立进程性能验收未完成；旧 run.json 无 run_id 时需重新推理，不能复制结果充数。运行标识只检测证据误复用，真实性仍须实机日志证明。
+
+NPU `run.json` 使用 schema 3：记录 Python、逻辑卡、`ASCEND_HOME_PATH`、实际 `torch.version.cann`、`torch.npu.get_device_name()` 和主机名，性能汇总逐项要求一致。CANN 版本由固定 torch-npu 的环境采集逻辑提供，不能填写文档计划版本冒充实测；缺失或 `not known` 时推理在计时前失败。旧记录缺字段必须重新运行。设备型号和主机名用于防止误混结果，正式验收仍需保存 npu-smi、驱动/固件及 fallback 日志。
 
 ### 离线自测试
 

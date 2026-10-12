@@ -5,6 +5,7 @@ import uuid
 import zipfile
 from contextlib import nullcontext
 import json
+import platform
 from pathlib import Path
 import subprocess
 import sys
@@ -156,6 +157,8 @@ class DeliveryTests(unittest.TestCase):
         fake_torch = Mock()
         fake_torch.__version__ = 'mock-only'
         fake_torch.npu.current_device.return_value = 0
+        fake_torch.npu.get_device_name.return_value = 'Ascend910B'
+        fake_torch.version.cann = '8.3.RC1'
         fake_torch.device.side_effect = FakeDevice
         fake_torch.no_grad.side_effect = nullcontext
         tensor = Mock()
@@ -170,7 +173,7 @@ class DeliveryTests(unittest.TestCase):
         from delivery_utils import finite
         namespace = {'argparse': argparse, 'defaultdict': defaultdict, 'json': json,
                      'os': __import__('os'), 'Path': Path, 'statistics': statistics,
-                     'uuid': uuid, 'subprocess': fake_process, 'sys': sys, 'time': time, 'SOURCE': source,
+                     'uuid': uuid, 'platform': platform, 'subprocess': fake_process, 'sys': sys, 'time': time, 'SOURCE': source,
                      'torch': fake_torch, 'np': Mock(), 'OmegaConf': Mock(), 'TransferModelPL': loader,
                      'Mutation': lambda *args: args,
                      'alt_parse_PDB': Mock(return_value=[{'seq_chain_A': 'M', 'seq': 'M', 'name': 'demo'}]),
@@ -181,7 +184,8 @@ class DeliveryTests(unittest.TestCase):
         argv = ['infer.py', '--manifest', str(manifest), '--checkpoint', str(checkpoint), '--output-dir', str(output)]
         backend = types.ModuleType('torch_npu')
         backend.__version__ = 'mock-only'
-        with patch.object(sys, 'argv', argv), patch.dict(sys.modules, {'torch_npu': backend}):
+        with patch.object(sys, 'argv', argv), patch.dict(sys.modules, {'torch_npu': backend}), \
+                patch.dict(__import__('os').environ, {'ASCEND_HOME_PATH': '/fixture/cann'}):
             namespace['main']()
         self.assertEqual(model.call_args.args[0][0]['seq_chain_A'], 'M')
         self.assertEqual(model.call_args.args[0][0]['seq'], 'A')
@@ -193,6 +197,9 @@ class DeliveryTests(unittest.TestCase):
         self.assertEqual(metadata['runs'], 3)
         self.assertEqual(metadata['device'], 'npu')
         self.assertEqual(metadata['torch_npu'], 'mock-only')
+        self.assertEqual(metadata['cann_version'], '8.3.RC1')
+        self.assertEqual(metadata['device_name'], 'Ascend910B')
+        self.assertEqual(metadata['schema'], 3)
         self.assertEqual(model.eval.return_value.to.call_args.args[0].type, 'npu')
         self.assertEqual(loader.load_from_checkpoint.call_args.kwargs['map_location'], 'cpu')
 
@@ -240,7 +247,9 @@ class DeliveryTests(unittest.TestCase):
                 'samples': 12, 'proteins': 2, 'dtype': 'float32', 'timing_scope': 'fixture',
                 'manifest_sha256': 'manifest', 'checkpoint_sha256': 'checkpoint',
                 'backbone_sha256': 'backbone', 'upstream_commit': 'source',
-                'torch': 'fixture', 'torch_npu': 'fixture', 'visible_devices': '0'}
+                'torch': 'fixture', 'torch_npu': 'fixture', 'visible_devices': '0',
+                'python': '3.10 fixture', 'logical_device': 0, 'ascend_home_path': '/fixture/cann',
+                'cann_version': '8.3.RC1', 'device_name': 'Ascend910B', 'hostname': 'fixture-host'}
         dirs = []
         for i, seconds in enumerate([[1, 2, 3], [3, 4, 5], [5, 6, 7]]):
             directory = self.root / str(i)
@@ -271,10 +280,44 @@ class DeliveryTests(unittest.TestCase):
         path = dirs[2] / 'run.json'
         original = json.loads(path.read_text())
         for change in [{'run_id': '0'}, {'manifest_sha256': 'other'}, {'device': 'cpu'},
-                       {'seconds': [0, 1, 2]}, {'predictions_sha256': 'wrong'}, {'simulated': True}]:
+                       {'seconds': [0, 1, 2]}, {'predictions_sha256': 'wrong'}, {'simulated': True},
+                       {'python': '3.12 fixture'}, {'logical_device': 1},
+                       {'ascend_home_path': '/other/cann'}, {'cann_version': '9.1.0'},
+                       {'device_name': 'Ascend310P'}, {'hostname': 'other-host'},
+                       {'cann_version': 'not known'}, {'ascend_home_path': None},
+                       {'logical_device': True}]:
             write_json(path, {**original, **change})
             with self.subTest(change=change), self.assertRaises(ValueError):
                 performance(dirs, base)
+        for key in ('python', 'logical_device', 'ascend_home_path', 'cann_version', 'device_name', 'hostname'):
+            legacy = {k: v for k, v in original.items() if k != key}
+            write_json(path, legacy)
+            with self.subTest(missing=key), self.assertRaises(KeyError):
+                performance(dirs, base)
+        write_json(path, {**original, 'python': 'different'})
+        proc = subprocess.run(command + list(map(str, dirs)), capture_output=True)
+        self.assertNotEqual(proc.returncode, 0)
+
+    def test_runtime_metadata_requires_actual_npu_environment(self):
+        tree = ast.parse((ROOT / 'infer.py').read_text())
+        functions = [n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == 'runtime_metadata']
+        fake_torch = Mock()
+        fake_torch.__version__ = 'fixture'
+        fake_torch.npu.current_device.return_value = 0
+        fake_torch.npu.get_device_name.return_value = 'Ascend910B'
+        fake_torch.version.cann = '8.3.RC1'
+        namespace = {'torch': fake_torch, 'platform': Mock(node=lambda: 'fixture-host'),
+                     'sys': sys, 'os': __import__('os')}
+        exec(compile(ast.Module(body=functions, type_ignores=[]), 'infer.py', 'exec'), namespace)
+        backend = types.ModuleType('torch_npu')
+        backend.__version__ = 'fixture'
+        with patch.dict(sys.modules, {'torch_npu': backend}), \
+                patch.dict(__import__('os').environ, {'ASCEND_HOME_PATH': '/fixture/cann'}):
+            self.assertEqual(namespace['runtime_metadata']('npu')['cann_version'], '8.3.RC1')
+            fake_torch.version.cann = 'not known'
+            with self.assertRaises(ValueError):
+                namespace['runtime_metadata']('npu')
+        self.assertNotIn('cann_version', namespace['runtime_metadata']('cpu'))
 
 
 if __name__ == '__main__':

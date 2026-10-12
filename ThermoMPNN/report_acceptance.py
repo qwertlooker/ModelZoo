@@ -6,9 +6,24 @@ import statistics
 from delivery_utils import finite, sha256, write_json
 
 
+ENVIRONMENT_KEYS = ('python', 'logical_device', 'ascend_home_path', 'cann_version',
+                    'device_name', 'hostname')
+
+
+def validate_environment(run):
+    if type(run['logical_device']) is not int or run['logical_device'] < 0:
+        raise ValueError('Invalid logical device')
+    for key in ENVIRONMENT_KEYS:
+        if key == 'logical_device':
+            continue
+        if not isinstance(run[key], str) or run[key].strip() in ('', 'not known', 'N/A'):
+            raise ValueError(f'Missing NPU environment evidence: {key}')
+
+
 def performance(run_dirs, reference):
     if len(run_dirs) < 3 or len({Path(p).resolve() for p in run_dirs}) != len(run_dirs):
         raise ValueError('At least three distinct process output directories required')
+    validate_environment(reference)
     records, identities, medians = [], set(), []
     for path in run_dirs:
         path = Path(path)
@@ -18,6 +33,10 @@ def performance(run_dirs, reference):
         if not run['run_id'] or run['run_id'] in identities:
             raise ValueError('Duplicate or empty process run ID')
         identities.add(run['run_id'])
+        validate_environment(run)
+        for key in ENVIRONMENT_KEYS:
+            if run[key] != reference[key]:
+                raise ValueError(f'Performance environment differs: {key}')
         for key in ('manifest_sha256', 'checkpoint_sha256', 'backbone_sha256',
                     'upstream_commit', 'dtype', 'samples', 'proteins', 'warmup',
                     'runs', 'timing_scope', 'torch', 'torch_npu', 'visible_devices'):
