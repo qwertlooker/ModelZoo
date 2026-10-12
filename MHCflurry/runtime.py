@@ -89,8 +89,12 @@ def predict(predictor, rows, task, batch_size):
                 or row["id"] in by_id
             ):
                 raise ValueError("Unexpected presentation row identity")
+            best_allele = record["best_allele"]
+            if not isinstance(best_allele, str) or not best_allele.strip():
+                raise ValueError("Missing presentation best_allele")
             by_id[row["id"]] = {
                 "id": row["id"],
+                "best_allele": best_allele,
                 **{
                     name: finite_float(record[name])
                     for name in (

@@ -14,7 +14,12 @@ from adapter_utils import (
     sha256,
     write_json,
 )
-from compare_results import read_result
+from compare_results import (
+    PROVENANCE_KEYS,
+    compare_provenance,
+    read_result,
+    validate_placement,
+)
 
 
 def ppv_at_n(labels, scores):
@@ -78,8 +83,9 @@ def main():
         for key in ("AP", "AUROC", "PPV@N")
     }
     report = {
-        "manifest_sha256": meta["manifest_sha256"],
-        "weights_sha256": meta["weights_sha256"],
+        **{key: meta[key] for key in PROVENANCE_KEYS},
+        "simulation": False,
+        "network_devices": meta["network_devices"],
         "device": meta["device"],
         "rows": len(rows),
         "patients": len(groups),
@@ -90,9 +96,13 @@ def main():
     }
     if args.reference_metrics:
         baseline = json.loads(Path(args.reference_metrics).read_text(encoding="utf-8"))
+        if baseline["simulation"]:
+            raise ValueError("Simulation metrics cannot be model evidence")
+        validate_placement(baseline)
         if baseline["device"] != "cpu" or meta["device"] != "npu":
             raise ValueError("Metric comparison requires CPU -> NPU")
-        for key in ("manifest_sha256", "weights_sha256", "rows", "patients", "policy"):
+        compare_provenance(baseline, report)
+        for key in ("rows", "patients", "policy"):
             if baseline[key] != report[key]:
                 raise ValueError("Metric baseline mismatch: " + key)
         report["metric_pass"] = all(

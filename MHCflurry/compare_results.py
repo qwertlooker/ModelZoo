@@ -9,12 +9,41 @@ from pathlib import Path
 
 from adapter_utils import finite_float, sha256, write_json
 
+PROVENANCE_KEYS = (
+    "manifest_sha256",
+    "weights_sha256",
+    "source_revision",
+    "mhcflurry",
+    "torch",
+    "task",
+    "batch_size",
+    "optimization_level",
+    "compile",
+)
+
+
+def validate_placement(meta):
+    device = meta["device"]
+    if (
+        device not in ("cpu", "npu", "cuda")
+        or not meta["network_devices"]
+        or any(devices != [device] for devices in meta["network_devices"])
+    ):
+        raise ValueError("Missing actual network placement for " + str(device))
+
+
+def compare_provenance(baseline, candidate):
+    for key in PROVENANCE_KEYS:
+        if baseline[key] != candidate[key]:
+            raise ValueError("Incomparable provenance: " + key)
+
 
 def read_result(directory):
     directory = Path(directory)
     meta = json.loads((directory / "run.json").read_text(encoding="utf-8"))
     if meta["simulation"]:
         raise ValueError("Simulation output cannot be accepted as model evidence")
+    validate_placement(meta)
     if sha256(directory / "predictions.csv") != meta["predictions_sha256"]:
         raise ValueError("Prediction file hash mismatch")
     with (directory / "predictions.csv").open(encoding="utf-8", newline="") as stream:
@@ -33,26 +62,9 @@ def compare(reference, candidate, atol, rtol):
     right_meta, right = read_result(candidate)
     if left_meta["device"] != "cpu" or right_meta["device"] != "npu":
         raise ValueError("Requires explicit CPU baseline and real NPU candidate")
-    for key in (
-        "manifest_sha256",
-        "weights_sha256",
-        "source_revision",
-        "mhcflurry",
-        "torch",
-        "task",
-        "batch_size",
-        "optimization_level",
-        "compile",
-    ):
-        if left_meta[key] != right_meta[key]:
-            raise ValueError("Incomparable provenance: " + key)
+    compare_provenance(left_meta, right_meta)
     if set(left) != set(right):
         raise ValueError("Result ID mismatch")
-    if (
-        any(devices != ["npu"] for devices in right_meta["network_devices"])
-        or not right_meta["network_devices"]
-    ):
-        raise ValueError("Missing actual NPU network placement")
     times = [finite_float(value) for value in right_meta["run_seconds"]]
     if len(times) < 3 or any(value <= 0 for value in times):
         raise ValueError("Requires >=3 valid NPU timing runs")
@@ -68,6 +80,14 @@ def compare(reference, candidate, atol, rtol):
     }[right_meta["task"]]
     errors = {}
     passed = True
+    allele_failures = 0
+    if right_meta["task"] == "presentation":
+        for identity in sorted(left):
+            a, b = left[identity]["best_allele"], right[identity]["best_allele"]
+            if not a.strip() or not b.strip():
+                raise ValueError("Missing best_allele")
+            allele_failures += int(a != b)
+        passed = allele_failures == 0
     for column in columns:
         absolute = []
         failures = 0
@@ -93,6 +113,7 @@ def compare(reference, candidate, atol, rtol):
         "rtol": rtol,
         "threshold_source": "provisional engineering tolerance; baseline calibration required",
         "errors": errors,
+        "best_allele_failed_rows": allele_failures,
         "npu_median_seconds": statistics.median(times),
         "npu_peptides_per_second": len(right) / statistics.median(times),
     }

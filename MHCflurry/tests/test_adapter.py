@@ -2,6 +2,7 @@
 """Offline regression: no simulated output is saved as NPU evidence."""
 
 import ast
+import contextlib
 import csv
 import hashlib
 import importlib
@@ -23,6 +24,7 @@ utils = importlib.import_module("adapter_utils")
 read_inputs, sha256, write_json = utils.read_inputs, utils.sha256, utils.write_json
 compare = importlib.import_module("compare_results").compare
 ppv_at_n = importlib.import_module("eval_metrics").ppv_at_n
+metric_main = importlib.import_module("eval_metrics").main
 extract_verified = importlib.import_module("prepare_weights").extract_verified
 
 
@@ -229,6 +231,123 @@ class AdapterTests(unittest.TestCase):
         self.assertEqual(ppv_at_n([0, 1, 0, 1], [0.8, 0.8, 0.2, 0.2]), 0.5)
         self.assertEqual(ppv_at_n([1, 1, 0], [0.9, 0.8, 0.1]), 1)
 
+    def presentation_result(self, name, device, alleles=("HLA-A*02:01", "HLA-A*02:01")):
+        directory = self.result(name, device)
+        with (directory / "predictions.csv").open("w", newline="") as stream:
+            writer = csv.writer(stream)
+            writer.writerow([
+                "id", "best_allele", "affinity", "processing_score",
+                "presentation_score", "presentation_percentile",
+            ])
+            for identity, allele, score in zip(("a", "b"), alleles, (0.9, 0.1), strict=True):
+                writer.writerow([identity, allele, 100, 0.5, score, 5])
+        manifest = self.csv(
+            "id,peptide,alleles,sample_id,label\n"
+            "a,SIINFEKL,HLA-A*02:01;HLA-B*07:02,p,1\n"
+            "b,SIINFEKL,HLA-A*02:01;HLA-B*07:02,p,0\n"
+        )
+        meta = json.loads((directory / "run.json").read_text())
+        meta.update(task="presentation", manifest_sha256=sha256(manifest),
+                    predictions_sha256=sha256(directory / "predictions.csv"))
+        write_json(directory / "run.json", meta)
+        return directory, manifest
+
+    def test_best_allele_mismatch_fails_even_with_identical_scores(self):
+        baseline, _ = self.presentation_result("cpu", "cpu")
+        candidate, _ = self.presentation_result("npu", "npu")
+        self.assertTrue(compare(baseline, candidate, 0.001, 0.001)["numeric_pass"])
+        text = (candidate / "predictions.csv").read_text().replace(
+            "HLA-A*02:01", "HLA-B*07:02", 1
+        )
+        (candidate / "predictions.csv").write_text(text)
+        meta = json.loads((candidate / "run.json").read_text())
+        meta["predictions_sha256"] = sha256(candidate / "predictions.csv")
+        write_json(candidate / "run.json", meta)
+        report = compare(baseline, candidate, 0.001, 0.001)
+        self.assertFalse(report["numeric_pass"])
+        self.assertEqual(report["best_allele_failed_rows"], 1)
+        self.assertTrue(all(value["failed_rows"] == 0 for value in report["errors"].values()))
+
+    def test_best_allele_missing_or_empty_fails(self):
+        baseline, _ = self.presentation_result("cpu", "cpu")
+        candidate, _ = self.presentation_result("npu", "npu", ("", "HLA-A*02:01"))
+        with self.assertRaises(ValueError):
+            compare(baseline, candidate, 0.001, 0.001)
+        text = (candidate / "predictions.csv").read_text().replace("best_allele", "other")
+        (candidate / "predictions.csv").write_text(text)
+        meta = json.loads((candidate / "run.json").read_text())
+        meta["predictions_sha256"] = sha256(candidate / "predictions.csv")
+        write_json(candidate / "run.json", meta)
+        with self.assertRaises(KeyError):
+            compare(baseline, candidate, 0.001, 0.001)
+
+    def test_best_allele_cli_failure_is_nonzero(self):
+        baseline, _ = self.presentation_result("cpu", "cpu")
+        candidate, _ = self.presentation_result("npu", "npu", ("HLA-B*07:02", "HLA-A*02:01"))
+        result = subprocess.run([
+            sys.executable, str(ROOT / "compare_results.py"), "--reference", str(baseline),
+            "--candidate", str(candidate), "--report", str(self.directory / "report.json"),
+        ], capture_output=True)
+        self.assertEqual(result.returncode, 1)
+
+    def metric_report(self, results, manifest, report, baseline=None, value=1.0):
+        argv = ["eval_metrics.py", "--manifest", str(manifest), "--results", str(results),
+                "--report", str(report)]
+        if baseline:
+            argv.extend(["--reference-metrics", str(baseline)])
+        # Mock only metric arithmetic to exercise CLI evidence checks without sklearn.
+        metrics = types.ModuleType("sklearn.metrics")
+        metrics.average_precision_score = Mock(return_value=value)
+        metrics.roc_auc_score = Mock(return_value=value)
+        with patch.object(sys, "argv", argv), patch.dict(sys.modules, {
+            "sklearn": types.ModuleType("sklearn"), "sklearn.metrics": metrics,
+        }), contextlib.redirect_stdout(io.StringIO()):
+            metric_main()
+
+    def test_metrics_preserve_and_validate_provenance(self):
+        baseline, manifest = self.presentation_result("cpu", "cpu")
+        candidate, _ = self.presentation_result("npu", "npu")
+        cpu_report = self.directory / "cpu_metrics.json"
+        self.metric_report(baseline, manifest, cpu_report)
+        original = json.loads(cpu_report.read_text())
+        report = self.directory / "npu_metrics.json"
+        self.metric_report(candidate, manifest, report, cpu_report)
+        self.assertTrue(json.loads(report.read_text())["metric_pass"])
+        for key, value in (
+            ("source_revision", "different"), ("mhcflurry", "other"),
+            ("torch", "other"), ("batch_size", 1),
+            ("optimization_level", 1), ("compile", True),
+            ("simulation", True), ("network_devices", [["npu"]]),
+        ):
+            changed = dict(original, **{key: value})
+            write_json(cpu_report, changed)
+            with self.subTest(key=key), self.assertRaises(ValueError):
+                self.metric_report(candidate, manifest, report, cpu_report)
+        changed = dict(original)
+        del changed["source_revision"]
+        write_json(cpu_report, changed)
+        with self.assertRaises(KeyError):
+            self.metric_report(candidate, manifest, report, cpu_report)
+
+    def test_metrics_reject_false_candidate_placement(self):
+        candidate, manifest = self.presentation_result("npu", "npu")
+        meta = json.loads((candidate / "run.json").read_text())
+        meta["network_devices"] = [["cpu"]]
+        write_json(candidate / "run.json", meta)
+        with self.assertRaises(ValueError):
+            self.metric_report(candidate, manifest, self.directory / "metrics.json")
+
+    def test_metric_threshold_failure_is_nonzero(self):
+        baseline, manifest = self.presentation_result("cpu", "cpu")
+        candidate, _ = self.presentation_result("npu", "npu")
+        cpu_report = self.directory / "cpu.json"
+        report = self.directory / "npu.json"
+        self.metric_report(baseline, manifest, cpu_report)
+        with self.assertRaises(SystemExit) as error:
+            self.metric_report(candidate, manifest, report, cpu_report, value=0.5)
+        self.assertEqual(error.exception.code, 1)
+        self.assertFalse(json.loads(report.read_text())["metric_pass"])
+
     def test_corrupt_weights_fail_before_extraction(self):
         archive = self.directory / "weights.tar.bz2"
         archive.write_text("HTML proxy error")
@@ -355,6 +474,7 @@ class AdapterTests(unittest.TestCase):
                     "peptide_num": i,
                     "peptide": row["peptide"],
                     "sample_name": "genotype_0",
+                    "best_allele": "HLA-A*02:01",
                     "affinity": 100,
                     "processing_score": 0.2,
                     "presentation_score": 0.5,
@@ -372,6 +492,10 @@ class AdapterTests(unittest.TestCase):
                 ],
                 [row["id"] for row in rows],
             )
+            self.assertEqual(
+                runtime.predict(predictor, rows, "presentation", 16)[0]["best_allele"],
+                "HLA-A*02:01",
+            )
             grouped_rows = [dict(rows[0], id=str(i), alleles="A;B") for i in range(128)]
             grouped_rows.append(dict(rows[0], id="128", alleles="B;A"))
             grouped_records = [
@@ -379,6 +503,7 @@ class AdapterTests(unittest.TestCase):
                     peptide_num=i,
                     peptide=row["peptide"],
                     sample_name="genotype_0" if i < 128 else "genotype_1",
+                    best_allele="A" if i < 128 else "B",
                     affinity=i + 1,
                     processing_score=0.2,
                     presentation_score=0.5,
@@ -400,6 +525,12 @@ class AdapterTests(unittest.TestCase):
             self.assertEqual(
                 [row["affinity"] for row in grouped_output], list(range(1, 130))
             )
+            self.assertEqual(
+                [row["best_allele"] for row in grouped_output], ["A"] * 128 + ["B"]
+            )
+            grouped_records[0]["best_allele"] = ""
+            with self.assertRaises(ValueError):
+                runtime.predict(predictor, grouped_rows, "presentation", 128)
             predictor.predict.return_value.to_dict.return_value = records
             records[0]["sample_name"] = "wrong"
             with self.assertRaises(ValueError):

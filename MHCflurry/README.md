@@ -29,8 +29,9 @@ MHC I 等位基因。processing 无需等位基因。`n_flank`、`c_flank` 必�
 缺少两列表示无 flank 模式；空 flank 与无 flank 模式不同。
 
 输出为 `predictions.csv`：affinity 单位 nM；processing 和 presentation 分数为
-0–1；presentation percentile 保留上游标度。`run.json` 记录实际设备、输入和
-权重哈希、版本、同步后的耗时及计时边界。编码、集成、百分位和 sklearn
+0–1；presentation percentile 保留上游标度。presentation 输出另保留官方
+`best_allele`，用于核验最强结合 allele 及同分顺序。`run.json` 记录实际设备、
+输入和权重哈希、版本、同步后的耗时及计时边界。编码、集成、百分位和 sklearn
 presentation 后处理在 CPU，神经网络拟在 NPU；不得将此描述为全流程纯 NPU。
 
 ## 推理环境准备
@@ -193,6 +194,11 @@ python3 eval_metrics.py --manifest eval_data/l2/manifest.csv --results outputs_n
 数值通过不自动升级 S3，还需人工核实 L2 数据资格、正式指标、实际 NPU 算子
 执行日志及环境证据，排查未支持算子的隐式 CPU fallback。
 
+presentation 比较还要求 `best_allele` 非空且逐 ID 完全一致；即使数值在容差内，
+allele 选择变化仍返回失败。指标报告保留源码 revision、MHCflurry/PyTorch 版本、
+task、batch、optimization/compile 配置及实际网络设备；CPU/NPU 配置不一致或
+设备记录不符直接失败。旧指标报告缺少这些字段时必须重新生成，不能补填猜测值。
+
 affinity 和 processing 使用同一入口的 `--task affinity` / `--task processing`，
 各任务使用独立输出目录。affinity 逐条一个等位基因；processing 支持无需等位基因。
 无 flank 的 L2 应另准备不含两列 flank 的 manifest，不可混用有 flank 公开指标。
@@ -240,7 +246,7 @@ python3 -m unittest discover -s tests -v
 | 权重 | https://github.com/openvax/mhcflurry/releases/download/2.3.0/models_class1_presentation.20260928.tar.bz2 |
 | 官方指标说明 | https://github.com/openvax/mhcflurry/blob/20f03d45358dd104df9df0e28e2e0ccea11c9bfb/docs/release_model_evaluation.md |
 | 官方比较报告 | https://github.com/openvax/mhcflurry/releases/download/2.3.0/model-comparison.20260928-v4.tar.gz |
-| 官方模型仓参考 | https://gitcode.com/Ascend/ModelZoo-PyTorch/tree/7eb681e0b8da5390fa8d8a26e7ea1106468bcd38/ACL_PyTorch/built-in/nlp/Laya |
+| 官方模型仓参考 | https://gitcode.com/Ascend/ModelZoo-PyTorch/tree/e779117e8cfeba296a7105e26adac0741ab04768/ACL_PyTorch/built-in/nlp/Laya |
 | 配套表 | https://github.com/Ascend/pytorch/blob/master/COMPATIBILITY.en.md |
 | 参考镜像 | https://quay.nju.edu.cn/ascend/vllm-ascend |
 | 依赖 metadata | https://pypi.org |

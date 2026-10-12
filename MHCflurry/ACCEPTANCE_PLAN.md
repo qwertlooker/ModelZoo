@@ -74,8 +74,13 @@ presentation labels 或自定义误差冒充该任务官方指标。
 使用 `abs(candidate-reference) <= atol + rtol*abs(reference)`；暂定 0.001/0.001。
 每个字段均有限，缺项/重复/证据不一致直接失败。阈值不是官方给出的容差，必须
 用固定 CPU 重复运行及批次边界差异校准，再形成冻结的工程通过线。
+presentation 同时保存并逐 ID 精确比较官方 best_allele；空值、缺失或 allele
+不一致均失败，不以数值容差豁免 allele 选择变化。覆盖近似同分和 allele 顺序回归。
 presentation metrics 的暂定绝对 drop 为 0.001，按等 patient AP/AUROC/PPV@N
 分别比较，不平均任务 AP。数值比较器及 eval_metrics.py 自动报告/非零失败。
+指标入口独立核验网络实际设备，报告与比较共用源码 revision、MHCflurry/torch
+版本、manifest/权重哈希、task、batch、optimization_level、compile 字段。
+缺少字段的旧报告必须从原始运行证据重新生成，禁止静默兼容或手工推断。
 
 原始 cohort 可得时按相同 evaluator 和 flank 配置核验公开基线；否则报告固定
 迁移 cohort 的 CPU/NPU 指标和公开表参考，不写“复现官方指标”。S3 需人工

@@ -2,7 +2,7 @@
 
 ## 版本边界与来源
 
-- 检查日期：2026-10-11。用户明确当前无 NPU，要求参考官方近期合入进行模拟适配。
+- 检查日期：2026-10-12；本轮修复代码与文档审查发现。原模拟适配未提供 NPU。
 - 上游 master HEAD：`20f03d45358dd104df9df0e28e2e0ccea11c9bfb`，代码版本 2.3.14。
   实际从 GitHub clone 并审计 `setup.py`、common、affinity/processing/presentation
   predictor、network、sizing、training、下载 catalogue 和官方评测文档。
@@ -21,18 +21,23 @@
 ## 目标仓快照与参考目录
 
 - 重新执行 `git ls-remote https://gitcode.com/Ascend/ModelZoo-PyTorch.git refs/heads/master`：
-  `7eb681e0b8da5390fa8d8a26e7ea1106468bcd38`，2026-10-10，
-  `update PaddleOCR-VL-1.5 README and infer_preformance.py`。
+  `e779117e8cfeba296a7105e26adac0741ab04768`，2026-10-12，
+  `laya模型补充适配昇腾310p`。本轮读取该 commit 的 Laya README 与变更清单。
 - 独立 filter clone 并按路径查看近期 git log；网页 sampler 未解析出条目，
   后续使用实时 Git 历史，不使用旧缓存冒充最新。
 - 拟合入路径：`ACL_PyTorch/built-in/nlp/MHCflurry`。目标树 nlp 未发现此目录，
   本次新增，无替换/删除已有模型文件。nlp 是按肽序列输入及当前生物序列模型
   分类提出的候选路径，正式提交时需维护者确认。
 - 最新参考目录：`ACL_PyTorch/built-in/nlp/Laya`，最后实质变更
-  `4ab9116cd4b32d43e28b0f39f665f74dc95062e9` / 2026-09-29 / 新增 NPU 推理适配。
+  `e779117e8cfeba296a7105e26adac0741ab04768` / 2026-10-12 / 新增 310P 适配，
+  合并双平台 README，并将原 A2 补丁改名为 diff_laya_npu_910b.patch。
   选择理由：当前 nlp 最近的在线 PyTorch 推理实例，包含设备适配 patch、验证入口、
   Atlas 800I A2 和明确环境配套。只参考硬件、框架配套和 patch 交付；不照搬其
   TorchAir、BF16、硬编码路径和容器权限。
+  MHCflurry 继续选择其中 Atlas 800I A2 配套，不扩展为 310P 验收；新合入的
+  310P 补丁不是本模型算子兼容证明。参考 README 的 torch 2.10.0+cpu 字样仅
+  作来源记录，不作为另装 CPU-only wheel 的依据；目标环境仍按 CANN 官方配套
+  核实并保留实际安装证据。
 - 生物序列补充参考：`ACL_PyTorch/built-in/nlp/ProtBert_for_Pytorch`，路径最近
   commit `6fecdfba771499ecf4cbc3ed975884720e2a8635` / 2026-06-18 是跨仓文档修改，
   不算新近实质适配。当前 clone 深度 70 的历史边界覆盖不了该目录原始迁移，
@@ -152,6 +157,27 @@ venv 和 cache；本次不存在 README_old.md。许可证直接保留上游 Apa
   patient/L2 失败路径；ruff check/format、README 和基础结构审计通过。
   独立候选目录的 5 个 CLI help、dry-run 和 23 项 fixture/Mock 回归通过；
   使用控制机现有 Python，并非真实依赖安装或完整 clean-room，仍无模型/NPU 证据。
+
+## 2026-10-12 检视修复与回归
+
+- 指标报告与数值比较共用 provenance 字段，保留并严格核对源码 revision、
+  MHCflurry/torch、task、batch、optimization/compile、输入和权重哈希。
+  指标入口独立校验 CPU/NPU 网络设备，拒绝模拟 baseline 和缺字段的旧报告。
+- presentation 保留官方 best_allele，数值比较逐 ID 精确核验该字段；空值、
+  缺失或同分附近的 allele 选择变化均失败，不因数值误差在容差内而放行。
+- 重新查询目标 master 与贡献规范 HEAD，读取最新 Laya 310P/A2 参考，
+  保持本模型 A2 验收范围及 S1 状态。
+- 29 项离线回归全部通过，无跳过；新增覆盖指标配置/设备不一致、旧报告缺字段、
+  指标阈值非零退出、best_allele 空值/缺失/不一致、CLI 非零退出及输出顺序。
+  指标算术依赖在新增测试中使用 Mock，只证明证据门禁与错误传播，不作为真实指标。
+- 独立候选目录完成本地固定上游 clone/checkout、patch check/apply、五个 CLI
+  help、权重和推理 dry-run、smoke 数据准备及 29 项 fixture/Mock 回归。
+  记录位于工作证据 .codex-reference/mhcflurry-repair-20261012/commands.json，
+  不进入候选文件；未执行依赖安装或真实模型加载，不视为完整 clean-room 验收。
+- 候选与固定上游 mhcflurry 包语法检查通过。首次递归编译整个 upstream 时，
+  Windows checkout 将下载生成目录的上游 symlink 表示为文本，导致六处语法错误；
+  随后限定到正式候选 Python 入口、tests 和运行包检查通过，不修改上游训练工具。
+  本轮控制机未安装 ruff，未重跑该检查；README/基础结构审计及 diff 检查通过。
 
 ## 未执行与补验
 
