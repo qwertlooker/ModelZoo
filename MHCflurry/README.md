@@ -125,6 +125,11 @@ test -f "$MODEL_DIR/weights.csv"
 上述校验和 `--offline` 命令。在线辅助入口 `python3 prepare_weights.py` 等价调用
 curl；`--check-only` 只检查 HTTP；`--dry-run` 只打印固定 URL、路径和 SHA。
 解压只允许普通文件和目录，拒绝越界路径、链接及已有目标目录。
+保留官方归档：推理默认读取 `weights/models_class1_presentation.20260928.tar.bz2`，
+可用 `--weight-archive /absolute/path/to/archive.tar.bz2` 指定离线位置。
+每次推理先核验固定归档 SHA，从归档生成可信文件清单，再与 model-dir 全部文件
+逐项比较；权重或 manifest 修改、缺失、额外文件均失败。校验不计入性能时间。
+旧解压目录只要与官方归档完全一致即可复用。
 
 ### 准备数据集
 
@@ -136,7 +141,7 @@ python3 prepare_eval_data.py --input test_data/smoke.csv --output-dir eval_data/
 ```
 
 正式 L2 使用固定公开/业务 cohort；在 `eval_data/l2_source.csv` 准备相同 CSV 字段。
-若计算 presentation 指标，另加 `sample_id` 和二元 `label`，每个 patient 必须包含
+若计算 presentation 指标，必须包含非空、非纯空白的 `sample_id` 和二元 `label`，每个 patient 必须包含
 正、负样本。不得重新随机抽负样本或将训练集作为未见测试集。冻结来源、split、
 选择规则及 SHA，并使用至少 1,000 条有代表性的真实记录；此下限是工程最低范围，
 不是官方 benchmark 的替代。处理入口完全离线：
@@ -165,6 +170,8 @@ python3 infer.py --manifest eval_data/smoke/manifest.csv --model-dir "$MODEL_DIR
 ```
 
 正式精度和性能执行同一固定 manifest、全 ensemble、FP32、eager 和 batch 128。
+presentation 按相同的有序 allele 集合组批，保留 allele 顺序和原始行 ID；
+实际尾批或小 genotype 组可小于 128。评测仍按原始 patient 分组。
 先保留未改设备算法的 CPU 输出，再执行 NPU。输出包含两次 warmup 后的三次
 独立计时调用及中位数，另记首次加载加推理耗时；不包含 CSV 写盘。
 

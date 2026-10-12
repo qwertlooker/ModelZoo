@@ -5,13 +5,14 @@ import argparse
 import os
 from pathlib import Path
 
-from adapter_utils import positive_int, read_inputs, sha256
+from adapter_utils import WEIGHT_NAME, positive_int, read_inputs, sha256
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--manifest", required=True)
     parser.add_argument("--model-dir", required=True)
+    parser.add_argument("--weight-archive", default=str(Path("weights") / WEIGHT_NAME))
     parser.add_argument("--output-dir", required=True)
     parser.add_argument("--device", choices=("npu", "cpu", "cuda"), default="npu")
     parser.add_argument(

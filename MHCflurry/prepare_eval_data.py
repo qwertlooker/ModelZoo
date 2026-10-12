@@ -5,7 +5,7 @@ import argparse
 import csv
 from pathlib import Path
 
-from adapter_utils import read_inputs, sha256, write_json
+from adapter_utils import presentation_groups, read_inputs, sha256, write_json
 
 
 def main():
@@ -26,6 +26,8 @@ def main():
         raise ValueError(
             "L2 requires a frozen representative cohort of at least 1000 rows"
         )
+    if args.purpose == "l2" and args.task == "presentation":
+        presentation_groups(rows)
     output = Path(args.output_dir)
     output.mkdir(parents=True, exist_ok=False)
     manifest = output / "manifest.csv"

@@ -7,7 +7,13 @@ import statistics
 from collections import defaultdict
 from pathlib import Path
 
-from adapter_utils import finite_float, read_inputs, sha256, write_json
+from adapter_utils import (
+    finite_float,
+    presentation_groups,
+    read_inputs,
+    sha256,
+    write_json,
+)
 from compare_results import read_result
 
 
@@ -50,11 +56,9 @@ def main():
     ):
         raise ValueError("Metric evaluation requires matching presentation results")
     rows = read_inputs(args.manifest)
-    groups = defaultdict(list)
+    groups = presentation_groups(rows)
     if {row["id"] for row in rows} != set(predictions):
         raise ValueError("Metric cohort/result mismatch")
-    for row in rows:
-        groups[row["sample_id"]].append(row)
     per_patient = {}
     for patient, patient_rows in groups.items():
         labels = [int(row["label"]) for row in patient_rows]

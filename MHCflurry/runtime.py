@@ -60,10 +60,17 @@ def predict(predictor, rows, task, batch_size):
             for row, value in zip(rows, values, strict=True)
         ]
     else:
+        genotype_names = {}
+        sample_names = []
+        for row in rows:
+            genotype = tuple(row["alleles"].split(";"))
+            if genotype not in genotype_names:
+                genotype_names[genotype] = "genotype_%d" % len(genotype_names)
+            sample_names.append(genotype_names[genotype])
         frame = predictor.predict(
             peptides=peptides,
-            alleles={row["id"]: row["alleles"].split(";") for row in rows},
-            sample_names=[row["id"] for row in rows],
+            alleles={name: list(genotype) for genotype, name in genotype_names.items()},
+            sample_names=sample_names,
             throw=True,
             verbose=0,
             affinity_model_kwargs={"batch_size": batch_size},
@@ -73,9 +80,11 @@ def predict(predictor, rows, task, batch_size):
         by_id = {}
         for record in frame.to_dict("records"):
             index = int(record["peptide_num"])
+            if index < 0 or index >= len(rows):
+                raise ValueError("Unexpected presentation peptide index")
             row = rows[index]
             if (
-                record["sample_name"] != row["id"]
+                record["sample_name"] != sample_names[index]
                 or record["peptide"] != row["peptide"]
                 or row["id"] in by_id
             ):
@@ -129,7 +138,7 @@ def run(args, rows):
             raise ValueError(
                 "Installed source does not match fixed patched checkout: " + relative
             )
-    files, weight_identity = weights_inventory(args.model_dir)
+    files, weight_identity = weights_inventory(args.model_dir, args.weight_archive)
     configure_pytorch(backend="gpu" if args.device == "cuda" else args.device)
     device = get_pytorch_device()
     if device.type != args.device:

@@ -139,6 +139,20 @@ venv 和 cache；本次不存在 README_old.md。许可证直接保留上游 Apa
 新增文件有 Apache license 头，不冒认贡献者是华为员工。modelzoo_level.txt 尚未
 进入清单，因为没有可填写的真实运行状态；正式候选仍未就绪。
 
+## 2026-10-11 检视修复
+
+- presentation 按有序 allele 集合合并 sample，避免每行单独调用 affinity；
+  以 peptide_num 和 genotype 名校验输出，恢复原始行 ID，保持 allele 同分顺序。
+- 推理新增 --weight-archive（默认 README 权重路径）。每次从 SHA 固定的官方
+  归档重新生成可信清单，逐文件核验 model-dir；不信任可编辑 sidecar。
+  权重/manifest 改动、缺失、额外文件严格失败，校验不计入性能时间。
+- presentation L2 数据准备与评测共用 patient 校验，拒绝空白 sample_id、
+  缺标签、非二元标签或单类别 patient，防止静默改变等 patient 指标。
+- 本轮 23 项离线测试通过，覆盖组批、allele 顺序、乱序还原、权重清单及
+  patient/L2 失败路径；ruff check/format、README 和基础结构审计通过。
+  独立候选目录的 5 个 CLI help、dry-run 和 23 项 fixture/Mock 回归通过；
+  使用控制机现有 Python，并非真实依赖安装或完整 clean-room，仍无模型/NPU 证据。
+
 ## 未执行与补验
 
 - 真实 CANN 环境安装/import、NPU kernel/placement/profile：无硬件环境。

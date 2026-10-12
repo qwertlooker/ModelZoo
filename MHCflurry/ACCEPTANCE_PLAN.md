@@ -39,6 +39,10 @@
 功能验证使用仓内四条肽和人工 flank，只检查三类任务/输出字段/异常传播，
 不做准确率或性能结论。正式数据通过 prepare_eval_data.py 固定成 CSV 和
 manifest.meta.json，同一 manifest 供 CPU 与 NPU 使用。
+presentation L2 准备和评测共用 patient 校验：sample_id 不得为空或纯空白，
+必须有二元 label 且每个 patient 同时有正负样本。推理 genotype 分组不改变
+评测 patient 分组；按有序 allele 集合组批，并逐行恢复输出。
+推理必须保留并校验官方归档及模型目录逐文件哈希，拒绝改动后的 ensemble。
 
 原始 cohort 可得时逐条固定 peptide、allele sets、flanks、sample_id、labels，
 核实 SHA、patient 数、正负比例和训练来源排除。否则选择有授权、真实、覆盖

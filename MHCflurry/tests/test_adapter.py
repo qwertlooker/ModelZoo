@@ -10,6 +10,8 @@ import os
 import subprocess
 import sys
 import tempfile
+import tarfile
+import io
 import types
 import unittest
 from pathlib import Path
@@ -234,6 +236,90 @@ class AdapterTests(unittest.TestCase):
             extract_verified(archive, self.directory / "extracted")
         self.assertFalse((self.directory / "extracted").exists())
 
+    def test_weight_inventory_matches_official_archive(self):
+        archive = self.directory / "bundle.tar.bz2"
+        model = self.directory / "model"
+        names = [
+            "weights.csv",
+            "affinity_predictor/manifest.csv",
+            "processing_predictor_with_flanks/manifest.csv",
+            "processing_predictor_without_flanks/manifest.csv",
+            "weights.npz",
+        ]
+        with tarfile.open(archive, "w:bz2") as stream:
+            for name in names:
+                data = ("fixture:" + name).encode()
+                member = tarfile.TarInfo("bundle/" + name)
+                member.size = len(data)
+                stream.addfile(member, io.BytesIO(data))
+                target = model / name
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_bytes(data)
+        with self.assertRaisesRegex(ValueError, "archive SHA256"):
+            utils.weights_inventory(model, archive)
+        with patch.object(utils, "WEIGHT_SHA256", sha256(archive)):
+            self.assertEqual(
+                len(utils.weights_inventory(model, archive)[0]), len(names)
+            )
+            for name in ("weights.npz", "affinity_predictor/manifest.csv"):
+                target = model / name
+                original = target.read_bytes()
+                target.write_text("changed")
+                with self.assertRaisesRegex(ValueError, "differs"):
+                    utils.weights_inventory(model, archive)
+                target.unlink()
+                with self.assertRaises((ValueError, FileNotFoundError)):
+                    utils.weights_inventory(model, archive)
+                target.write_bytes(original)
+            (model / "extra.npz").write_text("extra")
+            with self.assertRaisesRegex(ValueError, "differs"):
+                utils.weights_inventory(model, archive)
+
+    def test_patient_validation(self):
+        good = [
+            dict(sample_id="p1", label="0"),
+            dict(sample_id="p1", label="1"),
+            dict(sample_id="p2", label="1"),
+            dict(sample_id="p2", label="0"),
+        ]
+        self.assertEqual(set(utils.presentation_groups(good)), {"p1", "p2"})
+        for bad in (
+            [dict(sample_id="", label="1")],
+            [dict(sample_id="  ", label="1")],
+            [dict(sample_id="p1", label="1")],
+            [dict(sample_id="p1", label="2")],
+        ):
+            with self.assertRaises(ValueError):
+                utils.presentation_groups(bad)
+        with self.assertRaises(KeyError):
+            utils.presentation_groups([dict(label="1")])
+
+    def test_l2_preparation_rejects_missing_patient_labels(self):
+        source = self.csv(
+            "id,peptide,alleles\n"
+            + "".join(f"{i},SIINFEKL,HLA-A*02:01\n" for i in range(1000))
+        )
+        destination = self.directory / "l2"
+        result = subprocess.run(
+            [
+                sys.executable,
+                str(ROOT / "prepare_eval_data.py"),
+                "--input",
+                str(source),
+                "--output-dir",
+                str(destination),
+                "--dataset",
+                "fixture",
+                "--split",
+                "test",
+                "--purpose",
+                "l2",
+            ],
+            capture_output=True,
+        )
+        self.assertNotEqual(result.returncode, 0)
+        self.assertFalse(destination.exists())
+
     def test_runtime_routes_and_presentation_id_alignment(self):
         torch = types.ModuleType("torch")
         mhcflurry = types.ModuleType("mhcflurry")
@@ -268,7 +354,7 @@ class AdapterTests(unittest.TestCase):
                 {
                     "peptide_num": i,
                     "peptide": row["peptide"],
-                    "sample_name": row["id"],
+                    "sample_name": "genotype_0",
                     "affinity": 100,
                     "processing_score": 0.2,
                     "presentation_score": 0.5,
@@ -286,6 +372,35 @@ class AdapterTests(unittest.TestCase):
                 ],
                 [row["id"] for row in rows],
             )
+            grouped_rows = [dict(rows[0], id=str(i), alleles="A;B") for i in range(128)]
+            grouped_rows.append(dict(rows[0], id="128", alleles="B;A"))
+            grouped_records = [
+                dict(
+                    peptide_num=i,
+                    peptide=row["peptide"],
+                    sample_name="genotype_0" if i < 128 else "genotype_1",
+                    affinity=i + 1,
+                    processing_score=0.2,
+                    presentation_score=0.5,
+                    presentation_percentile=5,
+                )
+                for i, row in enumerate(grouped_rows)
+            ]
+            predictor.predict.return_value.to_dict.return_value = list(
+                reversed(grouped_records)
+            )
+            grouped_output = runtime.predict(
+                predictor, grouped_rows, "presentation", 128
+            )
+            kwargs = predictor.predict.call_args.kwargs
+            self.assertEqual(kwargs["sample_names"].count("genotype_0"), 128)
+            self.assertEqual(
+                kwargs["alleles"], {"genotype_0": ["A", "B"], "genotype_1": ["B", "A"]}
+            )
+            self.assertEqual(
+                [row["affinity"] for row in grouped_output], list(range(1, 130))
+            )
+            predictor.predict.return_value.to_dict.return_value = records
             records[0]["sample_name"] = "wrong"
             with self.assertRaises(ValueError):
                 runtime.predict(predictor, rows, "presentation", 16)

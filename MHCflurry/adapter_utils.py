@@ -5,7 +5,9 @@ import csv
 import hashlib
 import json
 import math
-from pathlib import Path
+import tarfile
+from collections import defaultdict
+from pathlib import Path, PurePosixPath
 
 SOURCE_REVISION = "20f03d45358dd104df9df0e28e2e0ccea11c9bfb"
 WEIGHT_NAME = "models_class1_presentation.20260928.tar.bz2"
@@ -73,12 +75,61 @@ def read_inputs(path, task="presentation"):
                 raise ValueError("Expected 1-6 semicolon-separated alleles")
             if task == "affinity" and len(alleles) != 1:
                 raise ValueError("Affinity task requires exactly one allele per row")
+        if "sample_id" in fields and not (row["sample_id"] or "").strip():
+            raise ValueError("Empty patient sample_id")
         if "label" in fields and row["label"] not in ("0", "1"):
             raise ValueError("Presentation label must be 0 or 1")
     return rows
 
 
-def weights_inventory(directory):
+def presentation_groups(rows):
+    groups = defaultdict(list)
+    for row in rows:
+        if not (row["sample_id"] or "").strip():
+            raise ValueError("Empty patient sample_id")
+        if row["label"] not in ("0", "1"):
+            raise ValueError("Presentation label must be 0 or 1")
+        groups[row["sample_id"]].append(row)
+    for patient_rows in groups.values():
+        if {row["label"] for row in patient_rows} != {"0", "1"}:
+            raise ValueError("Each patient requires both labels")
+    return groups
+
+
+def weights_inventory(directory, archive):
+    # Re-derive the trusted inventory from the pinned archive on every run.
+    # A locally editable sidecar is not proof of official weight identity.
+    if sha256(archive) != WEIGHT_SHA256:
+        raise ValueError("Official archive SHA256 mismatch")
+    expected = {}
+    with tarfile.open(archive, "r:bz2") as stream:
+        members = stream.getmembers()
+        roots = [
+            PurePosixPath(member.name).parent.parent
+            for member in members
+            if member.isfile()
+            and PurePosixPath(member.name).parts[-2:]
+            == ("affinity_predictor", "manifest.csv")
+        ]
+        if len(roots) != 1:
+            raise ValueError("Expected exactly one presentation bundle in archive")
+        for member in members:
+            name = PurePosixPath(member.name)
+            if (
+                name.is_absolute()
+                or ".." in name.parts
+                or not (member.isfile() or member.isdir())
+            ):
+                raise ValueError("Unsafe archive member: " + member.name)
+            if member.isfile() and name.is_relative_to(roots[0]):
+                relative = name.relative_to(roots[0]).as_posix()
+                if relative in expected:
+                    raise ValueError("Duplicate archive member: " + relative)
+                with stream.extractfile(member) as source:
+                    expected[relative] = hashlib.file_digest(
+                        source, "sha256"
+                    ).hexdigest()
+
     root = Path(directory)
     required = [
         root / "weights.csv",
@@ -99,5 +150,7 @@ def weights_inventory(directory):
             )
     if not any(item["path"].endswith(".npz") for item in files):
         raise ValueError("No NPZ model weights")
+    if {item["path"]: item["sha256"] for item in files} != expected:
+        raise ValueError("Model directory differs from the fixed official archive")
     identity = hashlib.sha256(json.dumps(files, sort_keys=True).encode()).hexdigest()
     return files, identity
