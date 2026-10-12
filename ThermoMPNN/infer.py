@@ -8,6 +8,7 @@ import statistics
 import subprocess
 import sys
 import time
+import uuid
 
 SOURCE = Path(__file__).resolve().parent / 'source'
 sys.path.insert(0, str(SOURCE))
@@ -98,9 +99,9 @@ def main():
             wt_seq = rows[0]['wt_sequence']
             if len(seq) != len(wt_seq) or any(r['wt_sequence'] != wt_seq for r in rows):
                 raise ValueError('Megascale WT sequence/structure length mismatch')
-            # Official MegaScaleDataset uses experimental WT sequence with AF coordinates.
+            # Match pinned MegaScaleDataset: validate mutations against experimental
+            # WT, but preserve the structural chain sequence consumed by tied_featurize.
             pdb[0]['seq'] = wt_seq
-            pdb[0][f'seq_chain_{chain}'] = wt_seq
             seq = wt_seq
         for row in rows:
             if seq[row['position']] != row['wildtype']:
@@ -134,7 +135,7 @@ def main():
             stream.write(json.dumps(row, allow_nan=False) + '\n')
     write_json(output / 'run.json', {
         **runtime_metadata(args.device),
-        'schema': 1, 'simulated': False, 'device': str(device), 'dtype': 'float32',
+        'schema': 2, 'run_id': str(uuid.uuid4()), 'simulated': False, 'device': str(device), 'dtype': 'float32',
         'command': sys.argv, 'upstream_commit': revision, 'torch': torch.__version__,
         'manifest_sha256': sha256(args.manifest), 'checkpoint_sha256': sha256(args.checkpoint),
         'backbone_sha256': sha256(backbone), 'predictions_sha256': sha256(output / 'predictions.jsonl'),

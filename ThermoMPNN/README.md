@@ -13,6 +13,8 @@ ThermoMPNN 是 Kuhlman-Lab 基于 ProteinMPNN 迁移学习的图神经网络，�
 CSV 必需字段：`id,pdb,chain,position,wildtype,mutation`，可选 `ddG_true`。
 `position` 是上游解析后链序列的 **0-based 索引**，不是 PDB residue number；缺失残基和 insertion code 必须先核对。只接受标准 20 种氨基酸及单链输入，不能混用不同链的残基编号。
 
+评测目录结构、固定归档的获取和离线复用见[准备正式评测数据和报告](#准备正式评测数据和报告)。
+
 ## 推理环境准备
 
 | 配套 | 版本 |
@@ -98,7 +100,7 @@ python3 compare_results.py --baseline outputs_cpu/predictions.jsonl --candidate 
 
 每次使用新的输出目录，避免覆盖证据。比较容差为暂定 FP32 工程值，需用真实 baseline 校准；比较失败返回非零退出码。设备不可用时直接失败。输出 `run.json` 含模型和输入 SHA、实际输出设备、计时范围及三次运行中位数；输出张量位于 NPU 不足以排除内部算子回退，实机时另查运行日志。
 
-### 正式评测数据和报告
+### 准备正式评测数据和报告
 
 原始 Megascale 测试 CSV 已随固定源码提供。先盘点，再生成规范 CSV：
 
@@ -108,18 +110,37 @@ python3 prepare_megascale.py --csv source/data_all/testing/mega_test.csv --inven
 
 盘点得到 28,312 行，其中 140 行 `wt` 被排除，形成 28 个蛋白的 28,172 条突变。论文图中的 N=28,312 不应直接作为本脚本突变数；正式验收前必须复核原始 split 与过滤差异。标签按官方 `MegaScaleDataset` 转为 `-ddG_ML`。
 
-用户按数据授权准备 Megascale 配套的原始 AlphaFold 单体 PDB 到 `eval_data/megascale_pdbs/`，不要用 RCSB 同名结构替换；数据来源见公网地址说明。规范脚本固定链 A，运行前核对原始结构确为单链 A；它保留实验 WT 序列覆盖逻辑并强制检查结构长度。此映射仍需与上游官方数据集路径做 CPU 回归。
+Megascale test 的原始结构固定为 Zenodo **7992926 / v2_230420** 的 `AlphaFold_model_PDBs.zip`（约 14 MB，发布页 MD5 `c29317a75f28d008b2718316995902ef`）。请按发布页要求登记数据使用情况，不要用 RCSB 同名结构替换。
+
+```bash
+curl -L --fail --retry 3 -o eval_data/AlphaFold_model_PDBs.zip https://zenodo.org/records/7992926/files/AlphaFold_model_PDBs.zip
+python3 prepare_megascale.py --csv source/data_all/testing/mega_test.csv --inventory mega_structures.json --pdb-archive eval_data/AlphaFold_model_PDBs.zip --pdb-dir eval_data/megascale_pdbs
+```
+
+脚本先验证归档 MD5，只提取 CSV 所需 PDB，并记录归档与每个 PDB 的 SHA256；缺失、重名或已有文件内容不一致立即失败。离线机器直接复用此 ZIP 执行相同命令，内容一致的 PDB 可复用。生成布局：
+
+```text
+eval_data/
+├── AlphaFold_model_PDBs.zip
+├── mega_normalized.csv   # 运行后生成
+├── megascale_pdbs/       # 按 WT_name 映射提取 28 个 .pdb
+└── mega_test.jsonl       # 运行后生成，共 28,172 条突变
+```
+
+规范脚本固定链 A。保持固定上游 `MegaScaleDataset` 语义：实验 WT 只覆盖总序列 `seq` 并用于突变检查；特征化使用的 `seq_chain_A` 保留结构序列。两者长度必须相同，不擅自修正上游行为。全量真实模型输出仍需与官方路径做 CPU 回归。
 
 ```bash
 python3 prepare_eval_data.py --csv eval_data/mega_normalized.csv --pdb-dir eval_data/megascale_pdbs --dataset ThermoMPNN-Megascale --split test --output eval_data/mega_test.jsonl
 python3 infer.py --device cpu --checkpoint weights/thermoMPNN_default.pt --manifest eval_data/mega_test.jsonl --output-dir outputs_mega_cpu
-python3 infer.py --device npu --checkpoint weights/thermoMPNN_default.pt --manifest eval_data/mega_test.jsonl --output-dir outputs_mega_npu --warmup 1 --runs 3
-python3 compare_results.py --baseline outputs_mega_cpu/predictions.jsonl --candidate outputs_mega_npu/predictions.jsonl --atol 0.001 --rtol 0.001 --report mega_comparison.json
-python3 eval_metrics.py --predictions outputs_mega_npu/predictions.jsonl --report mega_metrics.json
-python3 report_acceptance.py --run-dir outputs_mega_npu --comparison mega_comparison.json --metrics mega_metrics.json --output acceptance_report.json
+for run in 1 2 3; do
+  python3 infer.py --device npu --checkpoint weights/thermoMPNN_default.pt --manifest eval_data/mega_test.jsonl --output-dir "outputs_mega_npu_${run}" --warmup 1 --runs 3 || exit 1
+done
+python3 compare_results.py --baseline outputs_mega_cpu/predictions.jsonl --candidate outputs_mega_npu_1/predictions.jsonl --atol 0.001 --rtol 0.001 --report mega_comparison.json
+python3 eval_metrics.py --predictions outputs_mega_npu_1/predictions.jsonl --report mega_metrics.json
+python3 report_acceptance.py --run-dir outputs_mega_npu_1 --performance-dirs outputs_mega_npu_1 outputs_mega_npu_2 outputs_mega_npu_3 --comparison mega_comparison.json --metrics mega_metrics.json --output acceptance_report.json
 ```
 
-指标采用 pooled mutations 的 Pearson、Spearman、MSE、RMSE、R²；SciPy 相关系数为等价数学实现。FireProt、S669、SSYM 等需要其各自的序列对齐与 split 规则，不能直接套用 Megascale 转换器。报告入口只收集证据，拒绝 CPU/显式模拟结果，不自动认证 S3 或上库就绪。性能正式验收另独立启动至少三个 NPU 进程，使用独立输出目录，报告中位数及输入规模，不用 CPU 推断加速比。
+指标采用 pooled mutations 的 Pearson、Spearman、MSE、RMSE、R²；SciPy 相关系数为等价数学实现。FireProt、S669、SSYM 等需要其各自的序列对齐与 split 规则，不能直接套用 Megascale 转换器。报告入口只收集证据，拒绝 CPU/显式模拟结果，不自动认证 S3 或上库就绪。上述循环独立启动三个 NPU 进程。报告校验不同 run_id、目录、预测 SHA 及一致的 manifest/权重/软件/设备可见性/计时配置，先取各进程内部耗时中位数，再取进程间中位数，给出 mutations/s 和 proteins/s。不传 `--performance-dirs` 时明确列出独立进程性能验收未完成；旧 run.json 无 run_id 时需重新推理，不能复制结果充数。运行标识只检测证据误复用，真实性仍须实机日志证明。
 
 ### 离线自测试
 
@@ -149,3 +170,11 @@ python3 -m unittest discover -s tests -v
 | [RCSB 1UBQ](https://www.rcsb.org/structure/1UBQ) | 功能样例 |
 | [Ascend 配套表](https://github.com/Ascend/pytorch/blob/master/COMPATIBILITY.en.md) | CANN/PyTorch/torch_npu 配套依据 |
 | [目标仓](https://gitcode.com/Ascend/ModelZoo-PyTorch) | A2 模拟硬件及推理交付参考 |
+
+命令中使用的直接访问地址：
+
+- 源码 clone：https://github.com/Kuhlman-Lab/ThermoMPNN.git
+- 主权重：https://raw.githubusercontent.com/Kuhlman-Lab/ThermoMPNN/370f76ec62bd929f7425e311d8df04a0d094990f/models/thermoMPNN_default.pt
+- 功能 PDB：https://files.rcsb.org/download/1UBQ.pdb
+- 固定结构发布页：https://zenodo.org/records/7992926
+- 结构 ZIP：https://zenodo.org/records/7992926/files/AlphaFold_model_PDBs.zip

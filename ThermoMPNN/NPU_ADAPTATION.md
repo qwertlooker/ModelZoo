@@ -48,7 +48,7 @@
 - 新增 `infer.py` 显式 `--device npu/cpu/cuda`，默认 NPU；仅 NPU 条件导入 torch_npu，设备不可用立即失败，不自动回退。
 - 复用 `TransferModelPL.load_from_checkpoint(..., map_location='cpu').model`、官方 `Mutation`、`alt_parse_PDB`、`TransferModel.forward`。所有权重先载入 CPU 后统一迁移；这不是 CPU 推理回退。
 - 核心 `tied_featurize` 取模型 parameter 的 device 创建张量，ProteinMPNN 的 gather/topk、one_hot/einsum、LayerNorm、Conv1d 等保持原样。所有算子仍需 NPU 探针确认，不提前优化或改算法。
-- 数据准备独立运行，不导入模型；manifest 固定 PDB SHA、ID、链、0-based 索引及标签。Megascale 采用官方 `-ddG_ML` 符号，并保留实验 WT 序列覆盖结构序列的逻辑。
+- 数据准备独立运行，不导入模型；manifest 固定 PDB SHA、ID、链、0-based 索引及标签。Megascale 采用官方 `-ddG_ML` 符号，并保留官方实验 WT 仅覆盖总序列 seq、结构 seq_chain_A 不变的逻辑。
 - 数值比较按 ID 对齐且验证样本身份；非有限数、重复 ID、漏样本、标签不一致、阈值失败立即报错。
 - 质量指标为明确等价的 pooled Pearson/Spearman/MSE/RMSE/R²；性能写实际 device、至少三次计时、mutations/s、中位数和计时范围。正式验收还要三次独立进程、环境版本和回退日志。
 - 报告拒绝 CPU/显式模拟结果，核对预测 SHA、样本数、比较结果与性能次数。收集通过仍不自动赋予 S3。
@@ -83,7 +83,7 @@
 | `infer.py --device cpu ...` | 未执行真实模型输出；缺框架/版本环境 | 用同 manifest 跑 CPU，并对齐官方单链预处理与原始 dataset 路径 |
 | NPU tensor、推理和 L2 | 用户当前无 NPU 硬件 | A2 环境按 README 命令补验，查算子回退日志 |
 | NPU 性能 | 无实测 | 同 L2 manifest 至少三次独立启动，记录中位数，绝不报告 Mock 数字 |
-| 原始全量 PDB/split 对齐 | 配套 PDB 未准备 | 取得授权的原始结构，复核 140 行 wt 与论文 N 差异后冻结完整 manifest |
+| 原始全量 PDB/split 对齐 | 2026-10-12 已准备全部 28 个 PDB 和 manifest；split/论文差异待验 | 复核 140 行 wt 与论文 N 差异及官方 split，补真实模型对照 |
 | 官方在线自测试、CLA、版权头/modelzoo_level.txt | 无真实验收与维护者确认 | S3 后据实补齐，不复用离线 unittest 冒充在线模型测试 |
 
 ## 上库文件清单和排除项
@@ -116,11 +116,25 @@
 |---|---|---|
 | 固定模型/辅助权重 | 远端 HEAD、实际下载 SHA | 已证实 |
 | 静态模拟适配 | 新入口、语法、12 项回归 | 已证实 |
-| 数据准备工具 | 真实 PDB manifest、官方 CSV 盘点 | 已证实；全量结构缺失 |
+| 数据准备工具 | 真实 PDB manifest、官方 CSV 盘点 | 已证实；2026-10-12 全量结构与 manifest 已准备 |
 | 原始指标取证 | 官方 README/dataset + 论文/预印本来源，详见验收计划 | 已证实口径；checkpoint 精确可比性待确认 |
 | 环境可安装/import | 仅拟定固定配套；当前无关键依赖 | 缺失 |
 | CPU/CUDA 原行为回归 | 模型算法未修改，尚无真实输出 | 缺失 |
 | NPU 对齐、全量指标和性能 | 无 NPU 实测 | 缺失 |
 | 上库候选就绪 | 精确清单，尚未通过真实路径及贡献门禁 | 缺失 |
+
+## 2026-10-12 检视修复与补验
+
+目标仓重新查询为 `e779117e8cfeba296a7105e26adac0741ab04768`，本次仍为新增 `ACL_PyTorch/built-in/nlp/ThermoMPNN`，目标路径未存在。最新同领域参考 `nlp/Laya` 最后实质变更更新为该 commit（2026-10-12，新增 310P 补丁与环境指导）；已读取其 README/diff，参考其独立硬件边界，不复制其 CANN 9.1/PyTorch 2.10 配套。本模型保持 A2/CANN 8.3.RC1/PyTorch 2.1 方案。OVRCOAT/RSGPNet 参考 commit 不变。前述 2026-10-11 快照保留为历史记录。
+
+- 移除新增入口对 `seq_chain_A` 的额外覆盖，保持固定上游只修改 `seq` 的语义。实验 WT 仍用于长度和突变检查。Mock 使用结构 M / 实验 WT A 的差异夹具，验证传入模型的链序列未被替换。
+- Zenodo 固定记录 7992926 / v2_230420 的原始 `AlphaFold_model_PDBs.zip` 实际下载完成：13,977,225 bytes，MD5 `c29317a75f28d008b2718316995902ef`，SHA256 `70c6da80c91493b603d4319a16b1f59be0f261dfd2079f0c8710ccb49829575d`。原 Windows 下载中断后通过 WSL curl 断点续传并校验；候选目录再次独立下载成功。
+- 新增 `prepare_megascale.py --pdb-archive --pdb-dir`，固定校验归档、只提取所需 PDB、记录 SHA、支持离线复用；重复名称、缺失或已有内容不一致严格失败。README 给出真实 URL、校验方式和生成目录结构。
+- 新增推理 `run_id` 和报告 `--performance-dirs`：至少三个不同目录和运行标识，检查配置/预测 SHA，报告各进程中位数和进程间中位数及吞吐。省略参数明确列出独立进程性能待验收；不把报告收集成功作为 S3。
+- 本次控制环境为 Windows Python 3.14.6（已有 torch 2.13.0+cpu、NumPy/SciPy）及 WSL Python 3.12.3；均不是目标 Python 3.10 配套，未安装或修改系统依赖。
+- 在现有 Windows CPU 框架上执行预处理专项检查：真实 28 个结构经当前 infer 准备代码与固定上游 parse_PDB + MegaScaleDataset 的 seq 覆盖分别进入 tied_featurize，坐标、序列 token、mask、chain mask/encoding、residue indices 逐项相同。这不是完整模型推理或目标配套验收。
+- 候选目录 `.codex-reference/thermompnn-repair-20261012/candidate` 从精确清单组装，使用新建无 pip venv 隔离 stdlib 重放；从公开仓重新 clone/checkout 固定源码，重新下载功能 PDB 与正式 ZIP，实际生成 3 条功能 manifest 和 28,172 条正式 manifest（28 个 PDB）。该 venv 只用于 clean-room 隔离，不是推荐部署环境。
+- 14 项离线测试覆盖预处理差异、归档校验/选择/复用/失败、独立进程汇总/配置不一致/重复证据以及报告 CLI 成功和失败。README 审计、基础结构门禁通过。
+- 真实模型安装/CPU/NPU、L2 指标及实机独立进程性能仍未执行。Windows infer --help 缺 OmegaConf，候选 stdlib 环境缺 NumPy；没有为了 help 延迟必需依赖导入。无 NPU 硬件，保持 S1，不能标记上库候选就绪。当前预处理和计时元数据变更后，旧运行产物不得作为新版本验收证据。
 
 **当前状态：S1 静态模拟适配完成。** 升级 S2 需要真实 CPU 或 NPU 功能输出；升级 S3 需要完整 NPU L2 精度/性能和可比基线。Mock、数据盘点和静态审计不改变该状态。

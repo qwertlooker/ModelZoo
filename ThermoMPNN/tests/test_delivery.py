@@ -1,5 +1,8 @@
 """Offline regression. Mocks are not model or NPU acceptance evidence."""
 import ast
+import hashlib
+import uuid
+import zipfile
 from contextlib import nullcontext
 import json
 from pathlib import Path
@@ -18,8 +21,8 @@ sys.path.insert(0, str(ROOT))
 from delivery_utils import read_jsonl, sha256, validate_sample, write_json
 from prepare_eval_data import prepare
 from compare_results import compare
-from report_acceptance import collect
-from prepare_megascale import normalize
+from report_acceptance import collect, performance
+from prepare_megascale import normalize, prepare_structures
 
 
 class DeliveryTests(unittest.TestCase):
@@ -141,7 +144,7 @@ class DeliveryTests(unittest.TestCase):
         backbone.write_bytes(b'fixture backbone')
         checkpoint = self.root / 'checkpoint.pt'
         checkpoint.write_bytes(b'fixture checkpoint')
-        manifest = self.jsonl('manifest', [self.row])
+        manifest = self.jsonl('manifest', [{**self.row, 'wt_sequence': 'A'}])
         output = self.root / 'outputs'
         class FakeDevice:
             def __init__(self, name):
@@ -167,10 +170,10 @@ class DeliveryTests(unittest.TestCase):
         from delivery_utils import finite
         namespace = {'argparse': argparse, 'defaultdict': defaultdict, 'json': json,
                      'os': __import__('os'), 'Path': Path, 'statistics': statistics,
-                     'subprocess': fake_process, 'sys': sys, 'time': time, 'SOURCE': source,
+                     'uuid': uuid, 'subprocess': fake_process, 'sys': sys, 'time': time, 'SOURCE': source,
                      'torch': fake_torch, 'np': Mock(), 'OmegaConf': Mock(), 'TransferModelPL': loader,
                      'Mutation': lambda *args: args,
-                     'alt_parse_PDB': Mock(return_value=[{'seq_chain_A': 'A', 'seq': 'A', 'name': 'demo'}]),
+                     'alt_parse_PDB': Mock(return_value=[{'seq_chain_A': 'M', 'seq': 'M', 'name': 'demo'}]),
                      'UPSTREAM_COMMIT': 'pinned', 'WEIGHT_SHA': sha256(checkpoint),
                      'BACKBONE_SHA': sha256(backbone), 'sha256': sha256, 'finite': finite,
                      'read_jsonl': read_jsonl, 'validate_sample': validate_sample, 'write_json': write_json}
@@ -180,6 +183,10 @@ class DeliveryTests(unittest.TestCase):
         backend.__version__ = 'mock-only'
         with patch.object(sys, 'argv', argv), patch.dict(sys.modules, {'torch_npu': backend}):
             namespace['main']()
+        self.assertEqual(model.call_args.args[0][0]['seq_chain_A'], 'M')
+        self.assertEqual(model.call_args.args[0][0]['seq'], 'A')
+        self.assertTrue(metadata_id := json.loads((output / 'run.json').read_text())['run_id'])
+        uuid.UUID(metadata_id)
         self.assertEqual(model.call_count, 4)  # one warmup + three measured runs
         self.assertEqual(read_jsonl(output / 'predictions.jsonl')[0]['ddG_pred'], 1.25)
         metadata = json.loads((output / 'run.json').read_text())
@@ -201,11 +208,73 @@ class DeliveryTests(unittest.TestCase):
         write_json(m, metrics)
         write_json(self.root / 'run.json', run)
         self.assertIn('S3 requires', collect(self.root, c, m)['status'])
+        self.assertTrue(any('independent-process' in item for item in collect(self.root, c, m)['pending']))
         for change in [{'simulated': True}, {'device': 'cpu'}, {'runs': 1},
                        {'seconds': [0, 2, 3]}, {'predictions_sha256': 'bad'}, {'samples': 2}]:
             write_json(self.root / 'run.json', {**run, **change})
             with self.subTest(change=change), self.assertRaises(ValueError):
                 collect(self.root, c, m)
+
+
+    def test_structure_archive_selection_and_reuse(self):
+        archive = self.root / 'pdb.zip'
+        with zipfile.ZipFile(archive, 'w') as stream:
+            stream.writestr('nested/demo.pdb', self.pdb.read_bytes())
+            stream.writestr('../unneeded.pdb', b'ignored')
+        output = self.root / 'structures'
+        with patch('prepare_megascale.PDB_ARCHIVE_MD5', hashlib.md5(archive.read_bytes()).hexdigest()):
+            result = prepare_structures([{'pdb': 'demo.pdb'}], archive, output)
+            self.assertEqual(result['pdb_sha256']['demo.pdb'], sha256(self.pdb))
+            prepare_structures([{'pdb': 'demo.pdb'}], archive, output)
+            self.assertEqual(list(output.iterdir()), [output / 'demo.pdb'])
+            with self.assertRaises(ValueError):
+                prepare_structures([{'pdb': 'missing.pdb'}], archive, output)
+            (output / 'demo.pdb').write_text('changed')
+            with self.assertRaises(ValueError):
+                prepare_structures([{'pdb': 'demo.pdb'}], archive, output)
+        with self.assertRaises(ValueError):
+            prepare_structures([{'pdb': 'demo.pdb'}], archive, output)
+
+    def test_independent_performance_runs(self):
+        base = {'device': 'npu', 'simulated': False, 'runs': 3, 'warmup': 1,
+                'samples': 12, 'proteins': 2, 'dtype': 'float32', 'timing_scope': 'fixture',
+                'manifest_sha256': 'manifest', 'checkpoint_sha256': 'checkpoint',
+                'backbone_sha256': 'backbone', 'upstream_commit': 'source',
+                'torch': 'fixture', 'torch_npu': 'fixture', 'visible_devices': '0'}
+        dirs = []
+        for i, seconds in enumerate([[1, 2, 3], [3, 4, 5], [5, 6, 7]]):
+            directory = self.root / str(i)
+            directory.mkdir()
+            (directory / 'predictions.jsonl').write_text('{}\n')
+            write_json(directory / 'run.json', {**base, 'run_id': str(i), 'seconds': seconds,
+                       'predictions_sha256': sha256(directory / 'predictions.jsonl')})
+            dirs.append(directory)
+        result = performance(dirs, base)
+        self.assertEqual(result['process_median_seconds'], [2, 4, 6])
+        self.assertEqual(result['median_seconds'], 4)
+        self.assertEqual(result['mutations_per_second'], 3)
+        first = json.loads((dirs[0] / 'run.json').read_text())
+        c, m = self.root / 'comparison.json', self.root / 'metrics.json'
+        write_json(c, {'passed': True, 'samples': 12, 'candidate_sha256': first['predictions_sha256']})
+        write_json(m, {'samples': 12, 'predictions_sha256': first['predictions_sha256']})
+        command = [sys.executable, str(ROOT / 'report_acceptance.py'), '--run-dir', str(dirs[0]),
+                   '--comparison', str(c), '--metrics', str(m), '--output', str(self.root / 'report.json'),
+                   '--performance-dirs']
+        proc = subprocess.run(command + list(map(str, dirs)), capture_output=True)
+        self.assertEqual(proc.returncode, 0, proc.stderr)
+        self.assertEqual(json.loads((self.root / 'report.json').read_text())['performance']['processes'], 3)
+        proc = subprocess.run(command + list(map(str, dirs[:2])), capture_output=True)
+        self.assertNotEqual(proc.returncode, 0)
+        for bad in [dirs[:2], [dirs[0]] * 3]:
+            with self.assertRaises(ValueError):
+                performance(bad, base)
+        path = dirs[2] / 'run.json'
+        original = json.loads(path.read_text())
+        for change in [{'run_id': '0'}, {'manifest_sha256': 'other'}, {'device': 'cpu'},
+                       {'seconds': [0, 1, 2]}, {'predictions_sha256': 'wrong'}, {'simulated': True}]:
+            write_json(path, {**original, **change})
+            with self.subTest(change=change), self.assertRaises(ValueError):
+                performance(dirs, base)
 
 
 if __name__ == '__main__':

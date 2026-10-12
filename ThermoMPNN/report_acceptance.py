@@ -2,10 +2,43 @@
 import argparse
 import json
 from pathlib import Path
+import statistics
 from delivery_utils import finite, sha256, write_json
 
 
-def collect(run_dir, comparison_path, metrics_path):
+def performance(run_dirs, reference):
+    if len(run_dirs) < 3 or len({Path(p).resolve() for p in run_dirs}) != len(run_dirs):
+        raise ValueError('At least three distinct process output directories required')
+    records, identities, medians = [], set(), []
+    for path in run_dirs:
+        path = Path(path)
+        run = json.loads((path / 'run.json').read_text())
+        if run['simulated'] or run['device'] != 'npu':
+            raise ValueError('Real NPU performance evidence required')
+        if not run['run_id'] or run['run_id'] in identities:
+            raise ValueError('Duplicate or empty process run ID')
+        identities.add(run['run_id'])
+        for key in ('manifest_sha256', 'checkpoint_sha256', 'backbone_sha256',
+                    'upstream_commit', 'dtype', 'samples', 'proteins', 'warmup',
+                    'runs', 'timing_scope', 'torch', 'torch_npu', 'visible_devices'):
+            if run[key] != reference[key]:
+                raise ValueError(f'Performance configuration differs: {key}')
+        if run['predictions_sha256'] != sha256(path / 'predictions.jsonl'):
+            raise ValueError('Performance predictions hash mismatch')
+        seconds = [finite(value) for value in run['seconds']]
+        if len(seconds) != run['runs'] or len(seconds) < 3 or min(seconds) <= 0:
+            raise ValueError('Invalid performance durations')
+        medians.append(statistics.median(seconds))
+        records.append({'directory': str(path), 'run_sha256': sha256(path / 'run.json'), 'run': run})
+    if reference['samples'] <= 0 or reference['proteins'] <= 0:
+        raise ValueError('Positive sample and protein counts required')
+    median = statistics.median(medians)
+    return {'processes': len(records), 'process_median_seconds': medians,
+            'median_seconds': median, 'mutations_per_second': reference['samples'] / median,
+            'proteins_per_second': reference['proteins'] / median, 'evidence': records}
+
+
+def collect(run_dir, comparison_path, metrics_path, performance_dirs=None):
     run_dir = Path(run_dir)
     run = json.loads((run_dir / 'run.json').read_text())
     comparison = json.loads(Path(comparison_path).read_text())
@@ -25,10 +58,16 @@ def collect(run_dir, comparison_path, metrics_path):
         raise ValueError('Comparison candidate hash mismatch')
     if run['samples'] != comparison['samples'] or run['samples'] != metrics['samples']:
         raise ValueError('Evidence sample counts differ')
+    pending = ['official split and label mapping review', 'public baseline comparability',
+               'environment/fallback logs', 'clean-room and contribution gates']
+    perf = None
+    if performance_dirs:
+        perf = performance(performance_dirs, run)
+    else:
+        pending.append('independent-process performance acceptance: at least three runs required')
     return {'status': 'NPU evidence collected; S3 requires official split/baseline review',
             'run': run, 'comparison': comparison, 'metrics': metrics,
-            'pending': ['official split and label mapping review', 'public baseline comparability',
-                        'environment/fallback logs', 'clean-room and contribution gates']}
+            'performance': perf, 'pending': pending}
 
 
 def main():
@@ -37,8 +76,9 @@ def main():
     parser.add_argument('--comparison', required=True)
     parser.add_argument('--metrics', required=True)
     parser.add_argument('--output', required=True)
+    parser.add_argument('--performance-dirs', nargs='+', help='At least three independent NPU run directories')
     args = parser.parse_args()
-    write_json(args.output, collect(args.run_dir, args.comparison, args.metrics))
+    write_json(args.output, collect(args.run_dir, args.comparison, args.metrics, args.performance_dirs))
 
 
 if __name__ == '__main__':

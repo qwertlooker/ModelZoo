@@ -28,7 +28,7 @@
 
 正式主线先选固定官方 Megascale test CSV + 原始 AF 单体结构。`prepare_megascale.py` 将编号转 0-based、标签取 `-ddG_ML`、排除官方不支持的 wt/indel/double/unreliable 数据；ID 含固定源行号，保留重复实验测量。`prepare_eval_data.py` 保存 CSV/manifest/PDB SHA、样本数、dataset/split 和 convention，不加载模型。
 
-结构文件须按授权在数据发布页选择原始结构文件，离线使用 curl/wget 准备并校验；不得替换为 RCSB 同名蛋白或重新预测的结构。README 已提供实际功能样例及固定数据盘点/准备命令；全量 PDB 当前缺失，准备入口会显式失败，不能静默丢样本。chain A 的单链假设和 WT 序列覆盖必须与官方 `MegaScaleDataset` 做全量核对。
+结构固定为 Zenodo 7992926 的 AlphaFold_model_PDBs.zip，按 README 的 curl 和 prepare_megascale.py 命令准备并校验发布 MD5，记录 SHA256；不得替换为 RCSB 同名蛋白或重新预测的结构。README 已提供实际功能样例及固定数据盘点/准备命令；2026-10-12 已准备 28 个 PDB 和 28,172 条 manifest；缺文件时准备入口显式失败，不静默丢样本。chain A 的单链假设必须与官方 `MegaScaleDataset` 做全量核对。保持官方只覆盖总序列 seq 的行为，seq_chain_A 保留结构序列；WT 用于突变校验。
 
 CPU 精度基线使用与 NPU 相同 Python 环境、同权重和 manifest 的 `--device cpu`。还需用固定官方 `MegaScaleDataset`/`TransferModelPL` 原始预处理校对新增单链入口，确认解析坐标、WT 序列、缺失残基和样本过滤等价；官方 benchmarking 硬编码 CUDA，不直接调用它在 CPU 上伪造对照。CUDA 组是可选增强。
 
@@ -54,7 +54,7 @@ CPU 精度基线使用与 NPU 相同 Python 环境、同权重和 manifest 的 `
 
 ## L2 性能验收
 
-在 A2 单卡使用同一全量或从全量固定出的长度分层性能 manifest，FP32、蛋白 batch=1，记录每个蛋白突变数。默认 1 warmup + 3 measured runs；正式验收至少 **三次独立进程**（输出目录分别指定），取中位数。
+在 A2 单卡使用同一全量或从全量固定出的长度分层性能 manifest，FP32、蛋白 batch=1，记录每个蛋白突变数。默认 1 warmup + 3 measured runs；正式验收至少 **三次独立进程**（输出目录分别指定），取每进程内部中位数后再取进程间中位数。
 
 主计时包含官方 tied_featurize、模型前向和输出 CPU 传输，不包含 checkpoint load、PDB parse、写文件；这是模型及特征计算吞吐，不是完整外部调用端到端性能。报告 mutations/s、proteins/s、总秒数和峰值 HBM（实机另用监控日志）；另报首次调用和全流程时间。没有公开可比推理线时报告实际值，不编造性能通过阈值或 GPU/CPU 加速比。
 
@@ -69,7 +69,7 @@ CPU 精度基线使用与 NPU 相同 Python 环境、同权重和 manifest 的 `
 - 三次独立 NPU 性能结果，中位数和计时范围明确，无未解释核心算子回退。
 - 独立候选目录 clean-room 真实安装/推理/比较重放；许可证、贡献要求、自测试和 modelzoo_level.txt 据实满足。
 
-执行入口和完整命令集中在 README。`report_acceptance.py` 核对预测 SHA、NPU device、模拟标志、次数、样本数与比较 SHA；不会把收集成功自动标为 S3。
+执行入口和完整命令集中在 README。`report_acceptance.py --performance-dirs` 汇总至少三个独立目录，校验不同 run_id、预测 SHA 和一致的配置；缺少此参数时将独立性能验收列入 pending。它还核对 NPU device、模拟标志、次数、样本数与比较 SHA；不会把收集成功自动标为 S3。
 
 ## 报告模板与当前结果
 
@@ -78,7 +78,7 @@ CPU 精度基线使用与 NPU 相同 Python 环境、同权重和 manifest 的 `
 | 日期 / 状态 | 2026-10-11 / S1 静态模拟适配完成 |
 | NPU 型号 / CANN / 框架 | 模拟 Atlas 800I A2 / 8.3.RC1 / 2.1.0 + 2.1.0.post17，未安装实测 |
 | 功能 / Mock | 12 项回归通过，仅软件契约 |
-| 原始官方数据盘点 | CSV 已盘点；全量 PDB/split 映射待验 |
+| 原始官方数据盘点 | CSV/PDB/manifest 已准备；官方 split 与真实模型对照待验 |
 | CPU 功能与指标 | 未执行，当前无适用 Python/框架依赖 |
 | NPU 功能 / 精度 / 性能 | 未执行，当前无硬件 |
 | 阈值 | 工程暂定，待 baseline 校准 |
@@ -86,3 +86,5 @@ CPU 精度基线使用与 NPU 相同 Python 环境、同权重和 manifest 的 `
 | 上库候选 | 未就绪，S3 和贡献门禁待完成 |
 
 升级 S3 后在本文件追加实际设备、软件版本、全量样本数、指标、误差分布、三次性能数据、命令和日志路径；不得覆盖此次模拟事实。
+
+2026-10-12 检视修复：预处理恢复固定上游序列字段语义；补充固定结构归档下载、校验、离线选择提取；独立进程性能汇总及负向测试已补齐。真实 NPU 结果仍未产生，状态保持 S1。
