@@ -2,7 +2,7 @@
 
 ## 验收目标与版本
 
-用户本轮要求模拟适配，当前 S1；真实 S2/S3 保留待验收。
+本轮检视修复现有代码与文档，当前 S1；真实 S2/S3 保留待验收。
 固定官方 commit `370f76ec62bd929f7425e311d8df04a0d094990f`、`thermoMPNN_default.pt` 和 `v_48_020.pt`，FP32、单链、蛋白 batch=1、默认完整结构邻域、LightAttention/subtract_mut 开启、最后两层 ProteinMPNN embedding。权重 SHA、命令和环境见 README。ThermoMPNN-D/I、模型训练、多链和混合精度不纳入本轮验收。
 
 ## 原始测试集与官方/公开指标
@@ -40,7 +40,7 @@ CPU 精度基线复用 NPU Python 环境、同权重和 manifest。先按 README
 | 同蛋白多突变 | 共享结构 embedding，输出数与 ID 一致 | Mock 编排通过，真实待验 |
 | CPU/CUDA/NPU 路由 | 默认 NPU、显式 CPU/CUDA、设备缺失立即失败 | Mock 通过，设备实测待验 |
 | PDB 残基编号 | 非 1 起始编号、缺失残基、insertion code，检查 parsed index | 真实模型路径待验 |
-| 异常输入 | 重复/空 ID、NaN、越界路径、无 ATOM、错误 WT/缺链 | 部分离线失败测试通过；模型语义待验 |
+| 异常输入 | 重复/空 ID、NaN、越界路径/索引、无 ATOM、错误 WT/缺链、混用实验 WT、突变位置缺失骨架坐标 | 离线失败测试通过；真实模型语义待验 |
 | 输出证据 | 新目录、SHA、run 次数、实际 device、比较非零失败 | stdlib/Mock 通过 |
 | 长输入/长度桶 | 按全量 manifest 的长度分布选实际 min/median/max | 待真实结构盘点 |
 
@@ -61,6 +61,7 @@ CPU 精度基线复用 NPU Python 环境、同权重和 manifest。先按 README
 运行前核对 CANN/驱动/固件/Python/torch/torch_npu/pip freeze、物理可见卡与进程逻辑卡映射。检查 stderr/profiler 的 fallback，输出 tensor 位于 NPU 不足以证明所有核心算子均在 NPU 上运行。
 
 schema 3 的性能汇总要求 Python、逻辑设备编号、ASCEND_HOME_PATH、实际 CANN 版本、NPU 型号和主机名一致；缺失或未知环境证据立即失败。旧 schema 2 记录不能补填计划版本后继续使用，必须重新推理。主机名和设备型号不代替物理卡/驱动/固件实机证据。
+报告主入口无论是否提供独立性能目录都执行相同的 schema/环境检查，并将实测耗时与保存的中位数/吞吐核对；实际预测行数和结构/链数量必须等于声明值。指标缺失、非有限或越界立即失败，CPU/NPU 指标差异复核仍为显式 pending。
 
 ## 最低正式验收清单
 
@@ -77,9 +78,9 @@ schema 3 的性能汇总要求 Python、逻辑设备编号、ASCEND_HOME_PATH、
 
 | 字段 | 当前结果 |
 |---|---|
-| 日期 / 状态 | 2026-10-11 / S1 静态模拟适配完成 |
+| 日期 / 状态 | 2026-10-13 / S1 静态适配完成，待真实验收 |
 | NPU 型号 / CANN / 框架 | 模拟 Atlas 800I A2 / 8.3.RC1 / 2.1.0 + 2.1.0.post17，未安装实测 |
-| 功能 / Mock | 12 项回归通过，仅软件契约 |
+| 功能 / Mock | 本轮回归结果见文末，仅软件契约 |
 | 原始官方数据盘点 | CSV/PDB/manifest 已准备；官方 split 与真实模型对照待验 |
 | CPU 功能与指标 | 未执行，当前无适用 Python/框架依赖 |
 | NPU 功能 / 精度 / 性能 | 未执行，当前无硬件 |
@@ -92,3 +93,5 @@ schema 3 的性能汇总要求 Python、逻辑设备编号、ASCEND_HOME_PATH、
 2026-10-12 检视修复：预处理恢复固定上游序列字段语义；补充固定结构归档下载、校验、离线选择提取；独立进程性能汇总及负向测试已补齐。真实 NPU 结果仍未产生，状态保持 S1。
 
 2026-10-12 后续修复：新增独立官方 CPU 基线入口与来源/身份校验，README 给出官方 CPU → 新入口 CPU → NPU 的完整比较命令。补齐性能环境一致性门禁与 schema 3 运行记录。19 项离线回归通过；真实模型 CPU/NPU 回归仍受目标依赖和硬件阻塞，不据 Mock 升级状态。
+
+2026-10-13 检视修复：23 项离线回归和 6 项仓库门禁回归通过；独立候选重建的 28 个真实结构、28,172 条突变与三条功能输入通过新增索引/WT/骨架坐标检查，缓存前后 manifest 逐字节一致。报告补齐省略独立性能目录时的环境校验、实际预测计数和计时摘要核对；仍需人工复核 CPU/NPU 指标差异。真实 evaluator 数学 fixture 通过，仅证明计算入口可运行。目标依赖安装、官方 CPU 模型输出及全部 NPU 精度/性能均未完成，状态保持 S1，上库候选未就绪；部分 clean-room 证据详见 NPU_ADAPTATION.md。

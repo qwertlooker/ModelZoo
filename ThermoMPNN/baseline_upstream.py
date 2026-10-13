@@ -91,10 +91,18 @@ def main():
     samples = read_jsonl(args.manifest)
     pdb_dir = Path(args.pdb_dir).resolve()
     groups = defaultdict(list)
+    pdb_paths = {}
+    pdb_hashes = {}
     for row in samples:
         validate_sample(row)
-        pdb_path = Path(row['pdb']).resolve()
-        if pdb_path.parent != pdb_dir or sha256(pdb_path) != row['pdb_sha256']:
+        if row['pdb'] not in pdb_paths:
+            pdb_paths[row['pdb']] = Path(row['pdb']).resolve()
+        pdb_path = pdb_paths[row['pdb']]
+        if pdb_path.parent != pdb_dir:
+            raise ValueError('Manifest structure path differs from official pdb-dir')
+        if pdb_path not in pdb_hashes:
+            pdb_hashes[pdb_path] = sha256(pdb_path)
+        if pdb_hashes[pdb_path] != row['pdb_sha256']:
             raise ValueError('Manifest structure path/SHA differs from official pdb-dir')
         groups[pdb_path.name].append(row)
     output = Path(args.output_dir).resolve()

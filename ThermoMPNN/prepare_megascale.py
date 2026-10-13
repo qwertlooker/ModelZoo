@@ -3,8 +3,9 @@ import argparse
 import csv
 import hashlib
 from pathlib import Path
+import re
 import zipfile
-from delivery_utils import finite, sha256, write_json
+from delivery_utils import finite, sha256, validate_sample, write_json
 
 PDB_ARCHIVE_MD5 = 'c29317a75f28d008b2718316995902ef'
 
@@ -54,14 +55,22 @@ def normalize(path):
         if raw['ddG_ML'] == '-' or mutation == 'wt' or any(s in mutation for s in ('ins', 'del', ':')):
             excluded += 1
             continue
+        if re.fullmatch(r'[ACDEFGHIKLMNPQRSTVWY][1-9][0-9]*[ACDEFGHIKLMNPQRSTVWY]', mutation) is None:
+            raise ValueError(f'Invalid single mutation: row {index}')
         wt, mut = mutation[0], mutation[-1]
+        if wt == mut:
+            raise ValueError(f'Unchanged residue: row {index}')
         position = int(mutation[1:-1]) - 1
         seq = raw['wt_seq']
-        if len(seq) != len(raw['aa_seq']) or seq[position] != wt or raw['aa_seq'][position] != mut:
+        if (position >= len(seq) or len(seq) != len(raw['aa_seq']) or seq[position] != wt
+                or raw['aa_seq'] != seq[:position] + mut + seq[position+1:]):
             raise ValueError(f'Megascale sequence/mutation mismatch: row {index}')
         rows.append({'id': f'mega-test:{index}', 'pdb': raw['WT_name'].split('.pdb')[0].replace('|', ':') + '.pdb',
                      'chain': 'A', 'position': position, 'wildtype': wt, 'mutation': mut,
                      'ddG_true': -finite(raw['ddG_ML']), 'wt_sequence': seq})
+        validate_sample(rows[-1])
+    if not rows:
+        raise ValueError('No supported single mutations')
     return rows, {'raw_rows': len(raw_rows), 'mutations': len(rows), 'excluded_rows': excluded,
                   'proteins': len({r['pdb'] for r in rows}), 'source_sha256': sha256(path),
                   'label_transform': '-ddG_ML (matches official MegaScaleDataset)',

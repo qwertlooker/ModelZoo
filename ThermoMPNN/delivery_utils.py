@@ -47,6 +47,42 @@ def validate_sample(row):
         raise ValueError('Single PDB chain required')
     if 'ddG_true' in row:
         finite(row['ddG_true'])
+    if 'wt_sequence' in row:
+        seq = row['wt_sequence']
+        if not isinstance(seq, str) or not seq or any(aa not in ALPHABET for aa in seq):
+            raise ValueError('Invalid WT sequence')
+        if row['position'] >= len(seq) or seq[row['position']] != row['wildtype']:
+            raise ValueError(f'WT sequence/index mismatch: {row["id"]}')
+
+
+def validate_protein(pdb, rows):
+    """Validate selected chain and all mutations before changing official seq."""
+    chain = rows[0]['chain']
+    if len(pdb) != 1 or pdb[0]['num_of_chains'] != 1:
+        raise ValueError('Exactly one parsed chain required')
+    seq = pdb[0][f'seq_chain_{chain}']
+    has_wt = ['wt_sequence' in row for row in rows]
+    if any(has_wt):
+        if not all(has_wt) or len({row['wt_sequence'] for row in rows}) != 1:
+            raise ValueError('Inconsistent WT sequence within protein')
+        seq = rows[0]['wt_sequence']
+        if len(seq) != len(pdb[0][f'seq_chain_{chain}']):
+            raise ValueError('Megascale WT sequence/structure length mismatch')
+    coords = pdb[0][f'coords_chain_{chain}']
+    for row in rows:
+        validate_sample(row)
+        if (row['chain'] != chain or row['position'] >= len(seq)
+                or seq[row['position']] != row['wildtype']):
+            raise ValueError(f'Wildtype/index mismatch: {row["id"]}')
+        for atom in ('N', 'CA', 'C', 'O'):
+            positions = coords[f'{atom}_chain_{chain}']
+            if len(positions) != len(seq) or len(positions[row['position']]) != 3:
+                raise ValueError(f'Invalid backbone coordinates: {row["id"]}/{atom}')
+            for coordinate in positions[row['position']]:
+                finite(coordinate)
+    if any(has_wt):
+        # Preserve seq_chain_A, as in the pinned official MegaScaleDataset.
+        pdb[0]['seq'] = seq
 
 
 def write_json(path, obj):

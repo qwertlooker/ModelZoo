@@ -12,6 +12,7 @@ ThermoMPNN 是 Kuhlman-Lab 基于 ProteinMPNN 迁移学习的图神经网络，�
 
 CSV 必需字段：`id,pdb,chain,position,wildtype,mutation`，可选 `ddG_true`。
 `position` 是上游解析后链序列的 **0-based 索引**，不是 PDB residue number；缺失残基和 insertion code 必须先核对。只接受标准 20 种氨基酸及单链输入，不能混用不同链的残基编号。
+同一结构/链的所有记录必须一致提供或省略 `wt_sequence`；提供时实验 WT 必须一致，长度与解析链相同。越界索引、错误 WT、突变位置缺失或非有限的 N/CA/C/O 坐标均在模型前向前失败。
 
 评测目录结构、固定归档的获取和离线复用见[准备正式评测数据和报告](#准备正式评测数据和报告)。
 
@@ -110,7 +111,7 @@ python3 compare_results.py --baseline outputs_cpu/predictions.jsonl --candidate 
 python3 prepare_megascale.py --csv source/data_all/testing/mega_test.csv --inventory mega_inventory.json --output eval_data/mega_normalized.csv
 ```
 
-盘点得到 28,312 行，其中 140 行 `wt` 被排除，形成 28 个蛋白的 28,172 条突变。论文图中的 N=28,312 不应直接作为本脚本突变数；正式验收前必须复核原始 split 与过滤差异。标签按官方 `MegaScaleDataset` 转为 `-ddG_ML`。
+盘点得到 28,312 行，其中 140 行 `wt` 被排除，形成 28 个蛋白的 28,172 条突变。转换器校验合法的 1-based 单点替换、完整突变序列和实验 WT，过滤后为空时失败。论文图中的 N=28,312 不应直接作为本脚本突变数；正式验收前必须复核原始 split 与过滤差异。标签按官方 `MegaScaleDataset` 转为 `-ddG_ML`。
 
 Megascale test 的原始结构固定为 Zenodo **7992926 / v2_230420** 的 `AlphaFold_model_PDBs.zip`（约 14 MB，发布页 MD5 `c29317a75f28d008b2718316995902ef`）。请按发布页要求登记数据使用情况，不要用 RCSB 同名结构替换。
 
@@ -150,6 +151,7 @@ python3 report_acceptance.py --run-dir outputs_mega_npu_1 --performance-dirs out
 指标采用 pooled mutations 的 Pearson、Spearman、MSE、RMSE、R²；SciPy 相关系数为等价数学实现。FireProt、S669、SSYM 等需要其各自的序列对齐与 split 规则，不能直接套用 Megascale 转换器。报告入口只收集证据，拒绝 CPU/显式模拟结果，不自动认证 S3 或上库就绪。上述循环独立启动三个 NPU 进程。报告校验不同 run_id、目录、预测 SHA 及一致的 manifest/权重/软件/设备可见性/计时配置，先取各进程内部耗时中位数，再取进程间中位数，给出 mutations/s 和 proteins/s。不传 `--performance-dirs` 时明确列出独立进程性能验收未完成；旧 run.json 无 run_id 时需重新推理，不能复制结果充数。运行标识只检测证据误复用，真实性仍须实机日志证明。
 
 NPU `run.json` 使用 schema 3：记录 Python、逻辑卡、`ASCEND_HOME_PATH`、实际 `torch.version.cann`、`torch.npu.get_device_name()` 和主机名，性能汇总逐项要求一致。CANN 版本由固定 torch-npu 的环境采集逻辑提供，不能填写文档计划版本冒充实测；缺失或 `not known` 时推理在计时前失败。旧记录缺字段必须重新运行。设备型号和主机名用于防止误混结果，正式验收仍需保存 npu-smi、驱动/固件及 fallback 日志。
+报告收集与性能汇总均检查 schema、环境字段、正整数计数、实测耗时、预测文件中的实际样本/蛋白数量，以及中位数和吞吐的一致性；省略 `--performance-dirs` 也不能绕过这些检查。指标必须齐全且有限。CPU/NPU 的 Pearson、Spearman 和 RMSE 差异仍须人工核对并记录，报告将其保留为待复核项。
 
 ### 离线自测试
 

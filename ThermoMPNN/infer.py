@@ -20,7 +20,7 @@ from datasets import Mutation
 from train_thermompnn import TransferModelPL
 from protein_mpnn_utils import alt_parse_PDB
 from delivery_utils import (BACKBONE_SHA, UPSTREAM_COMMIT, WEIGHT_SHA,
-                            finite, read_jsonl, sha256, validate_sample, write_json)
+                            finite, read_jsonl, sha256, validate_protein, validate_sample, write_json)
 
 
 def select_device(name):
@@ -80,9 +80,12 @@ def main():
         raise ValueError('ProteinMPNN backbone SHA mismatch')
     samples = read_jsonl(args.manifest)
     groups = defaultdict(list)
+    pdb_hashes = {}
     for row in samples:
         validate_sample(row)
-        if sha256(row['pdb']) != row['pdb_sha256']:
+        if row['pdb'] not in pdb_hashes:
+            pdb_hashes[row['pdb']] = sha256(row['pdb'])
+        if pdb_hashes[row['pdb']] != row['pdb_sha256']:
             raise ValueError('PDB SHA mismatch')
         groups[row['pdb'], row['chain']].append(row)
     device = select_device(args.device)
@@ -102,18 +105,7 @@ def main():
     prepared = []
     for (pdb_path, chain), rows in groups.items():
         pdb = alt_parse_PDB(pdb_path, chain)
-        seq = pdb[0][f'seq_chain_{chain}']
-        if 'wt_sequence' in rows[0]:
-            wt_seq = rows[0]['wt_sequence']
-            if len(seq) != len(wt_seq) or any(r['wt_sequence'] != wt_seq for r in rows):
-                raise ValueError('Megascale WT sequence/structure length mismatch')
-            # Match pinned MegaScaleDataset: validate mutations against experimental
-            # WT, but preserve the structural chain sequence consumed by tied_featurize.
-            pdb[0]['seq'] = wt_seq
-            seq = wt_seq
-        for row in rows:
-            if seq[row['position']] != row['wildtype']:
-                raise ValueError(f'Wildtype mismatch: {row["id"]}')
+        validate_protein(pdb, rows)
         mutations = [Mutation(r['position'], r['wildtype'], r['mutation'], None, pdb[0]['name']) for r in rows]
         prepared.append((pdb, mutations, rows))
     output = Path(args.output_dir)

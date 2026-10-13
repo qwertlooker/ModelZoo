@@ -2,7 +2,7 @@
 
 ## 版本边界与来源
 
-检查日期：2026-10-11。用户明确要求当前无 NPU 环境时进行模拟适配；本轮不以 Mock 推进 S2/S3。
+最新检查日期：2026-10-13。本轮检视修复现有适配的代码与配套文档；当前无 NPU 环境，不以 Mock 推进 S2/S3。以下保留历史适配记录，本轮证据与目标仓快照见文末。
 
 - 上游：`https://github.com/Kuhlman-Lab/ThermoMPNN`，默认分支 `main`，远端 HEAD 和本地 `upstream/` 均为 `370f76ec62bd929f7425e311d8df04a0d094990f`。
 - 主权重：该 commit 的 `models/thermoMPNN_default.pt`，实际通过固定 URL curl 下载约 38 MiB；SHA256 `af449118ccfb4e34971d802321907ed82a8a035ae80f055bf8fc56009a4a838a`。
@@ -61,7 +61,7 @@
 
 `requirements.txt` 不包含框架 wheel、CUDA、mmseqs2 或训练数据工具；保留 Lightning/wandb/joblib 是上游前置 import 链所需。`constraints-npu.txt` 锁定 torch/torch-npu 防止依赖安装覆盖框架。安装命令见自包含 README。
 
-当前控制机是 WSL Ubuntu 24.04，Python 3.12.3，无 pip、NumPy、PyTorch、SciPy、torch_npu。其 Python 不符合上游 3.10 声明，不能声称在此完成环境配套。未修改系统 Python 或安装系统依赖。clean-room 使用无 pip 的新 venv 仅隔离 stdlib 测试上下文，不作为推荐 NPU 部署环境。
+2026-10-11 控制环境是 WSL Ubuntu 24.04，Python 3.12.3，无 pip、NumPy、PyTorch、SciPy、torch_npu。其 Python 不符合上游 3.10 声明，不能声称在此完成环境配套。未修改系统 Python 或安装系统依赖。clean-room 使用无 pip 的新 venv 仅隔离 stdlib 测试上下文，不作为推荐 NPU 部署环境；本轮 Windows 控制环境见最新记录。
 
 ## 验证事实和未执行项
 
@@ -149,4 +149,36 @@
 - Windows 通过映射盘重建全量 manifest 过慢；核实本轮进程命令和父子关系、Stop-Process WhatIf 后仅停止该准备子进程，保留 `replay.json` 中的退出码 4294967295，改用 WSL 原生路径同一 CLI 成功重放。没有停止其他用户进程。`native_replay.json` 记录 Linux 等价命令和结果；其中 infer/baseline/evaluator help 因缺 NumPy 退出 1。控制机运行 evaluator 已知数值 fixture 通过，baseline help 因缺 OmegaConf 退出 1。真实模型路径未通过，clean-room 仍为部分重放。
 - `tools/tests` 的 6 项仓库门禁回归通过；README 和基础交付审计通过。target-readiness 因 S1/待验收仍退出 1，符合当前未就绪状态。审计、CLI 和 fixture 原始结果记录在同目录 `checks.json`，不合入正式候选。
 
-**当前状态：S1 静态模拟适配完成。** 升级 S2 需要真实 CPU 或 NPU 功能输出；升级 S3 需要完整 NPU L2 精度/性能和可比基线。Mock、数据盘点和静态审计不改变该状态。
+## 2026-10-13 代码与文档检视修复
+
+本轮基于本地 revision `295cea7cce0e8f42de16e068898f38549693a4c1` 检视，修改限定在 ThermoMPNN。重新查询目标仓 master 得到 `7a1ec10305c65398ae2013abb57b9bc2edc0b8c5`（2026-10-13，MQ-Det 新增）；已 fetch 当前快照、检查近期实质提交与树，`ACL_PyTorch/built-in/nlp/ThermoMPNN` 仍不存在，本次仍为新增。上游 main HEAD 仍为固定 `370f76ec62bd929f7425e311d8df04a0d094990f`。贡献规范 HEAD 仍为 `5eab9a4921c7f12edb555079836429a8f285cd1f`，目标 ACL README 链接未变，许可证/自测试/CLA/modelzoo_level.txt 门禁仍待真实验收和正式上库复核。当前官方配套表仍列 CANN 8.3.RC1、torch 2.1.0、torch-npu 2.1.0.post17，本轮未改变计划配套。
+
+在本轮目标 commit 下重新按实质变更排序，参考目录为：
+
+| 参考目录 | 最后实质变更 commit/date | 本轮选择原因 |
+|---|---|---|
+| `ACL_PyTorch/built-in/nlp/Laya` | `e779117e8cfeba296a7105e26adac0741ab04768`，2026-10-12 | 最新同领域在线 PyTorch 样例；参考其 310P/A2 硬件边界，保留本模型 A2 路线 |
+| `ACL_PyTorch/built-in/cv/MQ-Det` | `7a1ec10305c65398ae2013abb57b9bc2edc0b8c5`，2026-10-13 | 最新跨领域 PyTorch 合入；读取 README，TorchAir/DCN 路线不直接复用到当前 GNN |
+| `ACL_PyTorch/built-in/cv/OVRCOAT` | `1e095beb42ef4e1248d116f2d9e230b82f25bd37`，2026-10-09 | 同类 A2/PyTorch 推理与最小 patch 交付参考 |
+| `ACL_PyTorch/built-in/cv/RSGPNet` | `3d0b05477720c6397985507072b52519fedf01f0`，2026-10-08 | A2/CANN 8.3.RC1/torch 2.1 配套补充参考 |
+
+修复与影响：
+
+- `normalize()` 曾接受编号 0（Python 负索引）及指定位置之外的额外序列变化；新增单点替换格式、正编号/范围、完整突变序列与非空结果检查，WT 字段也检查字母表、长度和索引身份。真实固定 CSV 仍产生 28,172 条突变/28 蛋白，不改变有效样本或标签。
+- 推理原来只按组内第一行决定是否使用实验 WT；新增整组一致性、解析链数量、显式索引边界和突变位置 N/CA/C/O 坐标检查。保留上游仅覆盖总 `seq`、不修改 `seq_chain_A` 的语义；缺失骨架坐标的突变现在严格失败，避免把 mask 为零的残基预测当有效输出。
+- `collect()` 曾在省略独立性能目录时绕过环境校验，并可接受不完整的指标 JSON；报告与性能入口现在共用 schema 3/环境/计数/耗时/真实预测检查，拒绝非布尔成功标志、不一致的中位数/吞吐、缺失或非有限指标。CPU/NPU 指标差异复核显式保留在 pending，不自动认证 S3。
+- 数据准备、适配推理和独立官方基线对相同 PDB 只计算一次 SHA；数据准备与基线对重复路径只解析一次。边界与每行声明的 SHA 仍逐条检查，未修改上游模型或 site-packages。
+- 正式候选清单仍为上文 15 项，排除项不变；README 和验收计划已同步上述输入约束与报告门禁。
+
+实际验证：
+
+- 23 项 ThermoMPNN stdlib/Mock 回归通过；6 项 `tools/tests` 仓库门禁回归通过。新增用例先复现旧实现接受非法编号/序列/WT 的问题，再验证修复；包含报告缺环境的 CLI 非零退出、预测内容篡改、真实计数与保存摘要不一致的负向检查。
+- 从精确候选清单组装 `.codex-reference/thermompnn-review-20261013/candidate`，新建 Windows Python 3.14.6 的 `--without-pip --system-site-packages` venv，只复用控制机已有库，不安装系统依赖；清除 PYTHONPATH。独立 clone 固定上游（`--no-hardlinks`）、checkout 与 diff 检查通过。此隔离仅用于部分 clean-room 重放，不是目标部署配套。
+- 最终 15 项候选文件逐字节与工作区匹配；10 个 Python 文件 py_compile、23 项隔离回归、五个 CLI help 通过。`infer.py --help` 和 `baseline_upstream.py --help` 原样暴露 `ModuleNotFoundError: No module named 'omegaconf'`，退出 1。控制机还缺 Lightning/pandas/BioPython/torch-npu，现有 torch 为 2.13.0+cpu，不能据此宣称目标环境可安装。
+- 离线复用并核验固定主/辅助权重 SHA、1UBQ 与 Zenodo 归档；实际重建 3 条功能 manifest、28 个正式 PDB 和 28,172 条正式 manifest。用固定上游真实 PDB 解析器检查全部突变位置的链/索引/WT/骨架坐标通过；这里只检查真实结构，不执行模型前向。
+- 映射盘上缓存路径前的候选全量准备耗时约 164.06 秒；最终路径缓存版本约 0.92 秒，两次 manifest 逐字节一致。该数字只反映本次控制机的数据准备，不是 NPU 性能。原重放在停止操作前自行成功结束；虽已核实 PID/父子关系并执行 Stop-Process WhatIf，实际未停止任何进程。
+- 使用真实 NumPy/SciPy evaluator 的已知数学 fixture 得到 MSE/RMSE=0、R²/Pearson/Spearman=1；不是模型预测。README 审计与基础交付审计通过；target-readiness 按待验收状态退出 1，不能解释为上库就绪。原始退出码、命令与结构结果保存在同目录 `replay.json`、`final_replay.json`、`structures.json`、`readme_audit.json`，均不进入正式候选。
+
+未执行项仍为：目标 Python 3.10 配套安装/模型 import、真实官方 CPU 基线和适配 CPU 回归、NPU 功能、全量精度与三次独立进程性能、fallback/驱动/固件日志、真实 clean-room 推理及官方 PR 门禁。原因是控制机缺必要依赖且无 NPU；补验沿 README 的安装、CPU 基线→适配 CPU→NPU→比较/指标/报告命令执行。当前输入与证据校验已变化，后续验收须用最终代码重新生成结果。
+
+**当前状态：S1 静态适配完成，待真实验收。** 升级 S2 需要真实 CPU 或 NPU 功能输出；升级 S3 需要完整 NPU L2 精度/性能和可比基线。Mock、真实数据准备和静态审计不改变该状态，上库候选仍未就绪。

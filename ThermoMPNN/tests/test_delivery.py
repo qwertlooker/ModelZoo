@@ -19,7 +19,7 @@ from unittest.mock import Mock, patch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-from delivery_utils import read_jsonl, sha256, validate_sample, write_json
+from delivery_utils import read_jsonl, sha256, validate_protein, validate_sample, write_json
 from prepare_eval_data import prepare
 from compare_results import compare
 from report_acceptance import collect, performance
@@ -42,6 +42,23 @@ class DeliveryTests(unittest.TestCase):
         path = self.root / name
         path.write_text(''.join(json.dumps(row) + '\n' for row in rows))
         return path
+
+    def run_record(self, directory, seconds, samples=1, proteins=1):
+        median = statistics.median(seconds)
+        return {'schema': 3, 'run_id': str(uuid.uuid4()), 'device': 'npu', 'simulated': False,
+                'runs': len(seconds), 'warmup': 1, 'seconds': seconds,
+                'median_seconds': median, 'mutations_per_second': samples / median,
+                'samples': samples, 'proteins': proteins, 'dtype': 'float32', 'timing_scope': 'fixture',
+                'manifest_sha256': 'manifest', 'checkpoint_sha256': 'checkpoint',
+                'backbone_sha256': 'backbone', 'upstream_commit': 'source',
+                'torch': 'fixture', 'torch_npu': 'fixture', 'visible_devices': '0',
+                'python': '3.10 fixture', 'logical_device': 0, 'ascend_home_path': '/fixture/cann',
+                'cann_version': '8.3.RC1', 'device_name': 'Ascend910B', 'hostname': 'fixture-host',
+                'predictions_sha256': sha256(directory / 'predictions.jsonl')}
+
+    def quality_metrics(self, samples, digest):
+        return {'samples': samples, 'predictions_sha256': digest, 'mse': 1.0, 'rmse': 1.0,
+                'r2': 0.0, 'pearson': 0.5, 'spearman': 0.5}
 
     def test_pair_reordering(self):
         other = {**self.row, 'id': 'second'}
@@ -83,6 +100,27 @@ class DeliveryTests(unittest.TestCase):
             with self.subTest(change=change), self.assertRaises(ValueError):
                 validate_sample({**self.row, **change})
 
+    def test_wt_sequence_bounds_and_identity(self):
+        for change in [{'wt_sequence': ''}, {'wt_sequence': 'X'},
+                       {'wt_sequence': 'C'}, {'wt_sequence': 'A', 'position': 1}]:
+            with self.subTest(change=change), self.assertRaises(ValueError):
+                validate_sample({**self.row, **change})
+
+    def test_parsed_protein_rejects_mixed_sequences_bounds_and_missing_atoms(self):
+        pdb = [{'seq_chain_A': 'M', 'seq': 'M', 'num_of_chains': 1,
+                'coords_chain_A': {f'{atom}_chain_A': [[0, 1, 2]] for atom in ('N', 'CA', 'C', 'O')}}]
+        for rows in [[self.row, {**self.row, 'wt_sequence': 'A'}],
+                     [{**self.row, 'wt_sequence': 'A'}, self.row],
+                     [{**self.row, 'position': 1}], [{**self.row, 'chain': 'B'}]]:
+            with self.subTest(rows=rows), self.assertRaises((ValueError, KeyError)):
+                validate_protein(pdb, rows)
+        validate_protein(pdb, [{**self.row, 'wt_sequence': 'A'}])
+        self.assertEqual(pdb[0]['seq'], 'A')
+        self.assertEqual(pdb[0]['seq_chain_A'], 'M')
+        pdb[0]['coords_chain_A']['CA_chain_A'][0][0] = float('nan')
+        with self.assertRaises(ValueError):
+            validate_protein(pdb, [{**self.row, 'wt_sequence': 'A'}])
+
     def test_prepare_hash_and_no_overwrite(self):
         csv = self.root / 'input.csv'
         csv.write_text('id,pdb,chain,position,wildtype,mutation,ddG_true\na,demo.pdb,A,0,A,C,1\n')
@@ -100,6 +138,26 @@ class DeliveryTests(unittest.TestCase):
         csv.write_text('id,pdb,chain,position,wildtype,mutation\na,../outside.pdb,A,0,A,C\n')
         with self.assertRaises(ValueError):
             prepare(csv, self.root, self.root / 'manifest', 'fixture', 'mock')
+
+    def test_prepare_reads_each_structure_once(self):
+        csv = self.root / 'input.csv'
+        csv.write_text('id,pdb,chain,position,wildtype,mutation\na,demo.pdb,A,0,A,C\nb,demo.pdb,A,0,A,D\n')
+        with patch('prepare_eval_data.sha256', wraps=sha256) as digest:
+            rows = prepare(csv, self.root, self.root / 'manifest', 'fixture', 'mock')
+        self.assertEqual(len(rows), 2)
+        self.assertEqual(sum(Path(call.args[0]) == self.pdb for call in digest.call_args_list), 1)
+
+    def test_megascale_rejects_invalid_single_mutations(self):
+        path = self.root / 'invalid.csv'
+        for mutation, wt_seq, aa_seq in [('A0C', 'AA', 'AC'), ('A3C', 'AA', 'AA'),
+                                         ('A1C', 'AA', 'CC'), ('A1X', 'AA', 'XA'),
+                                         ('A1A', 'AA', 'AA')]:
+            path.write_text(f'mut_type,ddG_ML,wt_seq,aa_seq,WT_name\n{mutation},1,{wt_seq},{aa_seq},demo.pdb\n')
+            with self.subTest(mutation=mutation, aa_seq=aa_seq), self.assertRaises(ValueError):
+                normalize(path)
+        path.write_text('mut_type,ddG_ML,wt_seq,aa_seq,WT_name\nwt,0,AA,AA,demo.pdb\n')
+        with self.assertRaises(ValueError):
+            normalize(path)
 
     def test_megascale_sign_index_filter(self):
         path = self.root / 'mega.csv'
@@ -176,10 +234,13 @@ class DeliveryTests(unittest.TestCase):
                      'uuid': uuid, 'platform': platform, 'subprocess': fake_process, 'sys': sys, 'time': time, 'SOURCE': source,
                      'torch': fake_torch, 'np': Mock(), 'OmegaConf': Mock(), 'TransferModelPL': loader,
                      'Mutation': lambda *args: args,
-                     'alt_parse_PDB': Mock(return_value=[{'seq_chain_A': 'M', 'seq': 'M', 'name': 'demo'}]),
+                     'alt_parse_PDB': Mock(return_value=[{'seq_chain_A': 'M', 'seq': 'M', 'name': 'demo',
+                         'num_of_chains': 1, 'coords_chain_A': {
+                             f'{atom}_chain_A': [[0, 1, 2]] for atom in ('N', 'CA', 'C', 'O')}}]),
                      'UPSTREAM_COMMIT': 'pinned', 'WEIGHT_SHA': sha256(checkpoint),
                      'BACKBONE_SHA': sha256(backbone), 'sha256': sha256, 'finite': finite,
-                     'read_jsonl': read_jsonl, 'validate_sample': validate_sample, 'write_json': write_json}
+                     'read_jsonl': read_jsonl, 'validate_protein': validate_protein,
+                     'validate_sample': validate_sample, 'write_json': write_json}
         exec(compile(ast.Module(body=functions, type_ignores=[]), 'infer.py', 'exec'), namespace)
         argv = ['infer.py', '--manifest', str(manifest), '--checkpoint', str(checkpoint), '--output-dir', str(output)]
         backend = types.ModuleType('torch_npu')
@@ -206,10 +267,9 @@ class DeliveryTests(unittest.TestCase):
     def test_report_rejects_mock_cpu_and_tampering(self):
         predictions = self.jsonl('predictions.jsonl', [self.row])
         digest = sha256(predictions)
-        run = {'device': 'npu', 'simulated': False, 'runs': 3, 'seconds': [1, 2, 3],
-               'samples': 1, 'predictions_sha256': digest}
+        run = self.run_record(self.root, [1, 2, 3])
         comparison = {'passed': True, 'samples': 1, 'candidate_sha256': digest}
-        metrics = {'samples': 1, 'predictions_sha256': digest}
+        metrics = self.quality_metrics(1, digest)
         c, m = self.root / 'compare.json', self.root / 'metrics.json'
         write_json(c, comparison)
         write_json(m, metrics)
@@ -217,10 +277,44 @@ class DeliveryTests(unittest.TestCase):
         self.assertIn('S3 requires', collect(self.root, c, m)['status'])
         self.assertTrue(any('independent-process' in item for item in collect(self.root, c, m)['pending']))
         for change in [{'simulated': True}, {'device': 'cpu'}, {'runs': 1},
-                       {'seconds': [0, 2, 3]}, {'predictions_sha256': 'bad'}, {'samples': 2}]:
+                       {'seconds': [0, 2, 3]}, {'predictions_sha256': 'bad'}, {'samples': 2},
+                       {'proteins': 2}, {'samples': True}, {'runs': 3.0}, {'warmup': -1},
+                       {'schema': 2}, {'run_id': ''}, {'cann_version': 'not known'},
+                       {'logical_device': True}, {'median_seconds': 7}, {'mutations_per_second': 100}]:
             write_json(self.root / 'run.json', {**run, **change})
             with self.subTest(change=change), self.assertRaises(ValueError):
                 collect(self.root, c, m)
+        write_json(self.root / 'run.json', run)
+        for key in ('schema', 'python', 'torch', 'torch_npu', 'logical_device', 'ascend_home_path', 'cann_version', 'device_name', 'hostname'):
+            write_json(self.root / 'run.json', {k: v for k, v in run.items() if k != key})
+            with self.subTest(missing=key), self.assertRaises(KeyError):
+                collect(self.root, c, m)
+        write_json(self.root / 'run.json', run)
+        for change in [{'mse': -1}, {'pearson': 2}, {'rmse': float('nan')}]:
+            m.write_text(json.dumps({**metrics, **change}))
+            with self.subTest(metrics=change), self.assertRaises(ValueError):
+                collect(self.root, c, m)
+        write_json(m, metrics)
+        write_json(c, {**comparison, 'passed': 'false'})
+        with self.assertRaises(ValueError):
+            collect(self.root, c, m)
+        write_json(c, comparison)
+        for row in [{**self.row, 'ddG_pred': float('nan')}, {**self.row, 'position': -1}]:
+            predictions.write_text(json.dumps(row) + '\n')
+            changed = sha256(predictions)
+            write_json(self.root / 'run.json', {**run, 'predictions_sha256': changed})
+            write_json(c, {**comparison, 'candidate_sha256': changed})
+            write_json(m, {**metrics, 'predictions_sha256': changed})
+            with self.subTest(prediction=row), self.assertRaises(ValueError):
+                collect(self.root, c, m)
+        self.jsonl('predictions.jsonl', [self.row])
+        write_json(self.root / 'run.json', {k: v for k, v in run.items() if k != 'cann_version'})
+        write_json(c, comparison)
+        write_json(m, metrics)
+        proc = subprocess.run([sys.executable, str(ROOT / 'report_acceptance.py'),
+                               '--run-dir', str(self.root), '--comparison', str(c),
+                               '--metrics', str(m), '--output', str(self.root / 'report.json')], capture_output=True)
+        self.assertNotEqual(proc.returncode, 0)
 
 
     def test_structure_archive_selection_and_reuse(self):
@@ -243,21 +337,16 @@ class DeliveryTests(unittest.TestCase):
             prepare_structures([{'pdb': 'demo.pdb'}], archive, output)
 
     def test_independent_performance_runs(self):
-        base = {'device': 'npu', 'simulated': False, 'runs': 3, 'warmup': 1,
-                'samples': 12, 'proteins': 2, 'dtype': 'float32', 'timing_scope': 'fixture',
-                'manifest_sha256': 'manifest', 'checkpoint_sha256': 'checkpoint',
-                'backbone_sha256': 'backbone', 'upstream_commit': 'source',
-                'torch': 'fixture', 'torch_npu': 'fixture', 'visible_devices': '0',
-                'python': '3.10 fixture', 'logical_device': 0, 'ascend_home_path': '/fixture/cann',
-                'cann_version': '8.3.RC1', 'device_name': 'Ascend910B', 'hostname': 'fixture-host'}
         dirs = []
         for i, seconds in enumerate([[1, 2, 3], [3, 4, 5], [5, 6, 7]]):
             directory = self.root / str(i)
             directory.mkdir()
-            (directory / 'predictions.jsonl').write_text('{}\n')
-            write_json(directory / 'run.json', {**base, 'run_id': str(i), 'seconds': seconds,
-                       'predictions_sha256': sha256(directory / 'predictions.jsonl')})
+            rows = [{**self.row, 'id': str(j), 'pdb': str(self.pdb if j < 6 else self.root / 'other.pdb')}
+                    for j in range(12)]
+            (directory / 'predictions.jsonl').write_text(''.join(json.dumps(row) + '\n' for row in rows))
+            write_json(directory / 'run.json', {**self.run_record(directory, seconds, 12, 2), 'run_id': str(i)})
             dirs.append(directory)
+        base = json.loads((dirs[0] / 'run.json').read_text())
         result = performance(dirs, base)
         self.assertEqual(result['process_median_seconds'], [2, 4, 6])
         self.assertEqual(result['median_seconds'], 4)
@@ -265,7 +354,7 @@ class DeliveryTests(unittest.TestCase):
         first = json.loads((dirs[0] / 'run.json').read_text())
         c, m = self.root / 'comparison.json', self.root / 'metrics.json'
         write_json(c, {'passed': True, 'samples': 12, 'candidate_sha256': first['predictions_sha256']})
-        write_json(m, {'samples': 12, 'predictions_sha256': first['predictions_sha256']})
+        write_json(m, self.quality_metrics(12, first['predictions_sha256']))
         command = [sys.executable, str(ROOT / 'report_acceptance.py'), '--run-dir', str(dirs[0]),
                    '--comparison', str(c), '--metrics', str(m), '--output', str(self.root / 'report.json'),
                    '--performance-dirs']

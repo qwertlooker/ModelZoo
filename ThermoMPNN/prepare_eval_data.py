@@ -8,6 +8,9 @@ from delivery_utils import finite, sha256, validate_sample, write_json
 
 def prepare(csv_path, pdb_dir, output, dataset, split):
     rows = []
+    root = Path(pdb_dir).resolve()
+    pdb_paths = {}
+    pdb_hashes = {}
     with Path(csv_path).open(newline='') as stream:
         for raw in csv.DictReader(stream):
             row = {key: raw[key] for key in ('id', 'pdb', 'chain', 'wildtype', 'mutation')}
@@ -17,14 +20,17 @@ def prepare(csv_path, pdb_dir, output, dataset, split):
             if 'wt_sequence' in raw:
                 row['wt_sequence'] = raw['wt_sequence']
             validate_sample(row)
-            root = Path(pdb_dir).resolve()
-            pdb = (root / row['pdb']).resolve()
+            if row['pdb'] not in pdb_paths:
+                pdb_paths[row['pdb']] = (root / row['pdb']).resolve()
+            pdb = pdb_paths[row['pdb']]
             if not pdb.is_relative_to(root):
                 raise ValueError('PDB path escapes pdb-dir')
-            if not any(line.startswith('ATOM  ') for line in pdb.read_text().splitlines()):
-                raise ValueError(f'No ATOM records: {pdb}')
+            if pdb not in pdb_hashes:
+                if not any(line.startswith('ATOM  ') for line in pdb.read_text().splitlines()):
+                    raise ValueError(f'No ATOM records: {pdb}')
+                pdb_hashes[pdb] = sha256(pdb)
             row['pdb'] = str(pdb)
-            row['pdb_sha256'] = sha256(pdb)
+            row['pdb_sha256'] = pdb_hashes[pdb]
             rows.append(row)
     if not rows or any(not row['id'] for row in rows) or len({r['id'] for r in rows}) != len(rows):
         raise ValueError('Empty input or duplicate/empty IDs')
