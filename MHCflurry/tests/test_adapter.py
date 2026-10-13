@@ -59,6 +59,43 @@ class AdapterTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             read_inputs(path, "affinity")
 
+    def test_csv_rejects_ambiguous_headers_and_ragged_rows(self):
+        for text in (
+            "id,peptide,alleles,peptide\nx,INVALID,A,SIINFEKL\n",
+            "id,peptide,alleles,\nx,SIINFEKL,A,ignored\n",
+            "id,peptide,alleles\nx,SIINFEKL,A,ignored\n",
+            "id,peptide,alleles\nx,SIINFEKL\n",
+            'id,peptide,alleles\nx,SIINFEKL,"A\n',
+            "id,peptide,alleles\n  ,SIINFEKL,A\n",
+            "id,peptide,alleles\nx,SIINFEKL, \n",
+            "id,peptide\nx,SIINFEKL\n",
+        ):
+            with self.subTest(text=text), self.assertRaises((ValueError, csv.Error)):
+                read_inputs(self.csv(text))
+
+    def test_data_preparation_rejects_duplicate_label_before_writing(self):
+        source = self.csv("id,peptide,alleles,label,label\na,SIINFEKL,A,1,0\n")
+        destination = self.directory / "prepared"
+        result = subprocess.run(
+            [
+                sys.executable,
+                str(ROOT / "prepare_eval_data.py"),
+                "--input",
+                str(source),
+                "--output-dir",
+                str(destination),
+                "--dataset",
+                "fixture",
+                "--split",
+                "demo",
+                "--purpose",
+                "smoke",
+            ],
+            capture_output=True,
+        )
+        self.assertNotEqual(result.returncode, 0)
+        self.assertFalse(destination.exists())
+
     def test_processing_does_not_require_alleles(self):
         self.assertEqual(
             len(read_inputs(self.csv("id,peptide\nx,SIINFEKL\n"), "processing")), 1
@@ -208,6 +245,64 @@ class AdapterTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             compare(baseline, candidate, -1, 0)
 
+    def update_predictions(self, directory, text):
+        (directory / "predictions.csv").write_text(text, encoding="utf-8")
+        meta = json.loads((directory / "run.json").read_text())
+        meta["predictions_sha256"] = sha256(directory / "predictions.csv")
+        write_json(directory / "run.json", meta)
+
+    def test_compare_rejects_matching_out_of_range_scores(self):
+        baseline = self.result("cpu", "cpu")
+        candidate = self.result("npu", "npu")
+        for value in (-0.01, 1.01):
+            text = f"id,processing_score\na,{value}\nb,0.6\n"
+            for directory in (baseline, candidate):
+                self.update_predictions(directory, text)
+            with self.subTest(value=value), self.assertRaisesRegex(ValueError, "range"):
+                compare(baseline, candidate, 1, 1)
+
+    def test_result_csv_rejects_duplicate_headers_ragged_rows_and_blank_ids(self):
+        baseline = self.result("cpu", "cpu")
+        candidate = self.result("npu", "npu")
+        for text in (
+            "id,processing_score,processing_score\na,0.1,0.3\nb,0.2,0.6\n",
+            "id,processing_score\na,0.3,ignored\nb,0.6\n",
+            "id,processing_score\na,0.3\nb\n",
+            "id,processing_score\n ,0.3\nb,0.6\n",
+        ):
+            self.update_predictions(candidate, text)
+            with self.subTest(text=text), self.assertRaises(ValueError):
+                compare(baseline, candidate, 0.001, 0.001)
+
+    def test_compare_report_cannot_overwrite_prediction_evidence(self):
+        baseline = self.result("cpu", "cpu")
+        candidate = self.result("npu", "npu")
+        report = candidate / "predictions.csv"
+        original = report.read_bytes()
+        result = subprocess.run(
+            [
+                sys.executable,
+                str(ROOT / "compare_results.py"),
+                "--reference",
+                str(baseline),
+                "--candidate",
+                str(candidate),
+                "--report",
+                str(report),
+            ],
+            capture_output=True,
+        )
+        self.assertNotEqual(result.returncode, 0)
+        self.assertEqual(report.read_bytes(), original)
+
+    def test_report_writer_refuses_existing_file(self):
+        report = self.directory / "report.json"
+        utils.write_report(report, {"first": True})
+        original = report.read_bytes()
+        with self.assertRaises(FileExistsError):
+            utils.write_report(report, {"second": True})
+        self.assertEqual(report.read_bytes(), original)
+
     def test_compare_cli_threshold_failure_is_nonzero(self):
         baseline = self.result("cpu", "cpu")
         candidate = self.result("npu", "npu", (0.3, 0.8))
@@ -235,11 +330,19 @@ class AdapterTests(unittest.TestCase):
         directory = self.result(name, device)
         with (directory / "predictions.csv").open("w", newline="") as stream:
             writer = csv.writer(stream)
-            writer.writerow([
-                "id", "best_allele", "affinity", "processing_score",
-                "presentation_score", "presentation_percentile",
-            ])
-            for identity, allele, score in zip(("a", "b"), alleles, (0.9, 0.1), strict=True):
+            writer.writerow(
+                [
+                    "id",
+                    "best_allele",
+                    "affinity",
+                    "processing_score",
+                    "presentation_score",
+                    "presentation_percentile",
+                ]
+            )
+            for identity, allele, score in zip(
+                ("a", "b"), alleles, (0.9, 0.1), strict=True
+            ):
                 writer.writerow([identity, allele, 100, 0.5, score, 5])
         manifest = self.csv(
             "id,peptide,alleles,sample_id,label\n"
@@ -247,8 +350,11 @@ class AdapterTests(unittest.TestCase):
             "b,SIINFEKL,HLA-A*02:01;HLA-B*07:02,p,0\n"
         )
         meta = json.loads((directory / "run.json").read_text())
-        meta.update(task="presentation", manifest_sha256=sha256(manifest),
-                    predictions_sha256=sha256(directory / "predictions.csv"))
+        meta.update(
+            task="presentation",
+            manifest_sha256=sha256(manifest),
+            predictions_sha256=sha256(directory / "predictions.csv"),
+        )
         write_json(directory / "run.json", meta)
         return directory, manifest
 
@@ -256,8 +362,10 @@ class AdapterTests(unittest.TestCase):
         baseline, _ = self.presentation_result("cpu", "cpu")
         candidate, _ = self.presentation_result("npu", "npu")
         self.assertTrue(compare(baseline, candidate, 0.001, 0.001)["numeric_pass"])
-        text = (candidate / "predictions.csv").read_text().replace(
-            "HLA-A*02:01", "HLA-B*07:02", 1
+        text = (
+            (candidate / "predictions.csv")
+            .read_text()
+            .replace("HLA-A*02:01", "HLA-B*07:02", 1)
         )
         (candidate / "predictions.csv").write_text(text)
         meta = json.loads((candidate / "run.json").read_text())
@@ -266,14 +374,18 @@ class AdapterTests(unittest.TestCase):
         report = compare(baseline, candidate, 0.001, 0.001)
         self.assertFalse(report["numeric_pass"])
         self.assertEqual(report["best_allele_failed_rows"], 1)
-        self.assertTrue(all(value["failed_rows"] == 0 for value in report["errors"].values()))
+        self.assertTrue(
+            all(value["failed_rows"] == 0 for value in report["errors"].values())
+        )
 
     def test_best_allele_missing_or_empty_fails(self):
         baseline, _ = self.presentation_result("cpu", "cpu")
         candidate, _ = self.presentation_result("npu", "npu", ("", "HLA-A*02:01"))
         with self.assertRaises(ValueError):
             compare(baseline, candidate, 0.001, 0.001)
-        text = (candidate / "predictions.csv").read_text().replace("best_allele", "other")
+        text = (
+            (candidate / "predictions.csv").read_text().replace("best_allele", "other")
+        )
         (candidate / "predictions.csv").write_text(text)
         meta = json.loads((candidate / "run.json").read_text())
         meta["predictions_sha256"] = sha256(candidate / "predictions.csv")
@@ -283,25 +395,53 @@ class AdapterTests(unittest.TestCase):
 
     def test_best_allele_cli_failure_is_nonzero(self):
         baseline, _ = self.presentation_result("cpu", "cpu")
-        candidate, _ = self.presentation_result("npu", "npu", ("HLA-B*07:02", "HLA-A*02:01"))
-        result = subprocess.run([
-            sys.executable, str(ROOT / "compare_results.py"), "--reference", str(baseline),
-            "--candidate", str(candidate), "--report", str(self.directory / "report.json"),
-        ], capture_output=True)
+        candidate, _ = self.presentation_result(
+            "npu", "npu", ("HLA-B*07:02", "HLA-A*02:01")
+        )
+        result = subprocess.run(
+            [
+                sys.executable,
+                str(ROOT / "compare_results.py"),
+                "--reference",
+                str(baseline),
+                "--candidate",
+                str(candidate),
+                "--report",
+                str(self.directory / "report.json"),
+            ],
+            capture_output=True,
+        )
         self.assertEqual(result.returncode, 1)
 
     def metric_report(self, results, manifest, report, baseline=None, value=1.0):
-        argv = ["eval_metrics.py", "--manifest", str(manifest), "--results", str(results),
-                "--report", str(report)]
+        # Each invocation creates a fresh fixture report, never live model evidence.
+        report.unlink(missing_ok=True)
+        argv = [
+            "eval_metrics.py",
+            "--manifest",
+            str(manifest),
+            "--results",
+            str(results),
+            "--report",
+            str(report),
+        ]
         if baseline:
             argv.extend(["--reference-metrics", str(baseline)])
         # Mock only metric arithmetic to exercise CLI evidence checks without sklearn.
         metrics = types.ModuleType("sklearn.metrics")
         metrics.average_precision_score = Mock(return_value=value)
         metrics.roc_auc_score = Mock(return_value=value)
-        with patch.object(sys, "argv", argv), patch.dict(sys.modules, {
-            "sklearn": types.ModuleType("sklearn"), "sklearn.metrics": metrics,
-        }), contextlib.redirect_stdout(io.StringIO()):
+        with (
+            patch.object(sys, "argv", argv),
+            patch.dict(
+                sys.modules,
+                {
+                    "sklearn": types.ModuleType("sklearn"),
+                    "sklearn.metrics": metrics,
+                },
+            ),
+            contextlib.redirect_stdout(io.StringIO()),
+        ):
             metric_main()
 
     def test_metrics_preserve_and_validate_provenance(self):
@@ -314,10 +454,14 @@ class AdapterTests(unittest.TestCase):
         self.metric_report(candidate, manifest, report, cpu_report)
         self.assertTrue(json.loads(report.read_text())["metric_pass"])
         for key, value in (
-            ("source_revision", "different"), ("mhcflurry", "other"),
-            ("torch", "other"), ("batch_size", 1),
-            ("optimization_level", 1), ("compile", True),
-            ("simulation", True), ("network_devices", [["npu"]]),
+            ("source_revision", "different"),
+            ("mhcflurry", "other"),
+            ("torch", "other"),
+            ("batch_size", 1),
+            ("optimization_level", 1),
+            ("compile", True),
+            ("simulation", True),
+            ("network_devices", [["npu"]]),
         ):
             changed = dict(original, **{key: value})
             write_json(cpu_report, changed)
@@ -336,6 +480,71 @@ class AdapterTests(unittest.TestCase):
         write_json(candidate / "run.json", meta)
         with self.assertRaises(ValueError):
             self.metric_report(candidate, manifest, self.directory / "metrics.json")
+
+    def test_metrics_validate_all_prediction_fields(self):
+        candidate, manifest = self.presentation_result("npu", "npu")
+        original = (candidate / "predictions.csv").read_text()
+        for column, value in (
+            ("affinity", "0"),
+            ("affinity", "-1"),
+            ("processing_score", "1.01"),
+            ("processing_score", "nan"),
+            ("presentation_score", "-0.01"),
+            ("presentation_percentile", "100.01"),
+            ("presentation_percentile", "-1"),
+            ("best_allele", ""),
+        ):
+            rows = list(csv.DictReader(io.StringIO(original)))
+            rows[0][column] = value
+            stream = io.StringIO()
+            writer = csv.DictWriter(stream, fieldnames=list(rows[0]))
+            writer.writeheader()
+            writer.writerows(rows)
+            self.update_predictions(candidate, stream.getvalue())
+            with (
+                self.subTest(column=column, value=value),
+                self.assertRaises(ValueError),
+            ):
+                self.metric_report(candidate, manifest, self.directory / "metrics.json")
+
+    def test_prediction_range_boundaries(self):
+        utils.validate_predictions(
+            [
+                dict(
+                    id="a",
+                    affinity=0.001,
+                    processing_score=0,
+                    presentation_score=1,
+                    presentation_percentile=100,
+                    best_allele="A",
+                ),
+                dict(
+                    id="b",
+                    affinity=100000,
+                    processing_score=1,
+                    presentation_score=0,
+                    presentation_percentile=0,
+                    best_allele="B",
+                ),
+            ],
+            "presentation",
+        )
+
+    def test_metric_report_cannot_overwrite_manifest(self):
+        candidate, manifest = self.presentation_result("npu", "npu")
+        original = manifest.read_bytes()
+        argv = [
+            "eval_metrics.py",
+            "--manifest",
+            str(manifest),
+            "--results",
+            str(candidate),
+            "--report",
+            str(manifest),
+        ]
+        with patch.object(sys, "argv", argv), self.assertRaises(FileExistsError):
+            metric_main()
+        self.assertEqual(manifest.read_bytes(), original)
 
     def test_metric_threshold_failure_is_nonzero(self):
         baseline, manifest = self.presentation_result("cpu", "cpu")
@@ -532,6 +741,14 @@ class AdapterTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 runtime.predict(predictor, grouped_rows, "presentation", 128)
             predictor.predict.return_value.to_dict.return_value = records
+            records[0]["peptide_num"] = 0.5
+            with self.assertRaises(TypeError):
+                runtime.predict(predictor, rows, "presentation", 16)
+            records[0]["peptide_num"] = 0
+            records[0]["presentation_score"] = 1.01
+            with self.assertRaisesRegex(ValueError, "range"):
+                runtime.predict(predictor, rows, "presentation", 16)
+            records[0]["presentation_score"] = 0.5
             records[0]["sample_name"] = "wrong"
             with self.assertRaises(ValueError):
                 runtime.predict(predictor, rows, "presentation", 16)

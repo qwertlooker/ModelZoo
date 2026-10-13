@@ -2,7 +2,7 @@
 
 ## 验收目标与版本
 
-当前授权范围：无 NPU 环境的模拟适配和静态回归，目标 S1。未来真实验收按 S2/S3
+本轮范围：已有适配代码与配套文档检视、修复及离线回归，保持 S1。未来真实验收按 S2/S3
 继续推进。源码 2.3.14 / `20f03d45358dd104df9df0e28e2e0ccea11c9bfb`，权重 release
 2.3.0 / `models_class1_presentation.20260928.tar.bz2`，SHA 在 README 中固定。
 完整 ensemble，FP32 eager，固定 batch，原始编码/集成/IC50/百分位/sklearn
@@ -63,10 +63,11 @@ presentation labels 或自定义误差冒充该任务官方指标。
 | processing | 有/无 flanks，0–1，输入缺少 allele 可执行 |
 | presentation | 每条单/多 allele，batch 1/128，最小 affinity allele 正确 |
 | flank | 两列成对，空值表示已提供 flank 模式，不与无列模式混淆 |
-| 输入边界 | 长度 8/15、非法字符/长度/allele、空输入、重复 ID 严格失败 |
+| 输入边界 | 长度 8/15、非法字符/长度/allele、空输入、空白或重复 ID、重复/空表头、行列数不符、损坏 CSV 严格失败 |
+| 输出边界 | affinity 有限且 >0；processing/presentation 分数在 [0,1]；percentile 在 [0,100]；缺字段、空白 ID、重复表头/列数不符、非整数 peptide_num 严格失败 |
 | 设备 | NPU 不可用/缺 torch_npu 直接失败；CPU/CUDA 原路径不引入 NPU 依赖 |
 | 证据 | 请求和实际 tensor/network device 一致，输入/权重/源码 SHA 可追溯 |
-| 错误 | OOM、下载错误、哈希不符、字段缺失不静默降级；输出目录禁止覆盖 |
+| 错误 | OOM、下载错误、哈希不符、字段缺失不静默降级；输出目录及报告文件禁止覆盖，报告路径误指向 manifest/预测文件时保留原文件 |
 
 ## L2 精度/质量和性能
 
@@ -74,6 +75,8 @@ presentation labels 或自定义误差冒充该任务官方指标。
 使用 `abs(candidate-reference) <= atol + rtol*abs(reference)`；暂定 0.001/0.001。
 每个字段均有限，缺项/重复/证据不一致直接失败。阈值不是官方给出的容差，必须
 用固定 CPU 重复运行及批次边界差异校准，再形成冻结的工程通过线。
+比较前逐列验证任务输出的有效范围，CPU 与 NPU 即使产生相同的越界值也不能通过。
+eval_metrics.py 独立执行时同样检查所有 presentation 字段，而非仅检查排序分数。
 presentation 同时保存并逐 ID 精确比较官方 best_allele；空值、缺失或 allele
 不一致均失败，不以数值容差豁免 allele 选择变化。覆盖近似同分和 allele 顺序回归。
 presentation metrics 的暂定绝对 drop 为 0.001，按等 patient AP/AUROC/PPV@N
@@ -117,3 +120,7 @@ presentation metrics 的暂定绝对 drop 为 0.001，按等 patient AP/AUROC/PP
 | L2 性能 | 未执行 | 三次 NPU 时间、median、吞吐、HBM/RSS、计时边界 |
 | clean-room | 轻量入口/fixture/Mock 重放；非完整模型安装 | 独立候选完整重放日志 |
 | 状态 | S1 静态适配完成，待真实 S2/S3 | 依据当前证据定级，不沿用旧状态 |
+
+2026-10-13 检视回归新增覆盖 CSV 字段覆盖、损坏行、结果范围、完整指标输入、
+非整数 presentation 行索引及报告覆盖失败路径。fixture/Mock 只证明校验和错误
+传播，不作为 CPU/NPU 模型输出、正式指标或性能证据。

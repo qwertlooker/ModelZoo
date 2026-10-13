@@ -16,6 +16,16 @@ WEIGHT_URL = (
     "https://github.com/openvax/mhcflurry/releases/download/2.3.0/" + WEIGHT_NAME
 )
 AMINO_ACIDS = set("ACDEFGHIKLMNPQRSTVWY")
+RESULT_COLUMNS = {
+    "affinity": ("affinity",),
+    "processing": ("processing_score",),
+    "presentation": (
+        "affinity",
+        "processing_score",
+        "presentation_score",
+        "presentation_percentile",
+    ),
+}
 
 
 def sha256(path):
@@ -33,6 +43,52 @@ def write_json(path, value):
     )
 
 
+def write_report(path, value):
+    text = json.dumps(value, ensure_ascii=False, indent=2, allow_nan=False) + "\n"
+    with Path(path).open("x", encoding="utf-8") as stream:
+        stream.write(text)
+
+
+def read_csv_rows(path):
+    with Path(path).open(encoding="utf-8-sig", newline="") as stream:
+        reader = csv.DictReader(stream, strict=True)
+        fields = reader.fieldnames
+        if not fields or any(not name.strip() for name in fields):
+            raise ValueError("CSV requires nonempty column names")
+        if len(set(fields)) != len(fields):
+            raise ValueError("Duplicate CSV column names")
+        rows = []
+        for row in reader:
+            if None in row or any(value is None for value in row.values()):
+                raise ValueError(
+                    "CSV row width differs from header at line %d" % reader.line_num
+                )
+            rows.append(row)
+    if not rows:
+        raise ValueError("Empty input CSV")
+    return fields, rows
+
+
+def validate_predictions(rows, task):
+    ids = set()
+    for row in rows:
+        identity = row["id"]
+        if not identity.strip() or identity in ids:
+            raise ValueError("Empty or duplicate result id: " + identity)
+        ids.add(identity)
+        for column in RESULT_COLUMNS[task]:
+            value = finite_float(row[column])
+            if column == "affinity":
+                valid = value > 0
+            else:
+                upper = 100 if column == "presentation_percentile" else 1
+                valid = 0 <= value <= upper
+            if not valid:
+                raise ValueError("Out-of-range result for %s: %s" % (column, identity))
+        if task == "presentation" and not row["best_allele"].strip():
+            raise ValueError("Missing presentation best_allele")
+
+
 def finite_float(value):
     result = float(value)
     if not math.isfinite(result):
@@ -48,19 +104,17 @@ def positive_int(value):
 
 
 def read_inputs(path, task="presentation"):
-    with Path(path).open(encoding="utf-8-sig", newline="") as stream:
-        reader = csv.DictReader(stream)
-        fields = set(reader.fieldnames or [])
-        if not {"id", "peptide"} <= fields:
-            raise ValueError("CSV requires id,peptide")
-        if ("n_flank" in fields) != ("c_flank" in fields):
-            raise ValueError("Provide both flank columns or neither")
-        rows = list(reader)
-    if not rows:
-        raise ValueError("Empty input CSV")
+    names, rows = read_csv_rows(path)
+    fields = set(names)
+    if not {"id", "peptide"} <= fields:
+        raise ValueError("CSV requires id,peptide")
+    if ("n_flank" in fields) != ("c_flank" in fields):
+        raise ValueError("Provide both flank columns or neither")
+    if task != "processing" and "alleles" not in fields:
+        raise ValueError("Affinity/presentation CSV requires alleles")
     ids = set()
     for row in rows:
-        if not row["id"] or row["id"] in ids:
+        if not row["id"].strip() or row["id"] in ids:
             raise ValueError("Empty or duplicate id: " + row["id"])
         ids.add(row["id"])
         peptide = row["peptide"]
@@ -71,7 +125,7 @@ def read_inputs(path, task="presentation"):
                 raise ValueError("Noncanonical flank: " + name)
         if task != "processing":
             alleles = row["alleles"].split(";")
-            if not 1 <= len(alleles) <= 6 or any(not item for item in alleles):
+            if not 1 <= len(alleles) <= 6 or any(not item.strip() for item in alleles):
                 raise ValueError("Expected 1-6 semicolon-separated alleles")
             if task == "affinity" and len(alleles) != 1:
                 raise ValueError("Affinity task requires exactly one allele per row")

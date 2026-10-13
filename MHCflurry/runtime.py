@@ -6,6 +6,7 @@ import hashlib
 import importlib.util
 import json
 import os
+import operator
 import statistics
 import sys
 import time
@@ -20,6 +21,7 @@ from adapter_utils import (
     SOURCE_REVISION,
     finite_float,
     sha256,
+    validate_predictions,
     weights_inventory,
     write_json,
 )
@@ -79,7 +81,7 @@ def predict(predictor, rows, task, batch_size):
         )
         by_id = {}
         for record in frame.to_dict("records"):
-            index = int(record["peptide_num"])
+            index = operator.index(record["peptide_num"])
             if index < 0 or index >= len(rows):
                 raise ValueError("Unexpected presentation peptide index")
             row = rows[index]
@@ -108,6 +110,7 @@ def predict(predictor, rows, task, batch_size):
         if set(by_id) != {row["id"] for row in rows}:
             raise ValueError("Missing presentation rows")
         output = [by_id[row["id"]] for row in rows]
+    validate_predictions(output, task)
     return output
 
 

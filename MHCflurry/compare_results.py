@@ -2,12 +2,18 @@
 """Compare matching real CPU/NPU outputs; fixtures cannot produce an S3 report."""
 
 import argparse
-import csv
 import json
 import statistics
 from pathlib import Path
 
-from adapter_utils import finite_float, sha256, write_json
+from adapter_utils import (
+    RESULT_COLUMNS,
+    finite_float,
+    read_csv_rows,
+    sha256,
+    validate_predictions,
+    write_report,
+)
 
 PROVENANCE_KEYS = (
     "manifest_sha256",
@@ -46,8 +52,8 @@ def read_result(directory):
     validate_placement(meta)
     if sha256(directory / "predictions.csv") != meta["predictions_sha256"]:
         raise ValueError("Prediction file hash mismatch")
-    with (directory / "predictions.csv").open(encoding="utf-8", newline="") as stream:
-        rows = list(csv.DictReader(stream))
+    _, rows = read_csv_rows(directory / "predictions.csv")
+    validate_predictions(rows, meta["task"])
     by_id = {row["id"]: row for row in rows}
     if not rows or len(by_id) != len(rows) or len(rows) != meta["rows"]:
         raise ValueError("Empty, duplicate or inconsistent result IDs")
@@ -68,16 +74,7 @@ def compare(reference, candidate, atol, rtol):
     times = [finite_float(value) for value in right_meta["run_seconds"]]
     if len(times) < 3 or any(value <= 0 for value in times):
         raise ValueError("Requires >=3 valid NPU timing runs")
-    columns = {
-        "affinity": ("affinity",),
-        "processing": ("processing_score",),
-        "presentation": (
-            "affinity",
-            "processing_score",
-            "presentation_score",
-            "presentation_percentile",
-        ),
-    }[right_meta["task"]]
+    columns = RESULT_COLUMNS[right_meta["task"]]
     errors = {}
     passed = True
     allele_failures = 0
@@ -127,8 +124,10 @@ def main():
     parser.add_argument("--atol", type=finite_float, default=0.001)
     parser.add_argument("--rtol", type=finite_float, default=0.001)
     args = parser.parse_args()
+    if Path(args.report).exists():
+        raise FileExistsError(args.report)
     report = compare(args.reference, args.candidate, args.atol, args.rtol)
-    write_json(args.report, report)
+    write_report(args.report, report)
     print(report)
     if not report["numeric_pass"]:
         raise SystemExit(1)

@@ -2,8 +2,9 @@
 
 ## 版本边界与来源
 
-- 检查日期：2026-10-12；本轮修复代码与文档审查发现。原模拟适配未提供 NPU。
+- 检查日期：2026-10-13；本轮检视并修复已有代码与配套文档，未提供 NPU。
 - 上游 master HEAD：`20f03d45358dd104df9df0e28e2e0ccea11c9bfb`，代码版本 2.3.14。
+  本轮重新执行 ls-remote，HEAD 未变化，继续固定此版本。
   实际从 GitHub clone 并审计 `setup.py`、common、affinity/processing/presentation
   predictor、network、sizing、training、下载 catalogue 和官方评测文档。
 - 当前版本是 PyTorch 实现，Python >=3.10、torch >=2.0；旧 2.1.x TensorFlow
@@ -21,8 +22,9 @@
 ## 目标仓快照与参考目录
 
 - 重新执行 `git ls-remote https://gitcode.com/Ascend/ModelZoo-PyTorch.git refs/heads/master`：
-  `e779117e8cfeba296a7105e26adac0741ab04768`，2026-10-12，
-  `laya模型补充适配昇腾310p`。本轮读取该 commit 的 Laya README 与变更清单。
+  `7a1ec10305c65398ae2013abb57b9bc2edc0b8c5`，2026-10-13，
+  `MQ-Det模型昇腾适配`。本轮 fetch 到该 HEAD，重新读取最近 built-in 实质变更清单、
+  Laya 和 MQ-Det README；同领域主参考仍为 Laya。
 - 独立 filter clone 并按路径查看近期 git log；网页 sampler 未解析出条目，
   后续使用实时 Git 历史，不使用旧缓存冒充最新。
 - 拟合入路径：`ACL_PyTorch/built-in/nlp/MHCflurry`。目标树 nlp 未发现此目录，
@@ -42,6 +44,9 @@
   commit `6fecdfba771499ecf4cbc3ed975884720e2a8635` / 2026-06-18 是跨仓文档修改，
   不算新近实质适配。当前 clone 深度 70 的历史边界覆盖不了该目录原始迁移，
   最后实质变更 commit/date **未确认**，不用它取代已核实的 Laya 主参考。
+- 最新跨领域复核：`cv/MQ-Det`，最后实质变更
+  `7a1ec10305c65398ae2013abb57b9bc2edc0b8c5` / 2026-10-13，是 CV/TorchAir
+  路径，环境 CANN 8.3.RC1、torch 2.5.1，不替代同领域主参考或当前已选配套。
 - 近期跨领域复核：cv/OVRCOAT（2026-10-09）也是 Atlas 800I A2，但 ONNX 环境
   较旧；ocr/PaddleOCR-VL-1.5（2026-10-10）是 vLLM，不适用于本模型小型网络。
 - 贡献规范：`Ascend/modelzoo` HEAD
@@ -52,8 +57,10 @@
 
 ## 设备节点、路线与最小修改
 
-模拟目标 Atlas 800I A2 单卡，CANN 9.1.0、Python 3.12.13、torch 2.10.0 /
+拟验证目标 Atlas 800I A2 单卡，CANN 9.1.0、Python 3.12.13、torch 2.10.0 /
 torch_npu 2.10.0.post4，与 Laya 和官方 TorchNPU 26.1.0 配套表一致。
+2026-10-13 再次读取 Ascend/pytorch 官方 COMPATIBILITY.en.md，26.1.0 对应
+2.10.0.post4 / torch 2.10.0 / CANN 9.1.0 的条目仍存在，保持版本边界。
 参考镜像 tag 为 `quay.nju.edu.cn/ascend/vllm-ascend:v0.26.0rc1`；镜像 digest、
 真实驱动固件和 NPU 张量探针待补，不宣称镜像已可拉取或安装通过。
 
@@ -179,10 +186,39 @@ venv 和 cache；本次不存在 README_old.md。许可证直接保留上游 Apa
   随后限定到正式候选 Python 入口、tests 和运行包检查通过，不修改上游训练工具。
   本轮控制机未安装 ruff，未重跑该检查；README/基础结构审计及 diff 检查通过。
 
+## 2026-10-13 检视修复与回归
+
+- 修复 CSV 重复表头造成字段静默覆盖的问题。输入与预测文件共用严格 CSV
+  读取，拒绝空表头、重复表头、行列数不一致、损坏引号和空白 ID；输入另拒绝
+  纯空白 allele，并在 affinity/presentation 缺 allele 列时直接报错。
+- 推理、数值比较和独立指标入口共用任务输出校验：affinity 必须有限且 >0，
+  processing/presentation 分数在 [0,1]，presentation_percentile 在 [0,100]，
+  best_allele 非空。CPU/NPU 相同的非法值不再被容差比较放行；指标入口不会只
+  检查 presentation_score 而忽略其他损坏字段。
+- presentation 的 peptide_num 改为只接受整数索引，拒绝将 0.5 等异常索引
+  截断为 0 后误配原始行。保持官方整数输出、allele 顺序和 CPU/CUDA 设备算法。
+- compare/eval 的 --report 禁止覆盖已有文件，并使用独占创建防止检查与写入
+  之间出现覆盖；误指向原 manifest、predictions.csv 或旧报告时非零退出并保留原文件。
+- 38 项离线 unittest 通过，无跳过；新增 9 项测试及既有 runtime 测试扩展，覆盖
+  上述正/负边界、命令非零退出和证据文件保留。指标算术与设备仍用 Mock，未生成
+  持久的模拟 NPU 验收结果。ruff 0.14.0 check/format check 通过；复用项目内已有
+  检查器，不安装系统包。仅修改 MHCflurry，保留其他模型的工作区改动。
+- 按 15 项候选清单组装新的独立目录，实际从 GitHub clone 并固定上游 checkout，
+  patch 正向 check/apply、反向 check、五个 CLI help、权重 dry-run、四条 smoke
+  数据准备、NPU 参数 dry-run、38 项 fixture/Mock 及交付/运行包语法检查通过。
+  Python -S 禁用 site-packages；证据位于
+  .codex-reference/mhcflurry-review-20261013/commands.json 和 candidate_files.json。
+  此为轻量重放，未执行安装、真实权重加载和模型推理，非完整 clean-room 验收。
+- README 审计、基础交付审计、git diff --check 通过；target-readiness 返回非零，
+  唯一阻塞项为当前状态未达 S3/S4，符合实际 S1，不将此门禁记为通过。
+- 权重固定直链本轮 HEAD 最终 HTTP 200，Content-Length 160,356,140；未下载
+  完整归档。GitHub Release API 本轮重查受到未认证请求限流，保留已固定的历史
+  metadata SHA；实际下载仍必须通过归档 SHA 校验，HEAD 不能证明文件内容哈希。
+
 ## 未执行与补验
 
 - 真实 CANN 环境安装/import、NPU kernel/placement/profile：无硬件环境。
-- CPU 实际官方模型输出：本次为模拟适配，控制机没有 mhcflurry/pandas 全部依赖，
+- CPU 实际官方模型输出：控制机没有 mhcflurry/pandas 全部依赖，
   未安装模型或完整权重；未升级 S2。
 - L2 原始逐条官方 cohort、真实 CPU/NPU 对照、正式指标、NPU 性能与 HBM：待补。
 - 完整 clean-room install/权重/模型路径：仅轻量 CLI/fixture/Mock 重放，不能视为

@@ -24,12 +24,14 @@ license=Apache-2.0
 ## 输入输出数据
 
 输入为 CSV，每条包含唯一 `id`、8–15 个标准氨基酸的 `peptide`。
+表头必须非空且不重复，每行列数须与表头一致；纯空白 ID 或 allele 不接受。
 affinity 每条必须有一个 `alleles`；presentation 支持每条最多六个以分号分隔的
 MHC I 等位基因。processing 无需等位基因。`n_flank`、`c_flank` 必须成对出现，
 缺少两列表示无 flank 模式；空 flank 与无 flank 模式不同。
 
 输出为 `predictions.csv`：affinity 单位 nM；processing 和 presentation 分数为
-0–1；presentation percentile 保留上游标度。presentation 输出另保留官方
+0–1；presentation percentile 为上游 0–100 标度（越低表示越强）。affinity
+必须为有限正值，分数和百分位必须在各自范围内，越界结果直接失败。presentation 输出另保留官方
 `best_allele`，用于核验最强结合 allele 及同分顺序。`run.json` 记录实际设备、
 输入和权重哈希、版本、同步后的耗时及计时边界。编码、集成、百分位和 sklearn
 presentation 后处理在 CPU，神经网络拟在 NPU；不得将此描述为全流程纯 NPU。
@@ -80,7 +82,8 @@ MHCflurry/
 
 ## 快速上手
 
-所有命令在本模型目录执行。输出目录必须不存在，防止覆盖 CPU/NPU 证据。
+所有命令在本模型目录执行。输出目录及 `--report` 文件必须不存在，防止覆盖
+CPU/NPU 证据；重跑时使用新的路径。报告入口拒绝已有文件，并以独占方式写入。
 以下 Linux/bash 命令包含未来真实设备补验入口；无 NPU 时先执行最后的离线检查。
 
 ### 获取源码和安装
@@ -193,6 +196,9 @@ python3 eval_metrics.py --manifest eval_data/l2/manifest.csv --results outputs_n
 非零退出。指标为等 patient 平均 AP/AUROC/PPV@N，PPV 截断平分同分样本。
 数值通过不自动升级 S3，还需人工核实 L2 数据资格、正式指标、实际 NPU 算子
 执行日志及环境证据，排查未支持算子的隐式 CPU fallback。
+推理、数值比较和指标入口共用完整结果校验；独立运行指标入口也会检查
+affinity、processing_score、presentation_score、presentation_percentile 和 best_allele，
+不会仅凭排序分数放行损坏的预测文件。
 
 presentation 比较还要求 `best_allele` 非空且逐 ID 完全一致；即使数值在容差内，
 allele 选择变化仍返回失败。指标报告保留源码 revision、MHCflurry/PyTorch 版本、

@@ -12,7 +12,7 @@ from adapter_utils import (
     presentation_groups,
     read_inputs,
     sha256,
-    write_json,
+    write_report,
 )
 from compare_results import (
     PROVENANCE_KEYS,
@@ -49,6 +49,8 @@ def main():
     parser.add_argument("--reference-metrics")
     parser.add_argument("--max-metric-drop", type=finite_float, default=0.001)
     args = parser.parse_args()
+    if Path(args.report).exists():
+        raise FileExistsError(args.report)
     if args.max_metric_drop < 0:
         raise ValueError("Negative metric tolerance")
     # Required evaluation dependencies fail immediately on the execution path.
@@ -112,7 +114,7 @@ def main():
         )
         report["max_metric_drop"] = args.max_metric_drop
         report["threshold_source"] = "provisional; baseline calibration required"
-    write_json(args.report, report)
+    write_report(args.report, report)
     print(report)
     if report["metric_pass"] is False:
         raise SystemExit(1)
