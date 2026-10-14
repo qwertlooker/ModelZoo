@@ -49,6 +49,8 @@ class DeliveryTests(unittest.TestCase):
                 'runs': len(seconds), 'warmup': 1, 'seconds': seconds,
                 'median_seconds': median, 'mutations_per_second': samples / median,
                 'samples': samples, 'proteins': proteins, 'dtype': 'float32', 'timing_scope': 'fixture',
+                'infer_sha256': 'fixture-infer', 'patch_sha256': 'fixture-patch',
+                'inference_mode': 'batch-all', 'gelu': 'exact-erf',
                 'manifest_sha256': 'manifest', 'checkpoint_sha256': 'checkpoint',
                 'backbone_sha256': 'backbone', 'upstream_commit': 'source',
                 'torch': 'fixture', 'torch_npu': 'fixture', 'visible_devices': '0',
@@ -221,7 +223,10 @@ class DeliveryTests(unittest.TestCase):
         fake_torch.no_grad.side_effect = nullcontext
         tensor = Mock()
         tensor.device.type = 'npu'
-        tensor.cpu.return_value.item.return_value = 1.25
+        tensor.ndim = 1
+        tensor.numel.return_value = 1
+        tensor.cpu.return_value.tolist.return_value = [1.25]
+        fake_torch.cat.return_value = tensor
         model = Mock(return_value=([{'ddG': tensor}], None))
         model.eval.return_value.to.return_value = model
         loader = Mock()
@@ -232,6 +237,7 @@ class DeliveryTests(unittest.TestCase):
         namespace = {'argparse': argparse, 'defaultdict': defaultdict, 'json': json,
                      'os': __import__('os'), 'Path': Path, 'statistics': statistics,
                      'uuid': uuid, 'platform': platform, 'subprocess': fake_process, 'sys': sys, 'time': time, 'SOURCE': source,
+                     '__file__': str(ROOT / 'infer.py'),
                      'torch': fake_torch, 'np': Mock(), 'OmegaConf': Mock(), 'TransferModelPL': loader,
                      'Mutation': lambda *args: args,
                      'alt_parse_PDB': Mock(return_value=[{'seq_chain_A': 'M', 'seq': 'M', 'name': 'demo',
@@ -242,7 +248,9 @@ class DeliveryTests(unittest.TestCase):
                      'read_jsonl': read_jsonl, 'validate_protein': validate_protein,
                      'validate_sample': validate_sample, 'write_json': write_json}
         exec(compile(ast.Module(body=functions, type_ignores=[]), 'infer.py', 'exec'), namespace)
-        argv = ['infer.py', '--manifest', str(manifest), '--checkpoint', str(checkpoint), '--output-dir', str(output)]
+        namespace['use_accurate_gelu'] = Mock()
+        namespace['validate_coordinate_span'] = Mock()
+        argv = ['infer.py', '--upstream-head', '--manifest', str(manifest), '--checkpoint', str(checkpoint), '--output-dir', str(output)]
         backend = types.ModuleType('torch_npu')
         backend.__version__ = 'mock-only'
         with patch.object(sys, 'argv', argv), patch.dict(sys.modules, {'torch_npu': backend}), \
@@ -374,7 +382,9 @@ class DeliveryTests(unittest.TestCase):
                        {'ascend_home_path': '/other/cann'}, {'cann_version': '9.1.0'},
                        {'device_name': 'Ascend310P'}, {'hostname': 'other-host'},
                        {'cann_version': 'not known'}, {'ascend_home_path': None},
-                       {'logical_device': True}]:
+                       {'logical_device': True}, {'infer_sha256': 'other'},
+                       {'patch_sha256': 'other'}, {'inference_mode': 'per-protein'},
+                       {'gelu': 'approximate'}]:
             write_json(path, {**original, **change})
             with self.subTest(change=change), self.assertRaises(ValueError):
                 performance(dirs, base)

@@ -2,9 +2,9 @@
 
 ## 概述
 
-ThermoMPNN 是 Kuhlman-Lab 基于 ProteinMPNN 迁移学习的图神经网络，用蛋白质结构预测单点氨基酸突变的稳定性变化 ΔΔG。本文介绍该模型基于昇腾 NPU 的推理方法。当前交付为 **S1 静态模拟适配**，尚未完成真实模型推理和 NPU 验收。
+ThermoMPNN 是 Kuhlman-Lab 基于 ProteinMPNN 迁移学习的图神经网络，用蛋白质结构预测单点氨基酸突变的稳定性变化 ΔΔG。本文介绍该模型基于昇腾 NPU 的推理方法。当前已完成真实 CPU 功能验证；目标 NPU 配套、精度和性能仍待实机验收。
 
-参考实现：[Kuhlman-Lab/ThermoMPNN](https://github.com/Kuhlman-Lab/ThermoMPNN)，`commit_id=370f76ec62bd929f7425e311d8df04a0d094990f`，权重 `thermoMPNN_default.pt`。当前范围为单点突变推理；ThermoMPNN-D、ThermoMPNN-I 和训练不在本轮交付范围。复用上游模型及预处理，无上游源码修改，无 patch。
+参考实现：[Kuhlman-Lab/ThermoMPNN](https://github.com/Kuhlman-Lab/ThermoMPNN)，`commit_id=370f76ec62bd929f7425e311d8df04a0d094990f`，权重 `thermoMPNN_default.pt`。当前范围为单点突变推理；ThermoMPNN-D、ThermoMPNN-I 和训练不在本轮交付范围。复用上游模型及预处理；`diff.patch` 修正变长合批的邻居选择与 decoder 消息掩码，默认全蛋白合批。
 
 ## 输入输出数据
 
@@ -13,6 +13,7 @@ ThermoMPNN 是 Kuhlman-Lab 基于 ProteinMPNN 迁移学习的图神经网络，�
 CSV 必需字段：`id,pdb,chain,position,wildtype,mutation`，可选 `ddG_true`。
 `position` 是上游解析后链序列的 **0-based 索引**，不是 PDB residue number；缺失残基和 insertion code 必须先核对。只接受标准 20 种氨基酸及单链输入，不能混用不同链的残基编号。
 同一结构/链的所有记录必须一致提供或省略 `wt_sequence`；提供时实验 WT 必须一致，长度与解析链相同。越界索引、错误 WT、突变位置缺失或非有限的 N/CA/C/O 坐标均在模型前向前失败。
+有效残基 CA 坐标的包围盒对角线必须小于 `1e4 Å`，以保证 padding 距离严格大于真实距离；超出该范围直接失败。
 
 评测目录结构、固定归档的获取和离线复用见[准备正式评测数据和报告](#准备正式评测数据和报告)。
 
@@ -38,6 +39,7 @@ ThermoMPNN/
 ├── README.md
 ├── LICENSE
 ├── infer.py
+├── diff.patch
 ├── baseline_upstream.py
 ├── delivery_utils.py
 ├── prepare_eval_data.py
@@ -49,9 +51,11 @@ ThermoMPNN/
 ├── constraints-npu.txt
 ├── test_data/
 │   └── mutations.csv
-└── tests/
-    ├── test_delivery.py
-    └── test_upstream_baseline.py
+├── tests/
+│   ├── test_delivery.py
+│   └── test_upstream_baseline.py
+└── tests_torch/
+    └── test_batch_inference.py
 ```
 
 下列命令均从本文件所在的 ThermoMPNN 目录执行。`source/`、`weights/`、`eval_data/` 和输出目录由准备步骤生成，不作为上库源码提交。
@@ -64,6 +68,9 @@ ThermoMPNN/
 git clone https://github.com/Kuhlman-Lab/ThermoMPNN.git source
 git -C source checkout 370f76ec62bd929f7425e311d8df04a0d094990f
 git -C source diff --exit-code HEAD
+git -C source apply --check ../diff.patch
+git -C source apply ../diff.patch
+git -C source apply --reverse --check ../diff.patch
 ```
 
 在已按 CANN 配套安装的 NPU 环境执行；没有预装框架时，使用官方配套 wheel 安装命令：
@@ -103,6 +110,19 @@ python3 compare_results.py --baseline outputs_cpu/predictions.jsonl --candidate 
 
 每次使用新的输出目录，避免覆盖证据。比较容差为暂定 FP32 工程值，需用真实 baseline 校准；比较失败返回非零退出码。设备不可用时直接失败。输出 `run.json` 含模型和输入 SHA、实际输出设备、计时范围及三次运行中位数；输出张量位于 NPU 不足以排除内部算子回退，实机时另查运行日志。
 
+推理模式如下，三个开关互斥，单独传入即生效：
+
+| 模式 | 参数 | 行为 |
+|---|---|---|
+| 全量合批（默认） | 不加开关 | 全部蛋白填充到最大长度，一次 ProteinMPNN、一次突变 head |
+| 同长度合批 | `--gnn-bucket` | 按长度分组，无额外长度 padding |
+| 逐蛋白 | `--per-protein` | 每蛋白一次 ProteinMPNN、一次突变 head |
+| 上游 head 对照 | `--upstream-head` | 每蛋白执行上游逐突变 head；仍使用补丁及精确 GELU，不是未修改的官方基线 |
+
+模型实例内的 GELU 使用精确 erf 公式；批量 head 将 eval 模式下长度为 1 的 LightAttention 卷积等价替换为中心 tap Linear。结果按蛋白一次回传，行字典合并与写盘在计时外。变长输入逐蛋白调用上游特征化后仅填充 GNN 的长度轴，避免固定上游辅助数组的双轴 padding 问题；批量解码顺序通过上游已有参数显式传入。大规模或长蛋白输入可显式选择 `--gnn-bucket` 或 `--per-protein` 降低显存需求，设备内存不足时不自动切换路径。
+
+源码守卫要求固定 HEAD、补丁已应用，以及补丁文件生成的预期源码与实际文件完全一致；不允许在同一文件夹带额外源码改动。`run.json` 记录 `infer_sha256`、`patch_sha256`、`inference_mode` 和 `gelu`，独立进程性能报告要求这些字段相同，旧结果必须重新生成。
+
 ### 准备正式评测数据和报告
 
 原始 Megascale 测试 CSV 已随固定源码提供。先盘点，再生成规范 CSV：
@@ -136,7 +156,11 @@ eval_data/
 
 ```bash
 python3 prepare_eval_data.py --csv eval_data/mega_normalized.csv --pdb-dir eval_data/megascale_pdbs --dataset ThermoMPNN-Megascale --split test --output eval_data/mega_test.jsonl
+git -C source apply --reverse ../diff.patch
+git -C source diff --exit-code HEAD
 python3 baseline_upstream.py --checkpoint weights/thermoMPNN_default.pt --manifest eval_data/mega_test.jsonl --pdb-dir eval_data/megascale_pdbs --output-dir outputs_mega_upstream_cpu
+git -C source apply --check ../diff.patch
+git -C source apply ../diff.patch
 python3 infer.py --device cpu --checkpoint weights/thermoMPNN_default.pt --manifest eval_data/mega_test.jsonl --output-dir outputs_mega_cpu
 python3 compare_results.py --baseline outputs_mega_upstream_cpu/predictions.jsonl --candidate outputs_mega_cpu/predictions.jsonl --atol 0.001 --rtol 0.001 --report upstream_cpu_comparison.json
 for run in 1 2 3; do
@@ -159,7 +183,15 @@ NPU `run.json` 使用 schema 3：记录 Python、逻辑卡、`ASCEND_HOME_PATH`�
 python3 -m unittest discover -s tests -v
 ```
 
-此测试只使用 stdlib/Mock，不加载真实模型，不能替代 NPU 在线自测试。环境安装与真实模型功能尚未验证。
+此测试只使用 stdlib/Mock，不加载真实模型，不能替代真实模型和 NPU 在线自测试。
+
+安装模型依赖、获取固定源码并应用补丁后，另执行真实 PyTorch 回归：
+
+```bash
+python3 -m unittest discover -s tests_torch -v
+```
+
+该组测试加载固定官方权重，检查精确 GELU、中心 tap、长度 1/2/17/48/53 的合批/逐蛋白一致性、非突变位置缺失坐标、非差分 head、开关冲突和源码守卫。人工结构仅用于数值回归，不作为正式数据集精度或性能证据。当前 CPU 功能实测使用 Python 3.12.14/PyTorch 2.5.1+cpu，不能代替上表目标 NPU 配套验证。
 
 ## 模型推理性能
 
@@ -169,7 +201,7 @@ python3 -m unittest discover -s tests -v
 
 ### 精度说明
 
-尚未产生模型预测或官方指标复现结果；离线测试的常量输出只存在于测试临时目录。正式验收必须同时具备正确 split 的全量指标、同 checkpoint 的可比基线、真实 NPU 性能及环境证据。
+已产生 CPU 功能样例预测，尚未完成 NPU 指标复现与性能验收。正式验收必须同时具备正确 split 的全量指标、同 checkpoint 的可比基线、真实 NPU 性能及环境证据。
 
 ## 公网地址说明
 

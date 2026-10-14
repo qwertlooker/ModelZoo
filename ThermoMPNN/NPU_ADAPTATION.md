@@ -2,12 +2,12 @@
 
 ## 版本边界与来源
 
-最新检查日期：2026-10-13。本轮检视修复现有适配的代码与配套文档；当前无 NPU 环境，不以 Mock 推进 S2/S3。以下保留历史适配记录，本轮证据与目标仓快照见文末。
+最新检查日期：2026-10-14。本轮合入精确 GELU、head 批量及蛋白合批；已完成真实 CPU 功能验证，当前无 NPU 环境，不推进 S3。以下保留历史适配记录，本轮证据与目标仓快照见文末。
 
 - 上游：`https://github.com/Kuhlman-Lab/ThermoMPNN`，默认分支 `main`，远端 HEAD 和本地 `upstream/` 均为 `370f76ec62bd929f7425e311d8df04a0d094990f`。
 - 主权重：该 commit 的 `models/thermoMPNN_default.pt`，实际通过固定 URL curl 下载约 38 MiB；SHA256 `af449118ccfb4e34971d802321907ed82a8a035ae80f055bf8fc56009a4a838a`。
 - 辅助权重：同 commit 的 `vanilla_model_weights/v_48_020.pt`；SHA256 `c9cb4a671d79604111231f8dbfc7c590e06f1197453b7a6854ac6661a642f5bd`。
-- 模型范围：ThermoMPNN default 单点突变，FP32，蛋白 batch=1，按蛋白分组的突变列表。排除 ThermoMPNN-D、ThermoMPNN-I、训练和多链复合物输入。
+- 模型范围：ThermoMPNN default 单点突变，FP32、单链，默认全蛋白合批，另支持同长度合批、逐蛋白及上游 head 对照。排除 ThermoMPNN-D、ThermoMPNN-I、训练和多链复合物输入。
 - 功能样例：RCSB 1UBQ，三条真实结构上的突变，无实验标签，仅作功能输入；PDB SHA256 `d4a6812d8951cf6594e6a0763f089e35f5a80b62acb3c117b2c5565228a7b161`。
 - 原始测试 CSV：`data_all/testing/mega_test.csv`，SHA256 `3adaa13aae93a575704e50cbb9bec4b84516789558204124dacf43925fb9b68f`。
 
@@ -53,7 +53,7 @@
 - 质量指标为明确等价的 pooled Pearson/Spearman/MSE/RMSE/R²；性能写实际 device、至少三次计时、mutations/s、中位数和计时范围。正式验收还要三次独立进程、环境版本和回退日志。
 - 报告拒绝 CPU/显式模拟结果，核对预测 SHA、样本数、比较结果与性能次数。收集通过仍不自动赋予 S3。
 
-未修改上游已有文件，因此 **无 patch**，`git apply --check` 不适用；不生成空 patch，不修改 site-packages，不引入静态检查屏蔽注释。CPU/CUDA 路径的模型算法保持相同；相对上游新入口的回归仍需真实 CPU 输出验证。
+初始交付未修改上游已有文件。2026-10-14 新增固定上游 `protein_mpnn_utils.py` 的三处 `diff.patch`，范围和验证见文末；不修改 site-packages，不引入静态检查屏蔽注释。
 
 ## 依赖边界
 
@@ -88,7 +88,7 @@
 
 ## 上库文件清单和排除项
 
-候选文件：`README.md`、`LICENSE`、`infer.py`、`baseline_upstream.py`、`delivery_utils.py`、`prepare_eval_data.py`、`prepare_megascale.py`、`compare_results.py`、`eval_metrics.py`、`report_acceptance.py`、`requirements.txt`、`constraints-npu.txt`、`test_data/mutations.csv`、`tests/test_delivery.py`、`tests/test_upstream_baseline.py`。
+候选文件：`README.md`、`LICENSE`、`infer.py`、`diff.patch`、`baseline_upstream.py`、`delivery_utils.py`、`prepare_eval_data.py`、`prepare_megascale.py`、`compare_results.py`、`eval_metrics.py`、`report_acceptance.py`、`requirements.txt`、`constraints-npu.txt`、`test_data/mutations.csv`、`tests/test_delivery.py`、`tests/test_upstream_baseline.py`、`tests_torch/test_batch_inference.py`。
 
 排除：`NPU_ADAPTATION.md`、`ACCEPTANCE_PLAN.md`、`upstream/`、下载/运行生成的 `source/`、权重、PDB、dataset、manifest、输出、日志、`.venv*/`、`__pycache__/`、`.codex-reference/`。`LICENSE` 原样保留上游 MIT 版权；新增代码的正式目标仓版权头规则需上库前确认，不冒用华为版权归属。
 
@@ -181,4 +181,35 @@
 
 未执行项仍为：目标 Python 3.10 配套安装/模型 import、真实官方 CPU 基线和适配 CPU 回归、NPU 功能、全量精度与三次独立进程性能、fallback/驱动/固件日志、真实 clean-room 推理及官方 PR 门禁。原因是控制机缺必要依赖且无 NPU；补验沿 README 的安装、CPU 基线→适配 CPU→NPU→比较/指标/报告命令执行。当前输入与证据校验已变化，后续验收须用最终代码重新生成结果。
 
-**当前状态：S1 静态适配完成，待真实验收。** 升级 S2 需要真实 CPU 或 NPU 功能输出；升级 S3 需要完整 NPU L2 精度/性能和可比基线。Mock、真实数据准备和静态审计不改变该状态，上库候选仍未就绪。
+**2026-10-13 状态：S1 静态适配完成，待真实验收。** 以下记录 2026-10-14 的新增实现与验证。
+
+## 2026-10-14 合入批量推理与精度修正
+
+基于 ModelZoo `c1871f02be660191180ae1795add67df08fdad08` 落实用户提供的改动摘要。重新执行目标仓 `git ls-remote` 并独立 clone 最近 60 个提交，master 仍为 `7a1ec10305c65398ae2013abb57b9bc2edc0b8c5`；拟合入路径仍不存在，仍为新增。按实际变更重新选取同领域在线 PyTorch `nlp/Laya`（`e779117e8cfeba296a7105e26adac0741ab04768`，2026-10-12）和同类 A2/patch 交付 `cv/OVRCOAT`（`1e095beb42ef4e1248d116f2d9e230b82f25bd37`，2026-10-09）；最新跨领域 `cv/MQ-Det`（目标 HEAD，2026-10-13）的 TorchAir/DCN 路线不直接复用。上游 `git ls-remote --symref origin HEAD` 仍为固定 `370f76ec62bd929f7425e311d8df04a0d094990f`。
+
+实现：
+
+- `_AccurateGELU` 与 `use_accurate_gelu` 在当前模型实例内递归替换精确 GELU，使用 erf 公式，不修改全局 torch、site-packages 或上游 GELU。CPU/CUDA 也采用该数学等价表达式，不能承诺浮点逐位相同。
+- `light_attention_length1` 在 eval 下用 `feature_convolution.weight[:,:,4]` 和 bias 做 Linear；长度 1 的 attention softmax 为 1，dropout 关闭。显式检查固定卷积配置，训练模式失败。
+- 单蛋白、同长度桶和全量合批统一向 head 传入突变向量，直接返回每蛋白张量，不创建逐突变 ddG 小张量。三个 CLI 开关互斥、单独生效；默认全量合批。结果按蛋白一次 `cpu().tolist()`，字典合并推迟到写盘。
+- 固定上游默认解码顺序 batch=1；合批入口通过已有 `use_input_decoding_order`/`decoding_order` 参数传入 `[B,L]`，避免 gather 不广播的问题。
+- 真实 PyTorch 回归发现固定上游 `tied_featurize` 对变长辅助二维数组使用标量 `np.pad`，会同时填充两个轴并触发 shape 错误。变长路径逐蛋白特征化后只填充六个 GNN 输入的长度轴；同长度路径仍一次特征化。没有额外修改上游。
+- `diff.patch` 的三处：CA_ProteinFeatures 与 ProteinFeatures 的无效距离改为 `1e4`；decoder 将邻居 mask 传入已有 DecLayer 参数，在消息 MLP 后、求和前屏蔽无效邻居。`W_s` 是 Embedding，padding token 的嵌入和边/消息网络可产生非零消息，不能简单归因于两个 Linear bias。输入检查保证有效 CA 的坐标跨度小于 sentinel。
+- 源码守卫检查固定 HEAD、其他文件无 tracked 改动、补丁可反向应用，并逐字节比较实际文件与固定上游应用补丁后的预期内容。报告保存/比较入口及补丁 SHA、模式和 GELU，避免混合不同优化版本的性能。
+
+CPU 验证环境与边界：控制机 Python 3.12.14，独立 `.venv-thermompnn-check` 安装 PyTorch 2.5.1+cpu 和当前 requirements 固定依赖；隔离用于软件回归及 clean-room，不修改系统框架、不替代 A2/CANN 8.3.RC1/torch 2.1.0+torch-npu 2.1.0.post17 的目标部署验证。主/辅助权重实际 SHA 与固定值一致。1UBQ 下载 SHA 与 README 一致；Zenodo 首次 HTTP/2 下载中断，改用 HTTP/1.1 同 URL 断点续传，MD5/SHA 均匹配固定发布归档。
+
+用户提供的吞吐序列与 452× 提速未附原始实机日志，未视为本轮实测，不填入正式性能表。数学等价与逐位相同分开记录；没有把 CPU 测试推断为 NPU 精度或性能。
+
+实际验证与 clean-room：
+
+- `diff.patch` SHA256 为 `595eba9c5263e71fbd9af15bae4cc614c3f539b4d8c7e754b19dcd72ffc8a2fe`；正向 `git apply --check`、应用、反向检查，以及精确源码守卫均通过。源码额外改动即使能反向应用补丁，也会被新守卫拒绝。
+- 23 项 stdlib/Mock 回归、8 项真实 PyTorch 回归、6 项仓库门禁回归通过。所有正式 Python 入口 `--help`、语法、README 审计和基础结构门禁通过。
+- 从上述精确 17 项清单组装 `.codex-reference/thermompnn-batching-20261014/candidate`，不复制内部记录，清除 PYTHONPATH；独立 `--no-hardlinks` 克隆固定上游 clean 源码，离线复用重新下载并校验的 1UBQ 与固定 Zenodo ZIP。真实依赖装入新建测试 venv，独立生成完整数据和输出，未从原工作区补拿运行脚本。
+- 候选目录重建 28 个 PDB、28,172 条正式 manifest；先在完全 clean 的官方 source 上执行 `baseline_upstream.py`，再应用补丁，分别执行默认、`--per-protein`、`--gnn-bucket` 的完整 CPU 推理（每条路径 1 warmup、3 runs），逐样本与官方 CPU 基线比较全部通过。改动后的三种模式逐位相同，预测 SHA 都为 `b879d5b8c37b7399d78a4ea918c1a9b03d89674b811a8bd27c56f8fe73e75187`；这是本次 CPU 环境和固定数据的事实，不推广到其他环境。
+- 三种模式相对未修改官方 CPU 基线的最大绝对误差均为 `2.110004425048828e-05 kcal/mol`，平均绝对误差 `2.069520151413724e-06`，全部通过既定 `atol=rtol=1e-3`。官方基线 SHA 为 `596f487411d5c170dcf31dacc85d42792df0781f4c2421d282794d538c4ae7f3`；精确 erf 表达式及 head 运算形状的数学等价不保证相对原始算子逐位一致。
+- 独立候选另执行真实 1UBQ 三条 `--upstream-head` 输出，所有入口 help、23+8 项回归、compileall 和双方全量 evaluator 通过。原工作区默认路径也产生三条真实 1UBQ 输出；未测 NPU 性能，不展示 CPU 耗时或将其推断为 NPU 加速。
+- 官方 CPU / 合批 CPU 的 pooled Pearson 为 `0.7539695024 / 0.7539695648`，Spearman 为 `0.7224582348 / 0.7224583221`，RMSE 为 `0.7174742204 / 0.7174741323 kcal/mol`。这些是当前 checkpoint/过滤/split 路径的本地 CPU 结果，不宣称复现论文训练重复均值。
+- 原始命令、退出码和日志位于本次私有重放目录 `replay.json`、`baseline.log` 及各阶段日志；预测、比较和指标位于其 candidate 子目录。target-readiness 仍按缺 S3、NPU 证据和贡献门禁退出 1，这是未就绪状态，不影响本次 ModelZoo 工作仓的代码合入。
+
+**当前状态：S2 功能验证完成（CPU）。** 已完成固定官方全量 CPU 对照及批量路径回归；升级 S3 仍需目标 NPU 配套安装/功能、同 manifest 的精度/质量与三次独立进程性能、fallback/驱动/固件日志和目标设备 clean-room。官方贡献门禁及正式上库候选仍待验证。
