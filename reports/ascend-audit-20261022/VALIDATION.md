@@ -10,7 +10,9 @@
 - `git diff --check`：通过。
 - 未执行：NPU/CPU模型推理、依赖安装、权重与数据下载校验、官方精度评测、三次独立NPU性能测量、clean-room和候选上库门禁。本次为证据核查，没有连接执行机或准备模型运行环境。
 - Qwen旧外链重定向到新版教程索引，已继续打开新版Embedding/Reranker专项教程；外部latest文档未固定commit，其内容不等同主仓固定快照内代码。
-- YOLOv8的GPL外链由主仓ACL README明确列出；本次外部正文读取超时，不补写未经读取的权重与指标。
+- YOLOv8的GPL外链由主仓ACL README明确列出；首次网页获取超时，补查通过独立浅克隆读取固定commit `aa0696bd53c3724c8438860243b55025539de64a` 正文，并确认pth2onnx.py、detect_infer.py、classify_infer.py存在。COCO/ImageNet精度性能已逐项补入。
+- 补查Pi-0代码L96/L99/L102：全零state/image及随机language token，确认其入口使用合成观测。
+- 修正Qwen和YOLO外链字段串用、Qwen2.5-VL代码链接错误，增加对应回归用例。更新后7/7通过；再次检查暂存diff空白门禁。
 
 ## 提交与推送边界
 

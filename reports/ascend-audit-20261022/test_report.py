@@ -46,4 +46,15 @@ class ReportTests(unittest.TestCase):
             self.assertIn('索引外链',next(r for r in self.rows if r['原始条目']==name)['仓库证据分类'])
         self.assertEqual(next(r for r in self.rows if r['原始条目']=='DINOv2')['仓库证据分类'],'组件级证据')
 
+    def test_external_models_do_not_share_unrelated_template_fields(self):
+        for row in self.rows:
+            if row['原始条目'].startswith('Qwen3-'):
+                for key in ['权重','数据集','性能基准','精度基准']:
+                    self.assertNotIn('YOLO',row[key])
+        yolo=next(r for r in self.rows if r['原始条目']=='YOLOv8')
+        self.assertIn('443.60',yolo['性能基准'])
+        self.assertNotIn('Qwen',yolo['精度基准'])
+        vl=next(r for r in self.rows if r['原始条目']=='Qwen2.5-VL')
+        self.assertIn('train_qwen2_5_vl_7b_GRPO_full_16p.sh',vl['具体证据链接'])
+
 if __name__=='__main__':unittest.main()

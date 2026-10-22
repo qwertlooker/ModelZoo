@@ -18,7 +18,7 @@ def link(path, label='证据'):
 # key, code, weights, data, performance, accuracy, boundary, source suffix
 FACTS = [
 ('GR00T-N1.6','三段OM导出、policy/server、离线评测','nvidia/GR00T-N1.6-3B；另需仿真资产','gr1.PickNPlace；RoboCasa GR1单任务10 episodes','300V Pro：合成观测E2E 1.3s；warmup3/iters10均值','任务成功率60.0%；文档引用竞品51.5%，未给该数字直接出处','合成输入时延不是正式L2性能；10次任务成功率不代表全任务能力；权重未下载校验','embodied_ai/vla/GR00T_n1d6'),
-('Pi-0','ONNX/OM导出、分段比较、infer.py','pi0_aloha_transfer_cube；PaliGemma tokenizer','示例frame；mock ONNX/OM输出比较','300I DUO单芯220ms；正文frame与表中随机数矛盾','仅描述余弦比较，未见LIBERO任务成功率数值','支持300I DUO/Pro；明确不支持800I A2；缺正式质量基准','embodied_ai/vla/pi0'),
+('Pi-0','ONNX/OM导出、分段比较、infer.py','pi0_aloha_transfer_cube；PaliGemma tokenizer','代码L96/L99使用全零state/image，L102随机language token','300I DUO单芯220ms，合成输入','仅描述余弦比较，未见LIBERO任务成功率数值','代码证实非真实frame；README正文描述不准确；不支持800I A2；缺正式质量基准','embodied_ai/vla/pi0'),
 ('Pi-0.5','LeRobot TorchAir；OpenPI TorchAir两条路线','pi05_libero_finetuned；OpenPI pi05_libero及JAX转换、tokenizer','LIBERO object；OpenPI libero_10','300I DUO单芯：LeRobot375ms、OpenPI378ms','LeRobot表中成功率100，对照98.2；OpenPI仅声称持平','两路线不可共享验收结论；OpenPI缺独立精度结果；不支持800I A2','embodied_ai/vla/pi05_lerobot/infer_with_torchair'),
 ('BGE-M3','infer.py使用FlagEmbedding及TorchAir','BAAI/bge-m3；未固定权重revision/SHA','脚本内示例句子；未见正式检索评测集','DUO E2E137.59ms/forward23.23ms；A2 103.88/14.71ms','未提供MTEB/MIRACL等正式指标和NPU对照','代码输出分支需逐项验收；样例性能不能代表检索质量','embedding/bge-m3'),
 ('BGE-Reranker-v2-m3','infer.py打分及TorchAir','BAAI/bge-reranker-v2-m3；未固定revision/SHA','示例query-passage；无正式重排评测集','DUO E2E60.47ms/forward22.57ms；A2 46.64/15.08ms','未提供nDCG/MRR等正式指标','README表误写bge-m3，需核对实际模型；缺任务级质量证据','embedding/bge-reranker-v2-m3'),
@@ -85,19 +85,32 @@ def main():
             refs=[path]
             refs.extend(p for p in scope['references'] if p in tree and ((name=='Pi-0.5' and 'pi05_' in p) or (name=='PaddleOCR' and 'PPOCRv' in p) or (name=='Grounding DINO' and 'GroundingDINO' in p) or (name=='LSTM' and '/LSTM' in p) or (name.startswith('Qwen3（') and '/Qwen3' in p) or (name=='InternVL2' and '/InternVL2/' in p) or (name.startswith('Qwen2-VL（') and '/Qwen2-VL/' in p) or (name=='DeepLabv3+' and ('DeepLabv3+' in p or 'DeeplabV3+' in p)) or (name=='Swin-Unet/U-Net' and '/UNet' in p)))
             primary=next((e for e in evidence['evidence'] if e['directory']==directory),None)
-            if primary:
+            if name=='Qwen2.5-VL':
+                refs += ['PyTorch/built-in/rl/VeRL_for_PyTorch/test/train_qwen2_5_vl_7b_GRPO_full_16p.sh']
+            elif primary:
                 codefiles=[p for p in primary['files'] if p.endswith(('.py','.sh','.patch')) and p.count('/')<=directory.count('/')+2]
                 preferred=[p for p in codefiles if re.search(r'infer|metric|train.*full|diff.patch|eval',p.rsplit('/',1)[-1],re.I)]
                 refs += (preferred or codefiles)[:2]
             urls=[BASE+quote(p,safe='/') for p in dict.fromkeys(refs)]
         elif name in external:
             status='仓内索引外链，非仓内实现';code='ACL_PyTorch/README.md明确索引外部指导'
-            data='Qwen系列外部教程提供MTEB评估方法；YOLOv8外部正文本次获取失败'
-            w='Qwen教程列0.6B/4B/8B权重来源；YOLOv8未核实'
-            perf='Qwen提供benchmark命令，未见8B固定条件实测表；YOLOv8未核实'
-            acc='Qwen提供任务评估方法，未见8B固定结果；YOLOv8未核实'
-            limit='不能写成完全无适配证据；也不能归入本仓代码交付或8B实测通过'
-            ext='https://gitcode.com/Ascend/modelzoo-GPL/blob/master/built-in/ACL_Pytorch/Yolov8_for_PyTorch/README.md' if name=='YOLOv8' else 'https://docs.vllm.ai/projects/ascend/zh-cn/latest/tutorials/models/Qwen3-'+('Reranker' if 'Reranker' in name else 'Embedding')+'.html'
+            if name=='YOLOv8':
+                code='主仓索引GPL专项目录；pth2onnx.py、detect_infer.py、classify_infer.py均存在'
+                w='yolov8n/s/m/l/x.pt及yolov8s-cls.pt；参考Ultralytics8.4.2'
+                data='检测COCO val2017；分类ImageNet2012 val；有准备命令'
+                perf='310P3 bs8：v8s443.60fps；v8s-cls5204fps；纯OM吞吐'
+                acc='v8s mAP@0.5=61.6；v8s-cls Top1=73.7%/Top5=91.7%'
+                limit='已补读GPL固定commit aa0696bd53c3724c8438860243b55025539de64a；属于主仓明确外链；不是所有任务和硬件均验收'
+                ext='https://gitcode.com/Ascend/modelzoo-GPL/blob/aa0696bd53c3724c8438860243b55025539de64a/built-in/ACL_Pytorch/Yolov8_for_PyTorch/README.md'
+            else:
+                kind='Reranker' if 'Reranker' in name else 'Embedding'
+                code=f'vLLM-Ascend官方{kind}专项服务、功能验证和评测指导'
+                data='MTEB MultiLongDocReranking' if kind=='Reranker' else 'MTEB LeCaRDv2'
+                w=f'Qwen3-{kind}-0.6B/4B/8B权重均列来源'
+                perf='提供0.6B服务benchmark命令，未列8B固定条件实测数值'
+                acc='提供0.6B评测方法，未列8B任务指标对照数值'
+                limit='确认官方路线与8B权重入口；不能把0.6B示例当成8B质量性能实测'
+                ext='https://docs.vllm.ai/projects/ascend/zh-cn/latest/tutorials/models/Qwen3-'+kind+'.html'
             urls=[BASE+'ACL_PyTorch/README.md',ext]
         else:
             status='方法/软件/系统，需指定实现' if name in method else ('对象不唯一，需原项目链接' if name in ambiguous else '未找到仓内专项适配证据')
