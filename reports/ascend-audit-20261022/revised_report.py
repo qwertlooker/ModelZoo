@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 from urllib.parse import unquote, quote
 from device_dimensions import attach
+from reader_view import display, status, note
 
 ROOT=Path(__file__).resolve().parent
 MZ='dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202'
@@ -127,7 +128,7 @@ def make_rows():
 
 def cell(v):
     links=' '.join(f'[证据{i}]({u})' for i,u in enumerate(v['链接'],1))
-    return v['说明'].replace('|','/').replace('\n',' ')+('；'+links if links else '')
+    return display(v).replace('|','/').replace('\n',' ')+('；'+links if links else '')
 
 def main():
     rows=attach(make_rows())
@@ -135,34 +136,30 @@ def main():
     cols=['编号','原始条目','GPU结论','NPU结论']
     for device in ['GPU','NPU']:
         for field in FIELDS:cols += [device+'_'+field,device+'_'+field+'_证据链接']
-    cols += ['对照设备未明确的原表记录','分析与缺口']
+    cols += ['注意事项']
     with (ROOT/'inventory.csv').open('w',encoding='utf-8-sig',newline='') as f:
         w=csv.DictWriter(f,fieldnames=cols,lineterminator='\n');w.writeheader()
         for r in rows:
-            out={k:r[k] for k in ['编号','原始条目','GPU结论','NPU结论','分析与缺口']}
+            out={'编号':r['编号'],'原始条目':r['原始条目'],'GPU结论':status(r,'GPU'),'NPU结论':status(r,'NPU'),'注意事项':note(r)}
             for device in ['GPU','NPU']:
                 for field in FIELDS:
                     v=r['设备维度'][device][field]
-                    out[device+'_'+field]=v['说明']+'（'+v['证据类型']+'）'
+                    out[device+'_'+field]=display(v)
                     out[device+'_'+field+'_证据链接']=' ; '.join(v['链接'])
-            out['对照设备未明确的原表记录']=' ; '.join(k+': '+cell(v) for k,v in r['对照原文'].items())
             w.writerow(out)
-    lines=[f'''# 119项昇腾适配公开证据核查（修正版）
+    lines=[f'''# 119项模型GPU/NPU支持情况
 
 核查日期：2026-10-23。原始119项；CSV一项一行，GPU/NPU分列；本文每项分GPU/NPU两行。
 ModelZoo master `{MZ}`；DrivingSDK master `{DR}`；PaddleX release/3.7 `{PX}`。
 
-公开证据审计，不是适配执行或S3认证。数字均为来源报告，未独立复测；未下载校验权重/数据SHA，未运行NPU及clean-room。训练loss、数值一致性、任务质量分别解释；纯模型和端到端性能不混用。
-“源码文件/目录”“README指导”“原始资源入口”不是相同证据。未取得充分证据不等于不支持。链接检查见link-check.json；HTTP成功不证明内容正确或下载文件完整。外部latest/main仍为动态来源，不能声称全部冻结。
-
-GPU原始资源入口不等于GPU运行验证；NPU适配证据不自动复制为GPU支持。未明确设备的竞品/官方指标不自动归入GPU；保留在CSV对照原文列。权重或数据可为共享资源，但兼容性、split与设备验证分别记录。
+数值取自公开资料，未上机复测。“未查到”表示缺少对应设备的公开证据；“未核实”表示找到资源，但尚未确认具体使用情况。原始对照表和完整核查记录保存在inventory.json。
 
 | # | 模型 | 设备 | 代码 | 权重 | 数据集 | 性能基准 | 精度基准 | 结论与限制 |
 |---:|---|---|---|---|---|---|---|---|
 ''']
     for r in rows:
         for device in ['GPU','NPU']:
-            lines.append('| '+' | '.join([str(r['编号']),r['原始条目'],device,*[cell(r['设备维度'][device][k]) for k in FIELDS],r[device+'结论']+'；'+r['分析与缺口']])+' |\n')
+            lines.append('| '+' | '.join([str(r['编号']),r['原始条目'],device,*[cell(r['设备维度'][device][k]) for k in FIELDS],status(r,device)+('；'+note(r) if note(r) else '')])+' |\n')
     (ROOT/'REPORT.md').write_text(''.join(lines),encoding='utf-8',newline='\n')
 
 if __name__=='__main__':main()

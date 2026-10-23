@@ -77,6 +77,20 @@ class ReportTests(unittest.TestCase):
         self.assertIn('0.3148',self.rows[84]['设备维度']['GPU']['精度基准']['说明'])
         self.assertIn('0.3152',self.rows[84]['设备维度']['NPU']['精度基准']['说明'])
         self.assertNotIn('155.1',self.rows[21]['设备维度']['GPU']['性能基准']['说明'])
+    def test_reader_view_keeps_numbers_and_removes_boilerplate(self):
+        from reader_view import display
+        self.assertEqual(display(self.rows[84]['设备维度']['GPU']['精度基准']), 'GPU RefCOCO AP0.3148；对应训练配置')
+        self.assertIn('128',display(self.rows[21]['设备维度']['NPU']['性能基准']))
+        with (ROOT/'inventory.csv').open(encoding='utf-8-sig',newline='') as f:
+            reader=csv.DictReader(f);rows=list(reader)
+        self.assertIn('注意事项',reader.fieldnames)
+        self.assertNotIn('对照设备未明确的原表记录',reader.fieldnames)
+        for r in rows:
+            for key,value in r.items():
+                if key.endswith('_证据链接'):continue
+                self.assertNotIn('不以NPU结果代替',value)
+                self.assertNotIn('来源报告；未独立复测',value)
+                self.assertNotIn('GPU使用的版本、文件兼容及测试split待核实',value)
     def test_build_is_reproducible(self):
         names=['REPORT.md','inventory.json','inventory.csv']
         before={n:(ROOT/n).read_bytes() for n in names}
