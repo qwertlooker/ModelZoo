@@ -1,60 +1,69 @@
-"""Regression checks on scope preservation and source attribution."""
+"""Regression checks on coverage, evidence roles and benchmark attribution."""
 import csv
 import json
 import pathlib
+import subprocess
+import sys
 import unittest
 from urllib.parse import unquote
-
-ROOT = pathlib.Path(__file__).resolve().parent
-
+ROOT=pathlib.Path(__file__).resolve().parent
 class ReportTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.rows=json.loads((ROOT/'inventory.json').read_text(encoding='utf-8'))
-        cls.scope=json.loads((ROOT/'scope.json').read_text(encoding='utf-8'))
-        cls.tree=set((ROOT/'repository-files.txt').read_text(encoding='utf-8').splitlines())
-
-    def test_original_scope_preserved_in_order(self):
+        cls.scope=json.loads((ROOT/'scope.json').read_text(encoding='utf-8'))['models']
+    def test_119_items_preserved_in_order(self):
         self.assertEqual(len(self.rows),119)
-        self.assertEqual([r['原始条目'] for r in self.rows],self.scope['models'])
-
-    def test_every_item_has_all_requested_dimensions(self):
-        for row in self.rows:
-            for field in ['代码','权重','数据集','性能基准','精度基准','分析与缺口','具体证据链接']:
-                self.assertTrue(row[field],(row['原始条目'],field))
-
-    def test_all_pinned_source_files_exist(self):
+        self.assertEqual([r['编号'] for r in self.rows],list(range(1,120)))
+        self.assertEqual([r['原始条目'] for r in self.rows],self.scope)
+    def test_every_dimension_has_text_role_and_urls(self):
+        for r in self.rows:
+            self.assertEqual(set(r['证据']),{'代码','权重','数据集','性能基准','精度基准'})
+            for v in r['证据'].values():
+                self.assertTrue(v['说明']);self.assertTrue(v['证据类型'])
+                self.assertIsInstance(v['链接'],list)
+                self.assertTrue(all(u.startswith('https://') for u in v['链接']))
+    def test_no_runtime_certification(self):
+        for r in self.rows:
+            self.assertIn('未做模型运行',r['本次实测状态'])
+            self.assertNotIn('验收通过',r['结论'])
+    def test_specific_attribution_regressions(self):
+        self.assertIn('128/64',self.rows[21]['证据']['性能基准']['说明'])
+        self.assertIn('GPU/CPU',self.rows[115]['证据']['性能基准']['说明'])
+        self.assertIn('不是三次中位数',self.rows[0]['证据']['性能基准']['说明'])
+        self.assertIn('不证明提升',self.rows[0]['证据']['精度基准']['说明'])
+        self.assertIn('完整ssGBLUP未证实',self.rows[51]['证据']['代码']['说明'])
+        self.assertIn('MinerU<4',self.rows[45]['证据']['代码']['说明'])
+        self.assertIn('第一代',self.rows[112]['证据']['代码']['说明'])
+        self.assertIn('RefCOCO',self.rows[84]['证据']['精度基准']['说明'])
+    def test_original_sources_not_npu_proof(self):
+        for n in [2,3,9,15,24,28,32,53,74,81,83,103,112,117,118]:
+            r=self.rows[n-1]
+            self.assertEqual(r['证据']['代码']['证据类型'],'原始资源，不证明NPU支持')
+            self.assertNotIn('有公开实现',r['结论'])
+    def test_fixed_modelzoo_files_exist(self):
+        tree=set((ROOT/'repository-files.txt').read_text(encoding='utf-8').splitlines())
         marker='/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/'
-        for row in self.rows:
-            for url in row['具体证据链接'].split(' ; '):
-                if marker in url:self.assertIn(unquote(url.split(marker,1)[1]),self.tree)
-
-    def test_csv_matches_json_and_has_no_truncated_rows(self):
+        for r in self.rows:
+            for v in r['证据'].values():
+                for url in v['链接']:
+                    if marker in url:self.assertIn(unquote(url.split(marker)[1]),tree)
+    def test_csv_and_markdown_complete(self):
         with (ROOT/'inventory.csv').open(encoding='utf-8-sig',newline='') as f:
-            rows=list(csv.DictReader(f))
-        self.assertEqual([r['原始条目'] for r in rows],self.scope['models'])
-        self.assertTrue(all(None not in r for r in rows))
-
-    def test_neighbor_versions_not_certified_as_exact(self):
-        for name in ['MinerU3.3','Depth Anything V2','RT-DETR']:
-            row=next(r for r in self.rows if r['原始条目']==name)
-            self.assertEqual(row['仓库证据分类'],'仅相邻版本')
-        self.assertTrue(all('未做模型运行' in r['本次实测状态'] for r in self.rows))
-
-    def test_index_and_component_corrections_retained(self):
-        for name in ['Qwen3-Embedding','Qwen3-Reranker','YOLOv8']:
-            self.assertIn('索引外链',next(r for r in self.rows if r['原始条目']==name)['仓库证据分类'])
-        self.assertEqual(next(r for r in self.rows if r['原始条目']=='DINOv2')['仓库证据分类'],'组件级证据')
-
-    def test_external_models_do_not_share_unrelated_template_fields(self):
-        for row in self.rows:
-            if row['原始条目'].startswith('Qwen3-'):
-                for key in ['权重','数据集','性能基准','精度基准']:
-                    self.assertNotIn('YOLO',row[key])
-        yolo=next(r for r in self.rows if r['原始条目']=='YOLOv8')
-        self.assertIn('443.60',yolo['性能基准'])
-        self.assertNotIn('Qwen',yolo['精度基准'])
-        vl=next(r for r in self.rows if r['原始条目']=='Qwen2.5-VL')
-        self.assertIn('train_qwen2_5_vl_7b_GRPO_full_16p.sh',vl['具体证据链接'])
-
+            csvrows=list(csv.DictReader(f))
+        self.assertEqual([r['原始条目'] for r in csvrows],self.scope)
+        self.assertTrue(all(None not in r for r in csvrows))
+        md=(ROOT/'REPORT.md').read_text(encoding='utf-8')
+        for n,name in enumerate(self.scope,1):self.assertIn(f'| {n} | {name} |',md)
+        self.assertNotIn('唯一主依据',md)
+    def test_link_check_coverage_and_boundaries(self):
+        checks=json.loads((ROOT/'link-check.json').read_text(encoding='utf-8'))
+        expected={u for r in self.rows for v in r['证据'].values() for u in v['链接']}
+        self.assertEqual({r['url'] for r in checks},expected)
+        self.assertTrue(all(r['method']=='HEAD' and r['content_verified'] is False for r in checks))
+    def test_build_is_reproducible(self):
+        names=['REPORT.md','inventory.json','inventory.csv']
+        before={n:(ROOT/n).read_bytes() for n in names}
+        subprocess.run([sys.executable,str(ROOT/'build_report.py')],check=True)
+        self.assertEqual(before,{n:(ROOT/n).read_bytes() for n in names})
 if __name__=='__main__':unittest.main()

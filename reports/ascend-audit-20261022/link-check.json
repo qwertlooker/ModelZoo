@@ -1,0 +1,2542 @@
+[
+  {
+    "url": "https://ai.atomgit.com/Ascend-SACT/PatchCore",
+    "checked_at_utc": "2026-10-23T02:04:13.339062+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://ai.atomgit.com/Ascend-SACT/PatchCore",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://ai.gitcode.com/Ascend-SACT/vipe-v1.0",
+    "checked_at_utc": "2026-10-23T02:04:13.339753+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://ai.gitcode.com/Ascend-SACT/vipe-v1.0",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://ai.gitcode.com/gcw_93rlw6ed/esm2_t33_650M_UR50D-npu",
+    "checked_at_utc": "2026-10-23T02:04:13.340122+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://ai.gitcode.com/gcw_93rlw6ed/esm2_t33_650M_UR50D-npu",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://airvla.github.io/",
+    "checked_at_utc": "2026-10-23T02:04:13.340488+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://airvla.github.io/",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://arxiv.org/abs/2505.00091",
+    "checked_at_utc": "2026-10-23T02:04:13.340799+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://arxiv.org/abs/2505.00091",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://arxiv.org/abs/2507.01378",
+    "checked_at_utc": "2026-10-23T02:04:13.341211+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://arxiv.org/abs/2507.01378",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://ascend-repo-modelzoo.obs.cn-east-2.myhuaweicloud.com/model/1_PyTorch_PTH/LSTM/PTH/ctc_best_model.pth",
+    "checked_at_utc": "2026-10-23T02:04:13.341489+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://ascend-repo-modelzoo.obs.cn-east-2.myhuaweicloud.com/model/1_PyTorch_PTH/LSTM/PTH/ctc_best_model.pth",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://data.graylab.jhu.edu/ensemble_abresnet_v1.tar.gz",
+    "checked_at_utc": "2026-10-23T02:04:13.341822+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://data.graylab.jhu.edu/ensemble_abresnet_v1.tar.gz",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://deepmind.google/blog/rt-2-new-model-translates-vision-and-language-into-action/",
+    "checked_at_utc": "2026-10-23T02:04:13.342080+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://deepmind.google/blog/rt-2-new-model-translates-vision-and-language-into-action/",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://dl.fbaipublicfiles.com/segment_anything/sam_vit_b_01ec64.pth",
+    "checked_at_utc": "2026-10-23T02:04:13.342314+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://dl.fbaipublicfiles.com/segment_anything/sam_vit_b_01ec64.pth",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://dl.fbaipublicfiles.com/segment_anything_2/092824/sam2.1_hiera_tiny.pt",
+    "checked_at_utc": "2026-10-23T02:04:13.342564+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://dl.fbaipublicfiles.com/segment_anything_2/092824/sam2.1_hiera_tiny.pt",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://docs.px4.io/main/en/simulation/",
+    "checked_at_utc": "2026-10-23T02:04:13.342839+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://docs.px4.io/main/en/simulation/",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://docs.vllm.ai/projects/ascend/zh-cn/latest/tutorials/models/Qwen3-Embedding.html",
+    "checked_at_utc": "2026-10-23T02:04:13.805030+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://docs.vllm.ai/projects/ascend/zh-cn/latest/tutorials/models/Qwen3-Embedding.html",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://docs.vllm.ai/projects/ascend/zh-cn/latest/tutorials/models/Qwen3-Reranker.html",
+    "checked_at_utc": "2026-10-23T02:04:13.955465+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://docs.vllm.ai/projects/ascend/zh-cn/latest/tutorials/models/Qwen3-Reranker.html",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://files.ipd.uw.edu/pub/training_sets/pdb_2021aug02.tar.gz",
+    "checked_at_utc": "2026-10-23T02:04:13.955926+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://files.ipd.uw.edu/pub/training_sets/pdb_2021aug02.tar.gz",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/AI4Science/LifeScience/blob/27065e4053aa860774b9a005e6a5307854d062a8/PyTorch/LigandMPNN/README.md",
+    "checked_at_utc": "2026-10-23T02:04:13.994346+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/AI4Science/LifeScience/blob/27065e4053aa860774b9a005e6a5307854d062a8/PyTorch/LigandMPNN/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/AI4Science/LifeScience/blob/27065e4053aa860774b9a005e6a5307854d062a8/PyTorch/ProteinMPNN/README.md",
+    "checked_at_utc": "2026-10-23T02:04:14.112833+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/AI4Science/LifeScience/blob/27065e4053aa860774b9a005e6a5307854d062a8/PyTorch/ProteinMPNN/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/AI4Science/LifeScience/blob/27065e4053aa860774b9a005e6a5307854d062a8/PyTorch/RFdiffusion2/README.md",
+    "checked_at_utc": "2026-10-23T02:04:14.128812+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/AI4Science/LifeScience/blob/27065e4053aa860774b9a005e6a5307854d062a8/PyTorch/RFdiffusion2/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/AI4Science/LifeScience/blob/27065e4053aa860774b9a005e6a5307854d062a8/PyTorch/RFdiffusion_pyg/README.md",
+    "checked_at_utc": "2026-10-23T02:04:14.153211+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/AI4Science/LifeScience/blob/27065e4053aa860774b9a005e6a5307854d062a8/PyTorch/RFdiffusion_pyg/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend-SACT/ThermoMPNN/blob/34e25f601bebfa70a31e91d85af838a67a409460/README.md",
+    "checked_at_utc": "2026-10-23T02:04:14.377082+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://ai.gitcode.com/Ascend-SACT/ThermoMPNN/blob/34e25f601bebfa70a31e91d85af838a67a409460/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/audio/LSTM/ReadMe.md",
+    "checked_at_utc": "2026-10-23T02:04:14.439339+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/audio/LSTM/ReadMe.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/audio/LSTM/acl_net.py",
+    "checked_at_utc": "2026-10-23T02:04:14.444538+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/audio/LSTM/acl_net.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/audio/LSTM/lstm_atc.sh",
+    "checked_at_utc": "2026-10-23T02:04:14.517736+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/audio/LSTM/lstm_atc.sh",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/audio/LSTM/lstm_onnx_infer.py",
+    "checked_at_utc": "2026-10-23T02:04:14.631414+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/audio/LSTM/lstm_onnx_infer.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/audio/LSTM/prepare_data.sh",
+    "checked_at_utc": "2026-10-23T02:04:14.635732+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/audio/LSTM/prepare_data.sh",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/audio/LSTM/pyacl_infer.py",
+    "checked_at_utc": "2026-10-23T02:04:14.649720+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/audio/LSTM/pyacl_infer.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/cv/GroundingDINO/README.md",
+    "checked_at_utc": "2026-10-23T02:04:14.720610+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/cv/GroundingDINO/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/cv/GroundingDINO/image_demo_npu.py",
+    "checked_at_utc": "2026-10-23T02:04:14.737799+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/cv/GroundingDINO/image_demo_npu.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/cv/GroundingDINO/mmcv_diff.patch",
+    "checked_at_utc": "2026-10-23T02:04:15.036904+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/cv/GroundingDINO/mmcv_diff.patch",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/cv/GroundingDINO/mmdetection_diff.patch",
+    "checked_at_utc": "2026-10-23T02:04:15.084583+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/cv/GroundingDINO/mmdetection_diff.patch",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/cv/GroundingDINO/mmengine_diff.patch",
+    "checked_at_utc": "2026-10-23T02:04:15.113481+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/cv/GroundingDINO/mmengine_diff.patch",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/cv/SAM/README.md",
+    "checked_at_utc": "2026-10-23T02:04:15.129889+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/cv/SAM/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/cv/SAM/sam_amg_infer.py",
+    "checked_at_utc": "2026-10-23T02:04:15.146956+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/cv/SAM/sam_amg_infer.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/cv/SAM/sam_coco_metric.py",
+    "checked_at_utc": "2026-10-23T02:04:15.260963+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/cv/SAM/sam_coco_metric.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/cv/SAM/sam_om_predictor.py",
+    "checked_at_utc": "2026-10-23T02:04:15.298635+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/cv/SAM/sam_om_predictor.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/cv/SAM/segment_anything_diff.patch",
+    "checked_at_utc": "2026-10-23T02:04:15.307735+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/cv/SAM/segment_anything_diff.patch",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/cv/SAM2/README.md",
+    "checked_at_utc": "2026-10-23T02:04:15.430342+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/cv/SAM2/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/cv/SAM2/sam2_coco_metric.py",
+    "checked_at_utc": "2026-10-23T02:04:15.522969+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/cv/SAM2/sam2_coco_metric.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/cv/SAM2/sam2_convert_om.sh",
+    "checked_at_utc": "2026-10-23T02:04:15.657511+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/cv/SAM2/sam2_convert_om.sh",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/cv/SAM2/sam2_postprocessing.py",
+    "checked_at_utc": "2026-10-23T02:04:15.683223+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/cv/SAM2/sam2_postprocessing.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/cv/SAM2/sam2_preprocessing.py",
+    "checked_at_utc": "2026-10-23T02:04:15.731729+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/cv/SAM2/sam2_preprocessing.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/embedding/bge-m3/README.md",
+    "checked_at_utc": "2026-10-23T02:04:15.793103+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/embedding/bge-m3/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/embedding/bge-m3/infer.py",
+    "checked_at_utc": "2026-10-23T02:04:15.854605+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/embedding/bge-m3/infer.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/embedding/bge-reranker-v2-m3/README.md",
+    "checked_at_utc": "2026-10-23T02:04:15.864577+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/embedding/bge-reranker-v2-m3/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/embedding/bge-reranker-v2-m3/infer.py",
+    "checked_at_utc": "2026-10-23T02:04:15.922056+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/embedding/bge-reranker-v2-m3/infer.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/embodied_ai/vla/pi0/README.md",
+    "checked_at_utc": "2026-10-23T02:04:16.112715+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/embodied_ai/vla/pi0/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/embodied_ai/vla/pi0/infer.py",
+    "checked_at_utc": "2026-10-23T02:04:16.131926+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/embodied_ai/vla/pi0/infer.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/embodied_ai/vla/pi0/patches/lerobot_diff.patch",
+    "checked_at_utc": "2026-10-23T02:04:16.161846+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/embodied_ai/vla/pi0/patches/lerobot_diff.patch",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/embodied_ai/vla/pi0/patches/modeling_gemma.patch",
+    "checked_at_utc": "2026-10-23T02:04:16.177257+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/embodied_ai/vla/pi0/patches/modeling_gemma.patch",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/embodied_ai/vla/pi0/utils.py",
+    "checked_at_utc": "2026-10-23T02:04:16.257620+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/embodied_ai/vla/pi0/utils.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/ocr/PPOCRv5/README.md",
+    "checked_at_utc": "2026-10-23T02:04:16.269987+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/ocr/PPOCRv5/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/ocr/PPOCRv5/eval_ori_accuracy.py",
+    "checked_at_utc": "2026-10-23T02:04:16.310474+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/ocr/PPOCRv5/eval_ori_accuracy.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/ocr/PPOCRv5/eval_uvdoc_accuracy.py",
+    "checked_at_utc": "2026-10-23T02:04:16.312170+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/ocr/PPOCRv5/eval_uvdoc_accuracy.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/ocr/PPOCRv5/infer.py",
+    "checked_at_utc": "2026-10-23T02:04:16.415083+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/ocr/PPOCRv5/infer.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/ocr/PPOCRv5/paddleocr.patch",
+    "checked_at_utc": "2026-10-23T02:04:16.478541+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/ocr/PPOCRv5/paddleocr.patch",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/ocr/PPOCRv6/README.md",
+    "checked_at_utc": "2026-10-23T02:04:16.506524+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/ocr/PPOCRv6/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/ocr/PPOCRv6/infer.py",
+    "checked_at_utc": "2026-10-23T02:04:16.602789+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/ocr/PPOCRv6/infer.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/ocr/PPOCRv6/paddleocr.patch",
+    "checked_at_utc": "2026-10-23T02:04:16.616071+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/ocr/PPOCRv6/paddleocr.patch",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/ocr/PaddleOCR-VL-1.6/README.md",
+    "checked_at_utc": "2026-10-23T02:04:16.711355+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/ocr/PaddleOCR-VL-1.6/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/ocr/PaddleOCR-VL-1.6/infer.py",
+    "checked_at_utc": "2026-10-23T02:04:16.747803+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/ocr/PaddleOCR-VL-1.6/infer.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/ocr/PaddleOCR-VL-1.6/infer_preformance.py",
+    "checked_at_utc": "2026-10-23T02:04:16.842060+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/ocr/PaddleOCR-VL-1.6/infer_preformance.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/ocr/PaddleOCR-VL-1.6/overall_metric.py",
+    "checked_at_utc": "2026-10-23T02:04:16.868354+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/ocr/PaddleOCR-VL-1.6/overall_metric.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/ocr/PaddleOCR-VL-1.6/paddlex.patch",
+    "checked_at_utc": "2026-10-23T02:04:16.897178+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/ocr/PaddleOCR-VL-1.6/paddlex.patch",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/detection/Faster_R-CNN_ResNet50/README.md",
+    "checked_at_utc": "2026-10-23T02:04:16.903673+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/detection/Faster_R-CNN_ResNet50/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/detection/Faster_R-CNN_ResNet50/coco_eval.py",
+    "checked_at_utc": "2026-10-23T02:04:16.973285+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/detection/Faster_R-CNN_ResNet50/coco_eval.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/detection/Faster_R-CNN_ResNet50/get_info.py",
+    "checked_at_utc": "2026-10-23T02:04:16.999913+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/detection/Faster_R-CNN_ResNet50/get_info.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/detection/Faster_R-CNN_ResNet50/mmdetection.patch",
+    "checked_at_utc": "2026-10-23T02:04:17.011568+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/detection/Faster_R-CNN_ResNet50/mmdetection.patch",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/detection/Faster_R-CNN_ResNet50/modify.py",
+    "checked_at_utc": "2026-10-23T02:04:17.192357+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/detection/Faster_R-CNN_ResNet50/modify.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/detection/Mask_Rcnn_SwinS/README.md",
+    "checked_at_utc": "2026-10-23T02:04:17.221189+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/detection/Mask_Rcnn_SwinS/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/detection/Mask_Rcnn_SwinS/data_preprocess.py",
+    "checked_at_utc": "2026-10-23T02:04:17.326301+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/detection/Mask_Rcnn_SwinS/data_preprocess.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/detection/Mask_Rcnn_SwinS/get_info.py",
+    "checked_at_utc": "2026-10-23T02:04:17.328003+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/detection/Mask_Rcnn_SwinS/get_info.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/detection/Mask_Rcnn_SwinS/swin.patch",
+    "checked_at_utc": "2026-10-23T02:04:17.363345+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/detection/Mask_Rcnn_SwinS/swin.patch",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/detection/Mask_Rcnn_SwinS/swin_mod_newroi.py",
+    "checked_at_utc": "2026-10-23T02:04:17.386068+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/detection/Mask_Rcnn_SwinS/swin_mod_newroi.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/segmentation/DeeplabV3%2B/README.md",
+    "checked_at_utc": "2026-10-23T02:04:17.520433+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/segmentation/DeeplabV3%2B/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/segmentation/DeeplabV3%2B/deeplabV3plus_pth2onnx.py",
+    "checked_at_utc": "2026-10-23T02:04:17.525996+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/segmentation/DeeplabV3%2B/deeplabV3plus_pth2onnx.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/segmentation/DeeplabV3%2B/post_deeplabv3plus_pytorch.py",
+    "checked_at_utc": "2026-10-23T02:04:17.535609+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/segmentation/DeeplabV3%2B/post_deeplabv3plus_pytorch.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/segmentation/Segformer/README.md",
+    "checked_at_utc": "2026-10-23T02:04:17.618299+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/segmentation/Segformer/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/segmentation/Segformer/Segformer.patch",
+    "checked_at_utc": "2026-10-23T02:04:17.648273+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/segmentation/Segformer/Segformer.patch",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/segmentation/Segformer/Segformer_postprocess.py",
+    "checked_at_utc": "2026-10-23T02:04:17.710181+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/segmentation/Segformer/Segformer_postprocess.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/segmentation/Segformer/Segformer_preprocess.py",
+    "checked_at_utc": "2026-10-23T02:04:17.726036+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/segmentation/Segformer/Segformer_preprocess.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/segmentation/Segformer/optimize_onnx.py",
+    "checked_at_utc": "2026-10-23T02:04:17.787436+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/segmentation/Segformer/optimize_onnx.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/segmentation/UNet/README.md",
+    "checked_at_utc": "2026-10-23T02:04:17.793352+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/segmentation/UNet/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/segmentation/UNet/json_parse.py",
+    "checked_at_utc": "2026-10-23T02:04:17.821447+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/segmentation/UNet/json_parse.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/segmentation/UNet/postprocess_unet_pth.py",
+    "checked_at_utc": "2026-10-23T02:04:17.861234+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/segmentation/UNet/postprocess_unet_pth.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/segmentation/UNet/preprocess_unet_pth.py",
+    "checked_at_utc": "2026-10-23T02:04:17.961676+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/segmentation/UNet/preprocess_unet_pth.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/segmentation/UNet/revise_UNet.py",
+    "checked_at_utc": "2026-10-23T02:04:17.965371+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/segmentation/UNet/revise_UNet.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/segmentation/UNet/unet_pth2onnx.py",
+    "checked_at_utc": "2026-10-23T02:04:18.117180+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/segmentation/UNet/unet_pth2onnx.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/MindIE/LLM/Qwen3/Qwen3-8B/README.md",
+    "checked_at_utc": "2026-10-23T02:04:18.139214+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/MindIE/LLM/Qwen3/Qwen3-8B/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/MindIE/MultiModal/InternVL/InternVL2/Internvl2_40b/README.md",
+    "checked_at_utc": "2026-10-23T02:04:18.305043+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/MindIE/MultiModal/InternVL/InternVL2/Internvl2_40b/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/MindIE/MultiModal/InternVL/InternVL2/Internvl2_8b/README.md",
+    "checked_at_utc": "2026-10-23T02:04:18.316964+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/MindIE/MultiModal/InternVL/InternVL2/Internvl2_8b/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/MindIE/MultiModal/Qwen2-VL/Qwen2_vl_72b_instruct/README.md",
+    "checked_at_utc": "2026-10-23T02:04:18.354016+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/MindIE/MultiModal/Qwen2-VL/Qwen2_vl_72b_instruct/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/MindIE/MultiModal/Qwen2-VL/Qwen2_vl_7b_instruct/README.md",
+    "checked_at_utc": "2026-10-23T02:04:18.433493+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/MindIE/MultiModal/Qwen2-VL/Qwen2_vl_7b_instruct/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/autonoumous_driving/BEVFormer/README.md",
+    "checked_at_utc": "2026-10-23T02:04:18.441580+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/autonoumous_driving/BEVFormer/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/autonoumous_driving/BEVFormer/test/env_npu.sh",
+    "checked_at_utc": "2026-10-23T02:04:18.462066+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/autonoumous_driving/BEVFormer/test/env_npu.sh",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/autonoumous_driving/BEVFormer/test/train_full_8p_base_fp32.sh",
+    "checked_at_utc": "2026-10-23T02:04:18.498845+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/autonoumous_driving/BEVFormer/test/train_full_8p_base_fp32.sh",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/autonoumous_driving/BEVFormer/tools/__init__.py",
+    "checked_at_utc": "2026-10-23T02:04:18.553178+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/autonoumous_driving/BEVFormer/tools/__init__.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/autonoumous_driving/BEVFormer/tools/test.py",
+    "checked_at_utc": "2026-10-23T02:04:18.577207+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/autonoumous_driving/BEVFormer/tools/test.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/autonoumous_driving/BEVFormer/tools/train.py",
+    "checked_at_utc": "2026-10-23T02:04:18.666477+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/autonoumous_driving/BEVFormer/tools/train.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/cv/detection/GroundingDINO_for_Pytorch/README.md",
+    "checked_at_utc": "2026-10-23T02:04:18.738153+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/cv/detection/GroundingDINO_for_Pytorch/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/cv/semantic_segmentation/DeepLabv3%2B_ID1695_for_PyTorch/README.md",
+    "checked_at_utc": "2026-10-23T02:04:18.822147+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/cv/semantic_segmentation/DeepLabv3%2B_ID1695_for_PyTorch/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/cv/semantic_segmentation/DeepLabv3%2B_ID1695_for_PyTorch/mypath.py",
+    "checked_at_utc": "2026-10-23T02:04:18.839466+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/cv/semantic_segmentation/DeepLabv3%2B_ID1695_for_PyTorch/mypath.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/cv/semantic_segmentation/DeepLabv3%2B_ID1695_for_PyTorch/train.py",
+    "checked_at_utc": "2026-10-23T02:04:18.929012+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/cv/semantic_segmentation/DeepLabv3%2B_ID1695_for_PyTorch/train.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/foundation/Qwen3-30B-Torchtitan/README.md",
+    "checked_at_utc": "2026-10-23T02:04:18.929449+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/foundation/Qwen3-30B-Torchtitan/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/foundation/Qwen3-30B-Torchtitan/patches/chunkloss_qwen3.patch",
+    "checked_at_utc": "2026-10-23T02:04:18.933670+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/foundation/Qwen3-30B-Torchtitan/patches/chunkloss_qwen3.patch",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/foundation/Qwen3-30B-Torchtitan/torchtitan_npu_patch.py",
+    "checked_at_utc": "2026-10-23T02:04:18.964270+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/foundation/Qwen3-30B-Torchtitan/torchtitan_npu_patch.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/mm/LLaVA/README.md",
+    "checked_at_utc": "2026-10-23T02:04:19.004574+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/mm/LLaVA/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/mm/LLaVA/llava/__init__.py",
+    "checked_at_utc": "2026-10-23T02:04:19.095108+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/mm/LLaVA/llava/__init__.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/mm/LLaVA/llava/mm_utils.py",
+    "checked_at_utc": "2026-10-23T02:04:19.167180+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/mm/LLaVA/llava/mm_utils.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/mm/LLaVA/llava/utils.py",
+    "checked_at_utc": "2026-10-23T02:04:19.206127+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/mm/LLaVA/llava/utils.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/mm/LLaVA/predict.py",
+    "checked_at_utc": "2026-10-23T02:04:19.348631+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/mm/LLaVA/predict.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/mm/LLaVA/scripts/convert_gqa_for_eval.py",
+    "checked_at_utc": "2026-10-23T02:04:19.348742+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/mm/LLaVA/scripts/convert_gqa_for_eval.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/mm/LLaVA/scripts/convert_mmvet_for_eval.py",
+    "checked_at_utc": "2026-10-23T02:04:19.377241+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/mm/LLaVA/scripts/convert_mmvet_for_eval.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/nlp/LSTM_ID0468_for_PyTorch/README.md",
+    "checked_at_utc": "2026-10-23T02:04:19.441166+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/nlp/LSTM_ID0468_for_PyTorch/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/rl/MAPPO_for_PyTorch/README.md",
+    "checked_at_utc": "2026-10-23T02:04:19.445410+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/rl/MAPPO_for_PyTorch/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/rl/MAPPO_for_PyTorch/onpolicy/__init__.py",
+    "checked_at_utc": "2026-10-23T02:04:19.478642+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/rl/MAPPO_for_PyTorch/onpolicy/__init__.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/rl/MAPPO_for_PyTorch/onpolicy/config.py",
+    "checked_at_utc": "2026-10-23T02:04:19.479130+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/rl/MAPPO_for_PyTorch/onpolicy/config.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/rl/MAPPO_for_PyTorch/setup.py",
+    "checked_at_utc": "2026-10-23T02:04:19.512702+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/rl/MAPPO_for_PyTorch/setup.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/rl/MAPPO_for_PyTorch/test/env_npu.sh",
+    "checked_at_utc": "2026-10-23T02:04:19.550098+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/rl/MAPPO_for_PyTorch/test/env_npu.sh",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/rl/MAPPO_for_PyTorch/test/train_full_1p.sh",
+    "checked_at_utc": "2026-10-23T02:04:19.593843+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/rl/MAPPO_for_PyTorch/test/train_full_1p.sh",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/rl/PPO_for_Pytorch/PPO.py",
+    "checked_at_utc": "2026-10-23T02:04:19.637695+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/rl/PPO_for_Pytorch/PPO.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/rl/PPO_for_Pytorch/README.md",
+    "checked_at_utc": "2026-10-23T02:04:19.692691+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/rl/PPO_for_Pytorch/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/rl/PPO_for_Pytorch/make_gif.py",
+    "checked_at_utc": "2026-10-23T02:04:19.789718+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/rl/PPO_for_Pytorch/make_gif.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/rl/PPO_for_Pytorch/test.py",
+    "checked_at_utc": "2026-10-23T02:04:19.844717+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/rl/PPO_for_Pytorch/test.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/rl/PPO_for_Pytorch/test/train_full_1p.sh",
+    "checked_at_utc": "2026-10-23T02:04:19.922186+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/rl/PPO_for_Pytorch/test/train_full_1p.sh",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/rl/PPO_for_Pytorch/train.py",
+    "checked_at_utc": "2026-10-23T02:04:19.931601+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/rl/PPO_for_Pytorch/train.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/rl/VeRL_for_PyTorch/README.md",
+    "checked_at_utc": "2026-10-23T02:04:19.940993+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/rl/VeRL_for_PyTorch/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/rl/VeRL_for_PyTorch/docs/conf.py",
+    "checked_at_utc": "2026-10-23T02:04:19.946289+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/rl/VeRL_for_PyTorch/docs/conf.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/rl/VeRL_for_PyTorch/patches/megatron_v4.patch",
+    "checked_at_utc": "2026-10-23T02:04:19.957717+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/rl/VeRL_for_PyTorch/patches/megatron_v4.patch",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/rl/VeRL_for_PyTorch/setup.py",
+    "checked_at_utc": "2026-10-23T02:04:19.970206+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/rl/VeRL_for_PyTorch/setup.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/rl/VeRL_for_PyTorch/test/env_npu.sh",
+    "checked_at_utc": "2026-10-23T02:04:20.005121+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/rl/VeRL_for_PyTorch/test/env_npu.sh",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/rl/VeRL_for_PyTorch/test/train_qwen2_5_vl_7b_GRPO_full_16p.sh",
+    "checked_at_utc": "2026-10-23T02:04:20.026362+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/rl/VeRL_for_PyTorch/test/train_qwen2_5_vl_7b_GRPO_full_16p.sh",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/contrib/cv/semantic_segmentation/UNet_for_PyTorch/README.md",
+    "checked_at_utc": "2026-10-23T02:04:20.118299+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/contrib/cv/semantic_segmentation/UNet_for_PyTorch/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/dev/cv/detection/FasterRCNN-Resnet50-FPN_ID1552_for_PyTorch/README.md",
+    "checked_at_utc": "2026-10-23T02:04:20.311057+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/dev/cv/detection/FasterRCNN-Resnet50-FPN_ID1552_for_PyTorch/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/dev/cv/detection/FasterRCNN-Resnet50-FPN_ID1552_for_PyTorch/demo/demo.py",
+    "checked_at_utc": "2026-10-23T02:04:20.343018+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/dev/cv/detection/FasterRCNN-Resnet50-FPN_ID1552_for_PyTorch/demo/demo.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/dev/cv/detection/FasterRCNN-Resnet50-FPN_ID1552_for_PyTorch/dev/linter.sh",
+    "checked_at_utc": "2026-10-23T02:04:20.393565+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/dev/cv/detection/FasterRCNN-Resnet50-FPN_ID1552_for_PyTorch/dev/linter.sh",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/dev/cv/detection/FasterRCNN-Resnet50-FPN_ID1552_for_PyTorch/dev/run_inference_tests.sh",
+    "checked_at_utc": "2026-10-23T02:04:20.396906+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/dev/cv/detection/FasterRCNN-Resnet50-FPN_ID1552_for_PyTorch/dev/run_inference_tests.sh",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/dev/cv/detection/FasterRCNN-Resnet50-FPN_ID1552_for_PyTorch/docs/conf.py",
+    "checked_at_utc": "2026-10-23T02:04:20.428305+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/dev/cv/detection/FasterRCNN-Resnet50-FPN_ID1552_for_PyTorch/docs/conf.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/dev/cv/detection/FasterRCNN-Resnet50-FPN_ID1552_for_PyTorch/setup.py",
+    "checked_at_utc": "2026-10-23T02:04:20.454621+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/dev/cv/detection/FasterRCNN-Resnet50-FPN_ID1552_for_PyTorch/setup.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/dev/cv/detection/FasterRCNN-Resnet50-FPN_ID1552_for_PyTorch/test/train_full_1p.sh",
+    "checked_at_utc": "2026-10-23T02:04:20.474281+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/dev/cv/detection/FasterRCNN-Resnet50-FPN_ID1552_for_PyTorch/test/train_full_1p.sh",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/gcw_1yOcCgy7/310p-spiritv1.5-infer",
+    "checked_at_utc": "2026-10-23T02:04:20.500885+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://gitcode.com/gcw_1yOcCgy7/310p-spiritv1.5-infer",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/wangguiqin/FastWAM-NPU/blob/5a7f8443a84bad1125298662d279436fb3edfe07/scripts/eval_npu_suite.py",
+    "checked_at_utc": "2026-10-23T02:04:20.514329+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/wangguiqin/FastWAM-NPU/blob/5a7f8443a84bad1125298662d279436fb3edfe07/scripts/eval_npu_suite.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/wangguiqin/FastWAM-NPU/blob/5a7f8443a84bad1125298662d279436fb3edfe07/src/fastwam/runtime.py",
+    "checked_at_utc": "2026-10-23T02:04:20.515548+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/wangguiqin/FastWAM-NPU/blob/5a7f8443a84bad1125298662d279436fb3edfe07/src/fastwam/runtime.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/wangguiqin/FastWAM-NPU/blob/5a7f8443a84bad1125298662d279436fb3edfe07/validation/accuracy_comparison.json",
+    "checked_at_utc": "2026-10-23T02:04:20.534179+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/wangguiqin/FastWAM-NPU/blob/5a7f8443a84bad1125298662d279436fb3edfe07/validation/accuracy_comparison.json",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/wangguiqin/FastWAM-NPU/blob/5a7f8443a84bad1125298662d279436fb3edfe07/validation/baseline_workers8/performance.json",
+    "checked_at_utc": "2026-10-23T02:04:20.588992+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/wangguiqin/FastWAM-NPU/blob/5a7f8443a84bad1125298662d279436fb3edfe07/validation/baseline_workers8/performance.json",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/wangguiqin/FastWAM-NPU/blob/5a7f8443a84bad1125298662d279436fb3edfe07/validation/overlap_final/performance.json",
+    "checked_at_utc": "2026-10-23T02:04:20.779850+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/wangguiqin/FastWAM-NPU/blob/5a7f8443a84bad1125298662d279436fb3edfe07/validation/overlap_final/performance.json",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/xiaotao5571/BLUP-NPU",
+    "checked_at_utc": "2026-10-23T02:04:20.839833+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://gitcode.com/xiaotao5571/BLUP-NPU",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/xiaotao5571/NPU",
+    "checked_at_utc": "2026-10-23T02:04:20.898249+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://gitcode.com/xiaotao5571/NPU",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/xiaotao5571/ssGBLUP-npu_4212",
+    "checked_at_utc": "2026-10-23T02:04:20.906311+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://gitcode.com/xiaotao5571/ssGBLUP-npu_4212",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/xujiashuai/dinov2-large",
+    "checked_at_utc": "2026-10-23T02:04:20.959676+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://gitcode.com/xujiashuai/dinov2-large",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Drive-Dreams/README.md",
+    "checked_at_utc": "2026-10-23T02:04:21.020359+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Drive-Dreams/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Predict2/README.md",
+    "checked_at_utc": "2026-10-23T02:04:21.084613+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Predict2/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Reason1/README.md",
+    "checked_at_utc": "2026-10-23T02:04:21.089527+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Reason1/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Transfer1/README.md",
+    "checked_at_utc": "2026-10-23T02:04:21.129481+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Transfer1/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/GR00T-N1.5/README.md",
+    "checked_at_utc": "2026-10-23T02:04:21.305677+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/GR00T-N1.5/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/GR00T-N1.6/README.md",
+    "checked_at_utc": "2026-10-23T02:04:21.343866+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/GR00T-N1.6/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Lingbot-vla/README.md",
+    "checked_at_utc": "2026-10-23T02:04:21.357055+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Lingbot-vla/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/OpenVLA/README.md",
+    "checked_at_utc": "2026-10-23T02:04:21.385773+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/OpenVLA/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Pi-0.5/README.md",
+    "checked_at_utc": "2026-10-23T02:04:21.390044+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Pi-0.5/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/StarVLA/README.md",
+    "checked_at_utc": "2026-10-23T02:04:21.507850+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/StarVLA/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/VGGT/README.md",
+    "checked_at_utc": "2026-10-23T02:04:21.755708+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/VGGT/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/Ascend/DrivingSDK/tree/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Drive-Dreams",
+    "checked_at_utc": "2026-10-23T02:04:22.094174+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/Ascend/DrivingSDK/tree/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Drive-Dreams",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/Ascend/DrivingSDK/tree/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Predict2",
+    "checked_at_utc": "2026-10-23T02:04:22.164742+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/Ascend/DrivingSDK/tree/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Predict2",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/Ascend/DrivingSDK/tree/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Reason1",
+    "checked_at_utc": "2026-10-23T02:04:22.175547+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/Ascend/DrivingSDK/tree/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Reason1",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/Ascend/DrivingSDK/tree/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Transfer1",
+    "checked_at_utc": "2026-10-23T02:04:22.180354+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/Ascend/DrivingSDK/tree/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Transfer1",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/Ascend/DrivingSDK/tree/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/GR00T-N1.5",
+    "checked_at_utc": "2026-10-23T02:04:22.199356+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/Ascend/DrivingSDK/tree/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/GR00T-N1.5",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/Ascend/DrivingSDK/tree/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/GR00T-N1.6",
+    "checked_at_utc": "2026-10-23T02:04:22.289280+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/Ascend/DrivingSDK/tree/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/GR00T-N1.6",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/Ascend/DrivingSDK/tree/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Lingbot-vla",
+    "checked_at_utc": "2026-10-23T02:04:22.320446+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/Ascend/DrivingSDK/tree/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Lingbot-vla",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/Ascend/DrivingSDK/tree/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/OpenVLA",
+    "checked_at_utc": "2026-10-23T02:04:22.327226+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/Ascend/DrivingSDK/tree/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/OpenVLA",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/Ascend/DrivingSDK/tree/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Pi-0.5",
+    "checked_at_utc": "2026-10-23T02:04:22.374907+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/Ascend/DrivingSDK/tree/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Pi-0.5",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/Ascend/DrivingSDK/tree/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/StarVLA",
+    "checked_at_utc": "2026-10-23T02:04:22.394366+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/Ascend/DrivingSDK/tree/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/StarVLA",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/Ascend/DrivingSDK/tree/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/VGGT",
+    "checked_at_utc": "2026-10-23T02:04:22.535521+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/Ascend/DrivingSDK/tree/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/VGGT",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/DebeshJha/ResUNetPlusPlus",
+    "checked_at_utc": "2026-10-23T02:04:22.902695+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/DebeshJha/ResUNetPlusPlus",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/DurYi/UA-NWM",
+    "checked_at_utc": "2026-10-23T02:04:22.985991+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/DurYi/UA-NWM",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/EmbodiedCity/Worldscape-MoE.code",
+    "checked_at_utc": "2026-10-23T02:04:23.008151+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/EmbodiedCity/Worldscape-MoE.code",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/NVIDIA/Isaac-GR00T",
+    "checked_at_utc": "2026-10-23T02:04:23.026323+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/NVIDIA/Isaac-GR00T",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/Open-X-Humanoid/XR-1",
+    "checked_at_utc": "2026-10-23T02:04:23.179764+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/Open-X-Humanoid/XR-1",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/Open-X-Humanoid/pelican-vl",
+    "checked_at_utc": "2026-10-23T02:04:23.204085+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/Open-X-Humanoid/pelican-vl",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/OpenGalaxea/GalaxeaVLA",
+    "checked_at_utc": "2026-10-23T02:04:23.283085+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/OpenGalaxea/GalaxeaVLA",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/PaddlePaddle/PaddleSeg",
+    "checked_at_utc": "2026-10-23T02:04:23.318226+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/PaddlePaddle/PaddleSeg",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/PaddlePaddle/PaddleX/blob/ffb64904d23708863ff5b8da312a5cbd52a7f462/docs/support_list/model_list_npu.en.md",
+    "checked_at_utc": "2026-10-23T02:04:23.319989+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/PaddlePaddle/PaddleX/blob/ffb64904d23708863ff5b8da312a5cbd52a7f462/docs/support_list/model_list_npu.en.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/RosettaCommons/DeepAb",
+    "checked_at_utc": "2026-10-23T02:04:23.625959+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/RosettaCommons/DeepAb",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/RosettaCommons/RoseTTAFold",
+    "checked_at_utc": "2026-10-23T02:04:23.839449+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/RosettaCommons/RoseTTAFold",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/UZ-SLAMLab/ORB_SLAM3",
+    "checked_at_utc": "2026-10-23T02:04:23.860968+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/UZ-SLAMLab/ORB_SLAM3",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/X-Square-Robot/wall-x",
+    "checked_at_utc": "2026-10-23T02:04:23.965185+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/X-Square-Robot/wall-x",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/chenjinyubuaa/AerialVLA",
+    "checked_at_utc": "2026-10-23T02:04:23.992002+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/chenjinyubuaa/AerialVLA",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/danijar/dreamerv3",
+    "checked_at_utc": "2026-10-23T02:04:24.096122+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/danijar/dreamerv3",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/evolutionaryscale/esm",
+    "checked_at_utc": "2026-10-23T02:04:24.190196+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/Biohub/esm",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/facebookresearch/map-anything",
+    "checked_at_utc": "2026-10-23T02:04:24.272132+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/facebookresearch/map-anything",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/facebookresearch/vjepa2",
+    "checked_at_utc": "2026-10-23T02:04:24.295384+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/facebookresearch/vjepa2",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/google-deepmind/deepmind-research/tree/master/meshgraphnets",
+    "checked_at_utc": "2026-10-23T02:04:24.552671+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/google-deepmind/deepmind-research/tree/master/meshgraphnets",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/huggingface/peft/blob/main/src/peft/utils/other.py",
+    "checked_at_utc": "2026-10-23T02:04:24.694244+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/huggingface/peft/blob/main/src/peft/utils/other.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/ifzhang/ByteTrack",
+    "checked_at_utc": "2026-10-23T02:04:24.703333+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/FoundationVision/ByteTrack",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/jenniferlu717/Bracken",
+    "checked_at_utc": "2026-10-23T02:04:24.773042+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/jenniferlu717/Bracken",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/justchenhao/BIT_CD",
+    "checked_at_utc": "2026-10-23T02:04:24.832294+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/justchenhao/BIT_CD",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/microsoft/AirSim",
+    "checked_at_utc": "2026-10-23T02:04:24.851425+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/microsoft/AirSim",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/mindspore-ai/mindscience/blob/971c015b0111d229608ff05b9e77704dbb0793b4/MindSPONGE/README.md",
+    "checked_at_utc": "2026-10-23T02:04:25.016073+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/mindspore-ai/mindscience/blob/971c015b0111d229608ff05b9e77704dbb0793b4/MindSPONGE/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/open-gigaai/giga-brain-0",
+    "checked_at_utc": "2026-10-23T02:04:25.134265+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/open-gigaai/giga-brain-0",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/open-gigaai/giga-world-0",
+    "checked_at_utc": "2026-10-23T02:04:25.278646+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/open-gigaai/giga-world-0",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/open-gigaai/giga-world-1",
+    "checked_at_utc": "2026-10-23T02:04:25.478016+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/open-gigaai/giga-world-1",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/ros-planning/navigation/tree/noetic-devel/dwa_local_planner",
+    "checked_at_utc": "2026-10-23T02:04:25.509164+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/ros-planning/navigation/tree/noetic-devel/dwa_local_planner",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/thuml/Anomaly-Transformer",
+    "checked_at_utc": "2026-10-23T02:04:25.666071+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/thuml/Anomaly-Transformer",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/wgcban/ChangeFormer",
+    "checked_at_utc": "2026-10-23T02:04:25.690114+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/wgcban/ChangeFormer",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/BAAI/bge-m3",
+    "checked_at_utc": "2026-10-23T02:04:25.767485+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/BAAI/bge-m3",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/BAAI/bge-reranker-v2-m3",
+    "checked_at_utc": "2026-10-23T02:04:25.823586+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/BAAI/bge-reranker-v2-m3",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/BrunoM42/pi0_aloha_transfer_cube/tree/main",
+    "checked_at_utc": "2026-10-23T02:04:25.882006+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/BrunoM42/pi0_aloha_transfer_cube/tree/main",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/DurYi/UA-NWM-Checkpoints",
+    "checked_at_utc": "2026-10-23T02:04:25.935808+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/DurYi/UA-NWM-Checkpoints",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/EmbodiedCity/Worldscape-MoE",
+    "checked_at_utc": "2026-10-23T02:04:25.967231+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/EmbodiedCity/Worldscape-MoE",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/Qwen/Qwen3-Embedding-8B",
+    "checked_at_utc": "2026-10-23T02:04:26.072384+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/Qwen/Qwen3-Embedding-8B",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/Qwen/Qwen3-Reranker-8B",
+    "checked_at_utc": "2026-10-23T02:04:26.241057+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/Qwen/Qwen3-Reranker-8B",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/Qwen/Qwen3-VL-4B-Instruct",
+    "checked_at_utc": "2026-10-23T02:04:26.244466+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/Qwen/Qwen3-VL-4B-Instruct",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/X-Humanoid/WoW-1-Wan-1.3B-2M",
+    "checked_at_utc": "2026-10-23T02:04:26.434107+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/X-Humanoid/WoW-1-Wan-1.3B-2M",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/datasets/DurYi/AirGoal-10k",
+    "checked_at_utc": "2026-10-23T02:04:26.437435+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/datasets/DurYi/AirGoal-10k",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/datasets/EmbodiedCity/Worldscape-MoE-Dataset",
+    "checked_at_utc": "2026-10-23T02:04:26.514722+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/datasets/EmbodiedCity/Worldscape-MoE-Dataset",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/datasets/StarVLA/RoboTwin-Clean",
+    "checked_at_utc": "2026-10-23T02:04:26.539559+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/datasets/StarVLA/RoboTwin-Clean",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/datasets/StarVLA/RoboTwin-Randomized",
+    "checked_at_utc": "2026-10-23T02:04:26.644780+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/datasets/StarVLA/RoboTwin-Randomized",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/datasets/X-Humanoid/XR-1-Dataset-Sample",
+    "checked_at_utc": "2026-10-23T02:04:26.707848+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/datasets/X-Humanoid/XR-1-Dataset-Sample",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/datasets/jianqiang03/koch_test",
+    "checked_at_utc": "2026-10-23T02:04:26.862007+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/datasets/jianqiang03/koch_test",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/datasets/nvidia/Cosmos-NeMo-Assets",
+    "checked_at_utc": "2026-10-23T02:04:26.977311+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/datasets/nvidia/Cosmos-NeMo-Assets",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/datasets/nvidia/Cosmos-Reason1-RL-Dataset",
+    "checked_at_utc": "2026-10-23T02:04:27.012129+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/datasets/nvidia/Cosmos-Reason1-RL-Dataset",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/datasets/nvidia/Cosmos-Reason1-SFT-Dataset",
+    "checked_at_utc": "2026-10-23T02:04:27.348263+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/datasets/nvidia/Cosmos-Reason1-SFT-Dataset",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/datasets/open-gigaai/Giga-World-1-Toydata",
+    "checked_at_utc": "2026-10-23T02:04:27.390036+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/datasets/open-gigaai/Giga-World-1-Toydata",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/datasets/youliangtan/so101-table-cleanup",
+    "checked_at_utc": "2026-10-23T02:04:27.395283+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/datasets/youliangtan/so101-table-cleanup",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/datasets/yuanty/LIBERO-fastwam",
+    "checked_at_utc": "2026-10-23T02:04:27.460728+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/datasets/yuanty/LIBERO-fastwam",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/facebook/esm2_t33_650M_UR50D",
+    "checked_at_utc": "2026-10-23T02:04:27.499024+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/facebook/esm2_t33_650M_UR50D",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/google/paligemma-3b-pt-224",
+    "checked_at_utc": "2026-10-23T02:04:27.515536+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/google/paligemma-3b-pt-224",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/lerobot/pi05_base",
+    "checked_at_utc": "2026-10-23T02:04:27.516141+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/lerobot/pi05_base",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/nvidia/Cosmos-Predict2-2B-Video2World",
+    "checked_at_utc": "2026-10-23T02:04:27.555293+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/nvidia/Cosmos-Predict2-2B-Video2World",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/nvidia/Cosmos-Reason1-7B",
+    "checked_at_utc": "2026-10-23T02:04:27.563451+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/nvidia/Cosmos-Reason1-7B",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/nvidia/GR00T-N1.5-3B",
+    "checked_at_utc": "2026-10-23T02:04:27.639740+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/nvidia/GR00T-N1.5-3B",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/nvidia/GR00T-N1.6-3B",
+    "checked_at_utc": "2026-10-23T02:04:28.010087+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/nvidia/GR00T-N1.6-3B",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/open-gigaai/Giga-World-1",
+    "checked_at_utc": "2026-10-23T02:04:28.068211+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/open-gigaai/Giga-World-1",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/openvla/openvla-7b-prismatic",
+    "checked_at_utc": "2026-10-23T02:04:28.113354+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/openvla/openvla-7b-prismatic",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/robbyant/lingbot-vla-4b",
+    "checked_at_utc": "2026-10-23T02:04:28.114419+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/robbyant/lingbot-vla-4b",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/yuanty/fastwam",
+    "checked_at_utc": "2026-10-23T02:04:28.159801+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/yuanty/fastwam",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://lightgbm.readthedocs.io/en/latest/GPU-Tutorial.html",
+    "checked_at_utc": "2026-10-23T02:04:28.180279+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://lightgbm.readthedocs.io/en/latest/GPU-Tutorial.html",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://modelers.cn/panxiaomu/rfdiffusion2-weights",
+    "checked_at_utc": "2026-10-23T02:04:28.226057+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://modelers.cn/panxiaomu/rfdiffusion2-weights",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://modelscope.cn/models/PaddlePaddle/PaddleOCR-VL-1.6",
+    "checked_at_utc": "2026-10-23T02:04:28.236369+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://modelscope.cn/models/PaddlePaddle/PaddleOCR-VL-1.6",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://opendatalab.github.io/MinerU/zh/usage/acceleration_cards/Ascend/",
+    "checked_at_utc": "2026-10-23T02:04:28.288620+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://opendatalab.github.io/MinerU/zh/usage/acceleration_cards/Ascend/",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://openvax.github.io/mhcflurry/commandline_tools.html",
+    "checked_at_utc": "2026-10-23T02:04:28.318695+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://openvax.github.io/mhcflurry/commandline_tools.html",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/TimesNet_infer.tar",
+    "checked_at_utc": "2026-10-23T02:04:28.582248+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/TimesNet_infer.tar",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://rail.eecs.berkeley.edu/datasets/bridge_release/data/tfds/bridge_dataset/",
+    "checked_at_utc": "2026-10-23T02:04:28.623363+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://rail.eecs.berkeley.edu/datasets/bridge_release/data/tfds/bridge_dataset/",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://shalfun.github.io/",
+    "checked_at_utc": "2026-10-23T02:04:28.637771+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://shalfun.github.io/",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://sjtu-ipads.github.io/Ascend-Embody-Web/",
+    "checked_at_utc": "2026-10-23T02:04:28.643817+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://sjtu-ipads.github.io/Ascend-Embody-Web/",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://spirit-ai.com/news/34",
+    "checked_at_utc": "2026-10-23T02:04:28.649143+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://spirit-ai.com/news/34",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://stockn.xueqiu.com/09880/20260414835102.pdf",
+    "checked_at_utc": "2026-10-23T02:04:28.666792+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://stockn.xueqiu.com/09880/20260414835102.pdf",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://support.huaweicloud.com/bestpractice-modelarts/ModelArts最佳实践（中国站）-pdf.pdf",
+    "checked_at_utc": "2026-10-23T02:04:28.698933+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 567,
+    "result": "not_confirmed",
+    "error": "HTTP Error 567: Unknown Status"
+  },
+  {
+    "url": "https://www.mindspore.cn/docs/en/r2.5.0/model_train/models/official_models.html",
+    "checked_at_utc": "2026-10-23T02:04:28.708431+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://www.mindspore.cn/docs/en/r2.5.0/model_train/models/official_models.html",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://www.mindspore.cn/docs/zh-CN/r2.2/note/official_models.html",
+    "checked_at_utc": "2026-10-23T02:04:28.827003+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://www.mindspore.cn/docs/zh-CN/r2.2/note/official_models.html",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://www.mindspore.cn/docs/zh-CN/r2.3.1/note/official_models.html",
+    "checked_at_utc": "2026-10-23T02:04:28.861867+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://www.mindspore.cn/docs/zh-CN/r2.3.1/note/official_models.html",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://www.mindspore.cn/mindsponge/docs/en/stable/user/structure_prediction.html",
+    "checked_at_utc": "2026-10-23T02:04:28.907117+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://www.mindspore.cn/mindsponge/docs/en/stable/user/structure_prediction.html",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://www.osc.edu/book/export/html/2793",
+    "checked_at_utc": "2026-10-23T02:04:28.916348+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://www.osc.edu/book/export/html/2793",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://www.sciencedirect.com/science/article/pii/S1369800126002477",
+    "checked_at_utc": "2026-10-23T02:04:28.917096+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 403,
+    "result": "not_confirmed",
+    "error": "HTTP Error 403: Forbidden"
+  },
+  {
+    "url": "https://www1.hkexnews.hk/listedco/listconews/sehk/2026/0622/2026062201645_c.pdf",
+    "checked_at_utc": "2026-10-23T02:04:28.962820+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://www1.hkexnews.hk/listedco/listconews/sehk/2026/0622/2026062201645_c.pdf",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://x2robot.com/",
+    "checked_at_utc": "2026-10-23T02:04:28.982985+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://x2robot.com/",
+    "result": "http_reachable"
+  }
+]

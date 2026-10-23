@@ -1,30 +1,19 @@
-# 执行记录
+# 修正版验证记录
 
-日期：2026-10-22，Asia/Shanghai。
+日期：2026-10-23，Asia/Shanghai。
 
-- 实时查询目标仓master：`dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202`，独立浅克隆HEAD相同。
-- 全文件树95,062项，README/清单3,402份；重点提取39个目录530份源码、补丁、依赖与说明文本。
-- `python reports/ascend-audit-20261022/collect.py`：通过；仅采集Git对象，不运行第三方源码。
-- `python reports/ascend-audit-20261022/build_report.py`：通过；119项按原顺序输出。
-- `python reports/ascend-audit-20261022/test_report.py`：6/6通过，覆盖清单完整性、逐项字段、固定commit源码路径存在、CSV与JSON一致、相邻版本隔离、外链与组件结论。
-- `git diff --check`：通过。
-- 未执行：NPU/CPU模型推理、依赖安装、权重与数据下载校验、官方精度评测、三次独立NPU性能测量、clean-room和候选上库门禁。本次为证据核查，没有连接执行机或准备模型运行环境。
-- Qwen旧外链重定向到新版教程索引，已继续打开新版Embedding/Reranker专项教程；外部latest文档未固定commit，其内容不等同主仓固定快照内代码。
-- YOLOv8的GPL外链由主仓ACL README明确列出；首次网页获取超时，补查通过独立浅克隆读取固定commit `aa0696bd53c3724c8438860243b55025539de64a` 正文，并确认pth2onnx.py、detect_infer.py、classify_infer.py存在。COCO/ImageNet精度性能已逐项补入。
-- 补查Pi-0代码L96/L99/L102：全零state/image及随机language token，确认其入口使用合成观测。
-- 修正Qwen和YOLO外链字段串用、Qwen2.5-VL代码链接错误，增加对应回归用例。更新后7/7通过；再次检查暂存diff空白门禁。
+- 119项按原始编号逐项保留；代码、权重、数据、性能、精度分别记录证据类型和链接。
+- 9项回归测试通过：覆盖顺序、字段结构、非认证边界、易混指标回归、原始资源边界、固定ModelZoo文件存在、CSV/Markdown完整性、链接清单覆盖和可重复构建。
+- HTTP HEAD检查254个唯一链接：252个请求成功，2个未确认（华为云资料567、ScienceDirect403）。不把访问限制等同于链接不存在。
+- 固定提交链接153个；动态或未版本化链接101个。数量按URL路径形式统计，不表示全部外部来源已冻结。
+- 原始文件/JSON读取和HTTP结果均不等于独立模型复测。
+- 未执行：NPU/CPU模型运行、依赖安装、资产下载及SHA、完整任务精度、三次独立NPU性能、clean-room和上库门禁。
+- 详细边界、修正内容和命令见REVIEW_FIXES.md；逐URL状态见link-check.json。
 
-## 提交与推送边界
+## 提交边界
 
-原工作区16个已有修改不属于本任务，不暂存、不提交。本次只提交`reports/ascend-audit-20261022/`的核查资料和生成工具；下载的目标仓、原始全文及缓存不提交。
+本次只暂存reports/ascend-audit-20261022内的修订，不触碰其他16个既有修改。远程origin属于当前ModelZoo项目，计划普通推送当前main到origin/main；已执行push --dry-run，失败后没有继续实际推送、强推或更改凭据。本地提交保留。
 
-已核实当前分支main、配置远程origin指向`https://github.com/qwertlooker/ModelZoo.git`，不存在本次任务开始前的待推送本地提交。计划仅普通推送当前提交到origin/main，不强推。
+错误原文：`remote: Permission to qwertlooker/ModelZoo.git denied to pcb1990.`；`fatal: unable to access 'https://github.com/qwertlooker/ModelZoo.git/': The requested URL returned error: 403`。
 
-`git push --dry-run origin HEAD:main` 返回：
-
-```text
-remote: Permission to qwertlooker/ModelZoo.git denied to pcb1990.
-fatal: unable to access 'https://github.com/qwertlooker/ModelZoo.git/': The requested URL returned error: 403
-```
-
-预检未通过，因此不继续执行真实推送。本地提交保留，不更改凭据或切换外部账号。
+首次diff检查发现Windows生成文件CRLF被仓库识别为尾空白；已修正生成器固定LF并重新生成，复查通过。
