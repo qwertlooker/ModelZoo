@@ -11,6 +11,14 @@
 
 ## 重建与复查
 
+## GPU/NPU双维度修订
+
+CSV保留119项原始顺序。每项包括GPU、NPU两组代码、权重、数据集、性能、精度说明及各自独立URL列；另列GPU结论、NPU结论和来源对照原文。JSON增加设备维度，Markdown每项分设备两行。原始证据对象保留用于追溯，不作为GPU/NPU合并结论。
+
+GPU原始代码/资源入口不等于GPU运行通过。无明确GPU设备归属的“竞品”结果不自动归入GPU；GPU未核实的字段如实标记待核实。FastWAM原版/优化版都是NPU，不当作GPU/NPU对照。GroundingDINO、SAM2和LLaVA明确标GPU的对照分别入GPU列。TimesNet发布模型指标不写成NPU独立精度。
+
+### 重建命令
+
 ```text
 python reports/ascend-audit-20261022/build_report.py
 python reports/ascend-audit-20261022/check_links.py

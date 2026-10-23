@@ -58,9 +58,25 @@ class ReportTests(unittest.TestCase):
         self.assertNotIn('唯一主依据',md)
     def test_link_check_coverage_and_boundaries(self):
         checks=json.loads((ROOT/'link-check.json').read_text(encoding='utf-8'))
-        expected={u for r in self.rows for v in r['证据'].values() for u in v['链接']}
+        expected={u for r in self.rows for fields in [r['证据'],*r['设备维度'].values()] for v in fields.values() for u in v['链接']}
         self.assertEqual({r['url'] for r in checks},expected)
         self.assertTrue(all(r['method']=='HEAD' and r['content_verified'] is False for r in checks))
+    def test_device_dimensions_and_csv_columns(self):
+        fields=['代码','权重','数据集','性能基准','精度基准']
+        with (ROOT/'inventory.csv').open(encoding='utf-8-sig',newline='') as f:
+            reader=csv.DictReader(f);cols=reader.fieldnames
+            self.assertEqual(len(list(reader)),119)
+        for r in self.rows:
+            self.assertEqual(set(r['设备维度']),{'GPU','NPU'})
+            for device in ['GPU','NPU']:
+                self.assertEqual(set(r['设备维度'][device]),set(fields))
+                for k in fields:
+                    self.assertIn(device+'_'+k,cols)
+                    self.assertIn(device+'_'+k+'_证据链接',cols)
+                    self.assertTrue(r['设备维度'][device][k]['说明'])
+        self.assertIn('0.3148',self.rows[84]['设备维度']['GPU']['精度基准']['说明'])
+        self.assertIn('0.3152',self.rows[84]['设备维度']['NPU']['精度基准']['说明'])
+        self.assertNotIn('155.1',self.rows[21]['设备维度']['GPU']['性能基准']['说明'])
     def test_build_is_reproducible(self):
         names=['REPORT.md','inventory.json','inventory.csv']
         before={n:(ROOT/n).read_bytes() for n in names}

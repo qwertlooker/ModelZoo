@@ -3,9 +3,9 @@
 日期：2026-10-23，Asia/Shanghai。
 
 - 119项按原始编号逐项保留；代码、权重、数据、性能、精度分别记录证据类型和链接。
-- 9项回归测试通过：覆盖顺序、字段结构、非认证边界、易混指标回归、原始资源边界、固定ModelZoo文件存在、CSV/Markdown完整性、链接清单覆盖和可重复构建。
-- HTTP HEAD检查254个唯一链接：252个请求成功，2个未确认（华为云资料567、ScienceDirect403）。不把访问限制等同于链接不存在。
-- 固定提交链接153个；动态或未版本化链接101个。数量按URL路径形式统计，不表示全部外部来源已冻结。
+- 10项回归测试通过：覆盖顺序、字段结构、非认证边界、易混指标回归、原始资源边界、固定ModelZoo文件存在、CSV/Markdown完整性、链接清单覆盖和可重复构建。
+- HTTP HEAD检查285个唯一链接：283个请求成功，2个未确认（华为云资料567、ScienceDirect403）。不把访问限制等同于链接不存在。
+- 固定提交链接153个；动态或未版本化链接132个。数量按URL路径形式统计，不表示全部外部来源已冻结。
 - 原始文件/JSON读取和HTTP结果均不等于独立模型复测。
 - 未执行：NPU/CPU模型运行、依赖安装、资产下载及SHA、完整任务精度、三次独立NPU性能、clean-room和上库门禁。
 - 详细边界、修正内容和命令见REVIEW_FIXES.md；逐URL状态见link-check.json。
@@ -17,3 +17,7 @@
 错误原文：`remote: Permission to qwertlooker/ModelZoo.git denied to pcb1990.`；`fatal: unable to access 'https://github.com/qwertlooker/ModelZoo.git/': The requested URL returned error: 403`。
 
 首次diff检查发现Windows生成文件CRLF被仓库识别为尾空白；已修正生成器固定LF并重新生成，复查通过。
+
+## GPU/NPU分列验证
+
+CSV共119行、26列，保留原始编号与顺序。GPU与NPU分别包含代码、权重、数据、性能、精度及每项独立链接列；两类结论和对照原文分开。新增设备字段/列完整性与明确GPU/NPU数值归属测试。GPU尚未专项核实的字段明确保留待核实，不以NPU支持代替。

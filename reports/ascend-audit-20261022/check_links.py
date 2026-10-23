@@ -28,7 +28,7 @@ def check(url):
 
 def main():
     rows=json.loads((ROOT/'inventory.json').read_text(encoding='utf-8'))
-    urls=sorted({u for r in rows for value in r['证据'].values() for u in value['链接']})
+    urls=sorted({u for r in rows for fields in [r['证据'],*r['设备维度'].values()] for value in fields.values() for u in value['链接']})
     results=[]
     with concurrent.futures.ThreadPoolExecutor(max_workers=12) as pool:
         for i,result in enumerate(pool.map(check,urls),1):
