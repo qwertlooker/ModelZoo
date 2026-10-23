@@ -1,7 +1,7 @@
 [
   {
     "url": "https://ai.atomgit.com/Ascend-SACT/PatchCore",
-    "checked_at_utc": "2026-10-23T02:13:22.579586+00:00",
+    "checked_at_utc": "2026-10-23T02:46:01.310180+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -11,7 +11,7 @@
   },
   {
     "url": "https://ai.gitcode.com/Ascend-SACT/vipe-v1.0",
-    "checked_at_utc": "2026-10-23T02:13:22.580031+00:00",
+    "checked_at_utc": "2026-10-23T02:46:01.310548+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -21,7 +21,7 @@
   },
   {
     "url": "https://ai.gitcode.com/gcw_93rlw6ed/esm2_t33_650M_UR50D-npu",
-    "checked_at_utc": "2026-10-23T02:13:22.580396+00:00",
+    "checked_at_utc": "2026-10-23T02:46:01.310936+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -31,7 +31,7 @@
   },
   {
     "url": "https://airvla.github.io/",
-    "checked_at_utc": "2026-10-23T02:13:22.580822+00:00",
+    "checked_at_utc": "2026-10-23T02:46:01.311229+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -41,7 +41,7 @@
   },
   {
     "url": "https://arxiv.org/abs/2505.00091",
-    "checked_at_utc": "2026-10-23T02:13:22.581156+00:00",
+    "checked_at_utc": "2026-10-23T02:46:01.311402+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -51,7 +51,7 @@
   },
   {
     "url": "https://arxiv.org/abs/2507.01378",
-    "checked_at_utc": "2026-10-23T02:13:22.581333+00:00",
+    "checked_at_utc": "2026-10-23T02:46:01.311917+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -60,8 +60,18 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://arxiv.org/abs/2606.31846",
+    "checked_at_utc": "2026-10-23T02:46:01.312383+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://arxiv.org/abs/2606.31846",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://ascend-repo-modelzoo.obs.cn-east-2.myhuaweicloud.com/model/1_PyTorch_PTH/LSTM/PTH/ctc_best_model.pth",
-    "checked_at_utc": "2026-10-23T02:13:22.581640+00:00",
+    "checked_at_utc": "2026-10-23T02:46:01.312801+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -70,8 +80,18 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://ccb.jhu.edu/software/bracken/",
+    "checked_at_utc": "2026-10-23T02:46:01.313109+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": null,
+    "result": "not_confirmed",
+    "error": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1082)>"
+  },
+  {
     "url": "https://data.graylab.jhu.edu/ensemble_abresnet_v1.tar.gz",
-    "checked_at_utc": "2026-10-23T02:13:22.582004+00:00",
+    "checked_at_utc": "2026-10-23T02:46:01.313382+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -81,7 +101,7 @@
   },
   {
     "url": "https://deepmind.google/blog/rt-2-new-model-translates-vision-and-language-into-action/",
-    "checked_at_utc": "2026-10-23T02:13:22.582468+00:00",
+    "checked_at_utc": "2026-10-23T02:46:01.343424+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -91,7 +111,7 @@
   },
   {
     "url": "https://dl.fbaipublicfiles.com/segment_anything/sam_vit_b_01ec64.pth",
-    "checked_at_utc": "2026-10-23T02:13:22.582666+00:00",
+    "checked_at_utc": "2026-10-23T02:46:01.505212+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -101,7 +121,7 @@
   },
   {
     "url": "https://dl.fbaipublicfiles.com/segment_anything_2/092824/sam2.1_hiera_tiny.pt",
-    "checked_at_utc": "2026-10-23T02:13:22.743764+00:00",
+    "checked_at_utc": "2026-10-23T02:46:01.722999+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -110,8 +130,38 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://dl.fbaipublicfiles.com/vjepa2/vitl.pt",
+    "checked_at_utc": "2026-10-23T02:46:01.855402+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://dl.fbaipublicfiles.com/vjepa2/vitl.pt",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://docs.gpytorch.ai/en/stable/examples/02_Scalable_Exact_GPs/Simple_GP_Regression_CUDA.html",
+    "checked_at_utc": "2026-10-23T02:46:01.867598+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://docs.gpytorch.ai/en/stable/examples/02_Scalable_Exact_GPs/Simple_GP_Regression_CUDA.html",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://docs.nvidia.com/cugraph/26.10/api_docs/api/cugraph/cugraph.sssp/",
+    "checked_at_utc": "2026-10-23T02:46:01.930419+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://docs.nvidia.com/cugraph/26.10/api_docs/api/cugraph/cugraph.sssp/",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://docs.px4.io/main/en/simulation/",
-    "checked_at_utc": "2026-10-23T02:13:22.789843+00:00",
+    "checked_at_utc": "2026-10-23T02:46:01.985091+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -120,8 +170,28 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://docs.px4.io/v1.18/en/sim_gazebo_gz/",
+    "checked_at_utc": "2026-10-23T02:46:01.999422+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://docs.px4.io/v1.18/en/sim_gazebo_gz/",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://docs.ultralytics.com/models/yolov8/",
+    "checked_at_utc": "2026-10-23T02:46:02.006549+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://docs.ultralytics.com/models/yolov8",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://docs.vllm.ai/projects/ascend/zh-cn/latest/tutorials/models/Qwen3-Embedding.html",
-    "checked_at_utc": "2026-10-23T02:13:22.930011+00:00",
+    "checked_at_utc": "2026-10-23T02:48:02.181404+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -131,7 +201,7 @@
   },
   {
     "url": "https://docs.vllm.ai/projects/ascend/zh-cn/latest/tutorials/models/Qwen3-Reranker.html",
-    "checked_at_utc": "2026-10-23T02:13:23.051020+00:00",
+    "checked_at_utc": "2026-10-23T02:46:02.102031+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -140,8 +210,18 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://files.ipd.uw.edu/pub/RoseTTAFold/weights.tar.gz",
+    "checked_at_utc": "2026-10-23T02:46:02.253207+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://files.ipd.uw.edu/pub/RoseTTAFold/weights.tar.gz",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://files.ipd.uw.edu/pub/training_sets/pdb_2021aug02.tar.gz",
-    "checked_at_utc": "2026-10-23T02:13:23.053697+00:00",
+    "checked_at_utc": "2026-10-23T02:46:02.278704+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -150,8 +230,18 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://gazebosim.org/docs/garden/troubleshooting/",
+    "checked_at_utc": "2026-10-23T02:46:02.475349+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://gazebosim.org/docs/garden/troubleshooting/",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://gitcode.com/AI4Science/LifeScience/blob/27065e4053aa860774b9a005e6a5307854d062a8/PyTorch/LigandMPNN/README.md",
-    "checked_at_utc": "2026-10-23T02:13:23.058442+00:00",
+    "checked_at_utc": "2026-10-23T02:46:02.482936+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -161,7 +251,7 @@
   },
   {
     "url": "https://gitcode.com/AI4Science/LifeScience/blob/27065e4053aa860774b9a005e6a5307854d062a8/PyTorch/ProteinMPNN/README.md",
-    "checked_at_utc": "2026-10-23T02:13:23.062833+00:00",
+    "checked_at_utc": "2026-10-23T02:46:02.484291+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -171,7 +261,7 @@
   },
   {
     "url": "https://gitcode.com/AI4Science/LifeScience/blob/27065e4053aa860774b9a005e6a5307854d062a8/PyTorch/RFdiffusion2/README.md",
-    "checked_at_utc": "2026-10-23T02:13:23.086238+00:00",
+    "checked_at_utc": "2026-10-23T02:46:02.488884+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -181,7 +271,7 @@
   },
   {
     "url": "https://gitcode.com/AI4Science/LifeScience/blob/27065e4053aa860774b9a005e6a5307854d062a8/PyTorch/RFdiffusion_pyg/README.md",
-    "checked_at_utc": "2026-10-23T02:13:23.099434+00:00",
+    "checked_at_utc": "2026-10-23T02:46:02.587949+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -191,7 +281,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend-SACT/ThermoMPNN/blob/34e25f601bebfa70a31e91d85af838a67a409460/README.md",
-    "checked_at_utc": "2026-10-23T02:13:23.143666+00:00",
+    "checked_at_utc": "2026-10-23T02:46:02.620067+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -201,7 +291,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/audio/LSTM/ReadMe.md",
-    "checked_at_utc": "2026-10-23T02:13:23.155446+00:00",
+    "checked_at_utc": "2026-10-23T02:46:02.650593+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -211,7 +301,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/audio/LSTM/acl_net.py",
-    "checked_at_utc": "2026-10-23T02:13:23.163265+00:00",
+    "checked_at_utc": "2026-10-23T02:46:02.666199+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -221,7 +311,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/audio/LSTM/lstm_atc.sh",
-    "checked_at_utc": "2026-10-23T02:13:23.249094+00:00",
+    "checked_at_utc": "2026-10-23T02:46:02.733392+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -231,7 +321,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/audio/LSTM/lstm_onnx_infer.py",
-    "checked_at_utc": "2026-10-23T02:13:23.391891+00:00",
+    "checked_at_utc": "2026-10-23T02:46:02.975810+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -241,7 +331,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/audio/LSTM/prepare_data.sh",
-    "checked_at_utc": "2026-10-23T02:13:23.393142+00:00",
+    "checked_at_utc": "2026-10-23T02:46:02.976738+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -251,7 +341,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/audio/LSTM/pyacl_infer.py",
-    "checked_at_utc": "2026-10-23T02:13:23.434589+00:00",
+    "checked_at_utc": "2026-10-23T02:46:02.978505+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -261,7 +351,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/cv/GroundingDINO/README.md",
-    "checked_at_utc": "2026-10-23T02:13:23.547288+00:00",
+    "checked_at_utc": "2026-10-23T02:46:03.002552+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -271,7 +361,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/cv/GroundingDINO/image_demo_npu.py",
-    "checked_at_utc": "2026-10-23T02:13:23.550185+00:00",
+    "checked_at_utc": "2026-10-23T02:46:03.061167+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -281,7 +371,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/cv/GroundingDINO/mmcv_diff.patch",
-    "checked_at_utc": "2026-10-23T02:13:23.591053+00:00",
+    "checked_at_utc": "2026-10-23T02:46:03.071696+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -291,7 +381,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/cv/GroundingDINO/mmdetection_diff.patch",
-    "checked_at_utc": "2026-10-23T02:13:23.604594+00:00",
+    "checked_at_utc": "2026-10-23T02:46:03.111314+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -301,7 +391,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/cv/GroundingDINO/mmengine_diff.patch",
-    "checked_at_utc": "2026-10-23T02:13:23.697471+00:00",
+    "checked_at_utc": "2026-10-23T02:46:03.210217+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -311,7 +401,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/cv/SAM/README.md",
-    "checked_at_utc": "2026-10-23T02:13:23.760422+00:00",
+    "checked_at_utc": "2026-10-23T02:46:03.277916+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -321,7 +411,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/cv/SAM/sam_amg_infer.py",
-    "checked_at_utc": "2026-10-23T02:13:23.761322+00:00",
+    "checked_at_utc": "2026-10-23T02:46:03.339021+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -331,7 +421,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/cv/SAM/sam_coco_metric.py",
-    "checked_at_utc": "2026-10-23T02:13:23.922138+00:00",
+    "checked_at_utc": "2026-10-23T02:46:03.513823+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -341,7 +431,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/cv/SAM/sam_om_predictor.py",
-    "checked_at_utc": "2026-10-23T02:13:23.975699+00:00",
+    "checked_at_utc": "2026-10-23T02:46:03.556603+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -351,7 +441,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/cv/SAM/segment_anything_diff.patch",
-    "checked_at_utc": "2026-10-23T02:13:23.981973+00:00",
+    "checked_at_utc": "2026-10-23T02:46:03.557771+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -361,7 +451,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/cv/SAM2/README.md",
-    "checked_at_utc": "2026-10-23T02:13:24.006031+00:00",
+    "checked_at_utc": "2026-10-23T02:46:03.581883+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -371,7 +461,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/cv/SAM2/sam2_coco_metric.py",
-    "checked_at_utc": "2026-10-23T02:13:24.047093+00:00",
+    "checked_at_utc": "2026-10-23T02:46:03.610523+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -381,7 +471,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/cv/SAM2/sam2_convert_om.sh",
-    "checked_at_utc": "2026-10-23T02:13:24.097448+00:00",
+    "checked_at_utc": "2026-10-23T02:46:03.658405+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -391,7 +481,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/cv/SAM2/sam2_postprocessing.py",
-    "checked_at_utc": "2026-10-23T02:13:24.141066+00:00",
+    "checked_at_utc": "2026-10-23T02:46:03.666863+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -401,7 +491,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/cv/SAM2/sam2_preprocessing.py",
-    "checked_at_utc": "2026-10-23T02:13:24.142749+00:00",
+    "checked_at_utc": "2026-10-23T02:46:03.678682+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -411,7 +501,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/embedding/bge-m3/README.md",
-    "checked_at_utc": "2026-10-23T02:13:24.195719+00:00",
+    "checked_at_utc": "2026-10-23T02:46:03.723862+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -421,7 +511,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/embedding/bge-m3/infer.py",
-    "checked_at_utc": "2026-10-23T02:13:24.238552+00:00",
+    "checked_at_utc": "2026-10-23T02:46:03.860348+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -431,7 +521,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/embedding/bge-reranker-v2-m3/README.md",
-    "checked_at_utc": "2026-10-23T02:13:24.245287+00:00",
+    "checked_at_utc": "2026-10-23T02:46:04.022535+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -441,7 +531,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/embedding/bge-reranker-v2-m3/infer.py",
-    "checked_at_utc": "2026-10-23T02:13:24.249851+00:00",
+    "checked_at_utc": "2026-10-23T02:46:04.093942+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -451,7 +541,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/embodied_ai/vla/pi0/README.md",
-    "checked_at_utc": "2026-10-23T02:13:24.403867+00:00",
+    "checked_at_utc": "2026-10-23T02:46:04.119524+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -461,7 +551,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/embodied_ai/vla/pi0/infer.py",
-    "checked_at_utc": "2026-10-23T02:13:24.431997+00:00",
+    "checked_at_utc": "2026-10-23T02:46:04.193543+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -471,7 +561,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/embodied_ai/vla/pi0/patches/lerobot_diff.patch",
-    "checked_at_utc": "2026-10-23T02:13:24.437003+00:00",
+    "checked_at_utc": "2026-10-23T02:46:04.196497+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -481,7 +571,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/embodied_ai/vla/pi0/patches/modeling_gemma.patch",
-    "checked_at_utc": "2026-10-23T02:13:24.500055+00:00",
+    "checked_at_utc": "2026-10-23T02:46:04.207139+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -491,7 +581,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/embodied_ai/vla/pi0/utils.py",
-    "checked_at_utc": "2026-10-23T02:13:24.573377+00:00",
+    "checked_at_utc": "2026-10-23T02:46:04.237847+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -501,7 +591,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/ocr/PPOCRv5/README.md",
-    "checked_at_utc": "2026-10-23T02:13:24.614792+00:00",
+    "checked_at_utc": "2026-10-23T02:46:04.320367+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -511,7 +601,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/ocr/PPOCRv5/eval_ori_accuracy.py",
-    "checked_at_utc": "2026-10-23T02:13:24.625898+00:00",
+    "checked_at_utc": "2026-10-23T02:46:04.369199+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -521,7 +611,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/ocr/PPOCRv5/eval_uvdoc_accuracy.py",
-    "checked_at_utc": "2026-10-23T02:13:24.654652+00:00",
+    "checked_at_utc": "2026-10-23T02:46:04.377837+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -531,7 +621,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/ocr/PPOCRv5/infer.py",
-    "checked_at_utc": "2026-10-23T02:13:24.685276+00:00",
+    "checked_at_utc": "2026-10-23T02:46:04.670152+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -541,7 +631,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/ocr/PPOCRv5/paddleocr.patch",
-    "checked_at_utc": "2026-10-23T02:13:24.696875+00:00",
+    "checked_at_utc": "2026-10-23T02:46:04.680912+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -551,7 +641,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/ocr/PPOCRv6/README.md",
-    "checked_at_utc": "2026-10-23T02:13:24.749197+00:00",
+    "checked_at_utc": "2026-10-23T02:46:04.691463+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -561,7 +651,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/ocr/PPOCRv6/infer.py",
-    "checked_at_utc": "2026-10-23T02:13:24.791077+00:00",
+    "checked_at_utc": "2026-10-23T02:46:04.722782+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -571,7 +661,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/ocr/PPOCRv6/paddleocr.patch",
-    "checked_at_utc": "2026-10-23T02:13:24.867577+00:00",
+    "checked_at_utc": "2026-10-23T02:46:04.782059+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -581,7 +671,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/ocr/PaddleOCR-VL-1.6/README.md",
-    "checked_at_utc": "2026-10-23T02:13:24.877856+00:00",
+    "checked_at_utc": "2026-10-23T02:46:04.798086+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -591,7 +681,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/ocr/PaddleOCR-VL-1.6/infer.py",
-    "checked_at_utc": "2026-10-23T02:13:24.961187+00:00",
+    "checked_at_utc": "2026-10-23T02:46:04.826605+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -601,7 +691,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/ocr/PaddleOCR-VL-1.6/infer_preformance.py",
-    "checked_at_utc": "2026-10-23T02:13:25.021411+00:00",
+    "checked_at_utc": "2026-10-23T02:46:04.836793+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -611,7 +701,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/ocr/PaddleOCR-VL-1.6/overall_metric.py",
-    "checked_at_utc": "2026-10-23T02:13:25.062933+00:00",
+    "checked_at_utc": "2026-10-23T02:46:04.853314+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -621,7 +711,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/ocr/PaddleOCR-VL-1.6/paddlex.patch",
-    "checked_at_utc": "2026-10-23T02:13:25.107547+00:00",
+    "checked_at_utc": "2026-10-23T02:46:04.886364+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -631,7 +721,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/detection/Faster_R-CNN_ResNet50/README.md",
-    "checked_at_utc": "2026-10-23T02:13:25.145517+00:00",
+    "checked_at_utc": "2026-10-23T02:46:05.114957+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -641,7 +731,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/detection/Faster_R-CNN_ResNet50/coco_eval.py",
-    "checked_at_utc": "2026-10-23T02:13:25.185065+00:00",
+    "checked_at_utc": "2026-10-23T02:46:05.243360+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -651,7 +741,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/detection/Faster_R-CNN_ResNet50/get_info.py",
-    "checked_at_utc": "2026-10-23T02:13:25.193910+00:00",
+    "checked_at_utc": "2026-10-23T02:46:05.247682+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -661,7 +751,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/detection/Faster_R-CNN_ResNet50/mmdetection.patch",
-    "checked_at_utc": "2026-10-23T02:13:25.227478+00:00",
+    "checked_at_utc": "2026-10-23T02:46:05.296320+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -671,7 +761,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/detection/Faster_R-CNN_ResNet50/modify.py",
-    "checked_at_utc": "2026-10-23T02:13:25.295574+00:00",
+    "checked_at_utc": "2026-10-23T02:46:05.350271+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -681,7 +771,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/detection/Mask_Rcnn_SwinS/README.md",
-    "checked_at_utc": "2026-10-23T02:13:25.425508+00:00",
+    "checked_at_utc": "2026-10-23T02:46:05.377907+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -691,7 +781,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/detection/Mask_Rcnn_SwinS/data_preprocess.py",
-    "checked_at_utc": "2026-10-23T02:13:25.470240+00:00",
+    "checked_at_utc": "2026-10-23T02:46:05.396029+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -701,7 +791,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/detection/Mask_Rcnn_SwinS/get_info.py",
-    "checked_at_utc": "2026-10-23T02:13:25.491968+00:00",
+    "checked_at_utc": "2026-10-23T02:46:05.403867+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -711,7 +801,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/detection/Mask_Rcnn_SwinS/swin.patch",
-    "checked_at_utc": "2026-10-23T02:13:25.507495+00:00",
+    "checked_at_utc": "2026-10-23T02:46:05.422900+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -721,7 +811,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/detection/Mask_Rcnn_SwinS/swin_mod_newroi.py",
-    "checked_at_utc": "2026-10-23T02:13:25.562538+00:00",
+    "checked_at_utc": "2026-10-23T02:46:05.435266+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -731,7 +821,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/segmentation/DeeplabV3%2B/README.md",
-    "checked_at_utc": "2026-10-23T02:13:25.577217+00:00",
+    "checked_at_utc": "2026-10-23T02:46:05.496654+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -741,7 +831,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/segmentation/DeeplabV3%2B/deeplabV3plus_pth2onnx.py",
-    "checked_at_utc": "2026-10-23T02:13:25.603544+00:00",
+    "checked_at_utc": "2026-10-23T02:46:05.649697+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -751,7 +841,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/segmentation/DeeplabV3%2B/post_deeplabv3plus_pytorch.py",
-    "checked_at_utc": "2026-10-23T02:13:25.627780+00:00",
+    "checked_at_utc": "2026-10-23T02:46:05.743723+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -761,7 +851,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/segmentation/Segformer/README.md",
-    "checked_at_utc": "2026-10-23T02:13:25.646198+00:00",
+    "checked_at_utc": "2026-10-23T02:46:05.776328+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -771,7 +861,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/segmentation/Segformer/Segformer.patch",
-    "checked_at_utc": "2026-10-23T02:13:25.666563+00:00",
+    "checked_at_utc": "2026-10-23T02:46:05.844964+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -781,7 +871,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/segmentation/Segformer/Segformer_postprocess.py",
-    "checked_at_utc": "2026-10-23T02:13:25.690807+00:00",
+    "checked_at_utc": "2026-10-23T02:46:05.929615+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -791,7 +881,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/segmentation/Segformer/Segformer_preprocess.py",
-    "checked_at_utc": "2026-10-23T02:13:25.740442+00:00",
+    "checked_at_utc": "2026-10-23T02:46:06.017117+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -801,7 +891,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/segmentation/Segformer/optimize_onnx.py",
-    "checked_at_utc": "2026-10-23T02:13:25.895404+00:00",
+    "checked_at_utc": "2026-10-23T02:46:06.032830+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -811,7 +901,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/segmentation/UNet/README.md",
-    "checked_at_utc": "2026-10-23T02:13:25.966017+00:00",
+    "checked_at_utc": "2026-10-23T02:46:06.045211+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -821,7 +911,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/segmentation/UNet/json_parse.py",
-    "checked_at_utc": "2026-10-23T02:13:26.016759+00:00",
+    "checked_at_utc": "2026-10-23T02:46:06.047609+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -831,7 +921,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/segmentation/UNet/postprocess_unet_pth.py",
-    "checked_at_utc": "2026-10-23T02:13:26.064762+00:00",
+    "checked_at_utc": "2026-10-23T02:46:06.077937+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -841,7 +931,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/segmentation/UNet/preprocess_unet_pth.py",
-    "checked_at_utc": "2026-10-23T02:13:26.115668+00:00",
+    "checked_at_utc": "2026-10-23T02:46:06.084511+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -851,7 +941,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/segmentation/UNet/revise_UNet.py",
-    "checked_at_utc": "2026-10-23T02:13:26.139816+00:00",
+    "checked_at_utc": "2026-10-23T02:46:06.204739+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -861,7 +951,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/segmentation/UNet/unet_pth2onnx.py",
-    "checked_at_utc": "2026-10-23T02:13:26.175163+00:00",
+    "checked_at_utc": "2026-10-23T02:46:06.298802+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -871,7 +961,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/MindIE/LLM/Qwen3/Qwen3-8B/README.md",
-    "checked_at_utc": "2026-10-23T02:13:26.175865+00:00",
+    "checked_at_utc": "2026-10-23T02:46:06.314279+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -881,7 +971,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/MindIE/MultiModal/InternVL/InternVL2/Internvl2_40b/README.md",
-    "checked_at_utc": "2026-10-23T02:13:26.330579+00:00",
+    "checked_at_utc": "2026-10-23T02:46:06.407788+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -891,7 +981,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/MindIE/MultiModal/InternVL/InternVL2/Internvl2_8b/README.md",
-    "checked_at_utc": "2026-10-23T02:13:26.345205+00:00",
+    "checked_at_utc": "2026-10-23T02:46:06.450098+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -901,7 +991,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/MindIE/MultiModal/Qwen2-VL/Qwen2_vl_72b_instruct/README.md",
-    "checked_at_utc": "2026-10-23T02:13:26.348963+00:00",
+    "checked_at_utc": "2026-10-23T02:46:06.473854+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -911,7 +1001,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/MindIE/MultiModal/Qwen2-VL/Qwen2_vl_7b_instruct/README.md",
-    "checked_at_utc": "2026-10-23T02:13:26.379806+00:00",
+    "checked_at_utc": "2026-10-23T02:46:06.497585+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -921,7 +1011,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/autonoumous_driving/BEVFormer/README.md",
-    "checked_at_utc": "2026-10-23T02:13:26.484006+00:00",
+    "checked_at_utc": "2026-10-23T02:46:06.505982+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -931,7 +1021,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/autonoumous_driving/BEVFormer/test/env_npu.sh",
-    "checked_at_utc": "2026-10-23T02:13:26.586538+00:00",
+    "checked_at_utc": "2026-10-23T02:46:06.567253+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -941,7 +1031,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/autonoumous_driving/BEVFormer/test/train_full_8p_base_fp32.sh",
-    "checked_at_utc": "2026-10-23T02:13:26.630232+00:00",
+    "checked_at_utc": "2026-10-23T02:46:06.631103+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -951,7 +1041,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/autonoumous_driving/BEVFormer/tools/__init__.py",
-    "checked_at_utc": "2026-10-23T02:13:26.680827+00:00",
+    "checked_at_utc": "2026-10-23T02:48:02.181883+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -961,7 +1051,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/autonoumous_driving/BEVFormer/tools/test.py",
-    "checked_at_utc": "2026-10-23T02:13:26.680941+00:00",
+    "checked_at_utc": "2026-10-23T02:46:06.728695+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -971,7 +1061,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/autonoumous_driving/BEVFormer/tools/train.py",
-    "checked_at_utc": "2026-10-23T02:13:26.746367+00:00",
+    "checked_at_utc": "2026-10-23T02:46:06.738713+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -981,7 +1071,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/cv/detection/GroundingDINO_for_Pytorch/README.md",
-    "checked_at_utc": "2026-10-23T02:13:26.763157+00:00",
+    "checked_at_utc": "2026-10-23T02:46:06.902965+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -991,7 +1081,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/cv/semantic_segmentation/DeepLabv3%2B_ID1695_for_PyTorch/README.md",
-    "checked_at_utc": "2026-10-23T02:13:26.805350+00:00",
+    "checked_at_utc": "2026-10-23T02:46:06.906461+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -1001,7 +1091,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/cv/semantic_segmentation/DeepLabv3%2B_ID1695_for_PyTorch/mypath.py",
-    "checked_at_utc": "2026-10-23T02:13:26.871191+00:00",
+    "checked_at_utc": "2026-10-23T02:46:06.908429+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -1011,7 +1101,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/cv/semantic_segmentation/DeepLabv3%2B_ID1695_for_PyTorch/train.py",
-    "checked_at_utc": "2026-10-23T02:13:26.888727+00:00",
+    "checked_at_utc": "2026-10-23T02:46:06.936966+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -1021,7 +1111,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/foundation/Qwen3-30B-Torchtitan/README.md",
-    "checked_at_utc": "2026-10-23T02:13:26.927601+00:00",
+    "checked_at_utc": "2026-10-23T02:46:06.983787+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -1031,7 +1121,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/foundation/Qwen3-30B-Torchtitan/patches/chunkloss_qwen3.patch",
-    "checked_at_utc": "2026-10-23T02:13:26.942481+00:00",
+    "checked_at_utc": "2026-10-23T02:46:07.025595+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -1041,7 +1131,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/foundation/Qwen3-30B-Torchtitan/torchtitan_npu_patch.py",
-    "checked_at_utc": "2026-10-23T02:13:26.960760+00:00",
+    "checked_at_utc": "2026-10-23T02:46:07.034863+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -1051,7 +1141,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/mm/LLaVA/README.md",
-    "checked_at_utc": "2026-10-23T02:13:27.076413+00:00",
+    "checked_at_utc": "2026-10-23T02:46:07.172179+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -1061,7 +1151,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/mm/LLaVA/llava/__init__.py",
-    "checked_at_utc": "2026-10-23T02:13:27.102262+00:00",
+    "checked_at_utc": "2026-10-23T02:46:07.221853+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -1071,7 +1161,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/mm/LLaVA/llava/mm_utils.py",
-    "checked_at_utc": "2026-10-23T02:13:27.106576+00:00",
+    "checked_at_utc": "2026-10-23T02:46:07.238551+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -1081,7 +1171,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/mm/LLaVA/llava/utils.py",
-    "checked_at_utc": "2026-10-23T02:13:27.170667+00:00",
+    "checked_at_utc": "2026-10-23T02:46:07.350749+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -1091,7 +1181,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/mm/LLaVA/predict.py",
-    "checked_at_utc": "2026-10-23T02:13:27.201699+00:00",
+    "checked_at_utc": "2026-10-23T02:46:07.375206+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -1101,7 +1191,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/mm/LLaVA/scripts/convert_gqa_for_eval.py",
-    "checked_at_utc": "2026-10-23T02:13:27.333734+00:00",
+    "checked_at_utc": "2026-10-23T02:46:07.408215+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -1111,7 +1201,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/mm/LLaVA/scripts/convert_mmvet_for_eval.py",
-    "checked_at_utc": "2026-10-23T02:13:27.347134+00:00",
+    "checked_at_utc": "2026-10-23T02:46:07.454213+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -1121,7 +1211,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/nlp/LSTM_ID0468_for_PyTorch/README.md",
-    "checked_at_utc": "2026-10-23T02:13:27.387662+00:00",
+    "checked_at_utc": "2026-10-23T02:46:07.503400+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -1131,7 +1221,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/rl/MAPPO_for_PyTorch/README.md",
-    "checked_at_utc": "2026-10-23T02:13:27.389618+00:00",
+    "checked_at_utc": "2026-10-23T02:46:07.557968+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -1141,7 +1231,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/rl/MAPPO_for_PyTorch/onpolicy/__init__.py",
-    "checked_at_utc": "2026-10-23T02:13:27.408228+00:00",
+    "checked_at_utc": "2026-10-23T02:46:07.563996+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -1151,7 +1241,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/rl/MAPPO_for_PyTorch/onpolicy/config.py",
-    "checked_at_utc": "2026-10-23T02:13:27.454540+00:00",
+    "checked_at_utc": "2026-10-23T02:46:07.746509+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -1161,7 +1251,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/rl/MAPPO_for_PyTorch/setup.py",
-    "checked_at_utc": "2026-10-23T02:13:27.464289+00:00",
+    "checked_at_utc": "2026-10-23T02:46:07.765388+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -1171,7 +1261,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/rl/MAPPO_for_PyTorch/test/env_npu.sh",
-    "checked_at_utc": "2026-10-23T02:13:27.539707+00:00",
+    "checked_at_utc": "2026-10-23T02:46:08.026607+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -1181,7 +1271,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/rl/MAPPO_for_PyTorch/test/train_full_1p.sh",
-    "checked_at_utc": "2026-10-23T02:13:27.548097+00:00",
+    "checked_at_utc": "2026-10-23T02:46:08.040669+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -1191,7 +1281,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/rl/PPO_for_Pytorch/PPO.py",
-    "checked_at_utc": "2026-10-23T02:13:27.610877+00:00",
+    "checked_at_utc": "2026-10-23T02:46:08.047284+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -1201,7 +1291,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/rl/PPO_for_Pytorch/README.md",
-    "checked_at_utc": "2026-10-23T02:13:27.636876+00:00",
+    "checked_at_utc": "2026-10-23T02:46:08.055343+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -1211,7 +1301,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/rl/PPO_for_Pytorch/make_gif.py",
-    "checked_at_utc": "2026-10-23T02:13:27.652560+00:00",
+    "checked_at_utc": "2026-10-23T02:46:08.085848+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -1221,7 +1311,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/rl/PPO_for_Pytorch/test.py",
-    "checked_at_utc": "2026-10-23T02:13:27.792724+00:00",
+    "checked_at_utc": "2026-10-23T02:46:08.200298+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -1231,7 +1321,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/rl/PPO_for_Pytorch/test/train_full_1p.sh",
-    "checked_at_utc": "2026-10-23T02:13:27.795471+00:00",
+    "checked_at_utc": "2026-10-23T02:46:08.246775+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -1241,7 +1331,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/rl/PPO_for_Pytorch/train.py",
-    "checked_at_utc": "2026-10-23T02:13:27.810312+00:00",
+    "checked_at_utc": "2026-10-23T02:46:08.327398+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -1251,7 +1341,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/rl/VeRL_for_PyTorch/README.md",
-    "checked_at_utc": "2026-10-23T02:13:27.904503+00:00",
+    "checked_at_utc": "2026-10-23T02:46:08.333362+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -1261,7 +1351,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/rl/VeRL_for_PyTorch/docs/conf.py",
-    "checked_at_utc": "2026-10-23T02:13:27.911307+00:00",
+    "checked_at_utc": "2026-10-23T02:46:08.398430+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -1271,7 +1361,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/rl/VeRL_for_PyTorch/patches/megatron_v4.patch",
-    "checked_at_utc": "2026-10-23T02:13:27.960125+00:00",
+    "checked_at_utc": "2026-10-23T02:46:08.511987+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -1281,7 +1371,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/rl/VeRL_for_PyTorch/setup.py",
-    "checked_at_utc": "2026-10-23T02:13:27.963442+00:00",
+    "checked_at_utc": "2026-10-23T02:46:08.542912+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -1291,7 +1381,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/rl/VeRL_for_PyTorch/test/env_npu.sh",
-    "checked_at_utc": "2026-10-23T02:13:27.986887+00:00",
+    "checked_at_utc": "2026-10-23T02:46:08.557483+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -1301,7 +1391,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/built-in/rl/VeRL_for_PyTorch/test/train_qwen2_5_vl_7b_GRPO_full_16p.sh",
-    "checked_at_utc": "2026-10-23T02:13:28.053668+00:00",
+    "checked_at_utc": "2026-10-23T02:46:08.639361+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -1311,7 +1401,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/contrib/cv/semantic_segmentation/UNet_for_PyTorch/README.md",
-    "checked_at_utc": "2026-10-23T02:13:28.063710+00:00",
+    "checked_at_utc": "2026-10-23T02:46:08.746722+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -1321,7 +1411,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/dev/cv/detection/FasterRCNN-Resnet50-FPN_ID1552_for_PyTorch/README.md",
-    "checked_at_utc": "2026-10-23T02:13:28.083811+00:00",
+    "checked_at_utc": "2026-10-23T02:46:08.765502+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -1331,7 +1421,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/dev/cv/detection/FasterRCNN-Resnet50-FPN_ID1552_for_PyTorch/demo/demo.py",
-    "checked_at_utc": "2026-10-23T02:13:28.095947+00:00",
+    "checked_at_utc": "2026-10-23T02:46:08.846232+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -1341,7 +1431,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/dev/cv/detection/FasterRCNN-Resnet50-FPN_ID1552_for_PyTorch/dev/linter.sh",
-    "checked_at_utc": "2026-10-23T02:13:28.265181+00:00",
+    "checked_at_utc": "2026-10-23T02:46:08.849577+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -1351,7 +1441,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/dev/cv/detection/FasterRCNN-Resnet50-FPN_ID1552_for_PyTorch/dev/run_inference_tests.sh",
-    "checked_at_utc": "2026-10-23T02:13:28.269117+00:00",
+    "checked_at_utc": "2026-10-23T02:46:08.914185+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -1361,7 +1451,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/dev/cv/detection/FasterRCNN-Resnet50-FPN_ID1552_for_PyTorch/docs/conf.py",
-    "checked_at_utc": "2026-10-23T02:13:28.348044+00:00",
+    "checked_at_utc": "2026-10-23T02:46:08.996988+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -1371,7 +1461,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/dev/cv/detection/FasterRCNN-Resnet50-FPN_ID1552_for_PyTorch/setup.py",
-    "checked_at_utc": "2026-10-23T02:13:28.416766+00:00",
+    "checked_at_utc": "2026-10-23T02:46:09.030974+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -1381,7 +1471,7 @@
   },
   {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/PyTorch/dev/cv/detection/FasterRCNN-Resnet50-FPN_ID1552_for_PyTorch/test/train_full_1p.sh",
-    "checked_at_utc": "2026-10-23T02:13:28.431735+00:00",
+    "checked_at_utc": "2026-10-23T02:46:09.072186+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -1391,7 +1481,7 @@
   },
   {
     "url": "https://gitcode.com/gcw_1yOcCgy7/310p-spiritv1.5-infer",
-    "checked_at_utc": "2026-10-23T02:13:28.470908+00:00",
+    "checked_at_utc": "2026-10-23T02:46:09.177272+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -1401,7 +1491,7 @@
   },
   {
     "url": "https://gitcode.com/wangguiqin/FastWAM-NPU/blob/5a7f8443a84bad1125298662d279436fb3edfe07/scripts/eval_npu_suite.py",
-    "checked_at_utc": "2026-10-23T02:13:28.475281+00:00",
+    "checked_at_utc": "2026-10-23T02:46:09.194958+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -1411,7 +1501,7 @@
   },
   {
     "url": "https://gitcode.com/wangguiqin/FastWAM-NPU/blob/5a7f8443a84bad1125298662d279436fb3edfe07/src/fastwam/runtime.py",
-    "checked_at_utc": "2026-10-23T02:13:28.517128+00:00",
+    "checked_at_utc": "2026-10-23T02:46:09.207358+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -1421,7 +1511,7 @@
   },
   {
     "url": "https://gitcode.com/wangguiqin/FastWAM-NPU/blob/5a7f8443a84bad1125298662d279436fb3edfe07/validation/accuracy_comparison.json",
-    "checked_at_utc": "2026-10-23T02:13:28.528317+00:00",
+    "checked_at_utc": "2026-10-23T02:46:09.327707+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -1431,7 +1521,7 @@
   },
   {
     "url": "https://gitcode.com/wangguiqin/FastWAM-NPU/blob/5a7f8443a84bad1125298662d279436fb3edfe07/validation/baseline_workers8/performance.json",
-    "checked_at_utc": "2026-10-23T02:13:28.533654+00:00",
+    "checked_at_utc": "2026-10-23T02:46:09.380232+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -1441,7 +1531,7 @@
   },
   {
     "url": "https://gitcode.com/wangguiqin/FastWAM-NPU/blob/5a7f8443a84bad1125298662d279436fb3edfe07/validation/overlap_final/performance.json",
-    "checked_at_utc": "2026-10-23T02:13:28.538141+00:00",
+    "checked_at_utc": "2026-10-23T02:46:09.418328+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -1451,7 +1541,7 @@
   },
   {
     "url": "https://gitcode.com/xiaotao5571/BLUP-NPU",
-    "checked_at_utc": "2026-10-23T02:13:28.601085+00:00",
+    "checked_at_utc": "2026-10-23T02:46:09.471779+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -1461,7 +1551,7 @@
   },
   {
     "url": "https://gitcode.com/xiaotao5571/NPU",
-    "checked_at_utc": "2026-10-23T02:13:28.669522+00:00",
+    "checked_at_utc": "2026-10-23T02:46:09.509548+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -1471,7 +1561,7 @@
   },
   {
     "url": "https://gitcode.com/xiaotao5571/ssGBLUP-npu_4212",
-    "checked_at_utc": "2026-10-23T02:13:28.716517+00:00",
+    "checked_at_utc": "2026-10-23T02:46:09.519328+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -1481,7 +1571,7 @@
   },
   {
     "url": "https://gitcode.com/xujiashuai/dinov2-large",
-    "checked_at_utc": "2026-10-23T02:13:28.767740+00:00",
+    "checked_at_utc": "2026-10-23T02:46:09.568685+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -1491,7 +1581,7 @@
   },
   {
     "url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Drive-Dreams/README.md",
-    "checked_at_utc": "2026-10-23T02:13:28.860298+00:00",
+    "checked_at_utc": "2026-10-23T02:46:09.713956+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -1501,7 +1591,7 @@
   },
   {
     "url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Predict2/README.md",
-    "checked_at_utc": "2026-10-23T02:13:28.919330+00:00",
+    "checked_at_utc": "2026-10-23T02:46:09.732736+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -1511,7 +1601,7 @@
   },
   {
     "url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Reason1/README.md",
-    "checked_at_utc": "2026-10-23T02:13:28.929458+00:00",
+    "checked_at_utc": "2026-10-23T02:46:09.770986+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -1521,7 +1611,7 @@
   },
   {
     "url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Transfer1/README.md",
-    "checked_at_utc": "2026-10-23T02:13:28.983338+00:00",
+    "checked_at_utc": "2026-10-23T02:46:09.829556+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -1531,7 +1621,7 @@
   },
   {
     "url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/GR00T-N1.5/README.md",
-    "checked_at_utc": "2026-10-23T02:13:29.004114+00:00",
+    "checked_at_utc": "2026-10-23T02:46:09.908184+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -1541,7 +1631,7 @@
   },
   {
     "url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/GR00T-N1.6/README.md",
-    "checked_at_utc": "2026-10-23T02:13:29.019454+00:00",
+    "checked_at_utc": "2026-10-23T02:46:09.930452+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -1551,7 +1641,7 @@
   },
   {
     "url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Lingbot-vla/README.md",
-    "checked_at_utc": "2026-10-23T02:13:29.034459+00:00",
+    "checked_at_utc": "2026-10-23T02:46:09.930846+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -1561,7 +1651,7 @@
   },
   {
     "url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/OpenVLA/README.md",
-    "checked_at_utc": "2026-10-23T02:13:29.037429+00:00",
+    "checked_at_utc": "2026-10-23T02:46:09.933568+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -1571,7 +1661,7 @@
   },
   {
     "url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Pi-0.5/README.md",
-    "checked_at_utc": "2026-10-23T02:13:29.046663+00:00",
+    "checked_at_utc": "2026-10-23T02:46:09.956452+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -1581,7 +1671,7 @@
   },
   {
     "url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/StarVLA/README.md",
-    "checked_at_utc": "2026-10-23T02:13:29.145622+00:00",
+    "checked_at_utc": "2026-10-23T02:46:09.996224+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -1591,7 +1681,7 @@
   },
   {
     "url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/VGGT/README.md",
-    "checked_at_utc": "2026-10-23T02:13:29.149788+00:00",
+    "checked_at_utc": "2026-10-23T02:46:10.495783+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -1601,7 +1691,7 @@
   },
   {
     "url": "https://github.com/Ascend/DrivingSDK/tree/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Drive-Dreams",
-    "checked_at_utc": "2026-10-23T02:13:29.176700+00:00",
+    "checked_at_utc": "2026-10-23T02:46:10.664250+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -1611,7 +1701,7 @@
   },
   {
     "url": "https://github.com/Ascend/DrivingSDK/tree/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Predict2",
-    "checked_at_utc": "2026-10-23T02:13:29.717826+00:00",
+    "checked_at_utc": "2026-10-23T02:46:10.675144+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -1621,7 +1711,7 @@
   },
   {
     "url": "https://github.com/Ascend/DrivingSDK/tree/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Reason1",
-    "checked_at_utc": "2026-10-23T02:13:29.762149+00:00",
+    "checked_at_utc": "2026-10-23T02:46:10.719045+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -1631,7 +1721,7 @@
   },
   {
     "url": "https://github.com/Ascend/DrivingSDK/tree/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Transfer1",
-    "checked_at_utc": "2026-10-23T02:13:29.800856+00:00",
+    "checked_at_utc": "2026-10-23T02:46:10.761955+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -1641,7 +1731,7 @@
   },
   {
     "url": "https://github.com/Ascend/DrivingSDK/tree/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/GR00T-N1.5",
-    "checked_at_utc": "2026-10-23T02:13:29.842485+00:00",
+    "checked_at_utc": "2026-10-23T02:46:10.769508+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -1651,7 +1741,7 @@
   },
   {
     "url": "https://github.com/Ascend/DrivingSDK/tree/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/GR00T-N1.6",
-    "checked_at_utc": "2026-10-23T02:13:29.856654+00:00",
+    "checked_at_utc": "2026-10-23T02:46:10.785796+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -1661,7 +1751,7 @@
   },
   {
     "url": "https://github.com/Ascend/DrivingSDK/tree/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Lingbot-vla",
-    "checked_at_utc": "2026-10-23T02:13:29.862248+00:00",
+    "checked_at_utc": "2026-10-23T02:46:10.815350+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -1671,7 +1761,7 @@
   },
   {
     "url": "https://github.com/Ascend/DrivingSDK/tree/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/OpenVLA",
-    "checked_at_utc": "2026-10-23T02:13:29.937250+00:00",
+    "checked_at_utc": "2026-10-23T02:46:10.880789+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -1681,7 +1771,7 @@
   },
   {
     "url": "https://github.com/Ascend/DrivingSDK/tree/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Pi-0.5",
-    "checked_at_utc": "2026-10-23T02:13:30.062793+00:00",
+    "checked_at_utc": "2026-10-23T02:46:10.975335+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -1691,7 +1781,7 @@
   },
   {
     "url": "https://github.com/Ascend/DrivingSDK/tree/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/StarVLA",
-    "checked_at_utc": "2026-10-23T02:13:30.071578+00:00",
+    "checked_at_utc": "2026-10-23T02:46:11.279494+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -1701,7 +1791,7 @@
   },
   {
     "url": "https://github.com/Ascend/DrivingSDK/tree/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/VGGT",
-    "checked_at_utc": "2026-10-23T02:13:30.072696+00:00",
+    "checked_at_utc": "2026-10-23T02:46:11.448906+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -1710,8 +1800,18 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://github.com/Biohub/esm/blob/main/esm/models/esm3.py",
+    "checked_at_utc": "2026-10-23T02:46:11.468456+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/Biohub/esm/blob/main/esm/models/esm3.py",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://github.com/DebeshJha/ResUNetPlusPlus",
-    "checked_at_utc": "2026-10-23T02:13:30.190253+00:00",
+    "checked_at_utc": "2026-10-23T02:46:11.486265+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -1720,18 +1820,48 @@
     "result": "http_reachable"
   },
   {
-    "url": "https://github.com/DepthAnything/Depth-Anything-V2",
-    "checked_at_utc": "2026-10-23T02:13:30.200579+00:00",
+    "url": "https://github.com/DebeshJha/ResUNetPlusPlus/blob/master/README.md",
+    "checked_at_utc": "2026-10-23T02:46:11.615976+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
     "status": 200,
-    "final_url": "https://github.com/DepthAnything/Depth-Anything-V2",
+    "final_url": "https://github.com/DebeshJha/ResUNetPlusPlus/blob/master/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/DepthAnything/Depth-Anything-V2/blob/main/README.md",
+    "checked_at_utc": "2026-10-23T02:46:11.625666+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/DepthAnything/Depth-Anything-V2/blob/main/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/Diamondfan/CTC_pytorch/blob/eddd2550224dfe5ac28b6c4d20df5dde7eaf6119/timit/steps/train_ctc.py",
+    "checked_at_utc": "2026-10-23T02:48:02.182249+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/Diamondfan/CTC_pytorch/blob/eddd2550224dfe5ac28b6c4d20df5dde7eaf6119/timit/steps/train_ctc.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/Diamondfan/CTC_pytorch/blob/master/README.md",
+    "checked_at_utc": "2026-10-23T02:48:02.182554+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/Diamondfan/CTC_pytorch/blob/master/README.md",
     "result": "http_reachable"
   },
   {
     "url": "https://github.com/DurYi/UA-NWM",
-    "checked_at_utc": "2026-10-23T02:13:30.433468+00:00",
+    "checked_at_utc": "2026-10-23T02:46:11.710818+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -1740,8 +1870,18 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://github.com/DurYi/UA-NWM/blob/main/README.md",
+    "checked_at_utc": "2026-10-23T02:46:11.716556+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/DurYi/UA-NWM/blob/main/README.md",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://github.com/EmbodiedCity/Worldscape-MoE.code",
-    "checked_at_utc": "2026-10-23T02:13:30.505016+00:00",
+    "checked_at_utc": "2026-10-23T02:46:11.797940+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -1750,28 +1890,88 @@
     "result": "http_reachable"
   },
   {
-    "url": "https://github.com/FlagOpen/FlagEmbedding",
-    "checked_at_utc": "2026-10-23T02:13:30.524004+00:00",
+    "url": "https://github.com/EmbodiedCity/Worldscape-MoE.code/blob/main/README.md",
+    "checked_at_utc": "2026-10-23T02:46:11.998991+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
     "status": 200,
-    "final_url": "https://github.com/FlagOpen/FlagEmbedding",
+    "final_url": "https://github.com/EmbodiedCity/Worldscape-MoE.code/blob/main/README.md",
     "result": "http_reachable"
   },
   {
-    "url": "https://github.com/IDEA-Research/GroundingDINO",
-    "checked_at_utc": "2026-10-23T02:13:30.528809+00:00",
+    "url": "https://github.com/FlagOpen/FlagEmbedding/blob/master/FlagEmbedding/inference/embedder/encoder_only/m3.py",
+    "checked_at_utc": "2026-10-23T02:48:02.876353+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
     "status": 200,
-    "final_url": "https://github.com/IDEA-Research/GroundingDINO",
+    "final_url": "https://github.com/FlagOpen/FlagEmbedding/blob/master/FlagEmbedding/inference/embedder/encoder_only/m3.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/FlagOpen/FlagEmbedding/blob/master/FlagEmbedding/inference/reranker/encoder_only/base.py",
+    "checked_at_utc": "2026-10-23T02:48:02.910882+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/FlagOpen/FlagEmbedding/blob/master/FlagEmbedding/inference/reranker/encoder_only/base.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/FoundationVision/ByteTrack/blob/main/README.md",
+    "checked_at_utc": "2026-10-23T02:46:12.248731+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/FoundationVision/ByteTrack/blob/main/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/HuCaoFighting/Swin-Unet/blob/main/README.md",
+    "checked_at_utc": "2026-10-23T02:46:12.348430+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/HuCaoFighting/Swin-Unet/blob/main/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/IDEA-Research/GroundingDINO/blob/main/README.md",
+    "checked_at_utc": "2026-10-23T02:46:12.498096+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/IDEA-Research/GroundingDINO/blob/main/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/Kuhlman-Lab/ThermoMPNN/blob/main/README.md",
+    "checked_at_utc": "2026-10-23T02:46:12.507284+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/Kuhlman-Lab/ThermoMPNN/blob/main/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/Kuhlman-Lab/ThermoMPNN/tree/main/models",
+    "checked_at_utc": "2026-10-23T02:46:12.547620+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/Kuhlman-Lab/ThermoMPNN/tree/main/models",
     "result": "http_reachable"
   },
   {
     "url": "https://github.com/NVIDIA/Isaac-GR00T",
-    "checked_at_utc": "2026-10-23T02:13:30.578166+00:00",
+    "checked_at_utc": "2026-10-23T02:46:12.600171+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -1780,8 +1980,38 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://github.com/NVIDIA/Isaac-GR00T/blob/4af2b622892f7dcb5aae5a3fb70bcb02dc217b96/README.md",
+    "checked_at_utc": "2026-10-23T02:46:12.635709+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/NVIDIA/Isaac-GR00T/blob/4af2b622892f7dcb5aae5a3fb70bcb02dc217b96/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/NVIDIA/Isaac-GR00T/blob/755876a9afdb41ca6eb6383b36f4a0adb085c73f/README.md",
+    "checked_at_utc": "2026-10-23T02:46:12.839789+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/NVIDIA/Isaac-GR00T/blob/755876a9afdb41ca6eb6383b36f4a0adb085c73f/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/NVIDIA/Isaac-GR00T/blob/ead52833afbbf4243f8cd5e7664f48a94de03b19/README.md",
+    "checked_at_utc": "2026-10-23T02:46:12.914054+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/NVIDIA/Isaac-GR00T/blob/ead52833afbbf4243f8cd5e7664f48a94de03b19/README.md",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://github.com/Open-X-Humanoid/XR-1",
-    "checked_at_utc": "2026-10-23T02:13:30.618182+00:00",
+    "checked_at_utc": "2026-10-23T02:46:12.977788+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -1790,8 +2020,28 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://github.com/Open-X-Humanoid/XR-1/blob/main/README.md",
+    "checked_at_utc": "2026-10-23T02:46:13.100787+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/Open-X-Humanoid/XR-1/blob/main/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/Open-X-Humanoid/XR-1/blob/main/lerobot/scripts/train_humanoid_multigpu.py",
+    "checked_at_utc": "2026-10-23T02:48:03.230676+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/Open-X-Humanoid/XR-1/blob/main/lerobot/scripts/train_humanoid_multigpu.py",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://github.com/Open-X-Humanoid/pelican-vl",
-    "checked_at_utc": "2026-10-23T02:13:30.698196+00:00",
+    "checked_at_utc": "2026-10-23T02:46:13.202738+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -1800,18 +2050,18 @@
     "result": "http_reachable"
   },
   {
-    "url": "https://github.com/OpenGVLab/InternVL",
-    "checked_at_utc": "2026-10-23T02:13:30.769258+00:00",
+    "url": "https://github.com/Open-X-Humanoid/pelican-vl/blob/rxc/README.md",
+    "checked_at_utc": "2026-10-23T02:46:13.287902+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
     "status": 200,
-    "final_url": "https://github.com/OpenGVLab/InternVL",
+    "final_url": "https://github.com/Open-X-Humanoid/pelican-vl/blob/rxc/README.md",
     "result": "http_reachable"
   },
   {
     "url": "https://github.com/OpenGalaxea/GalaxeaVLA",
-    "checked_at_utc": "2026-10-23T02:13:30.807151+00:00",
+    "checked_at_utc": "2026-10-23T02:46:13.297924+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -1820,18 +2070,48 @@
     "result": "http_reachable"
   },
   {
-    "url": "https://github.com/PaddlePaddle/PaddleOCR",
-    "checked_at_utc": "2026-10-23T02:13:30.869728+00:00",
+    "url": "https://github.com/OpenGalaxea/GalaxeaVLA/blob/13a16a9049aee8f1d799b56fccc0c5832a75fc2f/README.md",
+    "checked_at_utc": "2026-10-23T02:46:13.459939+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/OpenGalaxea/GalaxeaVLA/blob/13a16a9049aee8f1d799b56fccc0c5832a75fc2f/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/OpenGalaxea/GalaxeaVLA/blob/main/README.md",
+    "checked_at_utc": "2026-10-23T02:46:13.464950+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
     "status": 200,
-    "final_url": "https://github.com/PaddlePaddle/PaddleOCR",
+    "final_url": "https://github.com/OpenGalaxea/GalaxeaVLA/blob/main/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/OpenHero/gblastn/blob/master/README.md",
+    "checked_at_utc": "2026-10-23T02:46:13.499244+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/OpenHero/gblastn/blob/master/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/PaddlePaddle/PaddleOCR/blob/main/README.md",
+    "checked_at_utc": "2026-10-23T02:46:13.537978+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/PaddlePaddle/PaddleOCR/blob/main/README.md",
     "result": "http_reachable"
   },
   {
     "url": "https://github.com/PaddlePaddle/PaddleSeg",
-    "checked_at_utc": "2026-10-23T02:13:30.946359+00:00",
+    "checked_at_utc": "2026-10-23T02:46:13.845275+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -1840,8 +2120,18 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://github.com/PaddlePaddle/PaddleSeg/blob/release/2.10/configs/segnet/README.md",
+    "checked_at_utc": "2026-10-23T02:46:13.952284+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/PaddlePaddle/PaddleSeg/blob/release/2.10/configs/segnet/README.md",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://github.com/PaddlePaddle/PaddleX/blob/ffb64904d23708863ff5b8da312a5cbd52a7f462/docs/support_list/model_list_npu.en.md",
-    "checked_at_utc": "2026-10-23T02:13:31.022521+00:00",
+    "checked_at_utc": "2026-10-23T02:46:14.012801+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -1850,48 +2140,48 @@
     "result": "http_reachable"
   },
   {
-    "url": "https://github.com/QwenLM/Qwen2-VL",
-    "checked_at_utc": "2026-10-23T02:13:31.176115+00:00",
+    "url": "https://github.com/Physical-Intelligence/openpi/blob/main/README.md",
+    "checked_at_utc": "2026-10-23T02:46:14.095067+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
     "status": 200,
-    "final_url": "https://github.com/QwenLM/Qwen3-VL",
+    "final_url": "https://github.com/Physical-Intelligence/openpi/blob/main/README.md",
     "result": "http_reachable"
   },
   {
-    "url": "https://github.com/QwenLM/Qwen2.5-VL",
-    "checked_at_utc": "2026-10-23T02:13:31.238745+00:00",
+    "url": "https://github.com/QwenLM/Qwen3-Embedding/blob/main/README.md",
+    "checked_at_utc": "2026-10-23T02:46:14.158674+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
     "status": 200,
-    "final_url": "https://github.com/QwenLM/Qwen3-VL",
+    "final_url": "https://github.com/QwenLM/Qwen3-Embedding/blob/main/README.md",
     "result": "http_reachable"
   },
   {
-    "url": "https://github.com/QwenLM/Qwen3",
-    "checked_at_utc": "2026-10-23T02:13:31.244568+00:00",
+    "url": "https://github.com/QwenLM/Qwen3/blob/main/README.md",
+    "checked_at_utc": "2026-10-23T02:46:14.238736+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
     "status": 200,
-    "final_url": "https://github.com/QwenLM/Qwen3",
+    "final_url": "https://github.com/QwenLM/Qwen3/blob/main/README.md",
     "result": "http_reachable"
   },
   {
-    "url": "https://github.com/Robbyant/lingbot-vla",
-    "checked_at_utc": "2026-10-23T02:13:31.317808+00:00",
+    "url": "https://github.com/Robbyant/lingbot-vla/blob/main/deploy/lingbot_vla_policy.py",
+    "checked_at_utc": "2026-10-23T02:46:14.267443+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
     "status": 200,
-    "final_url": "https://github.com/Robbyant/lingbot-vla",
+    "final_url": "https://github.com/Robbyant/lingbot-vla/blob/main/deploy/lingbot_vla_policy.py",
     "result": "http_reachable"
   },
   {
     "url": "https://github.com/RosettaCommons/DeepAb",
-    "checked_at_utc": "2026-10-23T02:13:31.358757+00:00",
+    "checked_at_utc": "2026-10-23T02:46:14.321337+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -1900,28 +2190,38 @@
     "result": "http_reachable"
   },
   {
-    "url": "https://github.com/RosettaCommons/RFdiffusion",
-    "checked_at_utc": "2026-10-23T02:13:31.411399+00:00",
+    "url": "https://github.com/RosettaCommons/DeepAb/blob/main/predict.py",
+    "checked_at_utc": "2026-10-23T02:46:14.385478+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
     "status": 200,
-    "final_url": "https://github.com/RosettaCommons/RFdiffusion",
+    "final_url": "https://github.com/RosettaCommons/DeepAb/blob/main/predict.py",
     "result": "http_reachable"
   },
   {
-    "url": "https://github.com/RosettaCommons/RFdiffusion2",
-    "checked_at_utc": "2026-10-23T02:13:31.595476+00:00",
+    "url": "https://github.com/RosettaCommons/RFdiffusion/blob/main/README.md",
+    "checked_at_utc": "2026-10-23T02:46:14.401236+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
     "status": 200,
-    "final_url": "https://github.com/RosettaCommons/RFdiffusion2",
+    "final_url": "https://github.com/RosettaCommons/RFdiffusion/blob/main/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/RosettaCommons/RFdiffusion2/blob/main/README.md",
+    "checked_at_utc": "2026-10-23T02:46:14.433060+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/RosettaCommons/RFdiffusion2/blob/main/README.md",
     "result": "http_reachable"
   },
   {
     "url": "https://github.com/RosettaCommons/RoseTTAFold",
-    "checked_at_utc": "2026-10-23T02:13:31.603196+00:00",
+    "checked_at_utc": "2026-10-23T02:46:14.473668+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -1930,8 +2230,48 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://github.com/RosettaCommons/RoseTTAFold/blob/main/README.md",
+    "checked_at_utc": "2026-10-23T02:46:14.588200+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/RosettaCommons/RoseTTAFold/blob/main/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/Spirit-AI-Team/spirit-v1.5/blob/main/README.md",
+    "checked_at_utc": "2026-10-23T02:46:14.931040+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/Spirit-AI-Team/spirit-v1.5/blob/main/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/UBTECH-Robot/Thinker-WM/blob/main/README.md",
+    "checked_at_utc": "2026-10-23T02:46:15.066839+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/UBTECH-Robot/Thinker-WM/blob/main/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/UBTECH-Robot/Thinker/blob/main/inference.py",
+    "checked_at_utc": "2026-10-23T02:46:15.128754+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/UBTECH-Robot/Thinker/blob/main/inference.py",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://github.com/UZ-SLAMLab/ORB_SLAM3",
-    "checked_at_utc": "2026-10-23T02:13:31.628374+00:00",
+    "checked_at_utc": "2026-10-23T02:46:15.165722+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -1940,8 +2280,38 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://github.com/UZ-SLAMLab/ORB_SLAM3/blob/master/README.md",
+    "checked_at_utc": "2026-10-23T02:46:15.215535+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/UZ-SLAMLab/ORB_SLAM3/blob/master/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/X-Square-Robot/wall-ss/blob/main/README.md",
+    "checked_at_utc": "2026-10-23T02:46:15.263881+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/X-Square-Robot/wall-ss/blob/main/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/X-Square-Robot/wall-wm/blob/main/README.md",
+    "checked_at_utc": "2026-10-23T02:46:15.275239+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/X-Square-Robot/wall-wm/blob/main/README.md",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://github.com/X-Square-Robot/wall-x",
-    "checked_at_utc": "2026-10-23T02:13:31.704903+00:00",
+    "checked_at_utc": "2026-10-23T02:46:15.288670+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -1950,18 +2320,38 @@
     "result": "http_reachable"
   },
   {
-    "url": "https://github.com/amazon-science/patchcore-inspection",
-    "checked_at_utc": "2026-10-23T02:13:31.775408+00:00",
+    "url": "https://github.com/X-Square-Robot/wall-x/blob/main/README.md",
+    "checked_at_utc": "2026-10-23T02:46:15.341061+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
     "status": 200,
-    "final_url": "https://github.com/amazon-science/patchcore-inspection",
+    "final_url": "https://github.com/X-Square-Robot/wall-x/blob/main/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/alexfreudenberg/miraculix",
+    "checked_at_utc": "2026-10-23T02:46:15.353539+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/alexfreudenberg/miraculix",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/amazon-science/patchcore-inspection/blob/main/README.md",
+    "checked_at_utc": "2026-10-23T02:46:15.409008+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/amazon-science/patchcore-inspection/blob/main/README.md",
     "result": "http_reachable"
   },
   {
     "url": "https://github.com/chenjinyubuaa/AerialVLA",
-    "checked_at_utc": "2026-10-23T02:13:31.964846+00:00",
+    "checked_at_utc": "2026-10-23T02:46:15.410372+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -1970,8 +2360,18 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://github.com/chenjinyubuaa/AerialVLA/blob/main/README.md",
+    "checked_at_utc": "2026-10-23T02:46:15.886768+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/chenjinyubuaa/AerialVLA/blob/main/README.md",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://github.com/danijar/dreamerv3",
-    "checked_at_utc": "2026-10-23T02:13:32.088796+00:00",
+    "checked_at_utc": "2026-10-23T02:46:15.948154+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -1980,28 +2380,48 @@
     "result": "http_reachable"
   },
   {
-    "url": "https://github.com/dauparas/LigandMPNN",
-    "checked_at_utc": "2026-10-23T02:13:32.091648+00:00",
+    "url": "https://github.com/danijar/dreamerv3/blob/main/README.md",
+    "checked_at_utc": "2026-10-23T02:46:16.055506+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
     "status": 200,
-    "final_url": "https://github.com/dauparas/LigandMPNN",
+    "final_url": "https://github.com/danijar/dreamerv3/blob/main/README.md",
     "result": "http_reachable"
   },
   {
-    "url": "https://github.com/dauparas/ProteinMPNN",
-    "checked_at_utc": "2026-10-23T02:13:32.169672+00:00",
+    "url": "https://github.com/dauparas/LigandMPNN/blob/main/run.py",
+    "checked_at_utc": "2026-10-23T02:46:16.070821+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
     "status": 200,
-    "final_url": "https://github.com/dauparas/ProteinMPNN",
+    "final_url": "https://github.com/dauparas/LigandMPNN/blob/main/run.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/dauparas/ProteinMPNN/blob/main/README.md",
+    "checked_at_utc": "2026-10-23T02:46:16.110017+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/dauparas/ProteinMPNN/blob/main/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/dauparas/ProteinMPNN/blob/main/vanilla_model_weights/v_48_020.pt",
+    "checked_at_utc": "2026-10-23T02:46:16.200957+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/dauparas/ProteinMPNN/blob/main/vanilla_model_weights/v_48_020.pt",
     "result": "http_reachable"
   },
   {
     "url": "https://github.com/evolutionaryscale/esm",
-    "checked_at_utc": "2026-10-23T02:13:32.204154+00:00",
+    "checked_at_utc": "2026-10-23T02:46:16.254213+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -2010,28 +2430,28 @@
     "result": "http_reachable"
   },
   {
-    "url": "https://github.com/facebookresearch/dinov2",
-    "checked_at_utc": "2026-10-23T02:13:32.326362+00:00",
+    "url": "https://github.com/facebookresearch/dinov2/blob/main/README.md",
+    "checked_at_utc": "2026-10-23T02:46:16.260409+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
     "status": 200,
-    "final_url": "https://github.com/facebookresearch/dinov2",
+    "final_url": "https://github.com/facebookresearch/dinov2/blob/main/README.md",
     "result": "http_reachable"
   },
   {
-    "url": "https://github.com/facebookresearch/esm",
-    "checked_at_utc": "2026-10-23T02:13:32.382598+00:00",
+    "url": "https://github.com/facebookresearch/esm/blob/main/README.md",
+    "checked_at_utc": "2026-10-23T02:46:16.269526+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
     "status": 200,
-    "final_url": "https://github.com/facebookresearch/esm",
+    "final_url": "https://github.com/facebookresearch/esm/blob/main/README.md",
     "result": "http_reachable"
   },
   {
     "url": "https://github.com/facebookresearch/map-anything",
-    "checked_at_utc": "2026-10-23T02:13:32.453994+00:00",
+    "checked_at_utc": "2026-10-23T02:46:16.283144+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -2040,38 +2460,58 @@
     "result": "http_reachable"
   },
   {
-    "url": "https://github.com/facebookresearch/sam2",
-    "checked_at_utc": "2026-10-23T02:13:32.475498+00:00",
+    "url": "https://github.com/facebookresearch/map-anything/blob/main/README.md",
+    "checked_at_utc": "2026-10-23T02:46:16.303802+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
     "status": 200,
-    "final_url": "https://github.com/facebookresearch/sam2",
+    "final_url": "https://github.com/facebookresearch/map-anything/blob/main/README.md",
     "result": "http_reachable"
   },
   {
-    "url": "https://github.com/facebookresearch/segment-anything",
-    "checked_at_utc": "2026-10-23T02:13:32.493595+00:00",
+    "url": "https://github.com/facebookresearch/map-anything/blob/main/data_processing/README.md",
+    "checked_at_utc": "2026-10-23T02:46:16.379659+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
     "status": 200,
-    "final_url": "https://github.com/facebookresearch/segment-anything",
+    "final_url": "https://github.com/facebookresearch/map-anything/blob/main/data_processing/README.md",
     "result": "http_reachable"
   },
   {
-    "url": "https://github.com/facebookresearch/vggt",
-    "checked_at_utc": "2026-10-23T02:13:32.493726+00:00",
+    "url": "https://github.com/facebookresearch/sam2/blob/main/README.md",
+    "checked_at_utc": "2026-10-23T02:46:16.778957+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
     "status": 200,
-    "final_url": "https://github.com/facebookresearch/vggt",
+    "final_url": "https://github.com/facebookresearch/sam2/blob/main/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/facebookresearch/segment-anything/blob/main/README.md",
+    "checked_at_utc": "2026-10-23T02:46:16.820650+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/facebookresearch/segment-anything/blob/main/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/facebookresearch/vggt/blob/main/README.md",
+    "checked_at_utc": "2026-10-23T02:46:17.000349+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/facebookresearch/vggt/blob/main/README.md",
     "result": "http_reachable"
   },
   {
     "url": "https://github.com/facebookresearch/vjepa2",
-    "checked_at_utc": "2026-10-23T02:13:32.568841+00:00",
+    "checked_at_utc": "2026-10-23T02:46:17.021318+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -2080,18 +2520,28 @@
     "result": "http_reachable"
   },
   {
-    "url": "https://github.com/fundamentalvision/BEVFormer",
-    "checked_at_utc": "2026-10-23T02:13:32.767007+00:00",
+    "url": "https://github.com/facebookresearch/vjepa2/blob/main/README.md",
+    "checked_at_utc": "2026-10-23T02:46:17.022275+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
     "status": 200,
-    "final_url": "https://github.com/fundamentalvision/BEVFormer",
+    "final_url": "https://github.com/facebookresearch/vjepa2/blob/main/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/fundamentalvision/BEVFormer/blob/master/README.md",
+    "checked_at_utc": "2026-10-23T02:46:17.063957+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/fundamentalvision/BEVFormer/blob/master/README.md",
     "result": "http_reachable"
   },
   {
     "url": "https://github.com/google-deepmind/alphafold",
-    "checked_at_utc": "2026-10-23T02:13:32.830919+00:00",
+    "checked_at_utc": "2026-10-23T02:46:17.105555+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -2100,18 +2550,38 @@
     "result": "http_reachable"
   },
   {
-    "url": "https://github.com/google-deepmind/alphafold3",
-    "checked_at_utc": "2026-10-23T02:13:32.937607+00:00",
+    "url": "https://github.com/google-deepmind/alphafold3/blob/main/README.md",
+    "checked_at_utc": "2026-10-23T02:46:17.116952+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
     "status": 200,
-    "final_url": "https://github.com/google-deepmind/alphafold3",
+    "final_url": "https://github.com/google-deepmind/alphafold3/blob/main/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/google-deepmind/deepmind-research/blob/master/meshgraphnets/README.md",
+    "checked_at_utc": "2026-10-23T02:46:17.225730+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/google-deepmind/deepmind-research/blob/master/meshgraphnets/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/google-deepmind/deepmind-research/blob/master/meshgraphnets/requirements.txt",
+    "checked_at_utc": "2026-10-23T02:46:17.309864+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/google-deepmind/deepmind-research/blob/master/meshgraphnets/requirements.txt",
     "result": "http_reachable"
   },
   {
     "url": "https://github.com/google-deepmind/deepmind-research/tree/master/meshgraphnets",
-    "checked_at_utc": "2026-10-23T02:13:32.961439+00:00",
+    "checked_at_utc": "2026-10-23T02:46:17.481132+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -2120,28 +2590,38 @@
     "result": "http_reachable"
   },
   {
-    "url": "https://github.com/haotian-liu/LLaVA",
-    "checked_at_utc": "2026-10-23T02:13:33.045258+00:00",
+    "url": "https://github.com/haotian-liu/LLaVA/blob/main/README.md",
+    "checked_at_utc": "2026-10-23T02:46:17.670058+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
     "status": 200,
-    "final_url": "https://github.com/haotian-liu/LLaVA",
+    "final_url": "https://github.com/haotian-liu/LLaVA/blob/main/README.md",
     "result": "http_reachable"
   },
   {
-    "url": "https://github.com/huggingface/lerobot",
-    "checked_at_utc": "2026-10-23T02:13:33.287615+00:00",
+    "url": "https://github.com/haotian-liu/LLaVA/blob/main/docs/Data.md",
+    "checked_at_utc": "2026-10-23T02:46:17.722540+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
     "status": 200,
-    "final_url": "https://github.com/huggingface/lerobot",
+    "final_url": "https://github.com/haotian-liu/LLaVA/blob/main/docs/Data.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/haotian-liu/LLaVA/blob/main/docs/MODEL_ZOO.md",
+    "checked_at_utc": "2026-10-23T02:46:17.738467+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/haotian-liu/LLaVA/blob/main/docs/MODEL_ZOO.md",
     "result": "http_reachable"
   },
   {
     "url": "https://github.com/huggingface/peft",
-    "checked_at_utc": "2026-10-23T02:13:33.323111+00:00",
+    "checked_at_utc": "2026-10-23T02:46:17.884141+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -2151,7 +2631,7 @@
   },
   {
     "url": "https://github.com/huggingface/peft/blob/main/src/peft/utils/other.py",
-    "checked_at_utc": "2026-10-23T02:13:33.325433+00:00",
+    "checked_at_utc": "2026-10-23T02:46:17.910473+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -2161,7 +2641,7 @@
   },
   {
     "url": "https://github.com/ifzhang/ByteTrack",
-    "checked_at_utc": "2026-10-23T02:13:33.357164+00:00",
+    "checked_at_utc": "2026-10-23T02:46:17.960279+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -2171,7 +2651,7 @@
   },
   {
     "url": "https://github.com/jenniferlu717/Bracken",
-    "checked_at_utc": "2026-10-23T02:13:33.361431+00:00",
+    "checked_at_utc": "2026-10-23T02:46:17.963067+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -2181,7 +2661,7 @@
   },
   {
     "url": "https://github.com/justchenhao/BIT_CD",
-    "checked_at_utc": "2026-10-23T02:13:33.396677+00:00",
+    "checked_at_utc": "2026-10-23T02:46:18.001608+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -2190,18 +2670,48 @@
     "result": "http_reachable"
   },
   {
-    "url": "https://github.com/lyuwenyu/RT-DETR",
-    "checked_at_utc": "2026-10-23T02:13:33.499627+00:00",
+    "url": "https://github.com/justchenhao/BIT_CD/blob/master/README.md",
+    "checked_at_utc": "2026-10-23T02:46:18.074156+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
     "status": 200,
-    "final_url": "https://github.com/lyuwenyu/RT-DETR",
+    "final_url": "https://github.com/justchenhao/BIT_CD/blob/master/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/justchenhao/BIT_CD/blob/master/models/networks.py",
+    "checked_at_utc": "2026-10-23T02:46:18.247621+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/justchenhao/BIT_CD/blob/master/models/networks.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/lyuwenyu/RT-DETR/blob/main/README.md",
+    "checked_at_utc": "2026-10-23T02:46:18.274349+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/lyuwenyu/RT-DETR/blob/main/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/marlbenchmark/on-policy/blob/main/README.md",
+    "checked_at_utc": "2026-10-23T02:46:18.298972+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/marlbenchmark/on-policy/blob/main/README.md",
     "result": "http_reachable"
   },
   {
     "url": "https://github.com/microsoft/AirSim",
-    "checked_at_utc": "2026-10-23T02:13:33.534439+00:00",
+    "checked_at_utc": "2026-10-23T02:46:18.515539+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -2210,18 +2720,18 @@
     "result": "http_reachable"
   },
   {
-    "url": "https://github.com/microsoft/LightGBM",
-    "checked_at_utc": "2026-10-23T02:13:33.617188+00:00",
+    "url": "https://github.com/microsoft/AirSim/blob/main/docs/faq.md",
+    "checked_at_utc": "2026-10-23T02:46:18.568835+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
     "status": 200,
-    "final_url": "https://github.com/lightgbm-org/LightGBM",
+    "final_url": "https://github.com/microsoft/AirSim/blob/main/docs/faq.md",
     "result": "http_reachable"
   },
   {
     "url": "https://github.com/mindspore-ai/mindscience/blob/971c015b0111d229608ff05b9e77704dbb0793b4/MindSPONGE/README.md",
-    "checked_at_utc": "2026-10-23T02:13:33.665902+00:00",
+    "checked_at_utc": "2026-10-23T02:46:18.627772+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "pinned",
@@ -2230,8 +2740,58 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://github.com/nv-tlabs/Cosmos-Drive-Dreams/blob/main/README.md",
+    "checked_at_utc": "2026-10-23T02:46:18.700267+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/nv-tlabs/Cosmos-Drive-Dreams/blob/main/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/nvidia-cosmos",
+    "checked_at_utc": "2026-10-23T02:46:18.702186+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/nvidia-cosmos",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/nvidia-cosmos/cosmos-predict2/blob/main/README.md",
+    "checked_at_utc": "2026-10-23T02:46:18.810988+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/nvidia-cosmos/cosmos-predict2/blob/main/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/nvidia-cosmos/cosmos-reason1/blob/main/README.md",
+    "checked_at_utc": "2026-10-23T02:46:18.990039+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/nvidia-cosmos/cosmos-reason1/blob/main/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/nvidia-cosmos/cosmos-transfer1/blob/main/README.md",
+    "checked_at_utc": "2026-10-23T02:46:19.116672+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/nvidia-cosmos/cosmos-transfer1/blob/main/README.md",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://github.com/open-gigaai/giga-brain-0",
-    "checked_at_utc": "2026-10-23T02:13:33.695330+00:00",
+    "checked_at_utc": "2026-10-23T02:46:19.166881+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -2240,8 +2800,18 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://github.com/open-gigaai/giga-brain-0/blob/main/README.md",
+    "checked_at_utc": "2026-10-23T02:46:19.179583+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/open-gigaai/giga-brain-0/blob/main/README.md",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://github.com/open-gigaai/giga-world-0",
-    "checked_at_utc": "2026-10-23T02:13:33.802881+00:00",
+    "checked_at_utc": "2026-10-23T02:46:19.311112+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -2250,8 +2820,18 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://github.com/open-gigaai/giga-world-0/blob/main/README.md",
+    "checked_at_utc": "2026-10-23T02:46:19.354764+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/open-gigaai/giga-world-0/blob/main/README.md",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://github.com/open-gigaai/giga-world-1",
-    "checked_at_utc": "2026-10-23T02:13:34.052322+00:00",
+    "checked_at_utc": "2026-10-23T02:46:19.418848+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -2260,28 +2840,118 @@
     "result": "http_reachable"
   },
   {
-    "url": "https://github.com/opendatalab/MinerU",
-    "checked_at_utc": "2026-10-23T02:13:34.090621+00:00",
+    "url": "https://github.com/open-gigaai/giga-world-1/blob/main/README.md",
+    "checked_at_utc": "2026-10-23T02:46:19.439600+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
     "status": 200,
-    "final_url": "https://github.com/opendatalab/MinerU",
+    "final_url": "https://github.com/open-gigaai/giga-world-1/blob/main/README.md",
     "result": "http_reachable"
   },
   {
-    "url": "https://github.com/openvla/openvla",
-    "checked_at_utc": "2026-10-23T02:13:34.120747+00:00",
+    "url": "https://github.com/open-mmlab/mmdetection/blob/main/configs/faster_rcnn/README.md",
+    "checked_at_utc": "2026-10-23T02:46:19.489906+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
     "status": 200,
-    "final_url": "https://github.com/openvla/openvla",
+    "final_url": "https://github.com/open-mmlab/mmdetection/blob/main/configs/faster_rcnn/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/open-mmlab/mmdetection/blob/main/configs/swin/README.md",
+    "checked_at_utc": "2026-10-23T02:46:19.503247+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/open-mmlab/mmdetection/blob/main/configs/swin/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/open-mmlab/mmsegmentation/blob/main/configs/deeplabv3plus/README.md",
+    "checked_at_utc": "2026-10-23T02:46:19.604221+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/open-mmlab/mmsegmentation/blob/main/configs/deeplabv3plus/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/open-mmlab/mmsegmentation/blob/main/configs/segformer/README.md",
+    "checked_at_utc": "2026-10-23T02:46:19.772606+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/open-mmlab/mmsegmentation/blob/main/configs/segformer/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/opendatalab/MinerU/blob/1a59613/README.md",
+    "checked_at_utc": "2026-10-23T02:46:19.909661+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/opendatalab/MinerU/blob/1a59613/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/openvla/openvla/blob/main/README.md",
+    "checked_at_utc": "2026-10-23T02:46:19.988118+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/openvla/openvla/blob/main/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/oxwhirl/pymarl/blob/master/README.md",
+    "checked_at_utc": "2026-10-23T02:46:19.994862+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/oxwhirl/pymarl/blob/master/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/pangfumin/CudaDwa/blob/master/README.md",
+    "checked_at_utc": "2026-10-23T02:46:20.066034+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/pangfumin/CudaDwa/blob/master/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/rezaakb/pinns-torch/blob/main/README.md",
+    "checked_at_utc": "2026-10-23T02:46:20.206303+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/rezaakb/pinns-torch/blob/main/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/rishikksh20/ResUnet/blob/master/train.py",
+    "checked_at_utc": "2026-10-23T02:48:03.582537+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/rishikksh20/ResUnet/blob/master/train.py",
     "result": "http_reachable"
   },
   {
     "url": "https://github.com/ros-planning/navigation/tree/noetic-devel/dwa_local_planner",
-    "checked_at_utc": "2026-10-23T02:13:34.242481+00:00",
+    "checked_at_utc": "2026-10-23T02:46:20.283213+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -2290,18 +2960,38 @@
     "result": "http_reachable"
   },
   {
-    "url": "https://github.com/starVLA/starVLA",
-    "checked_at_utc": "2026-10-23T02:13:34.316630+00:00",
+    "url": "https://github.com/shariqiqbal2810/maddpg-pytorch/blob/master/algorithms/maddpg.py",
+    "checked_at_utc": "2026-10-23T02:46:20.323834+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
     "status": 200,
-    "final_url": "https://github.com/starVLA/starVLA",
+    "final_url": "https://github.com/shariqiqbal2810/maddpg-pytorch/blob/master/algorithms/maddpg.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/starVLA/starVLA/blob/starVLA_dev/README.md",
+    "checked_at_utc": "2026-10-23T02:46:20.366342+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/starVLA/starVLA/blob/starVLA_dev/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/starVLA/starVLA/blob/starVLA_dev/docs/model_zoo.md",
+    "checked_at_utc": "2026-10-23T02:46:20.396912+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/starVLA/starVLA/blob/starVLA_dev/docs/model_zoo.md",
     "result": "http_reachable"
   },
   {
     "url": "https://github.com/thuml/Anomaly-Transformer",
-    "checked_at_utc": "2026-10-23T02:13:34.362512+00:00",
+    "checked_at_utc": "2026-10-23T02:46:20.512589+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -2310,18 +3000,38 @@
     "result": "http_reachable"
   },
   {
-    "url": "https://github.com/thuml/Time-Series-Library",
-    "checked_at_utc": "2026-10-23T02:13:34.404436+00:00",
+    "url": "https://github.com/thuml/Anomaly-Transformer/blob/main/README.md",
+    "checked_at_utc": "2026-10-23T02:46:20.556354+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
     "status": 200,
-    "final_url": "https://github.com/thuml/Time-Series-Library",
+    "final_url": "https://github.com/thuml/Anomaly-Transformer/blob/main/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/thuml/Anomaly-Transformer/blob/main/solver.py",
+    "checked_at_utc": "2026-10-23T02:46:20.786970+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/thuml/Anomaly-Transformer/blob/main/solver.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/thuml/Time-Series-Library/blob/main/exp/exp_basic.py",
+    "checked_at_utc": "2026-10-23T02:46:20.879956+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/thuml/Time-Series-Library/blob/main/exp/exp_basic.py",
     "result": "http_reachable"
   },
   {
     "url": "https://github.com/wgcban/ChangeFormer",
-    "checked_at_utc": "2026-10-23T02:13:34.473104+00:00",
+    "checked_at_utc": "2026-10-23T02:46:20.898411+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -2330,8 +3040,68 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://github.com/wgcban/ChangeFormer/blob/main/README.md",
+    "checked_at_utc": "2026-10-23T02:46:20.926976+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/wgcban/ChangeFormer/blob/main/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/wgcban/ChangeFormer/blob/main/models/networks.py",
+    "checked_at_utc": "2026-10-23T02:46:21.013003+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/wgcban/ChangeFormer/blob/main/models/networks.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/wow-world-model/wow-world-model/blob/main/demo/wan_infer_demo.py",
+    "checked_at_utc": "2026-10-23T02:46:21.025538+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/wow-world-model/wow-world-model/blob/main/demo/wan_infer_demo.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/yuantianyuan01/FastWAM/blob/main/README.md",
+    "checked_at_utc": "2026-10-23T02:46:21.326147+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/yuantianyuan01/FastWAM/blob/main/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/zehuilu/CBBA-Python",
+    "checked_at_utc": "2026-10-23T02:46:21.386836+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/zehuilu/CBBA-Python",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/zhiqi-li/storage/releases/download/v1.0/bevformer_r101_dcn_24ep.pth",
+    "checked_at_utc": "2026-10-23T02:46:21.396671+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://release-assets.githubusercontent.com/github-production-release-asset/501548489/d90e1b1f-0b3c-41a8-beec-21c24941adb1?sp=r&sv=2018-11-09&sr=b&spr=https&se=2026-10-23T03%3A26%3A45Z&rscd=attachment%3B+filename%3Dbevformer_r101_dcn_24ep.pth&rsct=application%2Foctet-stream&skoid=96c2d410-5711-43a1-aedd-ab1947aa7ab0&sktid=398a6654-997b-47e9-b12b-9515b896b4de&skt=2026-10-23T02%3A26%3A03Z&ske=2026-10-23T03%3A26%3A45Z&sks=b&skv=2018-11-09&sig=82gJW3kTXdVkPVOcwtNKYQwNefrXfRxzzdjF%2FvumJ%2FQ%3D&jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmVsZWFzZS1hc3NldHMuZ2l0aHVidXNlcmNvbnRlbnQuY29tIiwia2V5Ijoia2V5MSIsImV4cCI6MTc5MjcyNzE4MiwibmJmIjoxNzkyNzIzNTgyLCJwYXRoIjoicmVsZWFzZWFzc2V0cHJvZHVjdGlvbi5ibG9iLmNvcmUud2luZG93cy5uZXQifQ.sJ1z0enP4wE739mMB3Mhig-CqS0GLMSyvFIsFzFJpNQ&response-content-disposition=attachment%3B%20filename%3Dbevformer_r101_dcn_24ep.pth&response-content-type=application%2Foctet-stream",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://huggingface.co/BAAI/bge-m3",
-    "checked_at_utc": "2026-10-23T02:13:34.519262+00:00",
+    "checked_at_utc": "2026-10-23T02:46:21.411301+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -2341,7 +3111,7 @@
   },
   {
     "url": "https://huggingface.co/BAAI/bge-reranker-v2-m3",
-    "checked_at_utc": "2026-10-23T02:13:34.605342+00:00",
+    "checked_at_utc": "2026-10-23T02:46:21.426126+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -2351,7 +3121,7 @@
   },
   {
     "url": "https://huggingface.co/BrunoM42/pi0_aloha_transfer_cube/tree/main",
-    "checked_at_utc": "2026-10-23T02:13:34.793575+00:00",
+    "checked_at_utc": "2026-10-23T02:46:21.790104+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -2361,7 +3131,7 @@
   },
   {
     "url": "https://huggingface.co/DurYi/UA-NWM-Checkpoints",
-    "checked_at_utc": "2026-10-23T02:13:34.809244+00:00",
+    "checked_at_utc": "2026-10-23T02:46:21.807317+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -2371,7 +3141,7 @@
   },
   {
     "url": "https://huggingface.co/EmbodiedCity/Worldscape-MoE",
-    "checked_at_utc": "2026-10-23T02:13:34.866742+00:00",
+    "checked_at_utc": "2026-10-23T02:46:21.844545+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -2380,8 +3150,78 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://huggingface.co/OpenGVLab/InternVL2-8B",
+    "checked_at_utc": "2026-10-23T02:46:21.989251+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/OpenGVLab/InternVL2-8B",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/OpenGVLab/InternVL3-8B",
+    "checked_at_utc": "2026-10-23T02:46:22.024638+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/OpenGVLab/InternVL3-8B",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/OpenGalaxea/G0-VLA",
+    "checked_at_utc": "2026-10-23T02:46:22.046588+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/OpenGalaxea/G0-VLA",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/OpenGalaxea/G05",
+    "checked_at_utc": "2026-10-23T02:46:22.093926+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/OpenGalaxea/G05",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/PaddlePaddle/PaddleOCR-VL-1.6",
+    "checked_at_utc": "2026-10-23T02:46:22.118498+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/PaddlePaddle/PaddleOCR-VL-1.6",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/Qwen/Qwen2-VL-7B-Instruct",
+    "checked_at_utc": "2026-10-23T02:46:22.245609+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/Qwen/Qwen2-VL-7B-Instruct",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/Qwen/Qwen2.5-VL-7B-Instruct",
+    "checked_at_utc": "2026-10-23T02:46:22.268347+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/Qwen/Qwen2.5-VL-7B-Instruct",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://huggingface.co/Qwen/Qwen3-Embedding-8B",
-    "checked_at_utc": "2026-10-23T02:13:34.893439+00:00",
+    "checked_at_utc": "2026-10-23T02:46:22.350844+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -2391,7 +3231,7 @@
   },
   {
     "url": "https://huggingface.co/Qwen/Qwen3-Reranker-8B",
-    "checked_at_utc": "2026-10-23T02:13:34.917974+00:00",
+    "checked_at_utc": "2026-10-23T02:46:22.390751+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -2401,7 +3241,7 @@
   },
   {
     "url": "https://huggingface.co/Qwen/Qwen3-VL-4B-Instruct",
-    "checked_at_utc": "2026-10-23T02:13:34.977952+00:00",
+    "checked_at_utc": "2026-10-23T02:46:22.581287+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -2410,8 +3250,68 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://huggingface.co/ShilongLiu/GroundingDINO",
+    "checked_at_utc": "2026-10-23T02:46:22.780750+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/ShilongLiu/GroundingDINO",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/Spirit-AI-robotics/Spirit-v1.5",
+    "checked_at_utc": "2026-10-23T02:46:22.790946+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/Spirit-AI-robotics/Spirit-v1.5",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/UBTECH-Robotics/Thinker-4B",
+    "checked_at_utc": "2026-10-23T02:46:22.815760+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/UBTECH-Robotics/Thinker-4B",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/UBTECH-Robotics/Thinker-WM",
+    "checked_at_utc": "2026-10-23T02:46:22.840393+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/UBTECH-Robotics/Thinker-WM",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/WoW-world-model/WoW-1-Wan-14B-2M",
+    "checked_at_utc": "2026-10-23T02:46:22.996782+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/X-Humanoid/WoW-1-Wan-14B-2M",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/X-Humanoid/Pelican1.0-VL-7B",
+    "checked_at_utc": "2026-10-23T02:46:23.049394+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/X-Humanoid/Pelican1.0-VL-7B",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://huggingface.co/X-Humanoid/WoW-1-Wan-1.3B-2M",
-    "checked_at_utc": "2026-10-23T02:13:35.118342+00:00",
+    "checked_at_utc": "2026-10-23T02:46:23.154768+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -2420,8 +3320,18 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://huggingface.co/collections/X-Humanoid/xr-1",
+    "checked_at_utc": "2026-10-23T02:46:23.293128+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/collections/X-Humanoid/xr-1",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://huggingface.co/datasets/DurYi/AirGoal-10k",
-    "checked_at_utc": "2026-10-23T02:13:35.133466+00:00",
+    "checked_at_utc": "2026-10-23T02:46:23.330018+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -2431,7 +3341,7 @@
   },
   {
     "url": "https://huggingface.co/datasets/EmbodiedCity/Worldscape-MoE-Dataset",
-    "checked_at_utc": "2026-10-23T02:13:35.139146+00:00",
+    "checked_at_utc": "2026-10-23T02:46:23.338458+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -2440,18 +3350,38 @@
     "result": "http_reachable"
   },
   {
-    "url": "https://huggingface.co/datasets/StarVLA/RoboTwin-Clean",
-    "checked_at_utc": "2026-10-23T02:13:35.220514+00:00",
+    "url": "https://huggingface.co/datasets/OpenGalaxea/Galaxea-Open-World-Dataset",
+    "checked_at_utc": "2026-10-23T02:46:23.688726+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 429,
+    "result": "not_confirmed",
+    "error": "HTTP Error 429: Too Many Requests"
+  },
+  {
+    "url": "https://huggingface.co/datasets/RoboChallenge/task_table30_move_objects_into_box",
+    "checked_at_utc": "2026-10-23T02:46:23.699420+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
     "status": 200,
-    "final_url": "https://huggingface.co/datasets/StarVLA/RoboTwin-Clean",
+    "final_url": "https://huggingface.co/datasets/RoboChallenge/task_table30_move_objects_into_box",
     "result": "http_reachable"
   },
   {
+    "url": "https://huggingface.co/datasets/StarVLA/RoboTwin-Clean",
+    "checked_at_utc": "2026-10-23T02:46:23.835935+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 429,
+    "result": "not_confirmed",
+    "error": "HTTP Error 429: Too Many Requests"
+  },
+  {
     "url": "https://huggingface.co/datasets/StarVLA/RoboTwin-Randomized",
-    "checked_at_utc": "2026-10-23T02:13:35.237868+00:00",
+    "checked_at_utc": "2026-10-23T02:46:23.844761+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -2460,8 +3390,18 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://huggingface.co/datasets/WoW-world-model/WoW-1-Benchmark-Samples",
+    "checked_at_utc": "2026-10-23T02:46:23.879069+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/datasets/X-Humanoid/WoW-1-Benchmark-Samples",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://huggingface.co/datasets/X-Humanoid/XR-1-Dataset-Sample",
-    "checked_at_utc": "2026-10-23T02:13:35.487455+00:00",
+    "checked_at_utc": "2026-10-23T02:46:23.928139+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -2470,8 +3410,18 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://huggingface.co/datasets/depth-anything/DA-2K",
+    "checked_at_utc": "2026-10-23T02:46:24.015627+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 429,
+    "result": "not_confirmed",
+    "error": "HTTP Error 429: Too Many Requests"
+  },
+  {
     "url": "https://huggingface.co/datasets/jianqiang03/koch_test",
-    "checked_at_utc": "2026-10-23T02:13:35.546472+00:00",
+    "checked_at_utc": "2026-10-23T02:46:24.022052+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -2481,17 +3431,17 @@
   },
   {
     "url": "https://huggingface.co/datasets/nvidia/Cosmos-NeMo-Assets",
-    "checked_at_utc": "2026-10-23T02:13:35.653508+00:00",
+    "checked_at_utc": "2026-10-23T02:46:24.080570+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
-    "status": 200,
-    "final_url": "https://huggingface.co/datasets/nvidia/Cosmos-NeMo-Assets",
-    "result": "http_reachable"
+    "status": 429,
+    "result": "not_confirmed",
+    "error": "HTTP Error 429: Too Many Requests"
   },
   {
     "url": "https://huggingface.co/datasets/nvidia/Cosmos-Reason1-RL-Dataset",
-    "checked_at_utc": "2026-10-23T02:13:35.697301+00:00",
+    "checked_at_utc": "2026-10-23T02:46:24.261628+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -2501,7 +3451,7 @@
   },
   {
     "url": "https://huggingface.co/datasets/nvidia/Cosmos-Reason1-SFT-Dataset",
-    "checked_at_utc": "2026-10-23T02:13:35.757639+00:00",
+    "checked_at_utc": "2026-10-23T02:46:24.424742+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -2510,148 +3460,288 @@
     "result": "http_reachable"
   },
   {
-    "url": "https://huggingface.co/datasets/open-gigaai/Giga-World-1-Toydata",
-    "checked_at_utc": "2026-10-23T02:13:35.786471+00:00",
+    "url": "https://huggingface.co/datasets/nvidia/PhysicalAI-Robotics-GR00T-GR1",
+    "checked_at_utc": "2026-10-23T02:46:24.463467+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
-    "status": 200,
-    "final_url": "https://huggingface.co/datasets/open-gigaai/Giga-World-1-Toydata",
-    "result": "http_reachable"
+    "status": 429,
+    "result": "not_confirmed",
+    "error": "HTTP Error 429: Too Many Requests"
+  },
+  {
+    "url": "https://huggingface.co/datasets/nyu-visionx/VSI-Bench",
+    "checked_at_utc": "2026-10-23T02:46:24.526780+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 429,
+    "result": "not_confirmed",
+    "error": "HTTP Error 429: Too Many Requests"
+  },
+  {
+    "url": "https://huggingface.co/datasets/open-gigaai/Giga-World-1-Toydata",
+    "checked_at_utc": "2026-10-23T02:46:24.590727+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 429,
+    "result": "not_confirmed",
+    "error": "HTTP Error 429: Too Many Requests"
+  },
+  {
+    "url": "https://huggingface.co/datasets/open-gigaai/GigaBrain-0.7-SampleData",
+    "checked_at_utc": "2026-10-23T02:46:24.611125+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 429,
+    "result": "not_confirmed",
+    "error": "HTTP Error 429: Too Many Requests"
+  },
+  {
+    "url": "https://huggingface.co/datasets/openvla/modified_libero_rlds",
+    "checked_at_utc": "2026-10-23T02:46:24.653120+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 429,
+    "result": "not_confirmed",
+    "error": "HTTP Error 429: Too Many Requests"
   },
   {
     "url": "https://huggingface.co/datasets/youliangtan/so101-table-cleanup",
-    "checked_at_utc": "2026-10-23T02:13:35.835972+00:00",
+    "checked_at_utc": "2026-10-23T02:46:24.941692+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
-    "status": 200,
-    "final_url": "https://huggingface.co/datasets/youliangtan/so101-table-cleanup",
-    "result": "http_reachable"
+    "status": 429,
+    "result": "not_confirmed",
+    "error": "HTTP Error 429: Too Many Requests"
   },
   {
     "url": "https://huggingface.co/datasets/yuanty/LIBERO-fastwam",
-    "checked_at_utc": "2026-10-23T02:13:36.063274+00:00",
+    "checked_at_utc": "2026-10-23T02:46:24.980221+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
-    "status": 200,
-    "final_url": "https://huggingface.co/datasets/yuanty/LIBERO-fastwam",
-    "result": "http_reachable"
+    "status": 429,
+    "result": "not_confirmed",
+    "error": "HTTP Error 429: Too Many Requests"
+  },
+  {
+    "url": "https://huggingface.co/datasets/yuanty/robotwin2.0-fastwam",
+    "checked_at_utc": "2026-10-23T02:46:25.067172+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 429,
+    "result": "not_confirmed",
+    "error": "HTTP Error 429: Too Many Requests"
+  },
+  {
+    "url": "https://huggingface.co/depth-anything/Depth-Anything-V2-Base",
+    "checked_at_utc": "2026-10-23T02:46:25.079821+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 429,
+    "result": "not_confirmed",
+    "error": "HTTP Error 429: Too Many Requests"
+  },
+  {
+    "url": "https://huggingface.co/facebook/VGGT-1B",
+    "checked_at_utc": "2026-10-23T02:46:25.182545+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 429,
+    "result": "not_confirmed",
+    "error": "HTTP Error 429: Too Many Requests"
+  },
+  {
+    "url": "https://huggingface.co/facebook/VGGT-1B-Commercial",
+    "checked_at_utc": "2026-10-23T02:46:25.188278+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 429,
+    "result": "not_confirmed",
+    "error": "HTTP Error 429: Too Many Requests"
   },
   {
     "url": "https://huggingface.co/facebook/esm2_t33_650M_UR50D",
-    "checked_at_utc": "2026-10-23T02:13:36.077542+00:00",
+    "checked_at_utc": "2026-10-23T02:46:25.195415+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
-    "status": 200,
-    "final_url": "https://huggingface.co/facebook/esm2_t33_650M_UR50D",
-    "result": "http_reachable"
+    "status": 429,
+    "result": "not_confirmed",
+    "error": "HTTP Error 429: Too Many Requests"
   },
   {
     "url": "https://huggingface.co/google/paligemma-3b-pt-224",
-    "checked_at_utc": "2026-10-23T02:13:36.090167+00:00",
+    "checked_at_utc": "2026-10-23T02:46:25.359149+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
-    "status": 200,
-    "final_url": "https://huggingface.co/google/paligemma-3b-pt-224",
-    "result": "http_reachable"
+    "status": 429,
+    "result": "not_confirmed",
+    "error": "HTTP Error 429: Too Many Requests"
   },
   {
     "url": "https://huggingface.co/lerobot/pi05_base",
-    "checked_at_utc": "2026-10-23T02:13:36.182846+00:00",
+    "checked_at_utc": "2026-10-23T02:46:25.477458+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
-    "status": 200,
-    "final_url": "https://huggingface.co/lerobot/pi05_base",
-    "result": "http_reachable"
+    "status": 429,
+    "result": "not_confirmed",
+    "error": "HTTP Error 429: Too Many Requests"
   },
   {
     "url": "https://huggingface.co/nvidia/Cosmos-Predict2-2B-Video2World",
-    "checked_at_utc": "2026-10-23T02:13:36.252868+00:00",
+    "checked_at_utc": "2026-10-23T02:46:25.615417+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
-    "status": 200,
-    "final_url": "https://huggingface.co/nvidia/Cosmos-Predict2-2B-Video2World",
-    "result": "http_reachable"
+    "status": 429,
+    "result": "not_confirmed",
+    "error": "HTTP Error 429: Too Many Requests"
   },
   {
     "url": "https://huggingface.co/nvidia/Cosmos-Reason1-7B",
-    "checked_at_utc": "2026-10-23T02:13:36.317876+00:00",
+    "checked_at_utc": "2026-10-23T02:46:25.664418+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
-    "status": 200,
-    "final_url": "https://huggingface.co/nvidia/Cosmos-Reason1-7B",
-    "result": "http_reachable"
+    "status": 429,
+    "result": "not_confirmed",
+    "error": "HTTP Error 429: Too Many Requests"
+  },
+  {
+    "url": "https://huggingface.co/nvidia/GR00T-N1-2B",
+    "checked_at_utc": "2026-10-23T02:46:25.667055+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 429,
+    "result": "not_confirmed",
+    "error": "HTTP Error 429: Too Many Requests"
   },
   {
     "url": "https://huggingface.co/nvidia/GR00T-N1.5-3B",
-    "checked_at_utc": "2026-10-23T02:13:36.349318+00:00",
+    "checked_at_utc": "2026-10-23T02:46:25.687059+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
-    "status": 200,
-    "final_url": "https://huggingface.co/nvidia/GR00T-N1.5-3B",
-    "result": "http_reachable"
+    "status": 429,
+    "result": "not_confirmed",
+    "error": "HTTP Error 429: Too Many Requests"
   },
   {
     "url": "https://huggingface.co/nvidia/GR00T-N1.6-3B",
-    "checked_at_utc": "2026-10-23T02:13:36.547046+00:00",
+    "checked_at_utc": "2026-10-23T02:46:25.723541+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
-    "status": 200,
-    "final_url": "https://huggingface.co/nvidia/GR00T-N1.6-3B",
-    "result": "http_reachable"
+    "status": 429,
+    "result": "not_confirmed",
+    "error": "HTTP Error 429: Too Many Requests"
   },
   {
     "url": "https://huggingface.co/open-gigaai/Giga-World-1",
-    "checked_at_utc": "2026-10-23T02:13:36.583655+00:00",
+    "checked_at_utc": "2026-10-23T02:46:25.755649+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
-    "status": 200,
-    "final_url": "https://huggingface.co/open-gigaai/Giga-World-1",
-    "result": "http_reachable"
+    "status": 429,
+    "result": "not_confirmed",
+    "error": "HTTP Error 429: Too Many Requests"
+  },
+  {
+    "url": "https://huggingface.co/open-gigaai/GigaBrain-0.7-3.5B-Base",
+    "checked_at_utc": "2026-10-23T02:46:25.934424+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 429,
+    "result": "not_confirmed",
+    "error": "HTTP Error 429: Too Many Requests"
+  },
+  {
+    "url": "https://huggingface.co/open-gigaai/GigaWorld-0-Video-Pretrain-2b",
+    "checked_at_utc": "2026-10-23T02:46:25.984424+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 429,
+    "result": "not_confirmed",
+    "error": "HTTP Error 429: Too Many Requests"
+  },
+  {
+    "url": "https://huggingface.co/openvla/openvla-7b",
+    "checked_at_utc": "2026-10-23T02:46:26.070394+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 429,
+    "result": "not_confirmed",
+    "error": "HTTP Error 429: Too Many Requests"
   },
   {
     "url": "https://huggingface.co/openvla/openvla-7b-prismatic",
-    "checked_at_utc": "2026-10-23T02:13:36.629831+00:00",
+    "checked_at_utc": "2026-10-23T02:46:26.139162+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
-    "status": 200,
-    "final_url": "https://huggingface.co/openvla/openvla-7b-prismatic",
-    "result": "http_reachable"
+    "status": 429,
+    "result": "not_confirmed",
+    "error": "HTTP Error 429: Too Many Requests"
   },
   {
     "url": "https://huggingface.co/robbyant/lingbot-vla-4b",
-    "checked_at_utc": "2026-10-23T02:13:36.648560+00:00",
+    "checked_at_utc": "2026-10-23T02:46:26.154792+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
-    "status": 200,
-    "final_url": "https://huggingface.co/robbyant/lingbot-vla-4b",
-    "result": "http_reachable"
+    "status": 429,
+    "result": "not_confirmed",
+    "error": "HTTP Error 429: Too Many Requests"
+  },
+  {
+    "url": "https://huggingface.co/robbyant/lingbot-vla-4b-depth",
+    "checked_at_utc": "2026-10-23T02:46:26.158298+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 429,
+    "result": "not_confirmed",
+    "error": "HTTP Error 429: Too Many Requests"
+  },
+  {
+    "url": "https://huggingface.co/x-square-robot/wall-oss-0.5",
+    "checked_at_utc": "2026-10-23T02:46:26.180809+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 429,
+    "result": "not_confirmed",
+    "error": "HTTP Error 429: Too Many Requests"
   },
   {
     "url": "https://huggingface.co/yuanty/fastwam",
-    "checked_at_utc": "2026-10-23T02:13:36.710083+00:00",
+    "checked_at_utc": "2026-10-23T02:46:26.228046+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
-    "status": 200,
-    "final_url": "https://huggingface.co/yuanty/fastwam",
-    "result": "http_reachable"
+    "status": 429,
+    "result": "not_confirmed",
+    "error": "HTTP Error 429: Too Many Requests"
   },
   {
     "url": "https://lightgbm.readthedocs.io/en/latest/GPU-Tutorial.html",
-    "checked_at_utc": "2026-10-23T02:13:36.732525+00:00",
+    "checked_at_utc": "2026-10-23T02:46:26.405549+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -2660,8 +3750,18 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://manual.mixblup.eu/",
+    "checked_at_utc": "2026-10-23T02:46:26.466366+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://manual.mixblup.eu/",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://modelers.cn/panxiaomu/rfdiffusion2-weights",
-    "checked_at_utc": "2026-10-23T02:13:36.805208+00:00",
+    "checked_at_utc": "2026-10-23T02:46:26.507491+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -2671,7 +3771,7 @@
   },
   {
     "url": "https://modelscope.cn/models/PaddlePaddle/PaddleOCR-VL-1.6",
-    "checked_at_utc": "2026-10-23T02:13:36.822606+00:00",
+    "checked_at_utc": "2026-10-23T02:46:26.560505+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -2681,7 +3781,7 @@
   },
   {
     "url": "https://opendatalab.github.io/MinerU/zh/usage/acceleration_cards/Ascend/",
-    "checked_at_utc": "2026-10-23T02:13:36.848660+00:00",
+    "checked_at_utc": "2026-10-23T02:46:26.587774+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -2690,8 +3790,18 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://openreview.net/forum?id=nl1ZzdHpab",
+    "checked_at_utc": "2026-10-23T02:46:26.716253+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://openreview.net/challenge?redirect=%2Fforum%3Fid%3Dnl1ZzdHpab",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://openvax.github.io/mhcflurry/commandline_tools.html",
-    "checked_at_utc": "2026-10-23T02:13:36.907340+00:00",
+    "checked_at_utc": "2026-10-23T02:46:26.770703+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -2700,8 +3810,28 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://openvax.github.io/mhcflurry/model_downloads.html",
+    "checked_at_utc": "2026-10-23T02:46:26.781314+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://openvax.github.io/mhcflurry/model_downloads.html",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://openvax.github.io/mhcflurry/release_model_evaluation.html",
+    "checked_at_utc": "2026-10-23T02:46:26.832314+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://openvax.github.io/mhcflurry/release_model_evaluation.html",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/TimesNet_infer.tar",
-    "checked_at_utc": "2026-10-23T02:13:36.993668+00:00",
+    "checked_at_utc": "2026-10-23T02:46:26.849073+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -2711,7 +3841,7 @@
   },
   {
     "url": "https://rail.eecs.berkeley.edu/datasets/bridge_release/data/tfds/bridge_dataset/",
-    "checked_at_utc": "2026-10-23T02:13:37.015524+00:00",
+    "checked_at_utc": "2026-10-23T02:46:26.856514+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -2721,7 +3851,7 @@
   },
   {
     "url": "https://shalfun.github.io/",
-    "checked_at_utc": "2026-10-23T02:13:37.042024+00:00",
+    "checked_at_utc": "2026-10-23T02:46:26.857272+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -2731,7 +3861,7 @@
   },
   {
     "url": "https://sjtu-ipads.github.io/Ascend-Embody-Web/",
-    "checked_at_utc": "2026-10-23T02:13:37.053848+00:00",
+    "checked_at_utc": "2026-10-23T02:46:26.929379+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -2741,7 +3871,7 @@
   },
   {
     "url": "https://spirit-ai.com/news/34",
-    "checked_at_utc": "2026-10-23T02:13:37.082455+00:00",
+    "checked_at_utc": "2026-10-23T02:46:26.958612+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -2750,8 +3880,18 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://stable-baselines3.readthedocs.io/en/master/modules/ppo.html",
+    "checked_at_utc": "2026-10-23T02:46:26.982235+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://stable-baselines3.readthedocs.io/en/master/modules/ppo.html",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://stockn.xueqiu.com/09880/20260414835102.pdf",
-    "checked_at_utc": "2026-10-23T02:13:37.131829+00:00",
+    "checked_at_utc": "2026-10-23T02:46:27.025984+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -2761,7 +3901,7 @@
   },
   {
     "url": "https://support.huaweicloud.com/bestpractice-modelarts/ModelArts最佳实践（中国站）-pdf.pdf",
-    "checked_at_utc": "2026-10-23T02:13:37.167417+00:00",
+    "checked_at_utc": "2026-10-23T02:46:27.027868+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -2770,8 +3910,28 @@
     "error": "HTTP Error 567: Unknown Status"
   },
   {
+    "url": "https://www.hiascend.com/software/modelzoo/models/detail/46fe0872ddfd4e19a5104189913b5fee",
+    "checked_at_utc": "2026-10-23T02:46:27.089502+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://www.hiascend.com/software/modelzoo/models/detail/46fe0872ddfd4e19a5104189913b5fee",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://www.kubeflow.org/docs/started/installing-kubeflow/",
+    "checked_at_utc": "2026-10-23T02:46:27.094761+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://www.kubeflow.org/docs/started/installing-kubeflow/",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://www.mindspore.cn/docs/en/r2.5.0/model_train/models/official_models.html",
-    "checked_at_utc": "2026-10-23T02:13:37.196997+00:00",
+    "checked_at_utc": "2026-10-23T02:46:27.213398+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -2781,7 +3941,7 @@
   },
   {
     "url": "https://www.mindspore.cn/docs/zh-CN/r2.2/note/official_models.html",
-    "checked_at_utc": "2026-10-23T02:13:37.214380+00:00",
+    "checked_at_utc": "2026-10-23T02:46:27.237280+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -2791,7 +3951,7 @@
   },
   {
     "url": "https://www.mindspore.cn/docs/zh-CN/r2.3.1/note/official_models.html",
-    "checked_at_utc": "2026-10-23T02:13:37.217776+00:00",
+    "checked_at_utc": "2026-10-23T02:46:27.304720+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -2801,7 +3961,7 @@
   },
   {
     "url": "https://www.mindspore.cn/mindsponge/docs/en/stable/user/structure_prediction.html",
-    "checked_at_utc": "2026-10-23T02:13:37.303842+00:00",
+    "checked_at_utc": "2026-10-23T02:46:27.312071+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -2811,7 +3971,7 @@
   },
   {
     "url": "https://www.osc.edu/book/export/html/2793",
-    "checked_at_utc": "2026-10-23T02:13:37.317016+00:00",
+    "checked_at_utc": "2026-10-23T02:46:27.331384+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -2821,7 +3981,7 @@
   },
   {
     "url": "https://www.sciencedirect.com/science/article/pii/S1369800126002477",
-    "checked_at_utc": "2026-10-23T02:13:37.317142+00:00",
+    "checked_at_utc": "2026-10-23T02:46:27.345500+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -2830,8 +3990,18 @@
     "error": "HTTP Error 403: Forbidden"
   },
   {
+    "url": "https://www1.hkexnews.hk/listedco/listconews/sehk/2026/0331/2026033102608_c.pdf",
+    "checked_at_utc": "2026-10-23T02:46:27.394562+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://www1.hkexnews.hk/listedco/listconews/sehk/2026/0331/2026033102608_c.pdf",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://www1.hkexnews.hk/listedco/listconews/sehk/2026/0622/2026062201645_c.pdf",
-    "checked_at_utc": "2026-10-23T02:13:37.317222+00:00",
+    "checked_at_utc": "2026-10-23T02:46:27.420399+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -2841,12 +4011,22 @@
   },
   {
     "url": "https://x2robot.com/",
-    "checked_at_utc": "2026-10-23T02:13:37.341077+00:00",
+    "checked_at_utc": "2026-10-23T02:46:27.435646+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
     "status": 200,
     "final_url": "https://x2robot.com/",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://x2robot.com/about",
+    "checked_at_utc": "2026-10-23T02:46:27.436642+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://x2robot.com/about",
     "result": "http_reachable"
   }
 ]

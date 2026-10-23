@@ -39,6 +39,8 @@ def display(v):
 
 def status(r,device):
     if device=='GPU':
+        if 'GPU查询状态' in r:
+            return r['GPU结论'] if r['GPU查询状态']!='尚未完成专项查询' else '待完成GPU专项查询'
         return '找到原始资料，GPU支持待核实' if r['设备维度']['GPU']['代码']['链接'] else '未查到GPU支持证据'
     text=r['NPU结论']
     return {'有公开实现/指导，完整验收未认证':'有适配代码或指导',

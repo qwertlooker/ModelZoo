@@ -131,7 +131,8 @@ def cell(v):
     return display(v).replace('|','/').replace('\n',' ')+('；'+links if links else '')
 
 def main():
-    rows=attach(make_rows())
+    from gpu_research import apply as apply_gpu
+    rows=apply_gpu(attach(make_rows()))
     (ROOT/'inventory.json').write_text(json.dumps(rows,ensure_ascii=False,indent=2)+'\n',encoding='utf-8',newline='\n')
     cols=['编号','原始条目','GPU结论','NPU结论']
     for device in ['GPU','NPU']:
@@ -152,7 +153,7 @@ def main():
 核查日期：2026-10-23。原始119项；CSV一项一行，GPU/NPU分列；本文每项分GPU/NPU两行。
 ModelZoo master `{MZ}`；DrivingSDK master `{DR}`；PaddleX release/3.7 `{PX}`。
 
-数值取自公开资料，未上机复测。“未查到”表示缺少对应设备的公开证据；“未核实”表示找到资源，但尚未确认具体使用情况。原始对照表和完整核查记录保存在inventory.json。
+数值取自公开资料，未上机复测。GPU侧已重新逐项检索；找到代码不表示五项全部齐备。“待核对/未核实”表示本轮尚未确认，不能解释成网上没有。平台、方法和具体模型分开判断。原始对照表和完整核查记录保存在inventory.json。
 
 | # | 模型 | 设备 | 代码 | 权重 | 数据集 | 性能基准 | 精度基准 | 结论与限制 |
 |---:|---|---|---|---|---|---|---|---|

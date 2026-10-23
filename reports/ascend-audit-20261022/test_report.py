@@ -79,7 +79,8 @@ class ReportTests(unittest.TestCase):
         self.assertNotIn('155.1',self.rows[21]['设备维度']['GPU']['性能基准']['说明'])
     def test_reader_view_keeps_numbers_and_removes_boilerplate(self):
         from reader_view import display
-        self.assertEqual(display(self.rows[84]['设备维度']['GPU']['精度基准']), 'GPU RefCOCO AP0.3148；对应训练配置')
+        self.assertIn('GPU RefCOCO AP0.3148',display(self.rows[84]['设备维度']['GPU']['精度基准']))
+        self.assertIn('52.5',display(self.rows[84]['设备维度']['GPU']['精度基准']))
         self.assertIn('128',display(self.rows[21]['设备维度']['NPU']['性能基准']))
         with (ROOT/'inventory.csv').open(encoding='utf-8-sig',newline='') as f:
             reader=csv.DictReader(f);rows=list(reader)
@@ -96,4 +97,16 @@ class ReportTests(unittest.TestCase):
         before={n:(ROOT/n).read_bytes() for n in names}
         subprocess.run([sys.executable,str(ROOT/'build_report.py')],check=True)
         self.assertEqual(before,{n:(ROOT/n).read_bytes() for n in names})
+    def test_gpu_research_replaces_placeholder_conclusions(self):
+        from reader_view import status
+        for r in self.rows:
+            self.assertNotEqual(r['GPU查询状态'],'尚未完成专项查询')
+            self.assertNotIn('找到原始资料，GPU支持待核实',status(r,'GPU'))
+        for n,token in [(1,'4090'),(14,'22.8'),(76,'0.99'),(81,'29.6'),(113,'217'),(115,'A100')]:
+            self.assertIn(token,self.rows[n-1]['设备维度']['GPU']['性能基准']['说明'])
+        self.assertIn('Coming Soon',self.rows[33]['设备维度']['GPU']['权重']['说明'])
+        self.assertIn('不能分享',self.rows[72]['设备维度']['GPU']['权重']['说明'])
+        self.assertIn('渲染',status(self.rows[77],'GPU'))
+        self.assertIn('未唯一定位',self.rows[85]['设备维度']['GPU']['代码']['说明'])
+        self.assertIn('Thinker-4B',self.rows[27]['设备维度']['GPU']['权重']['说明'])
 if __name__=='__main__':unittest.main()
