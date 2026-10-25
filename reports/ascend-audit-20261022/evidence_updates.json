@@ -20,7 +20,7 @@
       "method": "GitHub fetch_file",
       "date": "2026-10-25",
       "blob_sha": "699c5a32e220bc2d177b98bc66e57cfa05746673",
-      "note": "文件blob SHA，非仓库commit；已读正文，未执行代码"
+      "note": "文件blob SHA，不是仓库commit"
     },
     {
       "url": "https://github.com/open-gigaai/giga-brain-0/blob/main/README.md",
@@ -244,7 +244,7 @@
       "method": "GitHub fetch_file",
       "date": "2026-10-25",
       "blob_sha": "73c794ea1bf4f6c9cf9c844fe7e9ad214549b8b7",
-      "note": "文件blob SHA，不是仓库commit；读取时的默认分支"
+      "note": "文件blob SHA，不是仓库commit"
     },
     {
       "url": "https://github.com/facebookresearch/map-anything/blob/main/README.md",
@@ -301,6 +301,97 @@
       "date": "2026-10-25",
       "blob_sha": "84e31917958229342cd1054752ca3f31e8831d83",
       "note": "文件blob SHA，不是仓库commit；读取时的默认分支"
+    },
+    {
+      "url": "https://github.com/QwenLM/Qwen3-Embedding/blob/main/README.md",
+      "method": "GitHub fetch_file",
+      "date": "2026-10-25",
+      "blob_sha": "f8d212309d0dc18dc450d96e6d241ec74cfb65ca",
+      "note": "文件blob SHA，不是仓库commit；读取时的分支"
+    },
+    {
+      "url": "https://github.com/UBTECH-Robot/Thinker/blob/main/README.md",
+      "method": "GitHub fetch_file",
+      "date": "2026-10-25",
+      "blob_sha": "2a082015c83a6a665f38e218df88258ca299ea8c",
+      "note": "文件blob SHA，不是仓库commit；读取时的分支"
+    },
+    {
+      "url": "https://github.com/UBTECH-Robot/Thinker-WM/blob/main/README.md",
+      "method": "GitHub fetch_file",
+      "date": "2026-10-25",
+      "blob_sha": "828ddc4cc3fbcf50fd625c50eadf3244e89bdfad",
+      "note": "文件blob SHA，不是仓库commit；读取时的分支"
+    },
+    {
+      "url": "https://github.com/X-Square-Robot/wall-ss/blob/main/README.md",
+      "method": "GitHub fetch_file",
+      "date": "2026-10-25",
+      "blob_sha": "b3e1d9d8ec3bf4e0b478cd5ed7cb3a7450abd3d7",
+      "note": "文件blob SHA，不是仓库commit；读取时的分支"
+    },
+    {
+      "url": "https://github.com/PaddlePaddle/PaddleSeg/blob/release/2.10/configs/segnet/README.md",
+      "method": "GitHub fetch_file",
+      "date": "2026-10-25",
+      "blob_sha": "4308f6e3c0011d08f9f1b88a9b326a986a93ec9d",
+      "note": "文件blob SHA，不是仓库commit；读取时的分支"
+    },
+    {
+      "url": "https://github.com/DebeshJha/ResUNetPlusPlus/blob/master/README.md",
+      "method": "GitHub fetch_file",
+      "date": "2026-10-25",
+      "blob_sha": "34d0e90d17b23d856fbe77a362409da5315a9bef",
+      "note": "文件blob SHA，不是仓库commit；读取时的分支"
+    },
+    {
+      "url": "https://github.com/pangfumin/CudaDwa/blob/master/README.md",
+      "method": "GitHub fetch_file",
+      "date": "2026-10-25",
+      "blob_sha": "8b0a640f63785e31d7a44b0cbbb1e217c28d1501",
+      "note": "文件blob SHA，不是仓库commit；读取时的分支"
+    },
+    {
+      "url": "https://github.com/oxwhirl/pymarl/blob/master/README.md",
+      "method": "GitHub fetch_file",
+      "date": "2026-10-25",
+      "blob_sha": "882b9c113774387b268ec77196908bd5ded0fac1",
+      "note": "文件blob SHA，不是仓库commit；读取时的分支"
+    },
+    {
+      "url": "https://github.com/UBTECH-Robot/Thinker/blob/main/assets/thinker_performan_2.jpg",
+      "method": "GitHub fetch_file",
+      "date": "2026-10-25",
+      "blob_sha": "9d528025adb69e3905fed3f16019103ec23d8afb",
+      "note": "文件blob SHA，不是仓库commit；读取时的分支"
+    },
+    {
+      "url": "https://github.com/yester31/Monocular_Depth_Estimation_TRT/blob/main/README.md",
+      "method": "GitHub fetch_file",
+      "date": "2026-10-25",
+      "blob_sha": "8e81b69d0867c2e76b1ff092babba2b36a8671c0",
+      "note": "文件blob SHA，不是仓库commit"
+    },
+    {
+      "url": "https://github.com/yester31/Monocular_Depth_Estimation_TRT/blob/main/models/depth_anything_v2/README.md",
+      "method": "GitHub fetch_file",
+      "date": "2026-10-25",
+      "blob_sha": "8f57fb09ccf52bdae423fb3d313aa2206e2113e2",
+      "note": "文件blob SHA，不是仓库commit"
+    },
+    {
+      "url": "https://github.com/yester31/Monocular_Depth_Estimation_TRT/blob/main/reports/comparison.md",
+      "method": "GitHub fetch_file",
+      "date": "2026-10-25",
+      "blob_sha": "3a24f271fad526a752e54f3c945cbc6f6efac245",
+      "note": "文件blob SHA，不是仓库commit"
+    },
+    {
+      "url": "https://github.com/yester31/Monocular_Depth_Estimation_TRT/blob/main/reports/bench/depth_anything_v2_518x518_bench_single_fp16.json",
+      "method": "GitHub fetch_file",
+      "date": "2026-10-25",
+      "blob_sha": "75ea7b0a5bb4a04afa17da408ef3d27f03c9d6c0",
+      "note": "文件blob SHA，不是仓库commit"
     }
   ],
   "target_master": "dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202",
@@ -393,10 +484,18 @@
           "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
         },
         "精度基准": {
-          "说明": "原论文7B SFT：物理常识54.3、具身六项均值61.8；加RL后论文表9综合均值65.7（含常识，不能与61.8同口径比较）。开源评测脚本采用不区分大小写精确匹配。",
+          "说明": "原论文v3表9相同七项口径：7B SFT均值60.7，加RL后65.7（+5.0）；表8仅六项具身均值61.8、表7物理常识54.3，不能与65.7混比。默认5个推理seed平均、temperature0.6/top-p0.95；脚本精确匹配与论文采样协议需分别保留。",
           "链接": [
-            "https://arxiv.org/html/2503.15558",
+            "https://arxiv.org/html/2503.15558v3",
             "https://github.com/nvidia-cosmos/cosmos-reason1/blob/main/examples/benchmark/README.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "性能基准": {
+          "说明": "官方README与论文v3未列固定GPU、视频帧数/分辨率和输出长度下的tokens/s或端到端延迟。24GB是最低显存要求，RL的global batch128、每题9输出、上限6144tokens是训练配置，均不能作为推理速度。",
+          "链接": [
+            "https://arxiv.org/html/2503.15558v3",
+            "https://github.com/nvidia-cosmos/cosmos-reason1/blob/main/README.md"
           ],
           "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
         }
@@ -697,6 +796,21 @@
             "https://europe.naverlabs.com/research/computer-vision/proxy-virtual-worlds-vkitti-2/"
           ],
           "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "性能基准": {
+          "说明": "社区原始JSON：RTX3080锁1800MHz、TensorRT10.16、Hypersim-vits FP16、518×518，预热20/测100次，均值4.3084 ms、p50 4.3062 ms、232.11 FPS。范围含H2D/核函数/D2H，排除前后处理；不能给Base/Large或原生PyTorch套用。",
+          "链接": [
+            "https://github.com/yester31/Monocular_Depth_Estimation_TRT/blob/main/reports/bench/depth_anything_v2_518x518_bench_single_fp16.json",
+            "https://github.com/yester31/Monocular_Depth_Estimation_TRT/blob/main/models/depth_anything_v2/README.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "精度基准": {
+          "说明": "原论文DA-2K相对深度点对准确率：Small95.3%、Base97.0%、Large97.1%、Giant97.4%；Giant结果不等于已公开权重。论文NYU-D in-domain度量微调Large δ1 0.984/AbsRel0.056，不属于公开Hypersim/VKITTI零样本权重。",
+          "链接": [
+            "https://arxiv.org/html/2406.09414v1"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
         }
       }
     },
@@ -762,6 +876,15 @@
             "https://huggingface.co/Qwen/Qwen2.5-VL-7B-Instruct"
           ],
           "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "性能基准": {
+          "说明": "已核对Qwen2.5-VL技术报告、7B模型卡及Qwen速度页：速度页测的是纯文本Qwen2.5，不能套到VL；VL报告的动态FPS是视频采样率，不是GPU吞吐。尚未确认原版7B绑定GPU、图像分辨率/视频帧数、输出长度的官方延迟表。",
+          "链接": [
+            "https://arxiv.org/pdf/2502.13923v1",
+            "https://huggingface.co/Qwen/Qwen2.5-VL-7B-Instruct",
+            "https://qwen.readthedocs.io/en/v2.5/benchmark/speed_benchmark.html"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
         }
       }
     },
@@ -774,6 +897,13 @@
           "说明": "Qwen2-VL-7B：MMMU val54.1、DocVQA test94.5、ChartQA test83.0、TextVQA val84.3；来源是Qwen2.5官方对照表，不是2.5结果。",
           "链接": [
             "https://huggingface.co/Qwen/Qwen2.5-VL-7B-Instruct"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "性能基准": {
+          "说明": "Qwen官方AWQ模型卡同时列BF16基线：单A100 80GB、batch1、输出2048 tokens，输入1/6144/14336/30720 tokens分别39.02/38.75/30.65/19.53 tokens/s。原表未交代图像输入，且依赖表Transformers4.38.2与模型支持版本矛盾，保留为官方报告值，不能当视觉端到端实测。",
+          "链接": [
+            "https://huggingface.co/Qwen/Qwen2-VL-7B-Instruct-AWQ/blob/c4558fa2ba92341718d2baf3815fa31fcb7d57dc/README.md"
           ],
           "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
         }
@@ -1451,6 +1581,616 @@
       },
       "date": "2026-10-25",
       "device": "GPU"
+    },
+    {
+      "date": "2026-10-25",
+      "device": "GPU",
+      "number": 28,
+      "fields": {
+        "权重": {
+          "说明": "当前公开Thinker-4B为Instruct版，Thinking-4B仍Coming soon；仓库许可CC BY-NC-SA 4.0。论文2601.21199表2是Thinker-7B，不能作为4B权重的评测结果。",
+          "链接": [
+            "https://huggingface.co/UBTECH-Robotics/Thinker-4B",
+            "https://github.com/UBTECH-Robot/Thinker/blob/main/README.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "数据集": {
+          "说明": "公开4B结果覆盖RoboVQA、EgoPlan2、RefSpatial-Bench、Where2Place、Pixmo-Point及空间/通用视觉基准。论文训练混合含Robovideo-1.8M和Industroplan-200K，但未确认这两套完整训练资产公开下载；7B论文与4B发布需分别记录。",
+          "链接": [
+            "https://arxiv.org/html/2601.21199v1",
+            "https://github.com/UBTECH-Robot/Thinker/blob/main/README.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "精度基准": {
+          "说明": "官方4B图片表：RoboVQA BLEU 62.66、Ego-Plan2 63.66、RefSpatial-Bench 61、Where2Place 72.03、Pixmo-Point 57.41、EmbSpatial 80.19、RoboSpatial 70.82。论文7B另为RoboVQA BLEU-avg63.5/EgoPlan58.21，不与4B互换。",
+          "链接": [
+            "https://github.com/UBTECH-Robot/Thinker/blob/main/assets/thinker_performan_2.jpg",
+            "https://arxiv.org/html/2601.21199v1"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "性能基准": {
+          "说明": "公开4B README/推理示例与7B技术报告均未列可核对的GPU型号、输入视频帧数、输出长度对应的延迟/吞吐表；max_new_tokens=128只是示例生成上限。",
+          "链接": [
+            "https://github.com/UBTECH-Robot/Thinker/blob/main/README.md",
+            "https://arxiv.org/html/2601.21199v1"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        }
+      },
+      "note": "当前可下载4B与论文7B分开；4B精度取官方结果图片。"
+    },
+    {
+      "date": "2026-10-25",
+      "device": "GPU",
+      "number": 30,
+      "fields": {
+        "精度基准": {
+          "说明": "Thinker-WM：EWMBench Overall4.66为八项归一化分数之和，非成功率；WorldOlympiad Robotics Overall0.739；WorldArena Track-1十二指标EWMScore71.73。EWMBench采用21 episodes×3候选、按HSD选最佳，不能当每次生成的平均效果。",
+          "链接": [
+            "https://arxiv.org/html/2610.18447v1"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "数据集": {
+          "说明": "论文训练含2万小时第一视角、1万小时机器人（约4000小时对齐深度），自有数据未等同公开资产。EWMBench为7任务21episodes，每episode3候选，共63视频；生成48帧480×640、50步、CFG5。",
+          "链接": [
+            "https://arxiv.org/html/2610.18447v1"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "性能基准": {
+          "说明": "README输出video.mp4为5 fps，EWMBench评测将5 fps上采样至30 fps；两者都是视频播放/评测采样帧率，不是GPU生成吞吐。论文与公开README未列指定GPU的生成总耗时。",
+          "链接": [
+            "https://arxiv.org/html/2610.18447v1",
+            "https://github.com/UBTECH-Robot/Thinker-WM/blob/main/README.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        }
+      },
+      "note": "README引用区eprint与论文URL不一致；本文按标题匹配的2610.18447核查。"
+    },
+    {
+      "date": "2026-10-25",
+      "device": "GPU",
+      "number": 35,
+      "conclusion": "论文已发布；训练/推理代码和权重尚未发布",
+      "fields": {
+        "代码": {
+          "说明": "官方README TODO明确训练和推理代码未发布，License段写当前仓库只有项目页；不能把有GitHub仓库判为有GPU可运行实现。",
+          "链接": [
+            "https://github.com/X-Square-Robot/wall-ss/blob/main/README.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "权重": {
+          "说明": "官方项目页及TODO没有已发布checkpoint入口；Hugging Face徽章指向论文页面，不能当作权重下载。",
+          "链接": [
+            "https://github.com/X-Square-Robot/wall-ss/blob/main/README.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "数据集": {
+          "说明": "论文混合公开机器人、自有机器人、UMI与失败恢复数据；600组matched sim-real rollout pairs是评估记录数，不是可直接下载的完整训练/测试数据包。",
+          "链接": [
+            "https://github.com/X-Square-Robot/wall-ss/blob/main/README.md",
+            "https://arxiv.org/html/2608.26239v1"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "精度基准": {
+          "说明": "600组sim-real配对：任务成功率校准MAE0.062、相关r0.93；checkpoint排名pairwise accuracy0.89、平均Spearman0.88；episode balanced accuracy0.88。自有双臂Task Progress69.1另属机器人策略评估，不是视频生成准确率。",
+          "链接": [
+            "https://github.com/X-Square-Robot/wall-ss/blob/main/README.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "性能基准": {
+          "说明": "论文10 FPS是数据预处理采样率，60秒是生成轨迹的播放时长；原文未给出绑定GPU型号的推理延迟或生成FPS。代码未发布，尚不能复现GPU性能。",
+          "链接": [
+            "https://arxiv.org/html/2608.26239v1",
+            "https://github.com/X-Square-Robot/wall-ss/blob/main/README.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        }
+      }
+    },
+    {
+      "date": "2026-10-25",
+      "device": "GPU",
+      "number": 40,
+      "fields": {
+        "数据集": {
+          "说明": "MIRACL dev多语检索用nDCG@10；MKQA跨语检索用Recall@100；MLDR test含13种语言、长文检索nDCG@10。MLDR和训练混合分别开放，不把评测集与fine-tuning集混用。",
+          "链接": [
+            "https://arxiv.org/html/2402.03216v4",
+            "https://huggingface.co/datasets/Shitao/MLDR"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "精度基准": {
+          "说明": "修正版论文v4：MIRACL dev平均nDCG@10 dense69.2、sparse53.9、multi-vector70.5、全融合71.5；MLDR test表3 dense52.5、sparse62.2、multi-vector57.6、融合65.0。2024-07-01公告说明旧MIRACL错误删除同ID结果，不能混用旧版。",
+          "链接": [
+            "https://arxiv.org/html/2402.03216v4",
+            "https://huggingface.co/BAAI/bge-m3"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "性能基准": {
+          "说明": "论文表10仅给训练单卡最大batch：序列8192时split-batch由6增至130，不是每秒吞吐。原模型卡/论文未列固定GPU、batch和长度下的推理速度；dense/sparse/multi-vector及融合的检索开销也不同。",
+          "链接": [
+            "https://arxiv.org/html/2402.03216v4",
+            "https://huggingface.co/BAAI/bge-m3"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        }
+      }
+    },
+    {
+      "date": "2026-10-25",
+      "device": "GPU",
+      "number": 41,
+      "fields": {
+        "数据集": {
+          "说明": "原模型卡评测：BEIR rerank top100来自bge-en-v1.5-large或e5-mistral-7b；CMTEB检索top100来自bge-zh-v1.5-large；MIRACL来自bge-m3。另有Qwen团队用Qwen3-Embedding-0.6B top100的独立对照，候选源不同。",
+          "链接": [
+            "https://huggingface.co/BAAI/bge-reranker-v2-m3",
+            "https://github.com/QwenLM/Qwen3-Embedding/blob/main/README.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "精度基准": {
+          "说明": "Qwen团队公开同协议重测：MTEB-R57.03、CMTEB-R72.16、MMTEB-R58.36、MLDR59.51、MTEB-Code41.38、FollowIR−0.01；top100由Qwen3-Embedding-0.6B召回。该结果是BGE reranker对照，之前套用BGE-M3检索修正公告不适用。",
+          "链接": [
+            "https://github.com/QwenLM/Qwen3-Embedding/blob/main/README.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "性能基准": {
+          "说明": "社区原始issue1088：FP16、每请求约23文档、chunk512，在A100的2个SM slices上实测约5.4 transactions/s；作者未能记录GPU利用率，切片资源不等于整张A100。保留为社区测量，不认证整卡容量或迁移加速比。",
+          "链接": [
+            "https://github.com/FlagOpen/FlagEmbedding/issues/1088",
+            "https://huggingface.co/BAAI/bge-reranker-v2-m3"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        }
+      }
+    },
+    {
+      "date": "2026-10-25",
+      "device": "GPU",
+      "number": 42,
+      "fields": {
+        "权重": {
+          "说明": "本行明确对应Qwen/Qwen3-Embedding-8B，4096维、32K上下文；0.6B/4B属于其他规模。Apache-2.0。",
+          "链接": [
+            "https://huggingface.co/Qwen/Qwen3-Embedding-8B",
+            "https://github.com/QwenLM/Qwen3-Embedding/blob/main/README.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "性能基准": {
+          "说明": "Superlinked原始日志，2026-10-09、H100 80GB、8 CPU，SIE BF16/FlashAttention服务：每请求32文档、并发8、预热8请求后计时60 s；stock 29051 input tok/s（约251文档/s），PR645为37128（约325文档/s）。是第三方指定短文本负载，不是Qwen官方统一速度。",
+          "链接": [
+            "https://huggingface.co/datasets/superlinked/sie-task-evidence/blob/7884003521b938566db1e0a53cc394b9bb849ef4/serving-perf-encoders/2026-10-09/qwen3-embedding-8b/README.md",
+            "https://huggingface.co/datasets/superlinked/sie-task-evidence/blob/7884003521b938566db1e0a53cc394b9bb849ef4/serving-perf-encoders/2026-10-09/qwen3-embedding-8b/runs/qwen8b-pr-confirm-h100-20261009/stock/docs/summary.json",
+            "https://huggingface.co/datasets/superlinked/sie-task-evidence/blob/7884003521b938566db1e0a53cc394b9bb849ef4/serving-perf-encoders/2026-10-09/qwen3-embedding-8b/runs/qwen8b-pr-confirm-h100-20261009/pr/docs/summary.json"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        }
+      }
+    },
+    {
+      "date": "2026-10-25",
+      "device": "GPU",
+      "number": 43,
+      "fields": {
+        "权重": {
+          "说明": "本行明确对应Qwen/Qwen3-Reranker-8B，32K上下文；0.6B/4B另列，不能借用其速度。Apache-2.0。",
+          "链接": [
+            "https://huggingface.co/Qwen/Qwen3-Reranker-8B"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "数据集": {
+          "说明": "官方重排表采用MTEB English v2、Chinese v1、MMTEB和Code的retrieval子集，另含MLDR/FollowIR；全部对Qwen3-Embedding-0.6B召回的top100重排。",
+          "链接": [
+            "https://github.com/QwenLM/Qwen3-Embedding/blob/main/README.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "精度基准": {
+          "说明": "官方8B重排：MTEB-R69.02、CMTEB-R77.45、MMTEB-R72.94、MLDR70.19、MTEB-Code81.22、FollowIR8.05；是固定召回top100后的结果，不是全库直接检索效果。",
+          "链接": [
+            "https://github.com/QwenLM/Qwen3-Embedding/blob/main/README.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "性能基准": {
+          "说明": "官方README、技术报告提供CUDA/FlashAttention/vLLM路径，但未给绑定GPU、文本长度和候选数的重排吞吐表；Embedding-8B的tok/s不能填入本行。",
+          "链接": [
+            "https://github.com/QwenLM/Qwen3-Embedding/blob/main/README.md",
+            "https://arxiv.org/html/2506.05176v1"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        }
+      }
+    },
+    {
+      "date": "2026-10-25",
+      "device": "GPU",
+      "number": 44,
+      "fields": {
+        "权重": {
+          "说明": "系列含0.6B/4B/8B，分别1024/2560/4096维、均32K上下文；不是一套权重覆盖所有规模。",
+          "链接": [
+            "https://huggingface.co/Qwen/Qwen3-Embedding-0.6B",
+            "https://huggingface.co/Qwen/Qwen3-Embedding-4B",
+            "https://huggingface.co/Qwen/Qwen3-Embedding-8B"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "性能基准": {
+          "说明": "8B已有Superlinked第三方H100实测，stock并发8为29051 input tok/s、每请求32文档、60 s，详见8B行。0.6B/4B不能继承8B速度；官方论文未列系列统一吞吐。",
+          "链接": [
+            "https://huggingface.co/datasets/superlinked/sie-task-evidence/blob/7884003521b938566db1e0a53cc394b9bb849ef4/serving-perf-encoders/2026-10-09/qwen3-embedding-8b/README.md",
+            "https://arxiv.org/html/2506.05176v1"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        }
+      }
+    },
+    {
+      "date": "2026-10-25",
+      "device": "GPU",
+      "number": 45,
+      "fields": {
+        "权重": {
+          "说明": "系列含Qwen3-Reranker-0.6B、4B、8B三套独立权重，均32K上下文，Apache-2.0。",
+          "链接": [
+            "https://huggingface.co/Qwen/Qwen3-Reranker-0.6B",
+            "https://huggingface.co/Qwen/Qwen3-Reranker-4B",
+            "https://huggingface.co/Qwen/Qwen3-Reranker-8B"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "数据集": {
+          "说明": "官方以Qwen3-Embedding-0.6B召回top100，测MTEB-R/CMTEB-R/MMTEB-R、MLDR、Code、FollowIR；与Embedding整库召回不是同一环节。",
+          "链接": [
+            "https://github.com/QwenLM/Qwen3-Embedding/blob/main/README.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "精度基准": {
+          "说明": "0.6B/4B/8B：MTEB-R65.80/69.76/69.02，CMTEB-R71.31/75.94/77.45，MMTEB-R66.36/72.74/72.94；FollowIR5.41/14.84/8.05。4B部分任务优于8B，不能按规模统一推断。",
+          "链接": [
+            "https://github.com/QwenLM/Qwen3-Embedding/blob/main/README.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "性能基准": {
+          "说明": "官方README和论文未提供按0.6B/4B/8B及固定GPU、长度、候选数分别列出的吞吐数据；仅声明支持FlashAttention/vLLM不等于有性能基准。",
+          "链接": [
+            "https://github.com/QwenLM/Qwen3-Embedding/blob/main/README.md",
+            "https://arxiv.org/html/2506.05176v1"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        }
+      }
+    },
+    {
+      "date": "2026-10-25",
+      "device": "GPU",
+      "number": 56,
+      "fields": {
+        "数据集": {
+          "说明": "2022-03-10论文v2：17个无模板heterodimer，另测4446个近期复合物、筛非冗余且低模板同一性的interface。官方代码当前Multimer默认每模型5 seeds共25预测；2.3.0技术说明的训练截点/模型已更新，不把旧论文指标当全部版本复测。",
+          "链接": [
+            "https://www.biorxiv.org/content/10.1101/2021.10.04.463034v2",
+            "https://github.com/google-deepmind/alphafold/blob/main/docs/technical_note_v2.3.0.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "精度基准": {
+          "说明": "原论文v2：17个heterodimer中13个DockQ≥0.49、7个≥0.8；近期PDB界面heteromer正确70%、高精度26%，homomer正确72%、高精度36%（阈值分别DockQ≥0.23/0.8）。是界面统计，不是复合物整体成功率。",
+          "链接": [
+            "https://www.biorxiv.org/content/10.1101/2021.10.04.463034v2"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "性能基准": {
+          "说明": "官方README速度表标注未relax、3 recycles、排除MSA/模板搜索，未逐行确认Multimer变体，因此不把通用1000残基96 s填成本行。Multimer默认25次预测与CASP15增加seeds/recycles的耗时不能直接混用。",
+          "链接": [
+            "https://github.com/google-deepmind/alphafold/blob/main/README.md",
+            "https://github.com/google-deepmind/alphafold/blob/main/docs/technical_note_v2.3.0.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        }
+      }
+    },
+    {
+      "date": "2026-10-25",
+      "device": "GPU",
+      "number": 63,
+      "fields": {
+        "权重": {
+          "说明": "官方按任务分Base_ckpt.pt（无条件/基础）、Complex_base_ckpt.pt（复合物/binder）、Complex_Fold_base、InpaintSeq、ActiveSite等；输出是骨架，序列设计另需ProteinMPNN，AF2验收另需参数。",
+          "链接": [
+            "https://github.com/RosettaCommons/RFdiffusion/blob/main/README.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "数据集": {
+          "说明": "原论文无条件单体按长度评测；motif-scaffolding汇集25个问题、每问题100个设计；binder和酶active-site分别另测，不能用单一成功率覆盖。ProteinMPNN序列设计与AF2单序列回折构成评估链路。",
+          "链接": [
+            "https://www.nature.com/articles/s41586-023-06415-8"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "性能基准": {
+          "说明": "原论文Extended Data Fig.2：RTX A4000，100残基、15步采样约11 s；其他主要分析多用200步，不能把11 s套到默认200步或含ProteinMPNN/AF2的完整流程。",
+          "链接": [
+            "https://www.nature.com/articles/s41586-023-06415-8"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "精度基准": {
+          "说明": "100残基15步无条件设计in silico成功率>60%；判据AF2 mean pAE<5、全局骨架RMSD<2 Å，scaffold功能位点另需<1 Å。该计算成功率不是湿实验成功率，不能外推binder任务。",
+          "链接": [
+            "https://www.nature.com/articles/s41586-023-06415-8"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        }
+      }
+    },
+    {
+      "date": "2026-10-25",
+      "device": "GPU",
+      "number": 74,
+      "fields": {
+        "权重": {
+          "说明": "作者TensorFlow仓库说明files目录存训练生成的权重，未提供可直接复现论文表格的已发布checkpoint下载；作者链接的PyTorch复现与原TF权重格式不同。",
+          "链接": [
+            "https://github.com/DebeshJha/ResUNetPlusPlus/blob/master/README.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "数据集": {
+          "说明": "原论文Kvasir-SEG与CVC-612分别按80%/10%/10%训练/验证/测试，裁剪320×320后缩放256×256，训练120epochs；测试文件级划分未在论文表中固定，不能直接当任意社区split。",
+          "链接": [
+            "https://arxiv.org/html/1911.07067v1",
+            "https://datasets.simula.no/kvasir-seg/"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "精度基准": {
+          "说明": "原论文TF实现：Kvasir-SEG ResUNet++ Dice0.8133/mIoU0.7927，ResUNet为0.5144/0.4364；CVC-612分别0.7955/0.7962与0.4510/0.4570。论文表中Dice与mIoU的统计定义需原评测代码复核；不能互换两种结构。",
+          "链接": [
+            "https://arxiv.org/html/1911.07067v1"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "性能基准": {
+          "说明": "原论文明确单V100（DGX-2中的一张）、CUDA10.1、batch16、256×256，但没有推理FPS/延迟数值表。不能把DGX-2总计16卡或2 PFLOPS当本模型吞吐。",
+          "链接": [
+            "https://arxiv.org/html/1911.07067v1"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        }
+      }
+    },
+    {
+      "date": "2026-10-25",
+      "device": "GPU",
+      "number": 77,
+      "fields": {
+        "权重": {
+          "说明": "PaddleSeg Cityscapes 1024×512、80k训练checkpoint已给model.pdparams；原始Caffe模型另属实现。",
+          "链接": [
+            "https://bj.bcebos.com/paddleseg/dygraph/cityscapes/segnet_cityscapes_1024x512_80k/model.pdparams",
+            "https://github.com/PaddlePaddle/PaddleSeg/blob/release/2.10/configs/segnet/README.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "精度基准": {
+          "说明": "PaddleSeg release/2.10 Cityscapes mIoU60.09%，flip60.88%，ms+flip61.97%；输入1024×512、80k训练。原论文Caffe/CamVid与SUN RGB-D的360×480协议不同。",
+          "链接": [
+            "https://github.com/PaddlePaddle/PaddleSeg/blob/release/2.10/configs/segnet/README.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "性能基准": {
+          "说明": "原论文Caffe表6：360×480、batch1，10次平均forward422.50 ms/backward488.71 ms，inference显存1052 MB；该表未单独明确GPU型号。论文另有Titan/cuDNNv3的Basic变体50次测试，不能借给此表。以上不是PaddleSeg Cityscapes权重速度。",
+          "链接": [
+            "https://arxiv.org/html/1511.00561v3"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        }
+      }
+    },
+    {
+      "date": "2026-10-25",
+      "device": "GPU",
+      "number": 87,
+      "fields": {
+        "性能基准": {
+          "说明": "CudaDwa官方自称toy code，README只给C++/CUDA两个demo及CUDA10.2依赖，没有固定GPU、障碍物数量、采样轨迹数和端到端耗时表；不能用demo动图认定实时性。",
+          "链接": [
+            "https://github.com/pangfumin/CudaDwa/blob/master/README.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "精度基准": {
+          "说明": "DWA应验碰撞率、到达率、路径长度/时间和动态障碍物；已找到的CUDA toy demo未给这些正式机器人测试指标，不能记为精度通过。",
+          "链接": [
+            "https://github.com/pangfumin/CudaDwa/blob/master/README.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        }
+      }
+    },
+    {
+      "date": "2026-10-25",
+      "device": "GPU",
+      "number": 90,
+      "fields": {
+        "数据集": {
+          "说明": "在线RL，无统一静态测试集。2024论文v2协议：Atari57游戏200M帧、Atari100k26游戏400K环境帧，action repeat4；默认5seeds，ProcGen1、BSuite10、Minecraft10。不同预算与环境版本分别记录。",
+          "链接": [
+            "https://arxiv.org/pdf/2301.04104v2"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "性能基准": {
+          "说明": "2024论文v2表2：每agent单A100；Minecraft100M env steps约8.9 GPU天、Atari200M帧7.7天、Atari100k400K帧0.1天。默认200M参数，控制任务用12M；这是训练成本，不是动作推理延迟或通用FPS。",
+          "链接": [
+            "https://arxiv.org/pdf/2301.04104v2"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "精度基准": {
+          "说明": "2024论文v2表9：Atari100k在400K环境帧（100K agent steps）human-normalized均值125%、中位49%；每游戏曲线和分数另列，非125%成功率。现仓库训练配方有更新，旧论文不自动认证最新提交。",
+          "链接": [
+            "https://arxiv.org/pdf/2301.04104v2"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        }
+      }
+    },
+    {
+      "date": "2026-10-25",
+      "device": "GPU",
+      "number": 108,
+      "fields": {
+        "权重": {
+          "说明": "PyMARL默认save_model=False；需按场景训练后save_model=True生成models/<timestep>，用checkpoint_path加载；README未提供统一覆盖全部SMAC地图的预训练checkpoint。",
+          "链接": [
+            "https://github.com/oxwhirl/pymarl/blob/master/README.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "精度基准": {
+          "说明": "原论文SC2六地图：每100训练episodes暂停，greedy评估20episodes，20次独立训练取mean test win rate并给95%CI，结果为图3/4及附录曲线。附录76/60/95/82/45/70是heuristic基线，不能误填为QMIX胜率；SMAC README另警告SC2版本不可混比。",
+          "链接": [
+            "https://arxiv.org/pdf/1803.11485v2",
+            "https://github.com/oxwhirl/pymarl/blob/master/README.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "性能基准": {
+          "说明": "原论文与PyMARL README未提供绑定GPU型号的steps/s或训练wall-clock表；训练episodes和环境步预算不是GPU速度。应固定地图、SC2版本、runner、并行环境数后测量。",
+          "链接": [
+            "https://arxiv.org/pdf/1803.11485v2",
+            "https://github.com/oxwhirl/pymarl/blob/master/README.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        }
+      }
+    },
+    {
+      "date": "2026-10-25",
+      "device": "GPU",
+      "number": 118,
+      "fields": {
+        "权重": {
+          "说明": "V-JEPA2 ViT-L/H/g分别300M/600M/1B参数、256分辨率，另有ViT-g384；2-AC是从g后训练的独立权重，2.1属于后续系列。",
+          "链接": [
+            "https://dl.fbaipublicfiles.com/vjepa2/vitl.pt",
+            "https://dl.fbaipublicfiles.com/vjepa2/vjepa2-ac-vitg.pt",
+            "https://github.com/facebookresearch/vjepa2/blob/main/README.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "数据集": {
+          "说明": "视频预训练与SSv2/Diving48/EK100 probe数据分开。2-AC用DROID不足62小时无任务标签视频及末端状态，16帧/4fps、256×256；机器人测试两实验室各10trials/技能，不能把4fps当GPU性能。",
+          "链接": [
+            "https://arxiv.org/html/2506.09985v1"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "性能基准": {
+          "说明": "原论文表3：2-AC在单RTX4090，MPC/CEM800候选×10迭代、horizon1，约16秒/动作；这是规划总耗时，不是一次encoder forward。普通V-JEPA2 probe吞吐不能借用此值，也不是2.1数据。",
+          "链接": [
+            "https://arxiv.org/html/2506.09985v1"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "精度基准": {
+          "说明": "V-JEPA2 ViT-L/16 probe：SSv2 73.7%、Diving48 89.0%、EK100 32.7 R@5。2-AC论文表3 Lab2 Reach100%、grasp cup60/box20%、pick-place cup80/box50%，每技能10trials；与普通probe指标和跨实验室平均分开。",
+          "链接": [
+            "https://github.com/facebookresearch/vjepa2/blob/main/README.md",
+            "https://arxiv.org/html/2506.09985v1"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        }
+      }
+    },
+    {
+      "date": "2026-10-25",
+      "device": "GPU",
+      "number": 64,
+      "fields": {
+        "代码": {
+          "说明": "第一代RoseTTAFold两条路线：end-to-end直接骨架坐标；pyRosetta版预测几何后用CPU完成全原子结构。官方CUDA10/11环境，不能用RF2或All-Atom代码替代。",
+          "链接": [
+            "https://github.com/RosettaCommons/RoseTTAFold/blob/main/README.md",
+            "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC7612213/fullTextXML"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "数据集": {
+          "说明": "官方提供CASP14预测模型包，含输入MSA/hhsearch；论文另测CAMEO medium/hard目标。CASP14使用pdb100_2020Mar11模板库，当前README默认2021Mar03库，不能用于宣称原始无泄漏复现。",
+          "链接": [
+            "https://files.ipd.uw.edu/pub/RoseTTAFold/casp14_models.tar.gz",
+            "https://github.com/RosettaCommons/RoseTTAFold/blob/main/README.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "性能基准": {
+          "说明": "原论文：<400残基，序列/模板搜索约1.5 h；end-to-end版RTX2080约10 min出骨架；pyRosetta版同GPU网络约5 min，另15 CPU核约1 h全原子建模。复合物例在24GB TITAN RTX约30 min。不是同一路线的统一耗时。",
+          "链接": [
+            "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC7612213/fullTextXML"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "精度基准": {
+          "说明": "原论文图1B/C按CASP14及CAMEO报告TM-score分布，pyRosetta版优于end-to-end版；复合物若干实例TM-score>0.8，不是全数据均值。693个疾病相关domain中约三分之一predicted lDDT>0.8属于模型置信度；不能当693个有实验结构的测试准确率。",
+          "链接": [
+            "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC7612213/fullTextXML"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        }
+      }
+    },
+    {
+      "date": "2026-10-25",
+      "device": "GPU",
+      "number": 89,
+      "fields": {
+        "代码": {
+          "说明": "cuGraph26.10 cugraph.sssp提供GPU单源最短路距离与前驱；文档未承诺使用经典Dijkstra内部算法，因此只能认定GPU等价任务实现，不能认定原版Dijkstra移植。",
+          "链接": [
+            "https://docs.nvidia.com/cugraph/26.10/api_docs/api/cugraph/cugraph.sssp/"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "性能基准": {
+          "说明": "官方API页未提供固定图规模、边数、GPU型号和数据类型下的耗时；SSSP不能用其他图算法的TEPS或全框架加速比替代。需固定图数据、起点、浮点类型及是否计入图构建/传输。",
+          "链接": [
+            "https://docs.nvidia.com/cugraph/26.10/api_docs/api/cugraph/cugraph.sssp/"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "精度基准": {
+          "说明": "返回distance/predecessor；不可达距离为dtype最大值、前驱−1，源点前驱也−1；不支持负权环，非加权图改用BFS。正确性应对齐参考距离，等长多条最短路的前驱允许不同；没有模型准确率概念。",
+          "链接": [
+            "https://docs.nvidia.com/cugraph/26.10/api_docs/api/cugraph/cugraph.sssp/"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        }
+      }
     }
   ]
 }

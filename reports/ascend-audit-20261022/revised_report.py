@@ -139,6 +139,8 @@ def main():
         row.setdefault('设备核查日期',{'GPU':row['核查日期'],'NPU':row['核查日期']})[update['device']]=update['date']
         row['核查日期']=update['date']
         row['设备维度'][update['device']].update(update['fields'])
+        if update.get('conclusion'):
+            row[update['device']+'结论']=update['conclusion']
         if update.get('note'):row['分析与缺口']=update['note']
     (ROOT/'inventory.json').write_text(json.dumps(rows,ensure_ascii=False,indent=2)+'\n',encoding='utf-8',newline='\n')
     cols=['编号','原始条目','GPU结论','NPU结论']

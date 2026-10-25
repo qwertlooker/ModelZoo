@@ -118,6 +118,8 @@ class ReportTests(unittest.TestCase):
             self.assertTrue(set(update['fields']) <= {'代码','权重','数据集','性能基准','精度基准'})
             row=self.rows[update['number']-1]
             self.assertEqual(row['设备核查日期'][update['device']],update['date'])
+            if update.get('conclusion'):
+                self.assertEqual(row[update['device']+'结论'],update['conclusion'])
             for field,value in update['fields'].items():
                 self.assertEqual(row['设备维度'][update['device']][field],value)
                 self.assertTrue(value['链接'])
@@ -154,4 +156,32 @@ class ReportTests(unittest.TestCase):
             for token in tokens:
                 with self.subTest(number=number,field=field,token=token):
                     self.assertIn(token,gpu(number,field))
+    def test_published_variants_and_runtime_protocols(self):
+        def gpu(number, field):
+            return self.rows[number-1]['设备维度']['GPU'][field]['说明']
+        for number, field, tokens in [
+            (6,'精度基准',['60.7','65.7','5.0','5个推理seed']),
+            (28,'精度基准',['4B','62.66','7B','63.5']),
+            (30,'精度基准',['八项','4.66','3候选']),
+            (30,'性能基准',['5 fps','不是GPU']),
+            (35,'代码',['未发布','只有项目页']),
+            (41,'精度基准',['57.03','72.16','Qwen3-Embedding-0.6B']),
+            (41,'性能基准',['23文档','512','transactions/s','切片']),
+            (42,'性能基准',['第三方','H100','并发8','29051','60 s']),
+            (43,'精度基准',['69.02','77.45','top100']),
+            (63,'性能基准',['A4000','15步','11 s','200步']),
+            (64,'性能基准',['RTX2080','15 CPU核','1.5 h']),
+            (74,'精度基准',['ResUNet++','ResUNet','0.8133','0.5144']),
+            (88,'性能基准',['Hypersim-vits','4.3084','100次','排除前后处理']),
+            (90,'性能基准',['训练成本','8.9','A100']),
+            (108,'精度基准',['heuristic','不能误填']),
+            (110,'性能基准',['纯文本Qwen2.5','不能套到VL']),
+            (118,'性能基准',['2-AC','16秒','800候选','4090']),
+        ]:
+            for token in tokens:
+                with self.subTest(number=number,field=field,token=token):
+                    self.assertIn(token,gpu(number,field))
+        with (ROOT/'inventory.csv').open(encoding='utf-8-sig',newline='') as f:
+            rows=list(csv.DictReader(f))
+        self.assertEqual(rows[34]['GPU结论'],'论文已发布；训练/推理代码和权重尚未发布')
 if __name__=='__main__':unittest.main()
