@@ -100,6 +100,16 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://arxiv.org/html/2010.03409",
+    "checked_at_utc": "2026-10-25T07:45:11.126132+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://arxiv.org/html/2010.03409",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://arxiv.org/html/2103.00208v3#S4.SS1",
     "checked_at_utc": "2026-10-25T06:37:36.333933+00:00",
     "method": "HEAD",
@@ -480,6 +490,16 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://arxiv.org/html/2509.13414",
+    "checked_at_utc": "2026-10-25T07:45:11.126580+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://arxiv.org/html/2509.13414",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://arxiv.org/html/2511.00108v2",
     "checked_at_utc": "2026-10-25T06:41:09.878548+00:00",
     "method": "HEAD",
@@ -727,16 +747,6 @@
     "version": "dynamic_or_unversioned",
     "status": 200,
     "final_url": "https://arxiv.org/pdf/2301.04104v2",
-    "result": "http_reachable"
-  },
-  {
-    "url": "https://arxiv.org/pdf/2502.13923v1",
-    "checked_at_utc": "2026-10-25T07:18:12.094747+00:00",
-    "method": "HEAD",
-    "content_verified": false,
-    "version": "dynamic_or_unversioned",
-    "status": 200,
-    "final_url": "https://arxiv.org/pdf/2502.13923v1",
     "result": "http_reachable"
   },
   {
@@ -2290,6 +2300,46 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://gitcode.com/Ascend/modelzoo-GPL/blob/aa0696bd53c3724c8438860243b55025539de64a/built-in/ACL_Pytorch/Yolov8_for_PyTorch/README.md",
+    "checked_at_utc": "2026-10-25T07:45:11.127063+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/modelzoo-GPL/blob/aa0696bd53c3724c8438860243b55025539de64a/built-in/ACL_Pytorch/Yolov8_for_PyTorch/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/modelzoo-GPL/blob/aa0696bd53c3724c8438860243b55025539de64a/built-in/ACL_Pytorch/Yolov8_for_PyTorch/classify_infer.py",
+    "checked_at_utc": "2026-10-25T07:45:11.127329+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/modelzoo-GPL/blob/aa0696bd53c3724c8438860243b55025539de64a/built-in/ACL_Pytorch/Yolov8_for_PyTorch/classify_infer.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/modelzoo-GPL/blob/aa0696bd53c3724c8438860243b55025539de64a/built-in/ACL_Pytorch/Yolov8_for_PyTorch/detect_infer.py",
+    "checked_at_utc": "2026-10-25T07:45:11.517375+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/modelzoo-GPL/blob/aa0696bd53c3724c8438860243b55025539de64a/built-in/ACL_Pytorch/Yolov8_for_PyTorch/detect_infer.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/modelzoo-GPL/blob/aa0696bd53c3724c8438860243b55025539de64a/built-in/ACL_Pytorch/Yolov8_for_PyTorch/pth2onnx.py",
+    "checked_at_utc": "2026-10-25T07:45:11.837488+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/modelzoo-GPL/blob/aa0696bd53c3724c8438860243b55025539de64a/built-in/ACL_Pytorch/Yolov8_for_PyTorch/pth2onnx.py",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://gitcode.com/gcw_1yOcCgy7/310p-spiritv1.5-infer",
     "checked_at_utc": "2026-10-23T02:46:09.177272+00:00",
     "method": "HEAD",
@@ -2610,6 +2660,46 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://github.com/Bigtuo/NPU-ais_bench/blob/83a2fb52c7be9ad40ddc8999a40b295b6161ddac/YOLO_ais_bench_bytetrack_aipp.py",
+    "checked_at_utc": "2026-10-25T07:45:11.846561+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/Bigtuo/NPU-ais_bench/blob/83a2fb52c7be9ad40ddc8999a40b295b6161ddac/YOLO_ais_bench_bytetrack_aipp.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/Bigtuo/NPU-ais_bench/blob/83a2fb52c7be9ad40ddc8999a40b295b6161ddac/bytetrack/byte_tracker.py",
+    "checked_at_utc": "2026-10-25T07:45:12.162072+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/Bigtuo/NPU-ais_bench/blob/83a2fb52c7be9ad40ddc8999a40b295b6161ddac/bytetrack/byte_tracker.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/Bigtuo/NPU-ais_bench/blob/83a2fb52c7be9ad40ddc8999a40b295b6161ddac/bytetrack/matching.py",
+    "checked_at_utc": "2026-10-25T07:45:12.406181+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/Bigtuo/NPU-ais_bench/blob/83a2fb52c7be9ad40ddc8999a40b295b6161ddac/bytetrack/matching.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/Bigtuo/NPU-ais_bench/blob/main/README.md",
+    "checked_at_utc": "2026-10-25T07:45:12.740471+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/Bigtuo/NPU-ais_bench/blob/main/README.md",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://github.com/Biohub/esm/blob/main/esm/models/esm3.py",
     "checked_at_utc": "2026-10-23T02:46:11.468456+00:00",
     "method": "HEAD",
@@ -2660,6 +2750,26 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://github.com/Diamondfan/CTC_pytorch/blob/eddd2550224dfe5ac28b6c4d20df5dde7eaf6119/README.md",
+    "checked_at_utc": "2026-10-25T07:45:12.890998+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/Diamondfan/CTC_pytorch/blob/eddd2550224dfe5ac28b6c4d20df5dde7eaf6119/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/Diamondfan/CTC_pytorch/blob/eddd2550224dfe5ac28b6c4d20df5dde7eaf6119/timit/steps/test_ctc.py",
+    "checked_at_utc": "2026-10-25T07:45:13.588936+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/Diamondfan/CTC_pytorch/blob/eddd2550224dfe5ac28b6c4d20df5dde7eaf6119/timit/steps/test_ctc.py",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://github.com/Diamondfan/CTC_pytorch/blob/eddd2550224dfe5ac28b6c4d20df5dde7eaf6119/timit/steps/train_ctc.py",
     "checked_at_utc": "2026-10-23T02:48:02.182249+00:00",
     "method": "HEAD",
@@ -2667,16 +2777,6 @@
     "version": "pinned",
     "status": 200,
     "final_url": "https://github.com/Diamondfan/CTC_pytorch/blob/eddd2550224dfe5ac28b6c4d20df5dde7eaf6119/timit/steps/train_ctc.py",
-    "result": "http_reachable"
-  },
-  {
-    "url": "https://github.com/Diamondfan/CTC_pytorch/blob/master/README.md",
-    "checked_at_utc": "2026-10-23T02:48:02.182554+00:00",
-    "method": "HEAD",
-    "content_verified": false,
-    "version": "dynamic_or_unversioned",
-    "status": 200,
-    "final_url": "https://github.com/Diamondfan/CTC_pytorch/blob/master/README.md",
     "result": "http_reachable"
   },
   {
@@ -3410,23 +3510,13 @@
     "result": "http_reachable"
   },
   {
-    "url": "https://github.com/facebookresearch/map-anything/blob/main/data_processing/README.md",
-    "checked_at_utc": "2026-10-23T02:46:16.379659+00:00",
+    "url": "https://github.com/facebookresearch/map-anything/blob/main/assets/profiling_speed.png",
+    "checked_at_utc": "2026-10-25T07:45:13.848375+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
     "status": 200,
-    "final_url": "https://github.com/facebookresearch/map-anything/blob/main/data_processing/README.md",
-    "result": "http_reachable"
-  },
-  {
-    "url": "https://github.com/facebookresearch/map-anything/blob/main/scripts/profile_memory_runtime.py",
-    "checked_at_utc": "2026-10-25T06:59:26.889422+00:00",
-    "method": "HEAD",
-    "content_verified": false,
-    "version": "dynamic_or_unversioned",
-    "status": 200,
-    "final_url": "https://github.com/facebookresearch/map-anything/blob/main/scripts/profile_memory_runtime.py",
+    "final_url": "https://github.com/facebookresearch/map-anything/blob/main/assets/profiling_speed.png",
     "result": "http_reachable"
   },
   {
@@ -4087,6 +4177,36 @@
     "version": "dynamic_or_unversioned",
     "status": 200,
     "final_url": "https://github.com/thuml/Time-Series-Library/blob/main/exp/exp_basic.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/vllm-project/vllm-ascend/blob/main/docs/source/tutorials/models/Qwen3-Embedding.md",
+    "checked_at_utc": "2026-10-25T07:45:14.240761+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/vllm-project/vllm-ascend/blob/main/docs/source/tutorials/models/Qwen3-Embedding.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/vllm-project/vllm-ascend/blob/main/docs/source/tutorials/models/Qwen3-Reranker.md",
+    "checked_at_utc": "2026-10-25T07:45:14.622134+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/vllm-project/vllm-ascend/blob/main/docs/source/tutorials/models/Qwen3-Reranker.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/vllm-project/vllm-ascend/blob/main/docs/source/user_guide/support_matrix/supported_models.md",
+    "checked_at_utc": "2026-10-25T07:45:14.630714+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/vllm-project/vllm-ascend/blob/main/docs/source/user_guide/support_matrix/supported_models.md",
     "result": "http_reachable"
   },
   {
@@ -4870,6 +4990,36 @@
     "error": "HTTP Error 429: Too Many Requests"
   },
   {
+    "url": "https://huggingface.co/facebook/map-anything",
+    "checked_at_utc": "2026-10-25T07:45:14.752897+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/facebook/map-anything",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/facebook/map-anything-apache",
+    "checked_at_utc": "2026-10-25T07:45:15.368256+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/facebook/map-anything-apache",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/facebook/map-anything-v1",
+    "checked_at_utc": "2026-10-25T07:45:15.444695+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/facebook/map-anything-v1",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://huggingface.co/google/paligemma-3b-pt-224",
     "checked_at_utc": "2026-10-23T02:46:25.359149+00:00",
     "method": "HEAD",
@@ -5080,6 +5230,16 @@
     "error": "HTTP Error 429: Too Many Requests"
   },
   {
+    "url": "https://image-net.org/challenges/LSVRC/2012/2012-downloads.php",
+    "checked_at_utc": "2026-10-25T07:45:15.692620+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://image-net.org/challenges/LSVRC/2012/2012-downloads.php",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://justchenhao.github.io/LEVIR/",
     "checked_at_utc": "2026-10-25T06:37:41.656110+00:00",
     "method": "HEAD",
@@ -5271,7 +5431,7 @@
   },
   {
     "url": "https://qwen.readthedocs.io/en/v2.5/benchmark/speed_benchmark.html",
-    "checked_at_utc": "2026-10-25T07:18:17.942893+00:00",
+    "checked_at_utc": "2026-10-25T07:46:24.234221+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -5430,16 +5590,6 @@
     "result": "http_reachable"
   },
   {
-    "url": "https://www.hiascend.com/software/modelzoo/models/detail/46fe0872ddfd4e19a5104189913b5fee",
-    "checked_at_utc": "2026-10-23T02:46:27.089502+00:00",
-    "method": "HEAD",
-    "content_verified": false,
-    "version": "dynamic_or_unversioned",
-    "status": 200,
-    "final_url": "https://www.hiascend.com/software/modelzoo/models/detail/46fe0872ddfd4e19a5104189913b5fee",
-    "result": "http_reachable"
-  },
-  {
     "url": "https://www.kubeflow.org/docs/started/installing-kubeflow/",
     "checked_at_utc": "2026-10-23T02:46:27.094761+00:00",
     "method": "HEAD",
@@ -5487,6 +5637,26 @@
     "version": "dynamic_or_unversioned",
     "status": 200,
     "final_url": "https://www.mindspore.cn/mindsponge/docs/en/stable/user/structure_prediction.html",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://www.modelscope.cn/models/Qwen/Qwen3-Embedding-8B",
+    "checked_at_utc": "2026-10-25T07:45:15.695527+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://www.modelscope.cn/models/Qwen/Qwen3-Embedding-8B",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://www.modelscope.cn/models/Qwen/Qwen3-Reranker-8B",
+    "checked_at_utc": "2026-10-25T07:45:16.054134+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://www.modelscope.cn/models/Qwen/Qwen3-Reranker-8B",
     "result": "http_reachable"
   },
   {

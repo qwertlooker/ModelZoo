@@ -3,9 +3,9 @@
 日期：2026-10-25，Asia/Shanghai；首次全量基线为2026-10-23。
 
 - 119项按原始编号逐项保留；代码、权重、数据、性能、精度分别记录证据类型和链接。
-- 17项回归测试通过：覆盖顺序、字段结构、非认证边界、易混指标回归、原始资源边界、固定ModelZoo文件存在、CSV/Markdown完整性、链接清单覆盖、GPU重查、后续证据增补、发布状态、计时范围和设备归属及可重复构建。
-- 当前链接清单557个：523个有成功HEAD记录、34个未确认（27个Hugging Face限流429、5个403、Kvasir-SEG证书错误1个、华为云567共1个）。本批检查35个新增URL，34个成功；G-BLASTN论文HEAD为403，但已通过网页工具读取正文。其他URL保留原检查时间，不把限流/访问限制等同于链接不存在。
-- 固定提交链接164个；动态或未版本化链接393个。数量按URL路径形式统计，含同页不同锚点，不表示全部外部来源已冻结。
+- 18项回归测试通过：覆盖顺序、字段结构、非认证边界、易混指标回归、原始资源边界、固定ModelZoo文件存在、CSV/Markdown完整性、链接清单覆盖、GPU重查、后续证据增补、发布状态、计时范围、设备/仓库归属及可重复构建。
+- 当前链接清单574个：540个有成功HEAD记录、34个未确认（27个Hugging Face限流429、5个403、Kvasir-SEG证书错误1个、华为云567共1个）。本批检查23个新增URL，均成功；退出当前引用集合的6个URL从清单移除。其他URL保留原检查时间，不把限流/访问限制等同于链接不存在。
+- 固定提交链接173个；动态或未版本化链接401个。数量按URL路径形式统计，含同页不同锚点，不表示全部外部来源已冻结。
 - 原始文件/JSON读取和HTTP结果均不等于独立模型复测。
 - 未执行：NPU/CPU模型运行、依赖安装、资产下载及SHA、完整任务精度、三次独立NPU性能、clean-room和上库门禁。
 - 详细边界、修正内容和命令见REVIEW_FIXES.md；逐URL状态见link-check.json。
@@ -78,3 +78,15 @@ CSV删除每格重复免责声明、内部证据类型和长段对照原文；�
 - 17项回归、可重复构建、NPU字段一致性与git diff --check通过。测试只验证报告结构及已知归属规则；公开结果未独立复测，权重/数据未下载校验。没有GPU/NPU实测或S3认证。
 - 未闭合项仍包括MAPPO统一GPU墙钟性能、部分论文的输入长度/batch/硬件条件、未发布或未取得的专项资产；DL-foils与MLOps训推一体框架仍无法唯一确定对象，之前已请求准确项目身份。未把剩余缺口解释为互联网没有，也未将本批增补当作全量完成。
 - ModelZoo master重新查询仍为dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202。
+
+## 2026-10-25第五批复核
+
+- 实际修改4项GPU（96、101、102、110）和6项NPU（42、43、44、45、76、81），原119项和25列不变。增补文件累计86条GPU、6条NPU，覆盖88个原始条目；79份GitHub正文记录和4份GitCode API正文记录。该计数不代表全量完整验收。
+- YOLOv8从“未取得专项NPU证据”修正为其他官方仓已有OM实现。重新查询modelzoo-GPL master为aa0696bd53c3724c8438860243b55025539de64a，通过GitCode contents API按该commit实际读取README、pth2onnx.py、detect_infer.py、classify_infer.py，记录各文件blob SHA。原ModelZoo-PyTorch master仍为dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202，目录树无YOLOv8，不把GPL仓支持算成指定仓收录。
+- YOLOv8：310P3/bs8/640×640，n/s纯OM吞吐753.23/443.60fps，COCO val2017 mAP@0.5为52.5/61.6；与GPU常见mAP50:95分开。检测conf0.001/iou0.7已在源码核实。分类s-cls/224×224/bs8为5204fps、ImageNet Top1 73.7%；未复测，不视为三次中位数。旧om_infer.py在当前commit返回404，当前README实际入口为detect_infer.py/classify_infer.py，未使用旧文件链接替代。
+- ByteTrack社区源码83a2fb52c7be9ad40ddc8999a40b295b6161ddac明确YOLO OM走InferSession，关联和卡尔曼走NumPy/SciPy CPU。原来“只有原始资料”结论过弱，改为检测NPU/跟踪CPU组合；VideoWriter取视频fps不是处理吞吐，未取得完整MOT正式指标。
+- Qwen3 Embedding/Reranker重新读取官方教程和支持矩阵：🔵代表实验性支持，非发布认证；示例用0.6B，8B只在权重表列出。Embedding用LeCaRDv2/batch2，Reranker代码随后将任务覆盖为MultiLongDocReranking；随机200token测速命令未附结果表，双句响应/relevance_score不当作质量基准。
+- LSTM固定原提交同时读train_ctc/test_ctc，确认CUDA训练和测试入口；原文无GPU最终CER/WER或吞吐结果，不能用NPU权重/数字代替。MeshGraphNets原论文表1/附录A.5.1补单V100、图重算/重网格计时及带10^-3单位的rollout误差。
+- MapAnything重新核对论文v3与当前模型/V1及许可证：13个训练集与Apache版6个分开；表2两视图仅图像指标与附加相机内参分开。图S.1为H200，当前README另列V1曲线，不用近似读图值充当精确时延。Qwen2.5-VL-7B补Drive-KD第三方A100-PCIE-40GB的32.0新生成token/s、TTFT0.87s，未报固定长度/batch的限制保留。
+- 增补去重键改为编号+设备，允许同一条目GPU/NPU分别复核；新回归检查源码仓、CPU/NPU边界、模型规模、输入条件和单位。18项回归、可重复构建、git diff --check通过；本次未运行模型、下载权重/数据或认证S3。
+- 待补仍有项目身份（DL-foils、MLOps训推一体框架）、未取得的专项资产和完整测试协议。保留完整目标，不把本批10项修正当作全部完成。

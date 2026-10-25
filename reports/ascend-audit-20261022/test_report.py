@@ -111,7 +111,7 @@ class ReportTests(unittest.TestCase):
         self.assertIn('Thinker-4B',self.rows[27]['设备维度']['GPU']['权重']['说明'])
     def test_followup_source_attribution_and_updates(self):
         updates=json.loads((ROOT/'evidence_updates.json').read_text(encoding='utf-8'))['updates']
-        self.assertEqual(len({u['number'] for u in updates}),len(updates))
+        self.assertEqual(len({(u['number'],u['device']) for u in updates}),len(updates))
         for update in updates:
             self.assertIn(update['number'],range(1,120))
             self.assertIn(update['device'],['GPU','NPU'])
@@ -231,4 +231,29 @@ class ReportTests(unittest.TestCase):
                     self.assertIn(token,gpu(number,field))
         self.assertIn('多TPU',self.rows[23]['GPU结论'])
         self.assertIn('GPU实验',self.rows[111]['GPU结论'])
+    def test_supplemental_npu_sources_and_gpu_protocols(self):
+        def evidence(number,device,field):
+            return self.rows[number-1]['设备维度'][device][field]
+        for number, device, field, tokens in [
+            (76,'NPU','代码',['modelzoo-GPL','ModelZoo-PyTorch','未收录']),
+            (76,'NPU','性能基准',['310P3','batch8','753.23','443.60','纯OM']),
+            (76,'NPU','精度基准',['mAP@0.5','不是mAP@0.5:0.95']),
+            (81,'NPU','代码',['InferSession','CPU路径','不是全模块']),
+            (81,'NPU','性能基准',['VideoWriter','不是处理速度']),
+            (42,'NPU','代码',['实验性','0.6B','8B']),
+            (43,'NPU','精度基准',['relevance_score','不是准确率']),
+            (44,'NPU','数据集',['LeCaRDv2','batch2']),
+            (45,'NPU','数据集',['覆盖为MultiLongDocReranking']),
+            (96,'GPU','精度基准',['test192','CER/WER']),
+            (101,'GPU','权重',['CC-BY-NC','Apache','2025-09']),
+            (101,'GPU','精度基准',['两视图','0.08','56.0','V1']),
+            (102,'GPU','性能基准',['V100','21','23','43/837','8核CPU']),
+            (102,'GPU','精度基准',['10^-3','2.34','40.88']),
+            (110,'GPU','性能基准',['第三方','32.0','0.87s','新生成token']),
+        ]:
+            for token in tokens:
+                with self.subTest(number=number,device=device,field=field,token=token):
+                    self.assertIn(token,evidence(number,device,field)['说明'])
+        self.assertTrue(all('/modelzoo-GPL/' in u for u in evidence(76,'NPU','代码')['链接']))
+        self.assertIn('CPU',self.rows[80]['NPU结论'])
 if __name__=='__main__':unittest.main()

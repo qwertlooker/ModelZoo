@@ -251,7 +251,7 @@
       "method": "GitHub fetch_file",
       "date": "2026-10-25",
       "blob_sha": "3003ba6808b65e02bcadcf67f587501c559133bf",
-      "note": "文件blob SHA，不是仓库commit；读取时的默认分支"
+      "note": "文件blob SHA，非仓库commit；已读正文，未执行代码"
     },
     {
       "url": "https://github.com/DurYi/UA-NWM/blob/main/README.md",
@@ -469,6 +469,118 @@
       "date": "2026-10-25",
       "blob_sha": "06ad91ebab0147a89436326c14bd25a73a1d7354",
       "note": "文件blob SHA，非仓库commit；已读正文，未执行代码"
+    },
+    {
+      "url": "https://github.com/Diamondfan/CTC_pytorch/blob/eddd2550224dfe5ac28b6c4d20df5dde7eaf6119/README.md",
+      "method": "GitHub fetch_file",
+      "date": "2026-10-25",
+      "blob_sha": "ce687f1890fd3fa568e87f074ed88b7fc299d5dd",
+      "note": "文件blob SHA，非仓库commit；已读正文，未执行代码"
+    },
+    {
+      "url": "https://github.com/Diamondfan/CTC_pytorch/blob/eddd2550224dfe5ac28b6c4d20df5dde7eaf6119/timit/steps/train_ctc.py",
+      "method": "GitHub fetch_file",
+      "date": "2026-10-25",
+      "blob_sha": "f294a19e8ff3529e2d9d096df390a820e586b2e9",
+      "note": "文件blob SHA，非仓库commit；已读正文，未执行代码"
+    },
+    {
+      "url": "https://github.com/Diamondfan/CTC_pytorch/blob/eddd2550224dfe5ac28b6c4d20df5dde7eaf6119/timit/steps/test_ctc.py",
+      "method": "GitHub fetch_file",
+      "date": "2026-10-25",
+      "blob_sha": "1ed252d66b4d1f6c4173e287ab719b01187378ce",
+      "note": "文件blob SHA，非仓库commit；已读正文，未执行代码"
+    },
+    {
+      "url": "https://github.com/vllm-project/vllm-ascend/blob/main/docs/source/tutorials/models/Qwen3-Embedding.md",
+      "method": "GitHub fetch_file",
+      "date": "2026-10-25",
+      "blob_sha": "47d049bcc2736441634a0ad19f08f85884c635cb",
+      "note": "文件blob SHA，非仓库commit；已读正文，未执行代码"
+    },
+    {
+      "url": "https://github.com/vllm-project/vllm-ascend/blob/main/docs/source/tutorials/models/Qwen3-Reranker.md",
+      "method": "GitHub fetch_file",
+      "date": "2026-10-25",
+      "blob_sha": "398ac3f5c2a8cb457cf1b69fca00a852b46aaeda",
+      "note": "文件blob SHA，非仓库commit；已读正文，未执行代码"
+    },
+    {
+      "url": "https://github.com/vllm-project/vllm-ascend/blob/main/docs/source/user_guide/support_matrix/supported_models.md",
+      "method": "GitHub fetch_file",
+      "date": "2026-10-25",
+      "blob_sha": "fd651347d40498f8e82e0f6b879ded6cb401f8e3",
+      "note": "文件blob SHA，非仓库commit；已读正文，未执行代码"
+    },
+    {
+      "url": "https://github.com/ultralytics/ultralytics/blob/main/docs/en/integrations/ascend.md",
+      "method": "GitHub fetch_file",
+      "date": "2026-10-25",
+      "blob_sha": "835a90e0886d99d7cbab12fc9214950d44ee9514",
+      "note": "文件blob SHA，非仓库commit；已读正文，未执行代码"
+    },
+    {
+      "url": "https://github.com/Bigtuo/NPU-ais_bench/blob/main/README.md",
+      "method": "GitHub fetch_file",
+      "date": "2026-10-25",
+      "blob_sha": "fcdcdcfea44fae206d43b343ac9229aacb80c638",
+      "note": "文件blob SHA，非仓库commit；已读正文，未执行代码"
+    },
+    {
+      "url": "https://github.com/Bigtuo/NPU-ais_bench/blob/83a2fb52c7be9ad40ddc8999a40b295b6161ddac/YOLO_ais_bench_bytetrack_aipp.py",
+      "method": "GitHub fetch_file",
+      "date": "2026-10-25",
+      "blob_sha": "4ac104e5fd8014a1cc26491261fe94026de8bc9c",
+      "note": "文件blob SHA，非仓库commit；已读正文，未执行代码"
+    },
+    {
+      "url": "https://github.com/Bigtuo/NPU-ais_bench/blob/83a2fb52c7be9ad40ddc8999a40b295b6161ddac/bytetrack/byte_tracker.py",
+      "method": "GitHub fetch_file",
+      "date": "2026-10-25",
+      "blob_sha": "c8284003230ebde4dfb1dbcb9b3b6e6b3af3e8d0",
+      "note": "文件blob SHA，非仓库commit；已读正文，未执行代码"
+    },
+    {
+      "url": "https://github.com/Bigtuo/NPU-ais_bench/blob/83a2fb52c7be9ad40ddc8999a40b295b6161ddac/bytetrack/matching.py",
+      "method": "GitHub fetch_file",
+      "date": "2026-10-25",
+      "blob_sha": "18e86b869cce0c108e952e7e7bbb87664e483e96",
+      "note": "文件blob SHA，非仓库commit；已读正文，未执行代码"
+    },
+    {
+      "url": "https://github.com/google-deepmind/deepmind-research/blob/master/meshgraphnets/README.md",
+      "method": "GitHub fetch_file",
+      "date": "2026-10-25",
+      "blob_sha": "91e6bfb98a2e0699da3ff77eb31c0b209c6e32d7",
+      "note": "文件blob SHA，非仓库commit；已读正文，未执行代码"
+    },
+    {
+      "url": "https://gitcode.com/Ascend/modelzoo-GPL/blob/aa0696bd53c3724c8438860243b55025539de64a/built-in/ACL_Pytorch/Yolov8_for_PyTorch/README.md",
+      "method": "GitCode contents API",
+      "date": "2026-10-25",
+      "blob_sha": "b1f0718b56e7c45c3aa8d016388cdad058bcf343",
+      "note": "按master HEAD aa0696bd53c3724c8438860243b55025539de64a读取base64正文；未执行代码"
+    },
+    {
+      "url": "https://gitcode.com/Ascend/modelzoo-GPL/blob/aa0696bd53c3724c8438860243b55025539de64a/built-in/ACL_Pytorch/Yolov8_for_PyTorch/pth2onnx.py",
+      "method": "GitCode contents API",
+      "date": "2026-10-25",
+      "blob_sha": "86d0f27c0eba84723d157cc4e0f428971f0f529c",
+      "note": "按master HEAD aa0696bd53c3724c8438860243b55025539de64a读取base64正文；未执行代码"
+    },
+    {
+      "url": "https://gitcode.com/Ascend/modelzoo-GPL/blob/aa0696bd53c3724c8438860243b55025539de64a/built-in/ACL_Pytorch/Yolov8_for_PyTorch/detect_infer.py",
+      "method": "GitCode contents API",
+      "date": "2026-10-25",
+      "blob_sha": "8f6ad8648f7818392ed7be9ddb4a252128aa335b",
+      "note": "按master HEAD aa0696bd53c3724c8438860243b55025539de64a读取base64正文；未执行代码"
+    },
+    {
+      "url": "https://gitcode.com/Ascend/modelzoo-GPL/blob/aa0696bd53c3724c8438860243b55025539de64a/built-in/ACL_Pytorch/Yolov8_for_PyTorch/classify_infer.py",
+      "method": "GitCode contents API",
+      "date": "2026-10-25",
+      "blob_sha": "643d8b443e71b360421b8e451b2ce38e72005a41",
+      "note": "按master HEAD aa0696bd53c3724c8438860243b55025539de64a读取base64正文；未执行代码"
     }
   ],
   "target_master": "dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202",
@@ -1647,6 +1759,51 @@
       }
     },
     {
+      "number": 42,
+      "device": "NPU",
+      "date": "2026-10-25",
+      "fields": {
+        "代码": {
+          "说明": "vLLM-Ascend要求≥0.9.2rc1；矩阵标🔵实验性支持，A2/A3及DUO按表区分。服务/评测示例用0.6B；8B列在权重表，不等于8B完整实测。",
+          "链接": [
+            "https://github.com/vllm-project/vllm-ascend/blob/main/docs/source/tutorials/models/Qwen3-Embedding.md",
+            "https://github.com/vllm-project/vllm-ascend/blob/main/docs/source/user_guide/support_matrix/supported_models.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "权重": {
+          "说明": "8B权重在教程列有ModelScope下载；实际部署须匹配规模及显存，不能沿用0.6B结果作为8B验收。",
+          "链接": [
+            "https://github.com/vllm-project/vllm-ascend/blob/main/docs/source/tutorials/models/Qwen3-Embedding.md",
+            "https://www.modelscope.cn/models/Qwen/Qwen3-Embedding-8B"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "数据集": {
+          "说明": "精度示例LeCaRDv2，0.6B、FP16、max_model_len10240、encode batch2；测速random输入200 tokens。",
+          "链接": [
+            "https://github.com/vllm-project/vllm-ascend/blob/main/docs/source/tutorials/models/Qwen3-Embedding.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "性能基准": {
+          "说明": "提供0.6B的vllm bench serve命令；教程没有吞吐/延迟结果表，不能认为8B已有固定条件NPU基准。",
+          "链接": [
+            "https://github.com/vllm-project/vllm-ascend/blob/main/docs/source/tutorials/models/Qwen3-Embedding.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "精度基准": {
+          "说明": "提供0.6B LeCaRDv2评测代码，未列分数或GPU/NPU对照；双句响应只是接口样例。",
+          "链接": [
+            "https://github.com/vllm-project/vllm-ascend/blob/main/docs/source/tutorials/models/Qwen3-Embedding.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        }
+      },
+      "conclusion": "框架矩阵列实验性支持；8B完整精度/性能尚无结果表"
+    },
+    {
       "date": "2026-10-25",
       "device": "GPU",
       "number": 43,
@@ -1683,6 +1840,51 @@
       }
     },
     {
+      "number": 43,
+      "device": "NPU",
+      "date": "2026-10-25",
+      "fields": {
+        "代码": {
+          "说明": "vLLM-Ascend要求≥0.9.2rc1；矩阵标🔵实验性支持，A2/A3及DUO按表区分。服务/评测示例用0.6B；8B列在权重表，不等于8B完整实测。",
+          "链接": [
+            "https://github.com/vllm-project/vllm-ascend/blob/main/docs/source/tutorials/models/Qwen3-Reranker.md",
+            "https://github.com/vllm-project/vllm-ascend/blob/main/docs/source/user_guide/support_matrix/supported_models.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "权重": {
+          "说明": "8B权重在教程列有ModelScope下载；实际部署须匹配规模及显存，不能沿用0.6B结果作为8B验收。",
+          "链接": [
+            "https://github.com/vllm-project/vllm-ascend/blob/main/docs/source/tutorials/models/Qwen3-Reranker.md",
+            "https://www.modelscope.cn/models/Qwen/Qwen3-Reranker-8B"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "数据集": {
+          "说明": "精度代码先筛中文Reranking、随后覆盖为MultiLongDocReranking；0.6B、FP16、eager。测速random-rerank输入200 tokens。",
+          "链接": [
+            "https://github.com/vllm-project/vllm-ascend/blob/main/docs/source/tutorials/models/Qwen3-Reranker.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "性能基准": {
+          "说明": "提供0.6B的vllm bench serve命令；教程没有吞吐/延迟结果表，不能认为8B已有固定条件NPU基准。",
+          "链接": [
+            "https://github.com/vllm-project/vllm-ascend/blob/main/docs/source/tutorials/models/Qwen3-Reranker.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "精度基准": {
+          "说明": "提供0.6B MultiLongDocReranking评测代码，未列任务分数；两段文档relevance_score不是准确率或nDCG。",
+          "链接": [
+            "https://github.com/vllm-project/vllm-ascend/blob/main/docs/source/tutorials/models/Qwen3-Reranker.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        }
+      },
+      "conclusion": "框架矩阵列实验性支持；8B完整精度/性能尚无结果表"
+    },
+    {
       "date": "2026-10-25",
       "device": "GPU",
       "number": 44,
@@ -1705,6 +1907,51 @@
           "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
         }
       }
+    },
+    {
+      "number": 44,
+      "device": "NPU",
+      "date": "2026-10-25",
+      "fields": {
+        "代码": {
+          "说明": "vLLM-Ascend要求≥0.9.2rc1；矩阵标🔵实验性支持，A2/A3及DUO按表区分。服务/评测示例用0.6B；8B列在权重表，不等于8B完整实测。",
+          "链接": [
+            "https://github.com/vllm-project/vllm-ascend/blob/main/docs/source/tutorials/models/Qwen3-Embedding.md",
+            "https://github.com/vllm-project/vllm-ascend/blob/main/docs/source/user_guide/support_matrix/supported_models.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "权重": {
+          "说明": "0.6B/4B/8B系列权重在教程列有ModelScope下载；实际部署须匹配规模及显存，不能沿用0.6B结果作为8B验收。",
+          "链接": [
+            "https://github.com/vllm-project/vllm-ascend/blob/main/docs/source/tutorials/models/Qwen3-Embedding.md",
+            "https://www.modelscope.cn/models/Qwen/Qwen3-Embedding-8B"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "数据集": {
+          "说明": "精度示例LeCaRDv2，0.6B、FP16、max_model_len10240、encode batch2；测速random输入200 tokens。",
+          "链接": [
+            "https://github.com/vllm-project/vllm-ascend/blob/main/docs/source/tutorials/models/Qwen3-Embedding.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "性能基准": {
+          "说明": "提供0.6B的vllm bench serve命令；教程没有吞吐/延迟结果表，不能认为8B已有固定条件NPU基准。",
+          "链接": [
+            "https://github.com/vllm-project/vllm-ascend/blob/main/docs/source/tutorials/models/Qwen3-Embedding.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "精度基准": {
+          "说明": "提供0.6B LeCaRDv2评测代码，未列分数或GPU/NPU对照；双句响应只是接口样例。",
+          "链接": [
+            "https://github.com/vllm-project/vllm-ascend/blob/main/docs/source/tutorials/models/Qwen3-Embedding.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        }
+      },
+      "conclusion": "框架矩阵列实验性支持；8B完整精度/性能尚无结果表"
     },
     {
       "date": "2026-10-25",
@@ -1743,6 +1990,51 @@
           "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
         }
       }
+    },
+    {
+      "number": 45,
+      "device": "NPU",
+      "date": "2026-10-25",
+      "fields": {
+        "代码": {
+          "说明": "vLLM-Ascend要求≥0.9.2rc1；矩阵标🔵实验性支持，A2/A3及DUO按表区分。服务/评测示例用0.6B；8B列在权重表，不等于8B完整实测。",
+          "链接": [
+            "https://github.com/vllm-project/vllm-ascend/blob/main/docs/source/tutorials/models/Qwen3-Reranker.md",
+            "https://github.com/vllm-project/vllm-ascend/blob/main/docs/source/user_guide/support_matrix/supported_models.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "权重": {
+          "说明": "0.6B/4B/8B系列权重在教程列有ModelScope下载；实际部署须匹配规模及显存，不能沿用0.6B结果作为8B验收。",
+          "链接": [
+            "https://github.com/vllm-project/vllm-ascend/blob/main/docs/source/tutorials/models/Qwen3-Reranker.md",
+            "https://www.modelscope.cn/models/Qwen/Qwen3-Reranker-8B"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "数据集": {
+          "说明": "精度代码先筛中文Reranking、随后覆盖为MultiLongDocReranking；0.6B、FP16、eager。测速random-rerank输入200 tokens。",
+          "链接": [
+            "https://github.com/vllm-project/vllm-ascend/blob/main/docs/source/tutorials/models/Qwen3-Reranker.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "性能基准": {
+          "说明": "提供0.6B的vllm bench serve命令；教程没有吞吐/延迟结果表，不能认为8B已有固定条件NPU基准。",
+          "链接": [
+            "https://github.com/vllm-project/vllm-ascend/blob/main/docs/source/tutorials/models/Qwen3-Reranker.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "精度基准": {
+          "说明": "提供0.6B MultiLongDocReranking评测代码，未列任务分数；两段文档relevance_score不是准确率或nDCG。",
+          "链接": [
+            "https://github.com/vllm-project/vllm-ascend/blob/main/docs/source/tutorials/models/Qwen3-Reranker.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        }
+      },
+      "conclusion": "框架矩阵列实验性支持；8B完整精度/性能尚无结果表"
     },
     {
       "number": 46,
@@ -2459,6 +2751,55 @@
       "note": "原始对象是SiC晶圆缺陷检测；保留全文访问限制，具体资产和硬件基准仍需全文核实。"
     },
     {
+      "number": 76,
+      "device": "NPU",
+      "date": "2026-10-25",
+      "fields": {
+        "代码": {
+          "说明": "官方modelzoo-GPL有ONNX导出、detect_infer/classify_infer及ATC/ais_bench路线；检测调用InferSession。指定ModelZoo-PyTorch快照未收录该目录。",
+          "链接": [
+            "https://gitcode.com/Ascend/modelzoo-GPL/blob/aa0696bd53c3724c8438860243b55025539de64a/built-in/ACL_Pytorch/Yolov8_for_PyTorch/README.md",
+            "https://gitcode.com/Ascend/modelzoo-GPL/blob/aa0696bd53c3724c8438860243b55025539de64a/built-in/ACL_Pytorch/Yolov8_for_PyTorch/pth2onnx.py",
+            "https://gitcode.com/Ascend/modelzoo-GPL/blob/aa0696bd53c3724c8438860243b55025539de64a/built-in/ACL_Pytorch/Yolov8_for_PyTorch/detect_infer.py",
+            "https://gitcode.com/Ascend/modelzoo-GPL/blob/aa0696bd53c3724c8438860243b55025539de64a/built-in/ACL_Pytorch/Yolov8_for_PyTorch/classify_infer.py"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "权重": {
+          "说明": "上游yolov8 n/s/m/l/x .pt转ONNX/OM；分类示例yolov8s-cls.pt。README参考Ultralytics8.4.2，未给预转换OM的SHA。",
+          "链接": [
+            "https://gitcode.com/Ascend/modelzoo-GPL/blob/aa0696bd53c3724c8438860243b55025539de64a/built-in/ACL_Pytorch/Yolov8_for_PyTorch/README.md",
+            "https://docs.ultralytics.com/models/yolov8/"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "数据集": {
+          "说明": "检测COCO val2017，640×640，conf0.001/iou0.7；分类ImageNet2012 val、224×224，需注册授权获取。",
+          "链接": [
+            "https://gitcode.com/Ascend/modelzoo-GPL/blob/aa0696bd53c3724c8438860243b55025539de64a/built-in/ACL_Pytorch/Yolov8_for_PyTorch/README.md",
+            "https://image-net.org/challenges/LSVRC/2012/2012-downloads.php"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "性能基准": {
+          "说明": "310P3、batch8纯OM：n753.23/s443.60/m214.19/l148.60/x100.32 fps；s-cls5204 fps。ais_bench示例loop100，不是视频端到端或三次中位数。",
+          "链接": [
+            "https://gitcode.com/Ascend/modelzoo-GPL/blob/aa0696bd53c3724c8438860243b55025539de64a/built-in/ACL_Pytorch/Yolov8_for_PyTorch/README.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "精度基准": {
+          "说明": "COCO val2017 mAP@0.5：n52.5/s61.6/m67.0/l69.6/x70.6，不是mAP@0.5:0.95；s-cls ImageNet Top1 73.7%、Top5 91.7%。",
+          "链接": [
+            "https://gitcode.com/Ascend/modelzoo-GPL/blob/aa0696bd53c3724c8438860243b55025539de64a/built-in/ACL_Pytorch/Yolov8_for_PyTorch/README.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        }
+      },
+      "conclusion": "其他官方仓有OM实现与基准；指定ModelZoo-PyTorch未收录",
+      "note": "NPU证据来自官方modelzoo-GPL，不算入指定ModelZoo-PyTorch仓内适配；来源结果未复测。"
+    },
+    {
       "date": "2026-10-25",
       "device": "GPU",
       "number": 77,
@@ -2530,6 +2871,54 @@
       },
       "date": "2026-10-25",
       "device": "GPU"
+    },
+    {
+      "number": 81,
+      "device": "NPU",
+      "date": "2026-10-25",
+      "fields": {
+        "代码": {
+          "说明": "社区NPU-ais_bench为YOLO .om检测+BYTETracker：检测用InferSession，关联/卡尔曼为NumPy/SciPy CPU路径；不是全模块NPU执行。",
+          "链接": [
+            "https://github.com/Bigtuo/NPU-ais_bench/blob/83a2fb52c7be9ad40ddc8999a40b295b6161ddac/YOLO_ais_bench_bytetrack_aipp.py",
+            "https://github.com/Bigtuo/NPU-ais_bench/blob/83a2fb52c7be9ad40ddc8999a40b295b6161ddac/bytetrack/byte_tracker.py",
+            "https://github.com/Bigtuo/NPU-ais_bench/blob/83a2fb52c7be9ad40ddc8999a40b295b6161ddac/bytetrack/matching.py"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "权重": {
+          "说明": "检测器默认yolov8s.om，需自备匹配模型；关联器无独立神经权重，不能拿原论文YOLOX权重与本示例混用。",
+          "链接": [
+            "https://github.com/Bigtuo/NPU-ais_bench/blob/83a2fb52c7be9ad40ddc8999a40b295b6161ddac/YOLO_ais_bench_bytetrack_aipp.py",
+            "https://github.com/Bigtuo/NPU-ais_bench/blob/main/README.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "数据集": {
+          "说明": "入口读取自备视频并输出跟踪视频；所读示例未列MOT17/MOT20完整评测准备或固定split。",
+          "链接": [
+            "https://github.com/Bigtuo/NPU-ais_bench/blob/83a2fb52c7be9ad40ddc8999a40b295b6161ddac/YOLO_ais_bench_bytetrack_aipp.py"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "性能基准": {
+          "说明": "README环境鲲鹏+A300I Pro、CANN7.0.1；脚本无完整吞吐结果。读取视频fps用于VideoWriter，是输出帧率，不是处理速度。",
+          "链接": [
+            "https://github.com/Bigtuo/NPU-ais_bench/blob/main/README.md",
+            "https://github.com/Bigtuo/NPU-ais_bench/blob/83a2fb52c7be9ad40ddc8999a40b295b6161ddac/YOLO_ais_bench_bytetrack_aipp.py"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "精度基准": {
+          "说明": "社区交付无MOTA/IDF1/HOTA正式结果；能画框/轨迹不等于原论文MOT精度复现。",
+          "链接": [
+            "https://github.com/Bigtuo/NPU-ais_bench/blob/83a2fb52c7be9ad40ddc8999a40b295b6161ddac/YOLO_ais_bench_bytetrack_aipp.py",
+            "https://github.com/Bigtuo/NPU-ais_bench/blob/83a2fb52c7be9ad40ddc8999a40b295b6161ddac/bytetrack/byte_tracker.py"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        }
+      },
+      "conclusion": "社区检测NPU+跟踪CPU组合；完整精度/性能待验"
     },
     {
       "number": 82,
@@ -2819,6 +3208,52 @@
       }
     },
     {
+      "number": 96,
+      "device": "GPU",
+      "date": "2026-10-25",
+      "fields": {
+        "代码": {
+          "说明": "原实现固定提交：train_ctc/test_ctc均以use_gpu选cuda，模型与输入转该设备；有训练与测试GPU入口。",
+          "链接": [
+            "https://github.com/Diamondfan/CTC_pytorch/blob/eddd2550224dfe5ac28b6c4d20df5dde7eaf6119/timit/steps/train_ctc.py",
+            "https://github.com/Diamondfan/CTC_pytorch/blob/eddd2550224dfe5ac28b6c4d20df5dde7eaf6119/timit/steps/test_ctc.py"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "权重": {
+          "说明": "训练保存CTC模型package/checkpoint；原README未给预训练下载。NPU ctc_best_model.pth尚无原GPU独立对齐证据。",
+          "链接": [
+            "https://github.com/Diamondfan/CTC_pytorch/blob/eddd2550224dfe5ac28b6c4d20df5dde7eaf6119/timit/steps/train_ctc.py",
+            "https://github.com/Diamondfan/CTC_pytorch/blob/eddd2550224dfe5ac28b6c4d20df5dde7eaf6119/README.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "数据集": {
+          "说明": "TIMIT train3696句（排除SA）、dev400句、test192句；Kaldi提取39维MFCC/40维fbank并归一化，TIMIT需许可。",
+          "链接": [
+            "https://github.com/Diamondfan/CTC_pytorch/blob/eddd2550224dfe5ac28b6c4d20df5dde7eaf6119/README.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "性能基准": {
+          "说明": "原README及train/test代码未给GPU型号、batch和吞吐基准；不能把NPU 5.3457fps填为GPU速度。",
+          "链接": [
+            "https://github.com/Diamondfan/CTC_pytorch/blob/eddd2550224dfe5ac28b6c4d20df5dde7eaf6119/README.md",
+            "https://github.com/Diamondfan/CTC_pytorch/blob/eddd2550224dfe5ac28b6c4d20df5dde7eaf6119/timit/steps/test_ctc.py"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "精度基准": {
+          "说明": "test代码计算CER/WER；README只称beam search约改善0.2%音素准确率，未给指定GPU/test192句最终CER/WER。",
+          "链接": [
+            "https://github.com/Diamondfan/CTC_pytorch/blob/eddd2550224dfe5ac28b6c4d20df5dde7eaf6119/README.md",
+            "https://github.com/Diamondfan/CTC_pytorch/blob/eddd2550224dfe5ac28b6c4d20df5dde7eaf6119/timit/steps/test_ctc.py"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        }
+      }
+    },
+    {
       "number": 97,
       "date": "2026-10-25",
       "device": "GPU",
@@ -2855,12 +3290,75 @@
       "device": "GPU",
       "fields": {
         "性能基准": {
-          "说明": "官方profile_memory_runtime.py可按视图数测GPU：默认预热3次、计时5次，计时前后CUDA同步，输出平均runtime、标准差和1/平均耗时Hz及峰值显存。支持单独profile_v1；现README同时含后续版本，未取得与原MapAnything权重严格对应的硬件/视图数数值表。",
+          "说明": "论文v3图S.1：单H200-140GB，按视图数/混合精度profiling，省显存模式minibatch1。训练64×H200、第一阶段6天+第二阶段4天。README另有V1/当前版曲线，不取近似读图值冒充精确延迟。",
           "链接": [
-            "https://github.com/facebookresearch/map-anything/blob/main/scripts/profile_memory_runtime.py",
+            "https://arxiv.org/html/2509.13414",
+            "https://github.com/facebookresearch/map-anything/blob/main/README.md",
+            "https://github.com/facebookresearch/map-anything/blob/main/assets/profiling_speed.png"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "权重": {
+          "说明": "当前facebook/map-anything为CC-BY-NC4.0，map-anything-apache为Apache2；2025-09旧版另为map-anything-v1/apache-v1，新旧架构和许可证分别选择。",
+          "链接": [
+            "https://github.com/facebookresearch/map-anything/blob/main/README.md",
+            "https://huggingface.co/facebook/map-anything",
+            "https://huggingface.co/facebook/map-anything-v1",
+            "https://huggingface.co/facebook/map-anything-apache"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "数据集": {
+          "说明": "论文v3默认13个训练集，Apache版只用6个；几何评估ETH3D、ScanNet++v2及TartanAirV2。元数据不等于原图及许可证全量齐备。",
+          "链接": [
+            "https://arxiv.org/html/2509.13414",
             "https://github.com/facebookresearch/map-anything/blob/main/README.md"
           ],
-          "证据类型": "已读官方原文；公开基准，未独立复测"
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "精度基准": {
+          "说明": "论文v3表2，两视图仅图像，ETH3D/SN++v2/TAV2平均：点云rel0.08、inlier57.5%、pose ATE0.02、AUC@5 56.0；加内参为另一输入条件，不默认套给2025-09 V1。",
+          "链接": [
+            "https://arxiv.org/html/2509.13414"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        }
+      },
+      "note": "当前版与2025-09 V1、CC-BY-NC与Apache权重分开；几何输入模式和版本同时影响精度与速度。"
+    },
+    {
+      "number": 102,
+      "device": "GPU",
+      "date": "2026-10-25",
+      "fields": {
+        "权重": {
+          "说明": "官方release含模型核心、数据和从头训练入口，未提供通用预训练包；cylinder_flow/flag_simple有完整训练评估演示。",
+          "链接": [
+            "https://github.com/google-deepmind/deepmind-research/blob/master/meshgraphnets/README.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "数据集": {
+          "说明": "官方10套tfrecord各有train/valid/test；论文每域1000/100/100轨迹。CylinderFlow平均1885节点/600步，FlagSimple平均1579节点/400步。",
+          "链接": [
+            "https://github.com/google-deepmind/deepmind-research/blob/master/meshgraphnets/README.md",
+            "https://arxiv.org/html/2010.03409"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "性能基准": {
+          "说明": "原论文单V100：CylinderFlow模型21/含图重算23 ms/step，FlagSimple19/19；FlagDynamic43/837，重网格成本明显。真实求解器对照为8核CPU，不是GPU对GPU。",
+          "链接": [
+            "https://arxiv.org/html/2010.03409"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "精度基准": {
+          "说明": "表1 RMSE均乘10^-3：CylinderFlow单步2.34±0.12/50步6.3±0.7/全轨迹40.88±7.2；FlagSimple全轨迹139.0±2.7。不同物理场与rollout长度不能混用。",
+          "链接": [
+            "https://arxiv.org/html/2010.03409"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
         }
       }
     },
@@ -2973,10 +3471,10 @@
           "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
         },
         "性能基准": {
-          "说明": "已核对Qwen2.5-VL技术报告、7B模型卡及Qwen速度页：速度页测的是纯文本Qwen2.5，不能套到VL；VL报告的动态FPS是视频采样率，不是GPU吞吐。尚未确认原版7B绑定GPU、图像分辨率/视频帧数、输出长度的官方延迟表。",
+          "说明": "第三方Drive-KD表1/附录E.2：Qwen2.5-VL-7B-Instruct在A100-PCIE-40GB、DriveBench生成32.0 token/s，TTFT中位0.87s、峰值总显存17.1GB；仅计新生成token。未列固定长度/batch，非Qwen官方统一速度。 纯文本Qwen2.5速度不能套到VL。",
           "链接": [
-            "https://arxiv.org/pdf/2502.13923v1",
-            "https://huggingface.co/Qwen/Qwen2.5-VL-7B-Instruct",
+            "https://arxiv.org/html/2601.21288#S3.T1",
+            "https://arxiv.org/html/2601.21288#A5.SS2",
             "https://qwen.readthedocs.io/en/v2.5/benchmark/speed_benchmark.html"
           ],
           "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
