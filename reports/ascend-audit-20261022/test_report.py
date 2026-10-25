@@ -184,4 +184,51 @@ class ReportTests(unittest.TestCase):
         with (ROOT/'inventory.csv').open(encoding='utf-8-sig',newline='') as f:
             rows=list(csv.DictReader(f))
         self.assertEqual(rows[34]['GPU结论'],'论文已发布；训练/推理代码和权重尚未发布')
+    def test_gpu_benchmark_device_and_measurement_boundaries(self):
+        def gpu(number, field):
+            return self.rows[number-1]['设备维度']['GPU'][field]['说明']
+        for number, field, tokens in [
+            (27,'性能基准',['训练','8×A100','1.131','56.6','不是动作推理']),
+            (46,'权重',['2605','3.3.0']),
+            (46,'性能基准',['A100','2.12','未给并发数']),
+            (46,'精度基准',['95.39','95.26','95.72','口径不同']),
+            (49,'性能基准',['blastn','4.32','1.56','megablast','7.15']),
+            (58,'性能基准',['15B','8×H200','7119','不是650M']),
+            (69,'性能基准',['V100','FP32','batch1','46.73','排除数据加载']),
+            (70,'性能基准',['V100','FP32','batch1','46.73','排除数据加载']),
+            (93,'性能基准',['第三方','A100-PCIE-40GB','32.6','1.58','新生成token']),
+            (94,'性能基准',['MMIU','A100-80GB','0.97 h','testmini','不是单请求']),
+            (97,'性能基准',['OpenCL','500轮','112 s','63','旧版训练']),
+            (97,'精度基准',['AUC0.845209','业务时间切分']),
+            (106,'性能基准',['RTX3090','没有可直接引用']),
+            (109,'性能基准',['H20','81.73','prompt+generation','不是纯解码']),
+            (109,'精度基准',['thinking','87.5','non-thinking','79.5']),
+        ]:
+            for token in tokens:
+                with self.subTest(number=number,field=field,token=token):
+                    self.assertIn(token,gpu(number,field))
+        # 两个原始名称不合并，也不把同一实现计作独立适配。
+        for number in [69,70]:
+            self.assertIn('不把重复名称视作两项独立适配',self.rows[number-1]['分析与缺口'])
+    def test_paper_results_do_not_imply_gpu_delivery(self):
+        def gpu(number, field):
+            return self.rows[number-1]['设备维度']['GPU'][field]['说明']
+        for number, field, tokens in [
+            (3,'精度基准',['条件Place50%','成功抓取']),
+            (24,'性能基准',['多TPU','1–3Hz','GPU专项速度']),
+            (29,'权重',['视觉语言底座','Thinker-VLA专项']),
+            (39,'代码',['OpenPI JAX','RLinf','流式VLA','撤回']),
+            (39,'精度基准',['67.4%','80.6%','48次','64次']),
+            (53,'权重',['不需要神经网络权重','kmer_distrib']),
+            (53,'精度基准',['1.75%','1.89%','没有GPU专项']),
+            (75,'代码',['晶圆','不是医学','403']),
+            (82,'权重',['无神经网络checkpoint']),
+            (83,'代码',['DeepSeek API','不是已公开的本地GPU模型']),
+            (112,'性能基准',['RTX4090','14.48 s','15.39 s','不能外推']),
+        ]:
+            for token in tokens:
+                with self.subTest(number=number,field=field,token=token):
+                    self.assertIn(token,gpu(number,field))
+        self.assertIn('多TPU',self.rows[23]['GPU结论'])
+        self.assertIn('GPU实验',self.rows[111]['GPU结论'])
 if __name__=='__main__':unittest.main()
