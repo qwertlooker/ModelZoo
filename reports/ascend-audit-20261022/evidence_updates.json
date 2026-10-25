@@ -1,0 +1,586 @@
+{
+  "checked_date": "2026-10-25",
+  "source_checks": [
+    {
+      "url": "https://github.com/chenjinyubuaa/AerialVLA/blob/main/README.md",
+      "method": "GitHub fetch_file",
+      "date": "2026-10-25",
+      "blob_sha": "d7f21229877dd4fa5c217461560f1a61c8a23aa9",
+      "note": "文件blob SHA，非仓库commit；已读正文，未执行代码"
+    },
+    {
+      "url": "https://github.com/nvidia-cosmos/cosmos-predict2/blob/main/README.md",
+      "method": "GitHub fetch_file",
+      "date": "2026-10-25",
+      "blob_sha": "be6c10f65fafcc5d7959751be1c561496c912351",
+      "note": "文件blob SHA，非仓库commit；已读正文，未执行代码"
+    },
+    {
+      "url": "https://github.com/nvidia-cosmos/cosmos-reason1/blob/main/README.md",
+      "method": "GitHub fetch_file",
+      "date": "2026-10-25",
+      "blob_sha": "699c5a32e220bc2d177b98bc66e57cfa05746673",
+      "note": "文件blob SHA，非仓库commit；已读正文，未执行代码"
+    },
+    {
+      "url": "https://github.com/open-gigaai/giga-brain-0/blob/main/README.md",
+      "method": "GitHub fetch_file",
+      "date": "2026-10-25",
+      "blob_sha": "6df4b869a0ba0ceb32015643adfe057e8feb41d8",
+      "note": "文件blob SHA，非仓库commit；已读正文，未执行代码"
+    },
+    {
+      "url": "https://github.com/Robbyant/lingbot-vla/blob/main/README.md",
+      "method": "GitHub fetch_file",
+      "date": "2026-10-25",
+      "blob_sha": "b8474cfaeebba45c22bdf400a21432e6f13fe4bf",
+      "note": "文件blob SHA，非仓库commit；已读正文，未执行代码"
+    },
+    {
+      "url": "https://github.com/Open-X-Humanoid/pelican-vl/blob/rxc/README.md",
+      "method": "GitHub fetch_file",
+      "date": "2026-10-25",
+      "blob_sha": "b979638abf733c6545a2a5443445607aa994cdb4",
+      "note": "文件blob SHA，非仓库commit；已读正文，未执行代码"
+    },
+    {
+      "url": "https://github.com/nvidia-cosmos/cosmos-predict2/blob/main/documentations/performance.md",
+      "method": "GitHub fetch_file",
+      "date": "2026-10-25",
+      "blob_sha": "b2176864d0f9314bac8f11099fd6a87e2cb288f0",
+      "note": "文件blob SHA，非仓库commit；已读正文，未执行代码"
+    },
+    {
+      "url": "https://github.com/nvidia-cosmos/cosmos-reason1/blob/main/examples/benchmark/README.md",
+      "method": "GitHub fetch_file",
+      "date": "2026-10-25",
+      "blob_sha": "166190c5f251952050597b5d368791a31967cac0",
+      "note": "文件blob SHA，非仓库commit；已读正文，未执行代码"
+    },
+    {
+      "url": "https://github.com/NVIDIA/Isaac-GR00T/blob/ead52833afbbf4243f8cd5e7664f48a94de03b19/examples/LIBERO/README.md",
+      "method": "GitHub fetch_file",
+      "date": "2026-10-25",
+      "blob_sha": "c5406cafe658612c942275660f86eae29e5aa545",
+      "note": "文件blob SHA，非仓库commit；已读正文，未执行代码"
+    },
+    {
+      "url": "https://github.com/open-gigaai/giga-brain-0/blob/main/configs/robotwin_posttrain_release/eval_robotwin/README.md",
+      "method": "GitHub fetch_file",
+      "date": "2026-10-25",
+      "blob_sha": "561cd205ed5cc10b25fb3554b58899ebcde0d458",
+      "note": "文件blob SHA，非仓库commit；已读正文，未执行代码"
+    },
+    {
+      "url": "https://github.com/DepthAnything/Depth-Anything-V2/blob/main/metric_depth/README.md",
+      "method": "GitHub fetch_file",
+      "date": "2026-10-25",
+      "blob_sha": "fc84a2f050a63219dd1193b12b0651bd0ab0ced5",
+      "note": "SHA为文件blob对象，不是仓库commit；读取正文，未执行代码"
+    },
+    {
+      "url": "https://github.com/wgcban/ChangeFormer/blob/main/README.md",
+      "method": "GitHub fetch_file",
+      "date": "2026-10-25",
+      "blob_sha": "8a4152be213018e18afa2eb3e492858e88aab1d7",
+      "note": "SHA为文件blob对象，不是仓库commit；读取正文，未执行代码"
+    },
+    {
+      "url": "https://github.com/justchenhao/BIT_CD/blob/master/README.md",
+      "method": "GitHub fetch_file",
+      "date": "2026-10-25",
+      "blob_sha": "0bf793adc8a65941fd4785de51315f6ba524feba",
+      "note": "SHA为文件blob对象，不是仓库commit；读取正文，未执行代码"
+    },
+    {
+      "url": "https://github.com/HuCaoFighting/Swin-Unet/blob/main/README.md",
+      "method": "GitHub fetch_file",
+      "date": "2026-10-25",
+      "blob_sha": "bb02314f963c3c42b49e3914103a03ee2d3ddf06",
+      "note": "SHA为文件blob对象，不是仓库commit；读取正文，未执行代码"
+    },
+    {
+      "url": "https://github.com/thuml/Anomaly-Transformer/blob/main/README.md",
+      "method": "GitHub fetch_file",
+      "date": "2026-10-25",
+      "blob_sha": "848888ca38878a6c695236c42f60fce49b92cf9b",
+      "note": "SHA为文件blob对象，不是仓库commit；读取正文，未执行代码"
+    },
+    {
+      "url": "https://github.com/haotian-liu/LLaVA/blob/main/docs/MODEL_ZOO.md",
+      "method": "GitHub fetch_file",
+      "date": "2026-10-25",
+      "blob_sha": "2d870e6c0b8e97dc08d4e1b6a2d4ca0af9185ee1",
+      "note": "SHA为文件blob对象，不是仓库commit；读取正文，未执行代码"
+    },
+    {
+      "url": "https://github.com/google-deepmind/alphafold3/blob/main/docs/performance.md",
+      "method": "GitHub fetch_file",
+      "date": "2026-10-25",
+      "blob_sha": "7faeb98e7d902049da67e07ec691541159fd753d",
+      "note": "SHA为文件blob对象，不是仓库commit；读取正文，未执行代码"
+    }
+  ],
+  "target_master": "dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202",
+  "scope": "119项原始范围不变；此文件为后续核实增量，不表示全量完成",
+  "updates": [
+    {
+      "number": 2,
+      "date": "2026-10-25",
+      "device": "GPU",
+      "fields": {
+        "代码": {
+          "说明": "AerialVLA官方LLaVA-OneVision/Qwen2-7B+SigLIP，单/多GPU评估；不是另一个AeroVLA项目。",
+          "链接": [
+            "https://github.com/chenjinyubuaa/AerialVLA/blob/main/README.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "权重": {
+          "说明": "README指定OneVision底座及GeoChat stage1 LoRA本地路径，但未给专项stage1/stage2下载地址；底座公开不代表完整AerialVLA权重齐备。",
+          "链接": [
+            "https://github.com/chenjinyubuaa/AerialVLA/blob/main/README.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "数据集": {
+          "说明": "AVDN；含train、val_unseen。评估示例实际使用train_1094.json，不能默认是独立测试集。",
+          "链接": [
+            "https://github.com/chenjinyubuaa/AerialVLA/blob/main/README.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "性能基准": {
+          "说明": "batch/GPU=4、DAgger20轮是训练设置；所读README未列GPU型号与推理速度。",
+          "链接": [
+            "https://github.com/chenjinyubuaa/AerialVLA/blob/main/README.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "精度基准": {
+          "说明": "提供SR/TC/SPL/IoU Progress评估入口；所读README未列结果数值，测试split与专项权重仍缺确认。",
+          "链接": [
+            "https://github.com/chenjinyubuaa/AerialVLA/blob/main/README.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        }
+      },
+      "note": "专项权重地址及独立测试split未闭合；不能用OneVision或GeoChat底座指标代替AerialVLA。"
+    },
+    {
+      "number": 4,
+      "date": "2026-10-25",
+      "device": "GPU",
+      "fields": {
+        "性能基准": {
+          "说明": "官方生成耗时：H100 PCIe，2B/14B Video2World为79.87/286.46秒（480p、视频16fps）；H20为179.69/852.64秒。16fps是输出视频帧率。",
+          "链接": [
+            "https://github.com/nvidia-cosmos/cosmos-predict2/blob/main/documentations/performance.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        }
+      },
+      "note": "Predict2原版与稀疏NATTEN变体分开；NATTEN720p要求GPU CC9.0/10.0，不能把该算子速度填给480p原版。视频长度/采样步数需结合配置确认。"
+    },
+    {
+      "number": 6,
+      "date": "2026-10-25",
+      "device": "GPU",
+      "fields": {
+        "数据集": {
+          "说明": "Cosmos-Reason1-Benchmark提供AV、RoboVQA、AgiBot、BridgeV2、HoloAssist标注；示例随包视频仅AV/RoboVQA，其他需另备，AgiBot先授权。",
+          "链接": [
+            "https://github.com/nvidia-cosmos/cosmos-reason1/blob/main/examples/benchmark/README.md",
+            "https://huggingface.co/datasets/nvidia/Cosmos-Reason1-Benchmark"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "精度基准": {
+          "说明": "原论文7B SFT：物理常识54.3、具身六项均值61.8；加RL后论文表9综合均值65.7（含常识，不能与61.8同口径比较）。开源评测脚本采用不区分大小写精确匹配。",
+          "链接": [
+            "https://arxiv.org/html/2503.15558",
+            "https://github.com/nvidia-cosmos/cosmos-reason1/blob/main/examples/benchmark/README.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        }
+      },
+      "note": "7B/56B、SFT/RL阶段及六项/七项均值分开；指定公开checkpoint对应哪一阶段仍需核对。"
+    },
+    {
+      "number": 14,
+      "date": "2026-10-25",
+      "device": "GPU",
+      "fields": {
+        "数据集": {
+          "说明": "固定N1.6版本LIBERO四套任务；Long用IPEC-COMMUNITY/libero_10_no_noops_1.0.0_lerobot；20K步、global batch640。",
+          "链接": [
+            "https://github.com/NVIDIA/Isaac-GR00T/blob/ead52833afbbf4243f8cd5e7664f48a94de03b19/examples/LIBERO/README.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "精度基准": {
+          "说明": "原表成功次数：Spatial195/200、Goal195/200、Object197/200、Long189/200；部分所列百分比与次数不一致，暂不采信其精确百分比。",
+          "链接": [
+            "https://github.com/NVIDIA/Isaac-GR00T/blob/ead52833afbbf4243f8cd5e7664f48a94de03b19/examples/LIBERO/README.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        }
+      },
+      "note": "原表Spatial195/200却写97.65%、Object197/200写98.45%、Long189/200写94.35%；来源内部不一致，不能认定精确成功率已确认。"
+    },
+    {
+      "number": 17,
+      "date": "2026-10-25",
+      "device": "GPU",
+      "fields": {
+        "数据集": {
+          "说明": "RoboTwin50任务，只用demo_clean训练，randomized做跨域评估；动作14D，每次预测50步仅执行前30步。",
+          "链接": [
+            "https://github.com/open-gigaai/giga-brain-0/blob/main/configs/robotwin_posttrain_release/eval_robotwin/README.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "性能基准": {
+          "说明": "参考训练32卡/global batch1024/20K步；发布复现配置8卡/global batch256/80K步。并行仿真客户端请求在server串行推理，非多请求GPU并行吞吐。",
+          "链接": [
+            "https://github.com/open-gigaai/giga-brain-0/blob/main/configs/robotwin_posttrain_release/eval_robotwin/README.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "精度基准": {
+          "说明": "原论文RoboTwin clean-only后训练：Clean66.8%、Randomized67.9%、均值67.35%；不能与clean+randomized联合训练结果直接比较。",
+          "链接": [
+            "https://arxiv.org/html/2608.15875"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        }
+      },
+      "note": "固定clean-only训练、50步预测/30步执行；训练卡数、步数和评估指令/随机化设置都需与发布checkpoint配套。"
+    },
+    {
+      "number": 19,
+      "date": "2026-10-25",
+      "device": "GPU",
+      "fields": {
+        "权重": {
+          "说明": "基础4B/4B-Depth与RoboTwin后训练权重分开；旧于2026-05-01下载的后训练配置可能不兼容。",
+          "链接": [
+            "https://huggingface.co/robbyant/lingbot-vla-4b-posttrain-robotwin",
+            "https://huggingface.co/robbyant/lingbot-vla-4b-depth-posttrain-robotwin",
+            "https://github.com/Robbyant/lingbot-vla/blob/main/README.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "性能基准": {
+          "说明": "吞吐归属冲突：论文摘要称8GPU时261 samples/s/GPU；当前README明确261等吞吐为多卡合计。待作者澄清，不认定每卡261。",
+          "链接": [
+            "https://arxiv.org/html/2601.18692v1",
+            "https://github.com/Robbyant/lingbot-vla/blob/main/README.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "精度基准": {
+          "说明": "官方RoboTwin后训练SR：无深度Clean86.50%/Rand85.34%；有深度88.56%/86.68%。GM-100三平台平均SR15.74%/17.30%，不是同一测试集。",
+          "链接": [
+            "https://github.com/Robbyant/lingbot-vla/blob/main/README.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        }
+      },
+      "note": "论文与README吞吐口径矛盾；RoboTwin基础/后训练权重、深度输入和评估协议不能混用。"
+    },
+    {
+      "number": 21,
+      "date": "2026-10-25",
+      "device": "GPU",
+      "fields": {
+        "权重": {
+          "说明": "本轮官方发布清单为7B、72B；上一版写的3B没有本轮发布清单证据，已撤回。",
+          "链接": [
+            "https://huggingface.co/X-Humanoid/Pelican1.0-VL-7B",
+            "https://huggingface.co/X-Humanoid/Pelican1.0-VL-72B",
+            "https://github.com/Open-X-Humanoid/pelican-vl/blob/rxc/README.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "性能基准": {
+          "说明": "论文报告1000+ A800训练集群、每checkpoint超过50k A800 GPU-hours；是训练资源，非推理吞吐。",
+          "链接": [
+            "https://arxiv.org/html/2511.00108v2"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "精度基准": {
+          "说明": "原论文7B/72B：MVBench67.7/69.7、RoboSpatial57.5/61.1、COSMOS60.2/68.5、VSI-Bench52.8/57.3。",
+          "链接": [
+            "https://arxiv.org/html/2511.00108v2"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "数据集": {
+          "说明": "官方评估提供lmms-eval/vLLM0.11.0及各benchmark脚本；EgoSchema只生成预测，另行评分；BLINK需要外部judge服务。",
+          "链接": [
+            "https://github.com/Open-X-Humanoid/pelican-vl/blob/rxc/evaluation/README.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        }
+      },
+      "note": "Pelican-VL1.0是具身VLM；不借用Pelican-VLA0.5机器人动作成功率。部分评估依赖外部judge或另备视频，无法仅靠基础权重离线闭环。"
+    },
+    {
+      "number": 55,
+      "date": "2026-10-25",
+      "device": "GPU",
+      "fields": {
+        "性能基准": {
+          "说明": "不含编译的模型推理：1024 tokens，单A100-80GB 62秒、单H100-80GB 34秒；5120 tokens分别2547/1416秒；不含CPU检索。16卡GPU秒不是端到端延迟。",
+          "链接": [
+            "https://github.com/google-deepmind/alphafold3/blob/main/docs/performance.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        }
+      },
+      "note": "GPU基准拆分CPU检索、编译和模型推理；V100存在数值问题及专用XLA配置，不外推到NPU。"
+    },
+    {
+      "number": 66,
+      "date": "2026-10-25",
+      "device": "GPU",
+      "fields": {
+        "权重": {
+          "说明": "BIT_LEVIR best_ckpt.pt；作者提供Google Drive/百度；未下载校验。",
+          "链接": [
+            "https://drive.google.com/file/d/1IVdF5a3e1_7DiSndtMkhpZuCSgDLLFcg/view?usp=sharing",
+            "https://github.com/justchenhao/BIT_CD/blob/master/README.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "数据集": {
+          "说明": "LEVIR-CD非重叠256×256切块：train7120/val1024/test2048；WHU6096/762/762；DSIFN原512图3600/340/48。",
+          "链接": [
+            "https://arxiv.org/html/2103.00208v3#S4.SS1",
+            "https://justchenhao.github.io/LEVIR/"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "性能基准": {
+          "说明": "原论文单Tesla V100；BIT_S4为3.55M参数、4.35G FLOPs（256×256）；原表不是FPS/延迟，未确认运行速度。",
+          "链接": [
+            "https://arxiv.org/html/2103.00208v3#S4.SS3"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "精度基准": {
+          "说明": "论文BIT_S4测试集F1/IoU（%）：LEVIR89.31/80.68；WHU83.98/72.39；DSIFN69.26/52.97。",
+          "链接": [
+            "https://arxiv.org/html/2103.00208v3#S4.SS2"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        }
+      },
+      "note": "BIT论文与代码按网络变体和数据切块核对；FLOPs不能当GPU吞吐。"
+    },
+    {
+      "number": 67,
+      "date": "2026-10-25",
+      "device": "GPU",
+      "fields": {
+        "权重": {
+          "说明": "ChangeFormerV6的LEVIR与DSIFN最终checkpoint分别公开；不可与ADE预训练初始化混用。",
+          "链接": [
+            "https://github.com/wgcban/ChangeFormer/releases/download/v0.1.0/CD_ChangeFormerV6_LEVIR_b16_lr0.0001_adamw_train_test_200_linear_ce_multi_train_True_multi_infer_False_shuffle_AB_False_embed_dim_256.zip",
+            "https://github.com/wgcban/ChangeFormer/releases/download/v0.1.0/CD_ChangeFormerV6_DSIFN_b16_lr0.00006_adamw_train_test_200_linear_ce_multi_train_True_multi_infer_False_shuffle_AB_False_embed_dim_256.zip"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "数据集": {
+          "说明": "256×256切块；LEVIR train7120/val1024/test2048；DSIFN14400/1360/192。README的DSIFN下载链接误指LEVIR，不应照抄。",
+          "链接": [
+            "https://arxiv.org/html/2201.01293v7#S3.SS1",
+            "https://github.com/wgcban/ChangeFormer/blob/main/README.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "性能基准": {
+          "说明": "Quadro RTX8000；batch16、200epoch是训练设置；论文所读结果表未列FPS/延迟。",
+          "链接": [
+            "https://arxiv.org/html/2201.01293v7#S3.SS2"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "精度基准": {
+          "说明": "论文测试集F1/IoU（%）：LEVIR90.40/82.48；DSIFN86.67/76.48。",
+          "链接": [
+            "https://arxiv.org/html/2201.01293v7#S4"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        }
+      },
+      "note": "原论文写随机初始化，当前README训练脚本使用ADE预训练；代码复现与论文差异需记录，不能默认完全同配置。"
+    },
+    {
+      "number": 73,
+      "date": "2026-10-25",
+      "device": "GPU",
+      "fields": {
+        "数据集": {
+          "说明": "Synapse 30例CT、18训练/12测试，8器官；ACDC按70训练/10验证/20测试；不是图像级随机切分。",
+          "链接": [
+            "https://arxiv.org/html/2105.05537v1#S4.SS1"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "性能基准": {
+          "说明": "V100-32GB，224×224、patch4、batch24；这是训练条件，原表未给规范推理速度。",
+          "链接": [
+            "https://arxiv.org/html/2105.05537v1#S4.SS2"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "精度基准": {
+          "说明": "Swin-Unet Tiny 224输入：Synapse DSC79.13%、HD21.55（距离，非百分比）；ACDC DSC90.00%。同论文U-Net Synapse DSC76.85%、HD39.70。",
+          "链接": [
+            "https://arxiv.org/html/2105.05537v1#S4.SS3",
+            "https://arxiv.org/html/2105.05537v1#S4.SS4"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        }
+      },
+      "note": "Swin-Unet与U-Net分别统计；作者未分享最终分割权重，公开论文分数不能证明当前checkpoint可复现。"
+    },
+    {
+      "number": 79,
+      "date": "2026-10-25",
+      "device": "GPU",
+      "fields": {
+        "数据集": {
+          "说明": "SMD、MSL、SMAP、SWaT、PSM五套；NASA时序不等于用户业务遥测；SWaT需要申请。",
+          "链接": [
+            "https://github.com/thuml/Anomaly-Transformer/blob/main/README.md",
+            "https://arxiv.org/html/2110.02642"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "性能基准": {
+          "说明": "论文TITAN RTX24GB、batch32、最多10epoch；未将附录的训练计时表换算成推理FPS。",
+          "链接": [
+            "https://arxiv.org/html/2110.02642"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "精度基准": {
+          "说明": "原论文point-adjust F1（%）：SMD92.33、MSL93.59、SMAP96.69、SWaT94.07、PSM97.89；不是未调整逐点F1。",
+          "链接": [
+            "https://arxiv.org/html/2110.02642#S4.SS1"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        }
+      },
+      "note": "异常段命中后补齐整段预测的point-adjust协议会改变F1；不能与原始逐点F1直接比较。"
+    },
+    {
+      "number": 88,
+      "date": "2026-10-25",
+      "device": "GPU",
+      "fields": {
+        "权重": {
+          "说明": "相对深度与米制度量深度分开。度量版室内Hypersim/室外VKITTI各有Small/Base/Large六套；室内最大20m，室外80m。",
+          "链接": [
+            "https://github.com/DepthAnything/Depth-Anything-V2/blob/main/metric_depth/README.md",
+            "https://huggingface.co/depth-anything/Depth-Anything-V2-Metric-Hypersim-Base",
+            "https://huggingface.co/depth-anything/Depth-Anything-V2-Metric-VKITTI-Base"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "数据集": {
+          "说明": "度量版在Hypersim（室内）/Virtual KITTI2（室外）微调；DA-2K属于相对深度评测，不混成同一基准。",
+          "链接": [
+            "https://github.com/DepthAnything/Depth-Anything-V2/blob/main/metric_depth/README.md",
+            "https://github.com/apple/ml-hypersim",
+            "https://europe.naverlabs.com/research/computer-vision/proxy-virtual-worlds-vkitti-2/"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        }
+      }
+    },
+    {
+      "number": 93,
+      "date": "2026-10-25",
+      "device": "GPU",
+      "fields": {
+        "精度基准": {
+          "说明": "InternVL3-8B原论文：RealWorldQA70.8、R-Bench74.1、VSI-Bench42.1；VSI是空间推理，不能充当航拍业务正确率。",
+          "链接": [
+            "https://arxiv.org/html/2504.10479v3#S3.SS5",
+            "https://arxiv.org/html/2504.10479v3#S3.SS12"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        }
+      }
+    },
+    {
+      "number": 94,
+      "date": "2026-10-25",
+      "device": "GPU",
+      "fields": {
+        "精度基准": {
+          "说明": "InternVL2-8B官方模型卡：DocVQA test91.6、ChartQA test83.3、MMMU val51.8；Video-MME16帧，无字幕54.0/有字幕56.9。",
+          "链接": [
+            "https://huggingface.co/OpenGVLab/InternVL2-8B"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        }
+      }
+    },
+    {
+      "number": 95,
+      "date": "2026-10-25",
+      "device": "GPU",
+      "fields": {
+        "权重": {
+          "说明": "LLaVA1.5-7B full_ft-1e完整合并权重；LoRA/13B和1.6另列。",
+          "链接": [
+            "https://huggingface.co/liuhaotian/llava-v1.5-7b",
+            "https://github.com/haotian-liu/LLaVA/blob/main/docs/MODEL_ZOO.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "精度基准": {
+          "说明": "LLaVA1.5-7B full_ft-1e：VQAv2 78.5、GQA62.0、TextVQA58.2、MMVet31.1；不是航拍专用测试。",
+          "链接": [
+            "https://github.com/haotian-liu/LLaVA/blob/main/docs/MODEL_ZOO.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        }
+      }
+    },
+    {
+      "number": 110,
+      "date": "2026-10-25",
+      "device": "GPU",
+      "fields": {
+        "精度基准": {
+          "说明": "Qwen2.5-VL-7B：MMMU val58.6、DocVQA test95.7、ChartQA test87.3、TextVQA val84.9；OCRBench864分，非864%。",
+          "链接": [
+            "https://huggingface.co/Qwen/Qwen2.5-VL-7B-Instruct"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        }
+      }
+    },
+    {
+      "number": 111,
+      "date": "2026-10-25",
+      "device": "GPU",
+      "fields": {
+        "精度基准": {
+          "说明": "Qwen2-VL-7B：MMMU val54.1、DocVQA test94.5、ChartQA test83.0、TextVQA val84.3；来源是Qwen2.5官方对照表，不是2.5结果。",
+          "链接": [
+            "https://huggingface.co/Qwen/Qwen2.5-VL-7B-Instruct"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        }
+      }
+    }
+  ]
+}

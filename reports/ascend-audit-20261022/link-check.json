@@ -70,6 +70,186 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://arxiv.org/html/2103.00208v3#S4.SS1",
+    "checked_at_utc": "2026-10-25T06:37:36.333933+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://arxiv.org/html/2103.00208v3",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://arxiv.org/html/2103.00208v3#S4.SS2",
+    "checked_at_utc": "2026-10-25T06:37:36.334423+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://arxiv.org/html/2103.00208v3",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://arxiv.org/html/2103.00208v3#S4.SS3",
+    "checked_at_utc": "2026-10-25T06:37:36.334881+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://arxiv.org/html/2103.00208v3",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://arxiv.org/html/2105.05537v1#S4.SS1",
+    "checked_at_utc": "2026-10-25T06:37:36.335097+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://arxiv.org/html/2105.05537v1",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://arxiv.org/html/2105.05537v1#S4.SS2",
+    "checked_at_utc": "2026-10-25T06:37:37.057759+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://arxiv.org/html/2105.05537v1",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://arxiv.org/html/2105.05537v1#S4.SS3",
+    "checked_at_utc": "2026-10-25T06:37:37.236404+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://arxiv.org/html/2105.05537v1",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://arxiv.org/html/2105.05537v1#S4.SS4",
+    "checked_at_utc": "2026-10-25T06:37:37.508727+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://arxiv.org/html/2105.05537v1",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://arxiv.org/html/2110.02642",
+    "checked_at_utc": "2026-10-25T06:37:37.789030+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://arxiv.org/html/2110.02642",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://arxiv.org/html/2110.02642#S4.SS1",
+    "checked_at_utc": "2026-10-25T06:37:37.850841+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://arxiv.org/html/2110.02642",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://arxiv.org/html/2201.01293v7#S3.SS1",
+    "checked_at_utc": "2026-10-25T06:37:37.873663+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://arxiv.org/html/2201.01293v7",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://arxiv.org/html/2201.01293v7#S3.SS2",
+    "checked_at_utc": "2026-10-25T06:37:37.935814+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://arxiv.org/html/2201.01293v7",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://arxiv.org/html/2201.01293v7#S4",
+    "checked_at_utc": "2026-10-25T06:37:38.231155+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://arxiv.org/html/2201.01293v7",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://arxiv.org/html/2503.15558",
+    "checked_at_utc": "2026-10-25T06:41:09.877865+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://arxiv.org/html/2503.15558",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://arxiv.org/html/2504.10479v3#S3.SS12",
+    "checked_at_utc": "2026-10-25T06:37:38.375573+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://arxiv.org/html/2504.10479v3",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://arxiv.org/html/2504.10479v3#S3.SS5",
+    "checked_at_utc": "2026-10-25T06:37:38.434624+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://arxiv.org/html/2504.10479v3",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://arxiv.org/html/2511.00108v2",
+    "checked_at_utc": "2026-10-25T06:41:09.878548+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://arxiv.org/html/2511.00108v2",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://arxiv.org/html/2601.18692v1",
+    "checked_at_utc": "2026-10-25T06:41:09.878870+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://arxiv.org/html/2601.18692v1",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://arxiv.org/html/2608.15875",
+    "checked_at_utc": "2026-10-25T06:41:09.879042+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://arxiv.org/html/2608.15875",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://ascend-repo-modelzoo.obs.cn-east-2.myhuaweicloud.com/model/1_PyTorch_PTH/LSTM/PTH/ctc_best_model.pth",
     "checked_at_utc": "2026-10-23T02:46:01.312801+00:00",
     "method": "HEAD",
@@ -207,6 +387,26 @@
     "version": "dynamic_or_unversioned",
     "status": 200,
     "final_url": "https://docs.vllm.ai/projects/ascend/zh-cn/latest/tutorials/models/Qwen3-Reranker.html",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://drive.google.com/file/d/1IVdF5a3e1_7DiSndtMkhpZuCSgDLLFcg/view?usp=sharing",
+    "checked_at_utc": "2026-10-25T06:37:38.446120+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://drive.google.com/file/d/1IVdF5a3e1_7DiSndtMkhpZuCSgDLLFcg/view?usp=sharing",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://europe.naverlabs.com/research/computer-vision/proxy-virtual-worlds-vkitti-2/",
+    "checked_at_utc": "2026-10-25T06:37:38.704948+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://europe.naverlabs.com/proxy-virtual-worlds-vkitti-2/",
     "result": "http_reachable"
   },
   {
@@ -1840,6 +2040,16 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://github.com/DepthAnything/Depth-Anything-V2/blob/main/metric_depth/README.md",
+    "checked_at_utc": "2026-10-25T06:37:38.829976+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/DepthAnything/Depth-Anything-V2/blob/main/metric_depth/README.md",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://github.com/Diamondfan/CTC_pytorch/blob/eddd2550224dfe5ac28b6c4d20df5dde7eaf6119/timit/steps/train_ctc.py",
     "checked_at_utc": "2026-10-23T02:48:02.182249+00:00",
     "method": "HEAD",
@@ -2010,6 +2220,16 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://github.com/NVIDIA/Isaac-GR00T/blob/ead52833afbbf4243f8cd5e7664f48a94de03b19/examples/LIBERO/README.md",
+    "checked_at_utc": "2026-10-25T06:41:10.258369+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/NVIDIA/Isaac-GR00T/blob/ead52833afbbf4243f8cd5e7664f48a94de03b19/examples/LIBERO/README.md",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://github.com/Open-X-Humanoid/XR-1",
     "checked_at_utc": "2026-10-23T02:46:12.977788+00:00",
     "method": "HEAD",
@@ -2057,6 +2277,16 @@
     "version": "dynamic_or_unversioned",
     "status": 200,
     "final_url": "https://github.com/Open-X-Humanoid/pelican-vl/blob/rxc/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/Open-X-Humanoid/pelican-vl/blob/rxc/evaluation/README.md",
+    "checked_at_utc": "2026-10-25T06:41:10.268827+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/Open-X-Humanoid/pelican-vl/blob/rxc/evaluation/README.md",
     "result": "http_reachable"
   },
   {
@@ -2167,6 +2397,16 @@
     "version": "dynamic_or_unversioned",
     "status": 200,
     "final_url": "https://github.com/QwenLM/Qwen3/blob/main/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/Robbyant/lingbot-vla/blob/main/README.md",
+    "checked_at_utc": "2026-10-25T06:41:11.352780+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/Robbyant/lingbot-vla/blob/main/README.md",
     "result": "http_reachable"
   },
   {
@@ -2347,6 +2587,16 @@
     "version": "dynamic_or_unversioned",
     "status": 200,
     "final_url": "https://github.com/amazon-science/patchcore-inspection/blob/main/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/apple/ml-hypersim",
+    "checked_at_utc": "2026-10-25T06:37:39.184757+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/apple-aiml-research/ml-hypersim",
     "result": "http_reachable"
   },
   {
@@ -2560,6 +2810,16 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://github.com/google-deepmind/alphafold3/blob/main/docs/performance.md",
+    "checked_at_utc": "2026-10-25T06:37:39.442532+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/google-deepmind/alphafold3/blob/main/docs/performance.md",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://github.com/google-deepmind/deepmind-research/blob/master/meshgraphnets/README.md",
     "checked_at_utc": "2026-10-23T02:46:17.225730+00:00",
     "method": "HEAD",
@@ -2770,6 +3030,16 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://github.com/nvidia-cosmos/cosmos-predict2/blob/main/documentations/performance.md",
+    "checked_at_utc": "2026-10-25T06:41:11.453364+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/nvidia-cosmos/cosmos-predict2/blob/main/documentations/performance.md",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://github.com/nvidia-cosmos/cosmos-reason1/blob/main/README.md",
     "checked_at_utc": "2026-10-23T02:46:18.990039+00:00",
     "method": "HEAD",
@@ -2777,6 +3047,16 @@
     "version": "dynamic_or_unversioned",
     "status": 200,
     "final_url": "https://github.com/nvidia-cosmos/cosmos-reason1/blob/main/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/nvidia-cosmos/cosmos-reason1/blob/main/examples/benchmark/README.md",
+    "checked_at_utc": "2026-10-25T06:41:11.575785+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/nvidia-cosmos/cosmos-reason1/blob/main/examples/benchmark/README.md",
     "result": "http_reachable"
   },
   {
@@ -2807,6 +3087,16 @@
     "version": "dynamic_or_unversioned",
     "status": 200,
     "final_url": "https://github.com/open-gigaai/giga-brain-0/blob/main/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/open-gigaai/giga-brain-0/blob/main/configs/robotwin_posttrain_release/eval_robotwin/README.md",
+    "checked_at_utc": "2026-10-25T06:41:11.763366+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/open-gigaai/giga-brain-0/blob/main/configs/robotwin_posttrain_release/eval_robotwin/README.md",
     "result": "http_reachable"
   },
   {
@@ -3060,6 +3350,26 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://github.com/wgcban/ChangeFormer/releases/download/v0.1.0/CD_ChangeFormerV6_DSIFN_b16_lr0.00006_adamw_train_test_200_linear_ce_multi_train_True_multi_infer_False_shuffle_AB_False_embed_dim_256.zip",
+    "checked_at_utc": "2026-10-25T06:37:40.232106+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://release-assets.githubusercontent.com/github-production-release-asset/434410116/6a7a06cd-3399-41b9-9f4f-7fc2ee9fe41b?sp=r&sv=2018-11-09&sr=b&spr=https&se=2026-10-25T07%3A29%3A21Z&rscd=attachment%3B+filename%3DCD_ChangeFormerV6_DSIFN_b16_lr0.00006_adamw_train_test_200_linear_ce_multi_train_True_multi_infer_False_shuffle_AB_False_embed_dim_256.zip&rsct=application%2Foctet-stream&skoid=96c2d410-5711-43a1-aedd-ab1947aa7ab0&sktid=398a6654-997b-47e9-b12b-9515b896b4de&skt=2026-10-25T06%3A28%3A50Z&ske=2026-10-25T07%3A29%3A21Z&sks=b&skv=2018-11-09&sig=8a4eO59sF0MoG9Fn7Y9Xo7E3GI0lvxa%2FErQ8OuHqwhs%3D&jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmVsZWFzZS1hc3NldHMuZ2l0aHVidXNlcmNvbnRlbnQuY29tIiwia2V5Ijoia2V5MSIsImV4cCI6MTc5MjkxMzg2MCwibmJmIjoxNzkyOTEwMjYwLCJwYXRoIjoicmVsZWFzZWFzc2V0cHJvZHVjdGlvbi5ibG9iLmNvcmUud2luZG93cy5uZXQifQ.sFBdxZKI7yD0QoBJdBn3s8BI39nb4UOnSrmns2ymvqQ&response-content-disposition=attachment%3B%20filename%3DCD_ChangeFormerV6_DSIFN_b16_lr0.00006_adamw_train_test_200_linear_ce_multi_train_True_multi_infer_False_shuffle_AB_False_embed_dim_256.zip&response-content-type=application%2Foctet-stream",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/wgcban/ChangeFormer/releases/download/v0.1.0/CD_ChangeFormerV6_LEVIR_b16_lr0.0001_adamw_train_test_200_linear_ce_multi_train_True_multi_infer_False_shuffle_AB_False_embed_dim_256.zip",
+    "checked_at_utc": "2026-10-25T06:37:40.417536+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://release-assets.githubusercontent.com/github-production-release-asset/434410116/d0824525-6878-4456-bc1a-eb4fbed47a4c?sp=r&sv=2018-11-09&sr=b&spr=https&se=2026-10-25T07%3A24%3A35Z&rscd=attachment%3B+filename%3DCD_ChangeFormerV6_LEVIR_b16_lr0.0001_adamw_train_test_200_linear_ce_multi_train_True_multi_infer_False_shuffle_AB_False_embed_dim_256.zip&rsct=application%2Foctet-stream&skoid=96c2d410-5711-43a1-aedd-ab1947aa7ab0&sktid=398a6654-997b-47e9-b12b-9515b896b4de&skt=2026-10-25T06%3A23%3A47Z&ske=2026-10-25T07%3A24%3A35Z&sks=b&skv=2018-11-09&sig=ez6j8fGSnQrSsZHApRgqCK5pml5aE%2BW42iSLEcQ2J4c%3D&jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmVsZWFzZS1hc3NldHMuZ2l0aHVidXNlcmNvbnRlbnQuY29tIiwia2V5Ijoia2V5MSIsImV4cCI6MTc5MjkxMzg2MCwibmJmIjoxNzkyOTEwMjYwLCJwYXRoIjoicmVsZWFzZWFzc2V0cHJvZHVjdGlvbi5ibG9iLmNvcmUud2luZG93cy5uZXQifQ.sFBdxZKI7yD0QoBJdBn3s8BI39nb4UOnSrmns2ymvqQ&response-content-disposition=attachment%3B%20filename%3DCD_ChangeFormerV6_LEVIR_b16_lr0.0001_adamw_train_test_200_linear_ce_multi_train_True_multi_infer_False_shuffle_AB_False_embed_dim_256.zip&response-content-type=application%2Foctet-stream",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://github.com/wow-world-model/wow-world-model/blob/main/demo/wan_infer_demo.py",
     "checked_at_utc": "2026-10-23T02:46:21.025538+00:00",
     "method": "HEAD",
@@ -3300,6 +3610,16 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://huggingface.co/X-Humanoid/Pelican1.0-VL-72B",
+    "checked_at_utc": "2026-10-25T06:41:12.613747+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/X-Humanoid/Pelican1.0-VL-72B",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://huggingface.co/X-Humanoid/Pelican1.0-VL-7B",
     "checked_at_utc": "2026-10-23T02:46:23.049394+00:00",
     "method": "HEAD",
@@ -3410,16 +3730,6 @@
     "result": "http_reachable"
   },
   {
-    "url": "https://huggingface.co/datasets/depth-anything/DA-2K",
-    "checked_at_utc": "2026-10-23T02:46:24.015627+00:00",
-    "method": "HEAD",
-    "content_verified": false,
-    "version": "dynamic_or_unversioned",
-    "status": 429,
-    "result": "not_confirmed",
-    "error": "HTTP Error 429: Too Many Requests"
-  },
-  {
     "url": "https://huggingface.co/datasets/jianqiang03/koch_test",
     "checked_at_utc": "2026-10-23T02:46:24.022052+00:00",
     "method": "HEAD",
@@ -3438,6 +3748,16 @@
     "status": 429,
     "result": "not_confirmed",
     "error": "HTTP Error 429: Too Many Requests"
+  },
+  {
+    "url": "https://huggingface.co/datasets/nvidia/Cosmos-Reason1-Benchmark",
+    "checked_at_utc": "2026-10-25T06:41:12.885387+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/datasets/nvidia/Cosmos-Reason1-Benchmark",
+    "result": "http_reachable"
   },
   {
     "url": "https://huggingface.co/datasets/nvidia/Cosmos-Reason1-RL-Dataset",
@@ -3470,28 +3790,8 @@
     "error": "HTTP Error 429: Too Many Requests"
   },
   {
-    "url": "https://huggingface.co/datasets/nyu-visionx/VSI-Bench",
-    "checked_at_utc": "2026-10-23T02:46:24.526780+00:00",
-    "method": "HEAD",
-    "content_verified": false,
-    "version": "dynamic_or_unversioned",
-    "status": 429,
-    "result": "not_confirmed",
-    "error": "HTTP Error 429: Too Many Requests"
-  },
-  {
     "url": "https://huggingface.co/datasets/open-gigaai/Giga-World-1-Toydata",
     "checked_at_utc": "2026-10-23T02:46:24.590727+00:00",
-    "method": "HEAD",
-    "content_verified": false,
-    "version": "dynamic_or_unversioned",
-    "status": 429,
-    "result": "not_confirmed",
-    "error": "HTTP Error 429: Too Many Requests"
-  },
-  {
-    "url": "https://huggingface.co/datasets/open-gigaai/GigaBrain-0.7-SampleData",
-    "checked_at_utc": "2026-10-23T02:46:24.611125+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
@@ -3540,14 +3840,24 @@
     "error": "HTTP Error 429: Too Many Requests"
   },
   {
-    "url": "https://huggingface.co/depth-anything/Depth-Anything-V2-Base",
-    "checked_at_utc": "2026-10-23T02:46:25.079821+00:00",
+    "url": "https://huggingface.co/depth-anything/Depth-Anything-V2-Metric-Hypersim-Base",
+    "checked_at_utc": "2026-10-25T06:37:40.716249+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
-    "status": 429,
-    "result": "not_confirmed",
-    "error": "HTTP Error 429: Too Many Requests"
+    "status": 200,
+    "final_url": "https://huggingface.co/depth-anything/Depth-Anything-V2-Metric-Hypersim-Base",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/depth-anything/Depth-Anything-V2-Metric-VKITTI-Base",
+    "checked_at_utc": "2026-10-25T06:37:41.107290+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/depth-anything/Depth-Anything-V2-Metric-VKITTI-Base",
+    "result": "http_reachable"
   },
   {
     "url": "https://huggingface.co/facebook/VGGT-1B",
@@ -3598,6 +3908,16 @@
     "status": 429,
     "result": "not_confirmed",
     "error": "HTTP Error 429: Too Many Requests"
+  },
+  {
+    "url": "https://huggingface.co/liuhaotian/llava-v1.5-7b",
+    "checked_at_utc": "2026-10-25T06:37:41.376187+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/liuhaotian/llava-v1.5-7b",
+    "result": "http_reachable"
   },
   {
     "url": "https://huggingface.co/nvidia/Cosmos-Predict2-2B-Video2World",
@@ -3710,14 +4030,24 @@
     "error": "HTTP Error 429: Too Many Requests"
   },
   {
-    "url": "https://huggingface.co/robbyant/lingbot-vla-4b-depth",
-    "checked_at_utc": "2026-10-23T02:46:26.158298+00:00",
+    "url": "https://huggingface.co/robbyant/lingbot-vla-4b-depth-posttrain-robotwin",
+    "checked_at_utc": "2026-10-25T06:41:13.046342+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
-    "status": 429,
-    "result": "not_confirmed",
-    "error": "HTTP Error 429: Too Many Requests"
+    "status": 200,
+    "final_url": "https://huggingface.co/robbyant/lingbot-vla-4b-depth-posttrain-robotwin",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/robbyant/lingbot-vla-4b-posttrain-robotwin",
+    "checked_at_utc": "2026-10-25T06:41:13.165844+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/robbyant/lingbot-vla-4b-posttrain-robotwin",
+    "result": "http_reachable"
   },
   {
     "url": "https://huggingface.co/x-square-robot/wall-oss-0.5",
@@ -3738,6 +4068,16 @@
     "status": 429,
     "result": "not_confirmed",
     "error": "HTTP Error 429: Too Many Requests"
+  },
+  {
+    "url": "https://justchenhao.github.io/LEVIR/",
+    "checked_at_utc": "2026-10-25T06:37:41.656110+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://justchenhao.github.io/LEVIR/",
+    "result": "http_reachable"
   },
   {
     "url": "https://lightgbm.readthedocs.io/en/latest/GPU-Tutorial.html",

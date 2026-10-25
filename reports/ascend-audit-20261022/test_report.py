@@ -109,4 +109,26 @@ class ReportTests(unittest.TestCase):
         self.assertIn('渲染',status(self.rows[77],'GPU'))
         self.assertIn('未唯一定位',self.rows[85]['设备维度']['GPU']['代码']['说明'])
         self.assertIn('Thinker-4B',self.rows[27]['设备维度']['GPU']['权重']['说明'])
+    def test_followup_source_attribution_and_updates(self):
+        updates=json.loads((ROOT/'evidence_updates.json').read_text(encoding='utf-8'))['updates']
+        self.assertEqual(len({u['number'] for u in updates}),len(updates))
+        for update in updates:
+            self.assertIn(update['number'],range(1,120))
+            self.assertIn(update['device'],['GPU','NPU'])
+            self.assertTrue(set(update['fields']) <= {'代码','权重','数据集','性能基准','精度基准'})
+            row=self.rows[update['number']-1]
+            self.assertEqual(row['设备核查日期'][update['device']],update['date'])
+            for field,value in update['fields'].items():
+                self.assertEqual(row['设备维度'][update['device']][field],value)
+                self.assertTrue(value['链接'])
+        self.assertIn('不含编译',self.rows[54]['设备维度']['GPU']['性能基准']['说明'])
+        self.assertIn('DSIFN14400/1360/192',self.rows[66]['设备维度']['GPU']['数据集']['说明'])
+        self.assertIn('非百分比',self.rows[72]['设备维度']['GPU']['精度基准']['说明'])
+        self.assertIn('point-adjust',self.rows[78]['设备维度']['GPU']['精度基准']['说明'])
+        self.assertIn('不是2.5结果',self.rows[110]['设备维度']['GPU']['精度基准']['说明'])
+        self.assertIn('261',self.rows[18]['设备维度']['GPU']['性能基准']['说明'])
+        self.assertIn('冲突',self.rows[18]['设备维度']['GPU']['性能基准']['说明'])
+        self.assertIn('不一致',self.rows[13]['设备维度']['GPU']['精度基准']['说明'])
+        self.assertIn('3B没有',self.rows[20]['设备维度']['GPU']['权重']['说明'])
+        self.assertIn('输出视频帧率',self.rows[3]['设备维度']['GPU']['性能基准']['说明'])
 if __name__=='__main__':unittest.main()
