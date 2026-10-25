@@ -190,6 +190,86 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://arxiv.org/html/2203.17270v2",
+    "checked_at_utc": "2026-10-25T06:59:20.345475+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://arxiv.org/html/2203.17270v2",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://arxiv.org/html/2410.24164v4#A1.SS4",
+    "checked_at_utc": "2026-10-25T06:59:20.345938+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://arxiv.org/html/2410.24164v4",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://arxiv.org/html/2410.24164v4#A1.SS5",
+    "checked_at_utc": "2026-10-25T06:59:20.346424+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://arxiv.org/html/2410.24164v4",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://arxiv.org/html/2410.24164v4#S6.SS4",
+    "checked_at_utc": "2026-10-25T06:59:20.346685+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://arxiv.org/html/2410.24164v4",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://arxiv.org/html/2503.14492v2",
+    "checked_at_utc": "2026-10-25T06:59:20.720234+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://arxiv.org/html/2503.14492v2",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://arxiv.org/html/2503.14492v2#S5.SS1",
+    "checked_at_utc": "2026-10-25T06:59:20.744106+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://arxiv.org/html/2503.14492v2",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://arxiv.org/html/2503.14492v2#S6",
+    "checked_at_utc": "2026-10-25T06:59:20.904224+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://arxiv.org/html/2503.14492v2",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://arxiv.org/html/2503.14734v2#S4.SS4",
+    "checked_at_utc": "2026-10-25T06:59:20.906028+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://arxiv.org/html/2503.14734v2",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://arxiv.org/html/2503.15558",
     "checked_at_utc": "2026-10-25T06:41:09.877865+00:00",
     "method": "HEAD",
@@ -220,6 +300,46 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://arxiv.org/html/2506.09042v3",
+    "checked_at_utc": "2026-10-25T06:59:20.999823+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://arxiv.org/html/2506.09042v3",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://arxiv.org/html/2506.09042v3#S4.SS1",
+    "checked_at_utc": "2026-10-25T06:59:21.166246+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://arxiv.org/html/2506.09042v3",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://arxiv.org/html/2509.00576v1",
+    "checked_at_utc": "2026-10-25T06:59:21.202457+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://arxiv.org/html/2509.00576v1",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://arxiv.org/html/2509.00576v1#S6",
+    "checked_at_utc": "2026-10-25T06:59:21.252444+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://arxiv.org/html/2509.00576v1",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://arxiv.org/html/2511.00108v2",
     "checked_at_utc": "2026-10-25T06:41:09.878548+00:00",
     "method": "HEAD",
@@ -227,6 +347,56 @@
     "version": "dynamic_or_unversioned",
     "status": 200,
     "final_url": "https://arxiv.org/html/2511.00108v2",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://arxiv.org/html/2511.02776v3",
+    "checked_at_utc": "2026-10-25T06:59:21.384805+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://arxiv.org/html/2511.02776v3",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://arxiv.org/html/2511.02776v3#A2.SS3",
+    "checked_at_utc": "2026-10-25T06:59:21.532183+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://arxiv.org/html/2511.02776v3",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://arxiv.org/html/2511.02776v3#A4",
+    "checked_at_utc": "2026-10-25T06:59:21.554430+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://arxiv.org/html/2511.02776v3",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://arxiv.org/html/2511.19861v2#S4",
+    "checked_at_utc": "2026-10-25T06:59:21.813164+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://arxiv.org/html/2511.19861v2",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://arxiv.org/html/2511.19861v2#S5.SS1",
+    "checked_at_utc": "2026-10-25T06:59:21.917462+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://arxiv.org/html/2511.19861v2",
     "result": "http_reachable"
   },
   {
@@ -240,6 +410,96 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://arxiv.org/html/2605.30877",
+    "checked_at_utc": "2026-10-25T06:59:22.069915+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://arxiv.org/html/2605.30877",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://arxiv.org/html/2605.30877#S2.SS3",
+    "checked_at_utc": "2026-10-25T06:59:22.134079+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://arxiv.org/html/2605.30877",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://arxiv.org/html/2606.01955",
+    "checked_at_utc": "2026-10-25T06:59:22.158150+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://arxiv.org/html/2606.01955",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://arxiv.org/html/2607.02642v1",
+    "checked_at_utc": "2026-10-25T06:59:22.172903+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://arxiv.org/html/2607.02642v1",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://arxiv.org/html/2607.02642v1#S6.SS4",
+    "checked_at_utc": "2026-10-25T06:59:22.496678+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://arxiv.org/html/2607.02642v1",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://arxiv.org/html/2607.02642v1#S6.SS5",
+    "checked_at_utc": "2026-10-25T06:59:22.560711+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://arxiv.org/html/2607.02642v1",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://arxiv.org/html/2607.03964v1#S3.SS1",
+    "checked_at_utc": "2026-10-25T06:59:22.806509+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://arxiv.org/html/2607.03964v1",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://arxiv.org/html/2607.03964v1#S3.SS2",
+    "checked_at_utc": "2026-10-25T06:59:22.957721+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://arxiv.org/html/2607.03964v1",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://arxiv.org/html/2608.05597v1",
+    "checked_at_utc": "2026-10-25T06:59:23.039072+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://arxiv.org/html/2608.05597v1",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://arxiv.org/html/2608.15875",
     "checked_at_utc": "2026-10-25T06:41:09.879042+00:00",
     "method": "HEAD",
@@ -250,6 +510,26 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://arxiv.org/pdf/2509.00576#page=1",
+    "checked_at_utc": "2026-10-25T06:59:23.147480+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://arxiv.org/pdf/2509.00576",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://arxiv.org/pdf/2509.00576#page=10",
+    "checked_at_utc": "2026-10-25T06:59:23.287715+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://arxiv.org/pdf/2509.00576",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://ascend-repo-modelzoo.obs.cn-east-2.myhuaweicloud.com/model/1_PyTorch_PTH/LSTM/PTH/ctc_best_model.pth",
     "checked_at_utc": "2026-10-23T02:46:01.312801+00:00",
     "method": "HEAD",
@@ -257,6 +537,16 @@
     "version": "dynamic_or_unversioned",
     "status": 200,
     "final_url": "https://ascend-repo-modelzoo.obs.cn-east-2.myhuaweicloud.com/model/1_PyTorch_PTH/LSTM/PTH/ctc_best_model.pth",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://catalog.ngc.nvidia.com/orgs/nvidia/tao/models/grounding_dino/-",
+    "checked_at_utc": "2026-10-25T06:59:23.305782+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://catalog.ngc.nvidia.com/orgs/nvidia/tao/models/grounding_dino/-",
     "result": "http_reachable"
   },
   {
@@ -387,6 +677,26 @@
     "version": "dynamic_or_unversioned",
     "status": 200,
     "final_url": "https://docs.vllm.ai/projects/ascend/zh-cn/latest/tutorials/models/Qwen3-Reranker.html",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://doi.org/10.5281/zenodo.7401274",
+    "checked_at_utc": "2026-10-25T06:59:23.418812+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://zenodo.org/records/7992926",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://doi.org/10.5281/zenodo.8169288",
+    "checked_at_utc": "2026-10-25T06:59:23.537556+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://zenodo.org/records/8169289",
     "result": "http_reachable"
   },
   {
@@ -2090,6 +2400,16 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://github.com/DurYi/UA-NWM/blob/main/scripts/eval_planning.sh",
+    "checked_at_utc": "2026-10-25T06:59:23.543139+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/DurYi/UA-NWM/blob/main/scripts/eval_planning.sh",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://github.com/EmbodiedCity/Worldscape-MoE.code",
     "checked_at_utc": "2026-10-23T02:46:11.797940+00:00",
     "method": "HEAD",
@@ -2170,13 +2490,23 @@
     "result": "http_reachable"
   },
   {
-    "url": "https://github.com/Kuhlman-Lab/ThermoMPNN/tree/main/models",
-    "checked_at_utc": "2026-10-23T02:46:12.547620+00:00",
+    "url": "https://github.com/Kuhlman-Lab/ThermoMPNN/blob/main/models/thermoMPNN_default.pt",
+    "checked_at_utc": "2026-10-25T06:59:24.983059+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
     "status": 200,
-    "final_url": "https://github.com/Kuhlman-Lab/ThermoMPNN/tree/main/models",
+    "final_url": "https://github.com/Kuhlman-Lab/ThermoMPNN/blob/main/models/thermoMPNN_default.pt",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/Kuhlman-Lab/ThermoMPNN/tree/main/dataset_splits",
+    "checked_at_utc": "2026-10-25T06:59:25.037240+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/Kuhlman-Lab/ThermoMPNN/tree/main/dataset_splits",
     "result": "http_reachable"
   },
   {
@@ -2197,6 +2527,16 @@
     "version": "pinned",
     "status": 200,
     "final_url": "https://github.com/NVIDIA/Isaac-GR00T/blob/4af2b622892f7dcb5aae5a3fb70bcb02dc217b96/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/NVIDIA/Isaac-GR00T/blob/4af2b622892f7dcb5aae5a3fb70bcb02dc217b96/examples/Libero/README.md",
+    "checked_at_utc": "2026-10-25T06:59:25.649531+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/NVIDIA/Isaac-GR00T/blob/4af2b622892f7dcb5aae5a3fb70bcb02dc217b96/examples/Libero/README.md",
     "result": "http_reachable"
   },
   {
@@ -2237,16 +2577,6 @@
     "version": "dynamic_or_unversioned",
     "status": 200,
     "final_url": "https://github.com/Open-X-Humanoid/XR-1",
-    "result": "http_reachable"
-  },
-  {
-    "url": "https://github.com/Open-X-Humanoid/XR-1/blob/main/README.md",
-    "checked_at_utc": "2026-10-23T02:46:13.100787+00:00",
-    "method": "HEAD",
-    "content_verified": false,
-    "version": "dynamic_or_unversioned",
-    "status": 200,
-    "final_url": "https://github.com/Open-X-Humanoid/XR-1/blob/main/README.md",
     "result": "http_reachable"
   },
   {
@@ -2380,6 +2710,16 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://github.com/Physical-Intelligence/openpi/blob/main/examples/libero/README.md",
+    "checked_at_utc": "2026-10-25T06:59:25.825429+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/Physical-Intelligence/openpi/blob/main/examples/libero/README.md",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://github.com/QwenLM/Qwen3-Embedding/blob/main/README.md",
     "checked_at_utc": "2026-10-23T02:46:14.158674+00:00",
     "method": "HEAD",
@@ -2427,6 +2767,16 @@
     "version": "dynamic_or_unversioned",
     "status": 200,
     "final_url": "https://github.com/RosettaCommons/DeepAb",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/RosettaCommons/DeepAb/blob/main/README.md",
+    "checked_at_utc": "2026-10-25T06:59:25.839249+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/RosettaCommons/DeepAb/blob/main/README.md",
     "result": "http_reachable"
   },
   {
@@ -2567,6 +2917,16 @@
     "version": "dynamic_or_unversioned",
     "status": 200,
     "final_url": "https://github.com/X-Square-Robot/wall-x/blob/main/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/X-Square-Robot/wall-x/blob/main/workspace/README.md",
+    "checked_at_utc": "2026-10-25T06:59:26.471353+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/X-Square-Robot/wall-x/blob/main/workspace/README.md",
     "result": "http_reachable"
   },
   {
@@ -2727,6 +3087,16 @@
     "version": "dynamic_or_unversioned",
     "status": 200,
     "final_url": "https://github.com/facebookresearch/map-anything/blob/main/data_processing/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/facebookresearch/map-anything/blob/main/scripts/profile_memory_runtime.py",
+    "checked_at_utc": "2026-10-25T06:59:26.889422+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/facebookresearch/map-anything/blob/main/scripts/profile_memory_runtime.py",
     "result": "http_reachable"
   },
   {
@@ -3410,6 +3780,16 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://graylab.jhu.edu/dissertations/Ruffolo2023.pdf",
+    "checked_at_utc": "2026-10-25T06:59:27.302004+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://graylab.jhu.edu/dissertations/Ruffolo2023.pdf",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://huggingface.co/BAAI/bge-m3",
     "checked_at_utc": "2026-10-23T02:46:21.411301+00:00",
     "method": "HEAD",
@@ -3480,13 +3860,43 @@
     "result": "http_reachable"
   },
   {
-    "url": "https://huggingface.co/OpenGalaxea/G0-VLA",
-    "checked_at_utc": "2026-10-23T02:46:22.046588+00:00",
+    "url": "https://huggingface.co/OpenGalaxea/G0-VLA/blob/main/G0_3B_base.pt",
+    "checked_at_utc": "2026-10-25T06:59:27.321854+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
     "status": 200,
-    "final_url": "https://huggingface.co/OpenGalaxea/G0-VLA",
+    "final_url": "https://huggingface.co/OpenGalaxea/G0-VLA/blob/main/G0_3B_base.pt",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/OpenGalaxea/G0-VLA/tree/main/G0Plus_3B_base",
+    "checked_at_utc": "2026-10-25T06:59:27.357413+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/OpenGalaxea/G0-VLA/tree/main/G0Plus_3B_base",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/OpenGalaxea/G0-VLA/tree/main/G0Plus_PP_CKPT",
+    "checked_at_utc": "2026-10-25T06:59:28.128230+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/OpenGalaxea/G0-VLA/tree/main/G0Plus_PP_CKPT",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/OpenGalaxea/G0-VLA/tree/main/G0Tiny_260120",
+    "checked_at_utc": "2026-10-25T06:59:28.227442+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/OpenGalaxea/G0-VLA/tree/main/G0Tiny_260120",
     "result": "http_reachable"
   },
   {
@@ -3637,6 +4047,16 @@
     "version": "dynamic_or_unversioned",
     "status": 200,
     "final_url": "https://huggingface.co/X-Humanoid/WoW-1-Wan-1.3B-2M",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/biohub/esm3-sm-open-v1",
+    "checked_at_utc": "2026-10-25T06:59:28.341340+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/biohub/esm3-sm-open-v1",
     "result": "http_reachable"
   },
   {
@@ -4060,6 +4480,16 @@
     "error": "HTTP Error 429: Too Many Requests"
   },
   {
+    "url": "https://huggingface.co/youliangtan/gr00t-n1.5-libero-spatial-posttrain",
+    "checked_at_utc": "2026-10-25T06:59:28.793576+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/youliangtan/gr00t-n1.5-libero-spatial-posttrain",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://huggingface.co/yuanty/fastwam",
     "checked_at_utc": "2026-10-23T02:46:26.228046+00:00",
     "method": "HEAD",
@@ -4150,6 +4580,16 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://openvax.github.io/mhcflurry/configuration.html",
+    "checked_at_utc": "2026-10-25T06:59:29.022857+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://openvax.github.io/mhcflurry/configuration.html",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://openvax.github.io/mhcflurry/model_downloads.html",
     "checked_at_utc": "2026-10-23T02:46:26.781314+00:00",
     "method": "HEAD",
@@ -4180,6 +4620,36 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11978504/",
+    "checked_at_utc": "2026-10-25T06:59:29.045746+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11978504/",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8848015/",
+    "checked_at_utc": "2026-10-25T06:59:29.313681+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8848015/",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9997061/",
+    "checked_at_utc": "2026-10-25T06:59:29.677904+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9997061/",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://rail.eecs.berkeley.edu/datasets/bridge_release/data/tfds/bridge_dataset/",
     "checked_at_utc": "2026-10-23T02:46:26.856514+00:00",
     "method": "HEAD",
@@ -4187,6 +4657,36 @@
     "version": "dynamic_or_unversioned",
     "status": 200,
     "final_url": "https://rail.eecs.berkeley.edu/datasets/bridge_release/data/tfds/bridge_dataset/",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://research.nvidia.com/labs/cosmos-lab/cosmos-predict2/",
+    "checked_at_utc": "2026-10-25T06:59:29.755003+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://research.nvidia.com/labs/cosmos-lab/cosmos-predict2/",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://research.nvidia.com/labs/cosmos-lab/pbench/",
+    "checked_at_utc": "2026-10-25T06:59:29.802110+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://research.nvidia.com/labs/cosmos-lab/pbench/",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://segment-anything.metademolab.com/",
+    "checked_at_utc": "2026-10-25T06:59:29.851178+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://segment-anything.metademolab.com/",
     "result": "http_reachable"
   },
   {
@@ -4248,6 +4748,26 @@
     "status": 567,
     "result": "not_confirmed",
     "error": "HTTP Error 567: Unknown Status"
+  },
+  {
+    "url": "https://www.biorxiv.org/content/10.1101/2024.07.01.600583v2",
+    "checked_at_utc": "2026-10-25T06:59:30.614915+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 403,
+    "result": "not_confirmed",
+    "error": "HTTP Error 403: Forbidden"
+  },
+  {
+    "url": "https://www.evolutionaryscale.ai/blog/esm3-release",
+    "checked_at_utc": "2026-10-25T06:59:30.655528+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://www.evolutionaryscale.ai/blog/esm3-release",
+    "result": "http_reachable"
   },
   {
     "url": "https://www.hiascend.com/software/modelzoo/models/detail/46fe0872ddfd4e19a5104189913b5fee",
@@ -4318,6 +4838,16 @@
     "status": 200,
     "final_url": "https://www.osc.edu/book/export/html/2793",
     "result": "http_reachable"
+  },
+  {
+    "url": "https://www.pnas.org/doi/10.1073/pnas.2314853121",
+    "checked_at_utc": "2026-10-25T06:59:30.657893+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 403,
+    "result": "not_confirmed",
+    "error": "HTTP Error 403: Forbidden"
   },
   {
     "url": "https://www.sciencedirect.com/science/article/pii/S1369800126002477",

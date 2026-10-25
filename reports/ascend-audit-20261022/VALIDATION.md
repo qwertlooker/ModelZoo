@@ -1,11 +1,11 @@
 # 修正版验证记录
 
-日期：2026-10-23，Asia/Shanghai。
+日期：2026-10-25，Asia/Shanghai；首次全量基线为2026-10-23。
 
 - 119项按原始编号逐项保留；代码、权重、数据、性能、精度分别记录证据类型和链接。
-- 13项回归测试通过：覆盖顺序、字段结构、非认证边界、易混指标回归、原始资源边界、固定ModelZoo文件存在、CSV/Markdown完整性、链接清单覆盖、GPU重查、后续证据增补及可重复构建。
-- 当前链接清单437个：407个有成功HEAD记录、30个未确认（27个Hugging Face限流429，证书、华为云567、ScienceDirect403各1个）。本轮只检查39个新增URL，全部成功；其余保留原检查日期，不冒充全部2026-10-25重查。不把限流/访问限制等同于链接不存在。
-- 固定提交链接159个；动态或未版本化链接278个。数量按URL路径形式统计，不表示全部外部来源已冻结。
+- 14项回归测试通过：覆盖顺序、字段结构、非认证边界、易混指标回归、原始资源边界、固定ModelZoo文件存在、CSV/Markdown完整性、链接清单覆盖、GPU重查、后续证据增补及可重复构建。
+- 当前链接清单490个：458个有成功HEAD记录、32个未确认（27个Hugging Face限流429、3个403、证书与华为云567各1个）。本轮检查56个新增URL，54个成功；bioRxiv与PNAS各1个HEAD返回403，其正文已有网页工具读取记录。其余URL保留原检查日期。不把限流/访问限制等同于链接不存在。
+- 固定提交链接160个；动态或未版本化链接330个。数量按URL路径形式统计，不表示全部外部来源已冻结。
 - 原始文件/JSON读取和HTTP结果均不等于独立模型复测。
 - 未执行：NPU/CPU模型运行、依赖安装、资产下载及SHA、完整任务精度、三次独立NPU性能、clean-room和上库门禁。
 - 详细边界、修正内容和命令见REVIEW_FIXES.md；逐URL状态见link-check.json。
@@ -32,7 +32,7 @@ CSV删除每格重复免责声明、内部证据类型和长段对照原文；�
 
 新增回归覆盖：GPU结论正确显示、N1.6版本及硬件数值、YOLOv8和RT-DETR数值、WALL-WM未发权重、Swin-Unet最终权重未分享、平台渲染不能冒充模型支持。`git diff --check`通过。ModelZoo master重新在线查询仍为dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202。
 
-## 2026-10-25增补
+## 2026-10-25前一批增补（历史记录）
 
 - 保留119项、25列以及GPU/NPU五维结构。新增evidence_updates.json记录18项逐字段增补及17次GitHub正文读取的文件blob SHA；blob SHA不当作仓库commit使用。
 - 补充AlphaFold3按tokens/A100/H100耗时，BIT/ChangeFormer切块与测试集指标，Swin-Unet与U-Net分开，Anomaly Transformer的point-adjust F1，InternVL2/3、LLaVA、Qwen2/2.5-VL的指定规模结果，Depth Anything度量/相对版本边界。
@@ -40,3 +40,14 @@ CSV删除每格重复免责声明、内部证据类型和长段对照原文；�
 - 已记录原始资料冲突：LingBot论文与README的261 samples/s归属不一致；N1.6 LIBERO成功次数与部分百分比不一致；ChangeFormer论文写随机初始化而当前README脚本使用ADE预训练，DSIFN下载链接误指LEVIR。
 - NPU字段未改动，设备检查日期分别保留；ModelZoo master重新查询仍为dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202。
 - 13项回归通过，仅证明生成及已知归属规则；不证明全量分析完成。GPU仍有41项性能、14项精度保留字面“数值待核对”，还有其他具体待核说明。目标仍为全119项完整分析，不将本次18项增补当作完成。
+
+## 2026-10-25继续复核
+
+- 本批实际修改27项GPU证据；增补文件累计覆盖44项、43次GitHub正文读取的blob SHA。原始119项、25列及NPU五维内容与前一提交逐字段一致。
+- Cosmos-Predict2官方模型页与PBench页首列顺序冲突，按PBench定义及分项均值注明；Transfer1补充B200单卡141.7 s、64卡4.2 s端到端数据。Drive-Dreams的下游车道检测F1不冒充生成模型精度。
+- G0、Tiny、Plus分别核对；N1.5补LIBERO成功次数与8步去噪配置；GigaWorld-1区分Stage1发布权重与Stage2蒸馏加速；GigaWorld-0的H20耗时明确为训练step。π0、Wall-OSS、XR-1区分模型推理、动作块与机器人执行频率。
+- DeepAb、ProteinMPNN、LigandMPNN补原始科学指标，CPU或未注明硬件的耗时不填成GPU基准；MHCflurry区分软件/权重版本及flanks输入；ThermoMPNN采用正式PNAS结果，标明预印本差异。ESM3开放1.4B与论文其他规模分开。
+- BEVFormer补V100整体1.7 FPS及模块耗时；SAM区分A100图像编码与浏览器CPU解码；Grounding DINO的TAO商业重训版性能单独标注，不与原始OGC精度配对。UA-NWM补4090离线8.47 ms/frame、3090在线2.70 s/step及各自评测条件。
+- 新增运行范围与科学指标回归，14项全部通过；`git diff --check`通过。链接HEAD不证明正文、权重或运行结果正确。
+- 当前GPU性能仍有23项保留字面“数值待核对”；另外还有未匹配指定权重、硬件或测试协议的项目。字面占位减少不等于全量分析完成。DL-foils及MLOps训推一体框架仍需准确项目身份，已请求名称或链接，未用相似项目替代。
+- 再次查询ModelZoo master，仍为dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202。推送dry-run仍返回上述403；保留本地提交，不更改凭据。

@@ -131,4 +131,27 @@ class ReportTests(unittest.TestCase):
         self.assertIn('不一致',self.rows[13]['设备维度']['GPU']['精度基准']['说明'])
         self.assertIn('3B没有',self.rows[20]['设备维度']['GPU']['权重']['说明'])
         self.assertIn('输出视频帧率',self.rows[3]['设备维度']['GPU']['性能基准']['说明'])
+    def test_runtime_scope_and_scientific_benchmarks(self):
+        def gpu(number, field):
+            return self.rows[number-1]['设备维度']['GPU'][field]['说明']
+        for number, field, tokens in [
+            (5,'性能基准',['141.7','64','4.2']),
+            (13,'精度基准',['46/50','38/50']),
+            (16,'性能基准',['Stage1','35.93']),
+            (16,'权重',['Stage2','待发']),
+            (18,'性能基准',['训练','32.84']),
+            (38,'性能基准',['5','200']),
+            (59,'性能基准',['单CPU','0.9']),
+            (59,'精度基准',['63.3','50.5','77.5']),
+            (60,'精度基准',['0.7986','0.7893','flanks']),
+            (65,'精度基准',['PNAS','0.65','预印本']),
+            (80,'性能基准',['V100','1.7 FPS','不是整模型']),
+            (85,'性能基准',['商业重训','batch32','84.06','不是IDEA']),
+            (114,'性能基准',['A100','0.15','CPU','预计算']),
+            (117,'性能基准',['8.47','4090','2.70','3090']),
+            (117,'数据集',['train9000','val1000','test1000']),
+        ]:
+            for token in tokens:
+                with self.subTest(number=number,field=field,token=token):
+                    self.assertIn(token,gpu(number,field))
 if __name__=='__main__':unittest.main()
