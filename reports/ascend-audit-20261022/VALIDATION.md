@@ -3,9 +3,9 @@
 日期：2026-10-25，Asia/Shanghai；首次全量基线为2026-10-23。
 
 - 119项按原始编号逐项保留；代码、权重、数据、性能、精度分别记录证据类型和链接。
-- 19项回归测试通过：覆盖顺序、字段结构、非认证边界、易混指标回归、原始资源边界、固定ModelZoo文件存在、CSV/Markdown完整性、链接清单覆盖、GPU重查、后续证据增补、发布状态、计时范围、设备/仓库归属及可重复构建。
-- 当前链接清单590个：557个有成功HEAD记录、33个未确认（26个Hugging Face限流429、5个403、Kvasir-SEG证书错误1个、华为云567共1个）。本批检查17个新增URL，均成功；退出当前引用集合的1个URL从清单移除。其他URL保留原检查时间，不把限流/访问限制等同于链接不存在。
-- 固定提交链接179个；动态或未版本化链接411个。数量按URL路径形式统计，含同页不同锚点，不表示全部外部来源已冻结。
+- 20项回归测试通过：覆盖顺序、字段结构、非认证边界、易混指标回归、原始资源边界、固定ModelZoo文件存在、CSV/Markdown完整性、链接清单覆盖、GPU重查、后续证据增补、发布状态、计时范围、设备/仓库归属及可重复构建。
+- 当前链接清单601个：567个有成功HEAD记录、34个未确认（26个Hugging Face限流429、5个403、1个404、Kvasir-SEG证书错误1个、华为云567共1个）。本批检查12个新增URL，11个成功、TimesNet训练参数404；退出引用集合的1个URL移除。其他URL保留原检查时间，不把限流/访问限制等同于链接不存在。
+- 固定提交链接188个；动态或未版本化链接413个。数量按URL路径形式统计，含同页不同锚点，不表示全部外部来源已冻结。
 - 原始文件/JSON读取和HTTP结果均不等于独立模型复测。
 - 未执行：NPU/CPU模型运行、依赖安装、资产下载及SHA、完整任务精度、三次独立NPU性能、clean-room和上库门禁。
 - 详细边界、修正内容和命令见REVIEW_FIXES.md；逐URL状态见link-check.json。
@@ -103,3 +103,14 @@ CSV删除每格重复免责声明、内部证据类型和长段对照原文；�
 - 远程仍为本项目origin。再次普通push --dry-run因pcb1990无qwertlooker/ModelZoo写权限返回403，未实际推送、改凭据或改远程。
 
 - 继续补查TimesNet原论文表11：TITAN RTX 24GB、ETTh1补全任务的0.024–0.073秒/迭代及显存，未写成单样本推理延迟；补核PaddleOCR-VL-1.6论文表2的96.33综合分及四项分数，1.6专属GPU计时仍未在原论文确认。
+
+## 第七批：专项NPU源码与版本边界
+
+- 重新在线查询ModelZoo master得到153c97646d940f0eefefe81cbc891693d7243eaa。GitCode compare确认相对原dd592快照仅1个提交、8个文件，truncated=false：新增DEIMv2目录并修改模型列表；119项清单不含DEIMv2，已有模型文件未变，保留原固定证据。完整变更路径记录在evidence_updates.json的master_review。
+- AlphaFold3读取专项README、run_alphafold.py和参数映射源码，补明确Atlas 800T A2/FP32、MSA/模板数据库、Google参数授权；2K Evo Attention与默认<1000的文档范围分开，confidence不当作真实结构质量指标。
+- PINN原模型总表引用不能证明具体实例，改为SciAI XPINNs及MindFlow Poisson2D专项源码。GPU补SciAI历史V100/MindSpore1.2数据和训练/评估规模；不将GPU结果写入NPU，不将变体指标覆盖整个PINN方法族。
+- TimesNet补PaddleX预测器、npu:0入口、scaler.pkl要求、ETTH1 test.csv。Tesla T4的15.19/13.77ms写入GPU并与原PyTorch逐迭代计时分开；NPU列明确没有独立耗时表和迁移精度对照。
+- 官方训练参数URL TimesNet_pretrained.pdparams经HEAD及Range GET均404；推理包链接可访问。两设备权重列分别说明，不认定训练资产齐备；没有下载模型资产。
+- 累计104个设备增补条目，涉及96个原始条目；20项回归通过。保持119项顺序、GPU/NPU五维分列及两项用户暂缓范围；表格测试不构成模型验证，完整目标仍未完成。
+
+- 本批推送前再次确认origin为https://github.com/qwertlooker/ModelZoo.git；push --dry-run仍报Permission denied to pcb1990及HTTP403。仅保留本地提交，未实际推送或更改远程/凭据。

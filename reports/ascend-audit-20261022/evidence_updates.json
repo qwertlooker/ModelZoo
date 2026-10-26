@@ -681,6 +681,76 @@
       "method": "web正文读取",
       "date": "2026-10-25",
       "note": "已读正式论文AME结果及成功门槛；未运行模型"
+    },
+    {
+      "url": "https://github.com/mindspore-ai/mindscience/blob/971c015b0111d229608ff05b9e77704dbb0793b4/MindSPONGE/applications/AlphaFold3/README.md",
+      "date": "2026-10-25",
+      "method": "GitHub fetch_file",
+      "blob_sha": "d5f484f0a06e80267fb41b24e010f8bd31dc6c57",
+      "note": "已读固定提交正文；blob SHA为文件标识，未执行代码或下载模型资产"
+    },
+    {
+      "url": "https://github.com/mindspore-ai/mindscience/blob/971c015b0111d229608ff05b9e77704dbb0793b4/MindSPONGE/applications/AlphaFold3/run_alphafold.py",
+      "date": "2026-10-25",
+      "method": "GitHub fetch_file",
+      "blob_sha": "d75c2190850c1d467c2645fe6a32b56ce2c35442",
+      "note": "已读固定提交正文；blob SHA为文件标识，未执行代码或下载模型资产"
+    },
+    {
+      "url": "https://github.com/mindspore-ai/mindscience/blob/971c015b0111d229608ff05b9e77704dbb0793b4/MindSPONGE/applications/AlphaFold3/alphafold3/model/diffusion/load_ckpt.py",
+      "date": "2026-10-25",
+      "method": "GitHub fetch_file",
+      "blob_sha": "f61994f719ae964d39835cc1f732e1d8b15f6b85",
+      "note": "已读固定提交正文；blob SHA为文件标识，未执行代码或下载模型资产"
+    },
+    {
+      "url": "https://github.com/PaddlePaddle/PaddleX/blob/ffb64904d23708863ff5b8da312a5cbd52a7f462/docs/module_usage/tutorials/time_series_modules/time_series_forecasting.en.md",
+      "date": "2026-10-25",
+      "method": "GitHub fetch_file",
+      "blob_sha": "65b9096e9220e9084ac2872f363cbc9628f9bad9",
+      "note": "已读固定提交正文；blob SHA为文件标识，未执行代码或下载模型资产"
+    },
+    {
+      "url": "https://github.com/PaddlePaddle/PaddleX/blob/ffb64904d23708863ff5b8da312a5cbd52a7f462/paddlex/inference/models/ts_forecasting/predictor.py",
+      "date": "2026-10-25",
+      "method": "GitHub fetch_file",
+      "blob_sha": "c9000acfd2795b861a977962e1c04cc267f4becd",
+      "note": "已读固定提交正文；blob SHA为文件标识，未执行代码或下载模型资产"
+    },
+    {
+      "url": "https://github.com/PaddlePaddle/PaddleX/blob/ffb64904d23708863ff5b8da312a5cbd52a7f462/docs/support_list/model_list_npu.en.md",
+      "date": "2026-10-25",
+      "method": "GitHub fetch_file",
+      "blob_sha": "3997784842f85c1a60eaf328f9c8c0088a9dee69",
+      "note": "已读固定提交正文；blob SHA为文件标识，未执行代码或下载模型资产"
+    },
+    {
+      "url": "https://github.com/mindspore-ai/mindscience/blob/c5299bc39204cc49b230edeb506c211c52abf7a6/SciAI/sciai/model/pinns/README.md",
+      "date": "2026-10-25",
+      "method": "GitHub fetch_file",
+      "blob_sha": "fedc2e3bfc6d9fc4768a42a1fffa43fe989c249b",
+      "note": "已读固定提交正文；blob SHA为文件标识，未执行代码或下载模型资产"
+    },
+    {
+      "url": "https://github.com/mindspore-ai/mindscience/blob/c5299bc39204cc49b230edeb506c211c52abf7a6/SciAI/sciai/model/xpinns/README.md",
+      "date": "2026-10-25",
+      "method": "GitHub fetch_file",
+      "blob_sha": "76698f1e4015b21e457bb1e3a11854ba99f41e4a",
+      "note": "已读固定提交正文；blob SHA为文件标识，未执行代码或下载模型资产"
+    },
+    {
+      "url": "https://github.com/mindspore-ai/mindscience/blob/c5299bc39204cc49b230edeb506c211c52abf7a6/SciAI/sciai/model/xpinns/train.py",
+      "date": "2026-10-25",
+      "method": "GitHub fetch_file",
+      "blob_sha": "8fa7391c7f06c2d15a3d074d2f62691d1dcf4e10",
+      "note": "已读固定提交正文；blob SHA为文件标识，未执行代码或下载模型资产"
+    },
+    {
+      "url": "https://github.com/mindspore-ai/mindscience/blob/c5299bc39204cc49b230edeb506c211c52abf7a6/MindFlow/features/solve_pinns_by_mindflow/train.py",
+      "date": "2026-10-25",
+      "method": "GitHub fetch_file",
+      "blob_sha": "cad1b1dd7c1bbffede8432a803ab4b1cf53dd6f4",
+      "note": "已读固定提交正文；blob SHA为文件标识，未执行代码或下载模型资产"
     }
   ],
   "target_master": "dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202",
@@ -2383,6 +2453,53 @@
       "note": "GPU基准拆分CPU检索、编译和模型推理；V100存在数值问题及专用XLA配置，不外推到NPU。"
     },
     {
+      "number": 55,
+      "date": "2026-10-25",
+      "device": "NPU",
+      "fields": {
+        "代码": {
+          "说明": "专项MindSpore实现，README要求Atlas 800T A2、Python≥3.11、MindSpore≥2.5、CANN≥8.0；提供FP32推理与Evo Attention。文档一处写默认长度<1000，另一处写Evo路径支持2K，需按路径验证。",
+          "链接": [
+            "https://github.com/mindspore-ai/mindscience/blob/971c015b0111d229608ff05b9e77704dbb0793b4/MindSPONGE/applications/AlphaFold3/README.md",
+            "https://github.com/mindspore-ai/mindscience/blob/971c015b0111d229608ff05b9e77704dbb0793b4/MindSPONGE/applications/AlphaFold3/run_alphafold.py"
+          ],
+          "证据类型": "本轮已读专项源码；公开结果，未独立复测"
+        },
+        "权重": {
+          "说明": "run_alphafold.py要求参数直接从Google获得并遵守原授权；load_ckpt.py将原参数映射至MindSpore网络。未下载资产或核对SHA，不能认作公开免申请权重。",
+          "链接": [
+            "https://github.com/mindspore-ai/mindscience/blob/971c015b0111d229608ff05b9e77704dbb0793b4/MindSPONGE/applications/AlphaFold3/run_alphafold.py",
+            "https://github.com/mindspore-ai/mindscience/blob/971c015b0111d229608ff05b9e77704dbb0793b4/MindSPONGE/applications/AlphaFold3/alphafold3/model/diffusion/load_ckpt.py"
+          ],
+          "证据类型": "本轮已读专项源码；公开结果，未独立复测"
+        },
+        "数据集": {
+          "说明": "给出9类完整MSA/模板数据库及miniature测试库；README明确微型库会影响推理结果。example_input.json是单例输入，不是完整结构质量测试集。",
+          "链接": [
+            "https://github.com/mindspore-ai/mindscience/blob/971c015b0111d229608ff05b9e77704dbb0793b4/MindSPONGE/applications/AlphaFold3/README.md"
+          ],
+          "证据类型": "本轮已读专项源码；公开结果，未独立复测"
+        },
+        "性能基准": {
+          "说明": "总README称性能改善300%以上，但专项README未列按长度、种子、编译/检索范围分档的绝对耗时；源码计时日志入口不等于已发布性能结果。",
+          "链接": [
+            "https://github.com/mindspore-ai/mindscience/blob/971c015b0111d229608ff05b9e77704dbb0793b4/MindSPONGE/applications/AlphaFold3/README.md",
+            "https://github.com/mindspore-ai/mindscience/blob/971c015b0111d229608ff05b9e77704dbb0793b4/MindSPONGE/applications/AlphaFold3/run_alphafold.py",
+            "https://github.com/mindspore-ai/mindscience/blob/971c015b0111d229608ff05b9e77704dbb0793b4/MindSPONGE/README.md"
+          ],
+          "证据类型": "本轮已读专项源码；公开结果，未独立复测"
+        },
+        "精度基准": {
+          "说明": "专项输出5份CIF及confidence/ranking文件；这些置信分数不等于对实验结构的RMSD、DockQ或lDDT。所读专项README未列完整NPU/GPU结构质量对照。",
+          "链接": [
+            "https://github.com/mindspore-ai/mindscience/blob/971c015b0111d229608ff05b9e77704dbb0793b4/MindSPONGE/applications/AlphaFold3/README.md"
+          ],
+          "证据类型": "本轮已读专项源码；公开结果，未独立复测"
+        }
+      },
+      "conclusion": "有Atlas 800T A2专项推理实现；完整结构精度与性能对照尚未闭合"
+    },
+    {
       "date": "2026-10-25",
       "device": "GPU",
       "number": 56,
@@ -3624,6 +3741,90 @@
       }
     },
     {
+      "number": 104,
+      "date": "2026-10-25",
+      "device": "GPU",
+      "fields": {
+        "代码": {
+          "说明": "PINNs-Torch作者实现有CUDA Graphs/JIT；另SciAI PINNs提供GPU版Schrödinger及Navier–Stokes。它们是不同实现，性能/精度分别引用。",
+          "链接": [
+            "https://github.com/rezaakb/pinns-torch/blob/main/README.md",
+            "https://github.com/mindspore-ai/mindscience/blob/c5299bc39204cc49b230edeb506c211c52abf7a6/SciAI/sciai/model/pinns/README.md"
+          ],
+          "证据类型": "本轮已读专项源码；公开结果，未独立复测"
+        },
+        "数据集": {
+          "说明": "SciAI GPU参考：NLS含51456点、训练取150点；cylinder_nektar_wake含100万点、训练取5000点。原文对全体参考点评估，不能宣称测试点与训练完全不重叠。",
+          "链接": [
+            "https://github.com/mindspore-ai/mindscience/blob/c5299bc39204cc49b230edeb506c211c52abf7a6/SciAI/sciai/model/pinns/README.md"
+          ],
+          "证据类型": "本轮已读专项源码；公开结果，未独立复测"
+        },
+        "性能基准": {
+          "说明": "SciAI历史GPU结果：V100-32GB、MindSpore1.2，Schrödinger训练456ms/step；无噪声NS为99ms/step、batch500。是训练步耗时，不是PINNs-Torch的9倍加速或NPU性能。",
+          "链接": [
+            "https://github.com/mindspore-ai/mindscience/blob/c5299bc39204cc49b230edeb506c211c52abf7a6/SciAI/sciai/model/pinns/README.md"
+          ],
+          "证据类型": "本轮已读专项源码；公开结果，未独立复测"
+        },
+        "精度基准": {
+          "说明": "SciAI V100/MindSpore1.2：NLS波函数MSE0.01323；无噪声NS参数λ1/λ2相对误差0.2545%/0.9312%。仅这两个实例，不是PINN方法族统一准确率。",
+          "链接": [
+            "https://github.com/mindspore-ai/mindscience/blob/c5299bc39204cc49b230edeb506c211c52abf7a6/SciAI/sciai/model/pinns/README.md"
+          ],
+          "证据类型": "本轮已读专项源码；公开结果，未独立复测"
+        }
+      }
+    },
+    {
+      "number": 104,
+      "date": "2026-10-25",
+      "device": "NPU",
+      "fields": {
+        "代码": {
+          "说明": "具体实例：SciAI XPINNs（三子域2D Poisson）README明确Ascend/GPU，训练/评估源码齐备；另MindFlow Poisson2D训练接受--device_target Ascend。只能证明这些实例，不能覆盖所有PINN变体。",
+          "链接": [
+            "https://github.com/mindspore-ai/mindscience/blob/c5299bc39204cc49b230edeb506c211c52abf7a6/SciAI/sciai/model/xpinns/README.md",
+            "https://github.com/mindspore-ai/mindscience/blob/c5299bc39204cc49b230edeb506c211c52abf7a6/SciAI/sciai/model/xpinns/train.py",
+            "https://github.com/mindspore-ai/mindscience/blob/c5299bc39204cc49b230edeb506c211c52abf7a6/MindFlow/features/solve_pinns_by_mindflow/train.py"
+          ],
+          "证据类型": "本轮已读专项源码；公开结果，未独立复测"
+        },
+        "权重": {
+          "说明": "XPINNs源码支持加载/保存checkpoint；README提供手工下载目录。未核验目录内权重文件及SHA，不写成成品资产已验收。",
+          "链接": [
+            "https://github.com/mindspore-ai/mindscience/blob/c5299bc39204cc49b230edeb506c211c52abf7a6/SciAI/sciai/model/xpinns/README.md",
+            "https://github.com/mindspore-ai/mindscience/blob/c5299bc39204cc49b230edeb506c211c52abf7a6/SciAI/sciai/model/xpinns/train.py",
+            "https://download.mindspore.cn/mindscience/SciAI/sciai/model/xpinns/"
+          ],
+          "证据类型": "本轮已读专项源码；公开结果，未独立复测"
+        },
+        "数据集": {
+          "说明": "XPINN_2D_PoissonEqn.mat，三个子域参考点18211/2885/1291，共22387；原文未定义独立train/test split。训练采样和评估参考点不能混为分离测试集。",
+          "链接": [
+            "https://github.com/mindspore-ai/mindscience/blob/c5299bc39204cc49b230edeb506c211c52abf7a6/SciAI/sciai/model/xpinns/README.md"
+          ],
+          "证据类型": "本轮已读专项源码；公开结果，未独立复测"
+        },
+        "性能基准": {
+          "说明": "XPINNs有按20步记录的训练interval日志，但未标卡型及该日志属于GPU还是Ascend，不能引用为NPU性能值。",
+          "链接": [
+            "https://github.com/mindspore-ai/mindscience/blob/c5299bc39204cc49b230edeb506c211c52abf7a6/SciAI/sciai/model/xpinns/README.md"
+          ],
+          "证据类型": "本轮已读专项源码；公开结果，未独立复测"
+        },
+        "精度基准": {
+          "说明": "train.py计算子域2/3相对L2误差并调用评估；README未列绑定Ascend硬件的最终误差数值。GPU PINNs-Schrödinger/NS的旧分数不能套给XPINNs。",
+          "链接": [
+            "https://github.com/mindspore-ai/mindscience/blob/c5299bc39204cc49b230edeb506c211c52abf7a6/SciAI/sciai/model/xpinns/train.py",
+            "https://github.com/mindspore-ai/mindscience/blob/c5299bc39204cc49b230edeb506c211c52abf7a6/SciAI/sciai/model/xpinns/README.md"
+          ],
+          "证据类型": "本轮已读专项源码；公开结果，未独立复测"
+        }
+      },
+      "conclusion": "有具体PINN变体的Ascend入口；实例不同，尚无可归属NPU的完整基准"
+    },
+    {
       "number": 105,
       "device": "GPU",
       "date": "2026-10-25",
@@ -3913,13 +4114,72 @@
           "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
         },
         "性能基准": {
-          "说明": "论文表11：单TITAN RTX 24GB，ETTh1补全任务，序列长度384/768/1536/3072时为0.024/0.040/0.045/0.073秒/迭代，显存1245/1585/2491/2353MiB。表7补全batch16；计时是逐迭代运行时间，不是单样本纯推理延迟。",
+          "说明": "论文表11：单TITAN RTX 24GB，ETTh1补全任务，序列长度384/768/1536/3072时为0.024/0.040/0.045/0.073秒/迭代，显存1245/1585/2491/2353MiB。表7补全batch16；计时是逐迭代运行时间，不是单样本纯推理延迟。 另PaddleX版本：Tesla T4纯模型15.19ms（FP32无TRT）/13.77ms（优选后端），不含前后处理；与前述PyTorch迭代基准不可直接相除。",
           "链接": [
-            "https://arxiv.org/html/2210.02186v3"
+            "https://arxiv.org/html/2210.02186v3",
+            "https://github.com/PaddlePaddle/PaddleX/blob/ffb64904d23708863ff5b8da312a5cbd52a7f462/docs/module_usage/tutorials/time_series_modules/time_series_forecasting.en.md"
           ],
           "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "权重": {
+          "说明": "原PyTorch版按任务训练；另PaddleX推理包可访问，但所列训练参数URL经HEAD/GET均404。Paddle格式不可直接加载到原PyTorch实现。",
+          "链接": [
+            "https://github.com/PaddlePaddle/PaddleX/blob/ffb64904d23708863ff5b8da312a5cbd52a7f462/docs/module_usage/tutorials/time_series_modules/time_series_forecasting.en.md",
+            "https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/TimesNet_infer.tar",
+            "https://paddle-model-ecology.bj.bcebos.com/paddlex/official_pretrained_model/TimesNet_pretrained.pdparams"
+          ],
+          "证据类型": "本轮已读专项源码；公开结果，未独立复测"
         }
       }
+    },
+    {
+      "number": 116,
+      "date": "2026-10-25",
+      "device": "NPU",
+      "fields": {
+        "代码": {
+          "说明": "PaddleX NPU清单收录TimesNet；专项API接受device='npu:0'，预测器完成读CSV、归一化、Runner推理及反归一化。属于Paddle实现，不是原PyTorch工程直接迁移。",
+          "链接": [
+            "https://github.com/PaddlePaddle/PaddleX/blob/ffb64904d23708863ff5b8da312a5cbd52a7f462/docs/support_list/model_list_npu.en.md",
+            "https://github.com/PaddlePaddle/PaddleX/blob/ffb64904d23708863ff5b8da312a5cbd52a7f462/docs/module_usage/tutorials/time_series_modules/time_series_forecasting.en.md",
+            "https://github.com/PaddlePaddle/PaddleX/blob/ffb64904d23708863ff5b8da312a5cbd52a7f462/paddlex/inference/models/ts_forecasting/predictor.py"
+          ],
+          "证据类型": "本轮已读专项源码；公开结果，未独立复测"
+        },
+        "权重": {
+          "说明": "官方推理包链接可访问；所列训练参数TimesNet_pretrained.pdparams经HEAD及GET复核均404，不能认定训练权重可下载。scale配置另需scaler.pkl；资产未下载校验。",
+          "链接": [
+            "https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/TimesNet_infer.tar",
+            "https://paddle-model-ecology.bj.bcebos.com/paddlex/official_pretrained_model/TimesNet_pretrained.pdparams",
+            "https://github.com/PaddlePaddle/PaddleX/blob/ffb64904d23708863ff5b8da312a5cbd52a7f462/paddlex/inference/models/ts_forecasting/predictor.py"
+          ],
+          "证据类型": "本轮已读专项源码；公开结果，未独立复测"
+        },
+        "数据集": {
+          "说明": "官方ETTH1的test.csv；TimesNet预测与TimesNet_cls分类是不同交付项，本行按预测核查。",
+          "链接": [
+            "https://paddle-model-ecology.bj.bcebos.com/paddlex/data/Etth1.tar",
+            "https://github.com/PaddlePaddle/PaddleX/blob/ffb64904d23708863ff5b8da312a5cbd52a7f462/docs/support_list/model_list_npu.en.md"
+          ],
+          "证据类型": "本轮已读专项源码；公开结果，未独立复测"
+        },
+        "性能基准": {
+          "说明": "表内15.19/13.77ms明确属于Tesla T4普通/高性能模式，23.14/12.42ms为CPU；均不能填作NPU耗时。已读专项页未提供NPU独立计时。",
+          "链接": [
+            "https://github.com/PaddlePaddle/PaddleX/blob/ffb64904d23708863ff5b8da312a5cbd52a7f462/docs/module_usage/tutorials/time_series_modules/time_series_forecasting.en.md"
+          ],
+          "证据类型": "本轮已读专项源码；公开结果，未独立复测"
+        },
+        "精度基准": {
+          "说明": "发布模型ETTH1测试MSE0.416、MAE0.429；支持清单未将精度值单独绑定NPU实测，不能作为NPU迁移误差对齐。与原论文ETTh1的0.384/0.402也不是同一交付。",
+          "链接": [
+            "https://github.com/PaddlePaddle/PaddleX/blob/ffb64904d23708863ff5b8da312a5cbd52a7f462/docs/support_list/model_list_npu.en.md",
+            "https://github.com/PaddlePaddle/PaddleX/blob/ffb64904d23708863ff5b8da312a5cbd52a7f462/docs/module_usage/tutorials/time_series_modules/time_series_forecasting.en.md"
+          ],
+          "证据类型": "本轮已读专项源码；公开结果，未独立复测"
+        }
+      },
+      "conclusion": "PaddleX有NPU支持及专项预测入口；未取得NPU独立性能和精度对照"
     },
     {
       "number": 117,
@@ -3993,5 +4253,35 @@
   "deferred_items": [
     86,
     100
+  ],
+  "master_review": {
+    "checked_at_utc": "2026-10-26T06:55:36Z",
+    "base_evidence_commit": "dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202",
+    "head": "153c97646d940f0eefefe81cbc891693d7243eaa",
+    "compare_url": "https://gitcode.com/api/v5/repos/Ascend/ModelZoo-PyTorch/compare/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202...153c97646d940f0eefefe81cbc891693d7243eaa",
+    "commits": 1,
+    "truncated": false,
+    "changed_paths": [
+      "ACL_PyTorch/ModeList.md",
+      "ACL_PyTorch/built-in/cv/DEIMv2/README.md",
+      "ACL_PyTorch/built-in/cv/DEIMv2/common.py",
+      "ACL_PyTorch/built-in/cv/DEIMv2/deimv2_ascend.patch",
+      "ACL_PyTorch/built-in/cv/DEIMv2/eval_onnx_om.py",
+      "ACL_PyTorch/built-in/cv/DEIMv2/eval_torch_cpu.py",
+      "ACL_PyTorch/built-in/cv/DEIMv2/export_onnx_hf.py",
+      "ACL_PyTorch/built-in/cv/DEIMv2/infer_om.py"
+    ],
+    "scope_result": "仅新增DEIMv2目录并更新模型列表，119项原始清单不含DEIMv2；已有模型文件未变，保留原固定提交证据。"
+  },
+  "asset_access_checks": [
+    {
+      "url": "https://paddle-model-ecology.bj.bcebos.com/paddlex/official_pretrained_model/TimesNet_pretrained.pdparams",
+      "methods": [
+        "HEAD",
+        "GET with Range bytes=0-0"
+      ],
+      "status": 404,
+      "note": "两种方法均404；没有下载模型权重；只表示本次访问失败，不推断永久删除"
+    }
   ]
 }

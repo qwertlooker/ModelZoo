@@ -277,4 +277,26 @@ class ReportTests(unittest.TestCase):
         for n in [86,100]:
             for device in ['GPU','NPU']:
                 self.assertEqual(self.rows[n-1][device+'结论'],'按用户要求暂缓核查')
+    def test_concrete_npu_sources_and_framework_boundaries(self):
+        def text(n, device, field):
+            return self.rows[n-1]['设备维度'][device][field]['说明']
+        for n, device, field, tokens in [
+            (55,'NPU','代码',['800T A2','Evo','2K','<1000']),
+            (55,'NPU','精度基准',['置信分数不等于','RMSD']),
+            (104,'NPU','代码',['XPINNs','Poisson2D','不能覆盖']),
+            (104,'GPU','精度基准',['MindSpore1.2','0.01323','0.2545%']),
+            (104,'NPU','性能基准',['未标卡型','不能引用为NPU']),
+            (116,'NPU','性能基准',['Tesla T4','不能填作NPU']),
+            (116,'NPU','精度基准',['0.416','0.429','不是同一交付']),
+            (116,'GPU','性能基准',['Tesla T4','15.19ms','不可直接相除']),
+            (116,'GPU','权重',['Paddle格式','不可直接加载']),
+            (116,'NPU','权重',['404','不能认定训练权重']),
+        ]:
+            for token in tokens:
+                with self.subTest(number=n,device=device,field=field,token=token):
+                    self.assertIn(token,text(n,device,field))
+        review=json.loads((ROOT/'evidence_updates.json').read_text(encoding='utf-8'))['master_review']
+        self.assertFalse(review['truncated'])
+        self.assertEqual(review['commits'],1)
+        self.assertTrue(all(p=='ACL_PyTorch/ModeList.md' or p.startswith('ACL_PyTorch/built-in/cv/DEIMv2/') for p in review['changed_paths']))
 if __name__=='__main__':unittest.main()
