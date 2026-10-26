@@ -1640,6 +1640,36 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/embodied_ai/vla/GR00T_n1d6/README.md",
+    "checked_at_utc": "2026-10-26T15:02:01.954405+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/embodied_ai/vla/GR00T_n1d6/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/embodied_ai/vla/GR00T_n1d6/gr00t_n1d6_om.py",
+    "checked_at_utc": "2026-10-26T15:02:01.954858+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/embodied_ai/vla/GR00T_n1d6/gr00t_n1d6_om.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/embodied_ai/vla/GR00T_n1d6/scripts/standalone_inference_om.py",
+    "checked_at_utc": "2026-10-26T15:02:01.955355+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/embodied_ai/vla/GR00T_n1d6/scripts/standalone_inference_om.py",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/embodied_ai/vla/pi0/README.md",
     "checked_at_utc": "2026-10-23T02:46:04.119524+00:00",
     "method": "HEAD",
@@ -1687,6 +1717,46 @@
     "version": "pinned",
     "status": 200,
     "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/embodied_ai/vla/pi0/utils.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/embodied_ai/vla/pi05_lerobot/infer_with_torchair/README.md",
+    "checked_at_utc": "2026-10-26T15:02:01.955666+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/embodied_ai/vla/pi05_lerobot/infer_with_torchair/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/embodied_ai/vla/pi05_lerobot/infer_with_torchair/infer.py",
+    "checked_at_utc": "2026-10-26T15:02:01.955879+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/embodied_ai/vla/pi05_lerobot/infer_with_torchair/infer.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/embodied_ai/vla/pi05_openpi/README.md",
+    "checked_at_utc": "2026-10-26T15:02:01.956051+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/embodied_ai/vla/pi05_openpi/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/embodied_ai/vla/pi05_openpi/inference_pytorch.py",
+    "checked_at_utc": "2026-10-26T15:02:01.956753+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/embodied_ai/vla/pi05_openpi/inference_pytorch.py",
     "result": "http_reachable"
   },
   {
@@ -3220,6 +3290,26 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/GR00T-N1.5/gr00t.patch",
+    "checked_at_utc": "2026-10-26T15:02:01.957189+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/GR00T-N1.5/gr00t.patch",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/GR00T-N1.5/test/train_performance_8p.sh",
+    "checked_at_utc": "2026-10-26T15:02:01.957536+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/GR00T-N1.5/test/train_performance_8p.sh",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/GR00T-N1.6/README.md",
     "checked_at_utc": "2026-10-23T02:46:09.930452+00:00",
     "method": "HEAD",
@@ -3227,6 +3317,26 @@
     "version": "pinned",
     "status": 200,
     "final_url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/GR00T-N1.6/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/GR00T-N1.6/gr00t_n1d6.patch",
+    "checked_at_utc": "2026-10-26T15:02:02.044006+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/GR00T-N1.6/gr00t_n1d6.patch",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/GR00T-N1.6/test/train_performance_8p.sh",
+    "checked_at_utc": "2026-10-26T15:02:03.418089+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/GR00T-N1.6/test/train_performance_8p.sh",
     "result": "http_reachable"
   },
   {
@@ -3240,6 +3350,16 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/OpenVLA/OpenVLA.patch",
+    "checked_at_utc": "2026-10-26T15:02:03.438182+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/OpenVLA/OpenVLA.patch",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/OpenVLA/README.md",
     "checked_at_utc": "2026-10-23T02:46:09.933568+00:00",
     "method": "HEAD",
@@ -3250,6 +3370,16 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/OpenVLA/test/train_performance_8p.sh",
+    "checked_at_utc": "2026-10-26T15:02:04.543056+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/OpenVLA/test/train_performance_8p.sh",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Pi-0.5/README.md",
     "checked_at_utc": "2026-10-23T02:46:09.956452+00:00",
     "method": "HEAD",
@@ -3257,6 +3387,26 @@
     "version": "pinned",
     "status": 200,
     "final_url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Pi-0.5/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Pi-0.5/pi05.patch",
+    "checked_at_utc": "2026-10-26T15:02:04.684699+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Pi-0.5/pi05.patch",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Pi-0.5/test/train_performance.sh",
+    "checked_at_utc": "2026-10-26T15:02:05.451839+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Pi-0.5/test/train_performance.sh",
     "result": "http_reachable"
   },
   {
@@ -6787,6 +6937,16 @@
     "version": "dynamic_or_unversioned",
     "status": 200,
     "final_url": "https://rest.uniprot.org/uniprotkb/P69905.fasta",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://rlinf.readthedocs.io/en/latest/rst_source/examples/embodied/gr00t.html",
+    "checked_at_utc": "2026-10-26T15:02:05.616933+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://rlinf.readthedocs.io/en/latest/rst_source/examples/embodied/gr00t.html",
     "result": "http_reachable"
   },
   {

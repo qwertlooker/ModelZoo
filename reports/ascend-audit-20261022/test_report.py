@@ -439,4 +439,22 @@ class ReportTests(unittest.TestCase):
             for token in tokens:
                 with self.subTest(number=n,field=field,token=token):
                     self.assertIn(token,value)
+    def test_vla_training_om_and_small_sample_evaluations_stay_separate(self):
+        for n, field, tokens in [
+            (13,'精度基准',['loss0.0031','未明确绑定Ascend实测']),
+            (14,'代码',['ModelZoo三段OM','300V Pro','不支持left-padding']),
+            (14,'性能基准',['训练449 FPS','warmup3/iters10','1.3s']),
+            (14,'精度基准',['60%=6/10','51.5%','不是同种子配对']),
+            (15,'代码',['初版N1','N1.5/N1.6','不能作为初版N1适配证明']),
+            (20,'性能基准',['260步','200–250步','不是推理FPS']),
+            (20,'权重',['step-295000-epoch-40-loss=0.2200.pt','OFT']),
+            (22,'代码',['不支持800I A2','文件在目录根部']),
+            (22,'数据集',['dummy样例','每环境仅1次']),
+            (22,'性能基准',['未显式NPU同步','world_size16','卡/芯片口径']),
+            (22,'精度基准',['没有独立闭环结果','不能宣称优于GPU']),
+        ]:
+            value=self.rows[n-1]['设备维度']['NPU'][field]['说明']
+            for token in tokens:
+                with self.subTest(number=n,field=field,token=token):
+                    self.assertIn(token,value)
 if __name__=='__main__':unittest.main()

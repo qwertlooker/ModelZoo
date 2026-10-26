@@ -1564,9 +1564,9 @@
   {
     "编号": 13,
     "原始条目": "GR00T-N1.5",
-    "核查日期": "2026-10-25",
+    "核查日期": "2026-10-26",
     "结论": "有公开实现/指导，完整验收未认证",
-    "分析与缺口": "N1.5 README速度表用4次去噪，LIBERO示例评估用8次；不能将47.88ms与示例成功率当作同一运行配置。",
+    "分析与缺口": "N1.5独立核查，SO101训练loss不能替代LIBERO/RoboCasa成功率；外部框架不计ModelZoo仓内交付。",
     "本次实测状态": "未做模型运行；不认证S3/S4；未校验权重与数据SHA",
     "证据": {
       "代码": {
@@ -1647,44 +1647,52 @@
       },
       "NPU": {
         "代码": {
-          "说明": "固定提交专项交付目录；非逐文件验收",
+          "说明": "DrivingSDK固定Isaac-GR00T a86e9159应用gr00t.patch，含NPU融合attention、优化器及训练/开环推理设备迁移；非ModelZoo仓内交付。RLinf另有N1.5的Ascend PPO入口，限定LIBERO/ManiSkill，不能推广到N1.6/N1.7。",
           "链接": [
-            "https://github.com/Ascend/DrivingSDK/tree/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/GR00T-N1.5"
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/GR00T-N1.5/README.md",
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/GR00T-N1.5/gr00t.patch",
+            "https://rlinf.readthedocs.io/en/latest/rst_source/examples/embodied/gr00t.html"
           ],
-          "证据类型": "源码目录"
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
         },
         "权重": {
-          "说明": "N1.5-3B",
+          "说明": "训练从nvidia/GR00T-N1.5-3B三片safetensors及metadata开始；训练产出checkpoint需自行生成，文档未发布与337.35吞吐/0.0031对应的权重SHA。RLinf采用另行SFT/任务权重，不与原base混用。",
           "链接": [
-            "https://huggingface.co/nvidia/GR00T-N1.5-3B"
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/GR00T-N1.5/README.md",
+            "https://huggingface.co/nvidia/GR00T-N1.5-3B",
+            "https://rlinf.readthedocs.io/en/latest/rst_source/examples/embodied/gr00t.html"
           ],
-          "证据类型": "来源报告；未独立复测"
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
         },
         "数据集": {
-          "说明": "SO101 table-cleanup",
+          "说明": "DrivingSDK使用youliangtan/so101-table-cleanup双相机数据，需补so100_dualcam modality.json；不是LIBERO闭环。RLinf另为LIBERO/ManiSkill且LIBERO使用CPU OSMesa渲染，平台资源与NPU模型计算分开。",
           "链接": [
-            "https://huggingface.co/datasets/youliangtan/so101-table-cleanup"
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/GR00T-N1.5/README.md",
+            "https://huggingface.co/datasets/youliangtan/so101-table-cleanup",
+            "https://rlinf.readthedocs.io/en/latest/rst_source/examples/embodied/gr00t.html"
           ],
-          "证据类型": "来源报告；未独立复测"
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
         },
         "性能基准": {
-          "说明": "NPU A2八卡337.35 FPS",
+          "说明": "8×Atlas800T A2、global batch512，训练表337.35 FPS，竞品A276.38且型号未列。性能脚本默认1000步，读取100–1000步时间并按batch64×8/step_time计算，是训练样本吞吐，不是控制Hz；未见三次独立结果。",
           "链接": [
-            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/GR00T-N1.5/README.md"
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/GR00T-N1.5/README.md",
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/GR00T-N1.5/test/train_performance_8p.sh"
           ],
-          "证据类型": "来源报告；未独立复测"
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
         },
         "精度基准": {
-          "说明": "NPU训练loss0.0031；非任务成功率",
+          "说明": "10000步训练Final loss0.0031，竞品A0.0032；提供eval_policy.py开环评估命令，但README没有相应数值或闭环成功率。RLinf页面有通用LIBERO结果表，未明确绑定Ascend实测，不填为NPU准确率。",
           "链接": [
-            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/GR00T-N1.5/README.md"
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/GR00T-N1.5/README.md",
+            "https://rlinf.readthedocs.io/en/latest/rst_source/examples/embodied/gr00t.html"
           ],
-          "证据类型": "来源报告；未独立复测"
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
         }
       }
     },
     "GPU结论": "支持GPU，有官方实现",
-    "NPU结论": "有公开实现/指导，完整验收未认证",
+    "NPU结论": "外部DrivingSDK训练/开环及RLinf PPO入口可查；NPU闭环数值仍需确认",
     "对照原文": {
       "性能基准": {
         "说明": "A2八卡337.35 FPS，对照276.38",
@@ -1704,15 +1712,15 @@
     "GPU查询状态": "已查原始资料",
     "设备核查日期": {
       "GPU": "2026-10-25",
-      "NPU": "2026-10-23"
+      "NPU": "2026-10-26"
     }
   },
   {
     "编号": 14,
     "原始条目": "GR00T-N1.6",
-    "核查日期": "2026-10-25",
+    "核查日期": "2026-10-26",
     "结论": "有公开实现/指导，完整验收未认证",
-    "分析与缺口": "原表Spatial195/200却写97.65%、Object197/200写98.45%、Long189/200写94.35%；来源内部不一致，不能认定精确成功率已确认。",
+    "分析与缺口": "纠正此前NPU列仅记录DrivingSDK的遗漏；保留300V Pro OM与A2训练/开环两套硬件、任务和指标。",
     "本次实测状态": "未做模型运行；不认证S3/S4；未校验权重与数据SHA",
     "证据": {
       "代码": {
@@ -1791,44 +1799,55 @@
       },
       "NPU": {
         "代码": {
-          "说明": "固定提交专项交付目录；非逐文件验收",
+          "说明": "两条路线：ModelZoo三段OM（vision/language/action）及policy server，验证300V Pro；DrivingSDK固定e29d8fc5做A2训练/PyTorch推理。OM语言只支持causal mask、attention_mask全1，不支持left-padding；前后处理仍在PyTorch侧。",
           "链接": [
-            "https://github.com/Ascend/DrivingSDK/tree/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/GR00T-N1.6"
+            "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/embodied_ai/vla/GR00T_n1d6/README.md",
+            "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/embodied_ai/vla/GR00T_n1d6/gr00t_n1d6_om.py",
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/GR00T-N1.6/README.md",
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/GR00T-N1.6/gr00t_n1d6.patch"
           ],
-          "证据类型": "源码目录"
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
         },
         "权重": {
-          "说明": "N1.6-3B",
+          "说明": "均以GR00T-N1.6-3B为源；OM需分别导出三段，language建议precision-mode-v2 origin，batch1/单路图像、GR1标签。不能用DrivingSDK训练后权重或N1.5权重替代该base OM结果。",
           "链接": [
-            "https://huggingface.co/nvidia/GR00T-N1.6-3B"
+            "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/embodied_ai/vla/GR00T_n1d6/README.md",
+            "https://huggingface.co/nvidia/GR00T-N1.6-3B",
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/GR00T-N1.6/README.md"
           ],
-          "证据类型": "来源报告；未独立复测"
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
         },
         "数据集": {
-          "说明": "LIBERO；推理任务另列",
+          "说明": "DrivingSDK训练LIBERO_10；开环推理gr1.PickNPlace轨迹0/1/2、action-horizon8。ModelZoo OM另有RoboCasa PnPBottleToCabinetClose单任务，10 episodes/max720步/n_action_steps8；不是完整RoboCasa任务集。",
           "链接": [
-            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/GR00T-N1.6/README.md"
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/GR00T-N1.6/README.md",
+            "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/embodied_ai/vla/GR00T_n1d6/README.md",
+            "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/embodied_ai/vla/GR00T_n1d6/scripts/standalone_inference_om.py"
           ],
-          "证据类型": "来源报告；未独立复测"
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
         },
         "性能基准": {
-          "说明": "NPU训练449 FPS；指定推理0.145s",
+          "说明": "DrivingSDK：A2八卡/global batch640训练449 FPS，单卡开环0.145s/SPS6.90；与训练吞吐分开。ModelZoo：300V Pro三OM get_action合成观测/batch1，warmup3/iters10均值1.3s，非整仿真循环或三次独立中位数，不能直接比GPU其他版本/任务。",
           "链接": [
-            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/GR00T-N1.6/README.md"
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/GR00T-N1.6/README.md",
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/GR00T-N1.6/test/train_performance_8p.sh",
+            "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/embodied_ai/vla/GR00T_n1d6/README.md"
           ],
-          "证据类型": "来源报告；未独立复测"
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
         },
         "精度基准": {
-          "说明": "NPU训练loss0.0082；指定推理MSE1.185",
+          "说明": "DrivingSDK训练loss0.0082（20000步），开环MSE1.185/MAE0.674，竞品1.179/0.673。ModelZoo OM单任务10次成功60%=6/10，引用GPU公开51.5%，不是同种子配对重测，样本不足以宣称更优；离线源码缺有效轨迹时只打印警告，无成功率证明。",
           "链接": [
-            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/GR00T-N1.6/README.md"
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/GR00T-N1.6/README.md",
+            "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/embodied_ai/vla/GR00T_n1d6/README.md",
+            "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/embodied_ai/vla/GR00T_n1d6/scripts/standalone_inference_om.py"
           ],
-          "证据类型": "来源报告；未独立复测"
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
         }
       }
     },
     "GPU结论": "支持GPU，有官方实现",
-    "NPU结论": "有公开实现/指导，完整验收未认证",
+    "NPU结论": "仓内N1.6三OM推理及外部训练均有证据；单任务小样本结果需限定",
     "对照原文": {
       "性能基准": {
         "说明": "训练449/457 FPS；指定推理0.145/0.147s",
@@ -1848,15 +1867,15 @@
     "GPU查询状态": "已查原始资料",
     "设备核查日期": {
       "GPU": "2026-10-25",
-      "NPU": "2026-10-23"
+      "NPU": "2026-10-26"
     }
   },
   {
     "编号": 15,
     "原始条目": "GR00T-N1",
-    "核查日期": "2026-10-25",
+    "核查日期": "2026-10-26",
     "结论": "未取得充分专项NPU证据",
-    "分析与缺口": "原N1论文L40 bf16 16动作块63.9ms，与仓库4次去噪62.53ms近似但非同一测量；不借用N1.5/N1.6任务结果。",
+    "分析与缺口": "明确初版N1与N1.5/1.6分开；未确认不等于不能运行。",
     "本次实测状态": "未做模型运行；不认证S3/S4；未校验权重与数据SHA",
     "证据": {
       "代码": {
@@ -1931,45 +1950,48 @@
       },
       "NPU": {
         "代码": {
-          "说明": "仅原始项目/发布材料；未取得充分专项NPU代码",
+          "说明": "原始GR00T-N1-2B模型卡支持NVIDIA架构；本轮中英文检索未确认该初版N1的专项昇腾实现。已找到的DrivingSDK N1.5/N1.6与RLinf N1.5配方不能作为初版N1适配证明。",
           "链接": [
-            "https://github.com/NVIDIA/Isaac-GR00T"
+            "https://huggingface.co/nvidia/GR00T-N1-2B",
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/GR00T-N1.5/README.md",
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/GR00T-N1.6/README.md",
+            "https://rlinf.readthedocs.io/en/latest/rst_source/examples/embodied/gr00t.html"
           ],
-          "证据类型": "原始资源，不证明NPU支持"
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
         },
         "权重": {
-          "说明": "原始资源入口；精确文件、许可和可用性未逐项闭合，不认定缺失",
+          "说明": "原始N1-2B公开BF16权重，不等于NPU转换或验收checkpoint；不能用N1.5/1.6-3B替代。",
           "链接": [
-            "https://github.com/NVIDIA/Isaac-GR00T"
+            "https://huggingface.co/nvidia/GR00T-N1-2B"
           ],
-          "证据类型": "入口，非已验证文件"
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
         },
         "数据集": {
-          "说明": "原始资源入口；精确文件、许可和可用性未逐项闭合，不认定缺失",
+          "说明": "原始模型按RoboCasa/DexMG/GR-1任务评测；目前没有确认初版N1的NPU测试split、示范预算、配置和运行记录。",
           "链接": [
-            "https://github.com/NVIDIA/Isaac-GR00T"
+            "https://huggingface.co/nvidia/GR00T-N1-2B"
           ],
-          "证据类型": "入口，非已验证文件"
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
         },
         "性能基准": {
-          "说明": "未取得充分专项NPU证据",
+          "说明": "尚无可引用的原始N1-2B昇腾硬件与延迟测量；N1.5训练FPS或N1.6 OM时延不能填入。",
           "链接": [],
-          "证据类型": "来源报告；未独立复测"
+          "证据类型": "未确认专项证据；本轮检索无可引用结果"
         },
         "精度基准": {
-          "说明": "未取得充分专项NPU证据",
+          "说明": "尚无可引用的原始N1-2B NPU闭环成功率或开环对齐结果；GPU模型卡、后续版本成绩不构成证明。",
           "链接": [],
-          "证据类型": "来源报告；未独立复测"
+          "证据类型": "未确认专项证据；本轮检索无可引用结果"
         }
       }
     },
     "GPU结论": "支持GPU，有官方实现",
-    "NPU结论": "未取得充分专项NPU证据",
+    "NPU结论": "原始N1-2B专项NPU证据未确认；后续版本不能覆盖",
     "对照原文": {},
     "GPU查询状态": "已查原始资料",
     "设备核查日期": {
       "GPU": "2026-10-25",
-      "NPU": "2026-10-23"
+      "NPU": "2026-10-26"
     }
   },
   {
@@ -2475,9 +2497,9 @@
   {
     "编号": 20,
     "原始条目": "OpenVLA",
-    "核查日期": "2026-10-25",
+    "核查日期": "2026-10-26",
     "结论": "有公开实现/指导，完整验收未认证",
-    "分析与缺口": "来源报告未复测；缺完整资产SHA、正式任务对齐或三次独立NPU测量时不认证完成。",
+    "分析与缺口": "OpenVLA原版全参训练与OFT/LoRA及GPU发布成绩分开；56.14为训练吞吐。",
     "本次实测状态": "未做模型运行；不认证S3/S4；未校验权重与数据SHA",
     "证据": {
       "代码": {
@@ -2561,44 +2583,50 @@
       },
       "NPU": {
         "代码": {
-          "说明": "固定提交专项交付目录；非逐文件验收",
+          "说明": "DrivingSDK仅声明OpenVLA全参数微调，固定上游c8f03f48、OpenVLA.patch加入torch_npu/设备迁移；不证明LoRA、OFT或闭环推理已适配。非ModelZoo仓内交付。性能脚本还按行号修改训练源码，需复核版本一致性。",
           "链接": [
-            "https://github.com/Ascend/DrivingSDK/tree/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/OpenVLA"
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/OpenVLA/README.md",
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/OpenVLA/OpenVLA.patch",
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/OpenVLA/test/train_performance_8p.sh"
           ],
-          "证据类型": "源码目录"
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
         },
         "权重": {
-          "说明": "openvla-7b-prismatic",
+          "说明": "openvla-7b-prismatic，脚本指定checkpoints/step-295000-epoch-40-loss=0.2200.pt；还需Llama2、DINOv2、SigLIP相应缓存。不要拿Transformers版openvla-7b或OFT checkpoint替代该训练入口。",
           "链接": [
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/OpenVLA/README.md",
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/OpenVLA/test/train_performance_8p.sh",
             "https://huggingface.co/openvla/openvla-7b-prismatic"
           ],
-          "证据类型": "来源报告；未独立复测"
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
         },
         "数据集": {
-          "说明": "Bridge TFDS",
+          "说明": "Bridge TFDS原目录下载后改名bridge_orig；数据处理由原训练流程使用。全参微调结果未提供独立闭环测试集、split清单及任务覆盖，不能当完整机器人任务评测。",
           "链接": [
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/OpenVLA/README.md",
             "https://rail.eecs.berkeley.edu/datasets/bridge_release/data/tfds/bridge_dataset/"
           ],
-          "证据类型": "来源报告；未独立复测"
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
         },
         "性能基准": {
-          "说明": "NPU A2八卡56.14 FPS",
+          "说明": "A2八卡/global batch256训练56.14 FPS，竞品A73.12但型号未列。性能脚本临时改为260步，取200–250步日志均值，按32×8/step_time计算；不是推理FPS或机器人控制Hz，且不是三次独立中位数。",
           "链接": [
-            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/OpenVLA/README.md"
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/OpenVLA/README.md",
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/OpenVLA/test/train_performance_8p.sh"
           ],
-          "证据类型": "来源报告；未独立复测"
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
         },
         "精度基准": {
-          "说明": "NPU训练loss0.1876；非任务成功率",
+          "说明": "1000步全参微调loss0.1876，竞品A0.1873；没有NPU闭环任务成功率或独立开环动作误差结果。训练loss接近不证明复现原论文或GPU机器人成功率。",
           "链接": [
             "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/OpenVLA/README.md"
           ],
-          "证据类型": "来源报告；未独立复测"
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
         }
       }
     },
     "GPU结论": "支持GPU，有官方实现",
-    "NPU结论": "有公开实现/指导，完整验收未认证",
+    "NPU结论": "外部DrivingSDK有全参数微调；NPU推理和任务成功率未闭合",
     "对照原文": {
       "性能基准": {
         "说明": "A2八卡56.14 FPS，对照73.12",
@@ -2618,7 +2646,7 @@
     "GPU查询状态": "已查原始资料",
     "设备核查日期": {
       "GPU": "2026-10-25",
-      "NPU": "2026-10-23"
+      "NPU": "2026-10-26"
     }
   },
   {
@@ -2747,9 +2775,9 @@
   {
     "编号": 22,
     "原始条目": "Pi-0.5",
-    "核查日期": "2026-10-25",
+    "核查日期": "2026-10-26",
     "结论": "有公开实现/指导，完整验收未认证",
-    "分析与缺口": "OpenPI原始Pi0.5、LeRobot Pi0.5与NPU路线所用checkpoint需逐一匹配，不把该LIBERO分数覆盖所有底座权重。",
+    "分析与缺口": "纠正此前NPU列遗漏ModelZoo两条推理路线；不能把dummy计时、1次/环境成功率或不同batch训练当完整验收。",
     "本次实测状态": "未做模型运行；不认证S3/S4；未校验权重与数据SHA",
     "证据": {
       "代码": {
@@ -2830,45 +2858,63 @@
       },
       "NPU": {
         "代码": {
-          "说明": "固定提交专项交付目录；非逐文件验收",
+          "说明": "仓内LeRobot v0.4.3与OpenPI TorchAir端侧推理均明确支持300I DUO/Pro、不支持800I A2；外部DrivingSDK另有A3训练。OpenPI README写examples/inference_pytorch.py，但交付文件在目录根部；其上游复制/安装步骤仍需clean-room核验。",
           "链接": [
-            "https://github.com/Ascend/DrivingSDK/tree/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Pi-0.5"
+            "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/embodied_ai/vla/pi05_lerobot/infer_with_torchair/README.md",
+            "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/embodied_ai/vla/pi05_lerobot/infer_with_torchair/infer.py",
+            "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/embodied_ai/vla/pi05_openpi/README.md",
+            "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/embodied_ai/vla/pi05_openpi/inference_pytorch.py",
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Pi-0.5/README.md",
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Pi-0.5/pi05.patch"
           ],
-          "证据类型": "源码目录"
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
         },
         "权重": {
-          "说明": "pi05_base及PaliGemma；与端侧推理路线分开",
+          "说明": "LeRobot推理用pi05_libero_finetuned及PaliGemma tokenizer；OpenPI用pi05_libero JAX权重转PyTorch与norm_stats；DrivingSDK训练用pi05_base，必要时指定本地PaliGemma权重。三条路线资产不能混用，OpenPI上游未固定commit。",
           "链接": [
-            "https://huggingface.co/lerobot/pi05_base",
-            "https://huggingface.co/google/paligemma-3b-pt-224"
+            "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/embodied_ai/vla/pi05_lerobot/infer_with_torchair/README.md",
+            "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/embodied_ai/vla/pi05_openpi/README.md",
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Pi-0.5/README.md",
+            "https://huggingface.co/lerobot/pi05_base"
           ],
-          "证据类型": "来源报告；未独立复测"
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
         },
         "数据集": {
-          "说明": "koch_test",
+          "说明": "LeRobot计时取lerobot/libero某episode首帧；OpenPI计时源码make_libero_example明确是dummy样例，不是实际闭环。训练koch_test须转LeRobot2.1→3.0及quantile stats。LIBERO object示例每环境仅1次，不是完整高置信度基准。",
           "链接": [
-            "https://huggingface.co/datasets/jianqiang03/koch_test"
+            "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/embodied_ai/vla/pi05_lerobot/infer_with_torchair/infer.py",
+            "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/embodied_ai/vla/pi05_openpi/inference_pytorch.py",
+            "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/embodied_ai/vla/pi05_lerobot/infer_with_torchair/README.md",
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Pi-0.5/README.md"
           ],
-          "证据类型": "来源报告；未独立复测"
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
         },
         "性能基准": {
-          "说明": "NPU A3八卡155.1 FPS，global batch128；原对照batch64，非同条件加速比",
+          "说明": "端侧300I DUO单芯：LeRobot375ms（预热3后只测1次、外层未显式NPU同步、排除后处理）；OpenPI378ms（dummy输入，预热5/记录10，外层未显式同步）。训练A3表155.1 samples/s、batch128，对照70.8/batch64不等条件；脚本实际world_size16，卡/芯片口径需核对。",
           "链接": [
-            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Pi-0.5/README.md"
+            "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/embodied_ai/vla/pi05_lerobot/infer_with_torchair/README.md",
+            "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/embodied_ai/vla/pi05_lerobot/infer_with_torchair/infer.py",
+            "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/embodied_ai/vla/pi05_openpi/README.md",
+            "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/embodied_ai/vla/pi05_openpi/inference_pytorch.py",
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Pi-0.5/README.md",
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Pi-0.5/test/train_performance.sh"
           ],
-          "证据类型": "来源报告；未独立复测"
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
         },
         "精度基准": {
-          "说明": "NPU训练loss0.004；batch128",
+          "说明": "LeRobot表LIBERO object100，示例n_episodes1/batch1，GPU公开98.2不是同协议重测，不能宣称优于GPU。OpenPI只声称与LeRobot持平，没有独立闭环结果；dummy推理不证明精度。A3训练loss0.004/对照0.005且batch不同，不替代动作成功率。",
           "链接": [
+            "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/embodied_ai/vla/pi05_lerobot/infer_with_torchair/README.md",
+            "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/embodied_ai/vla/pi05_openpi/README.md",
+            "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/embodied_ai/vla/pi05_openpi/inference_pytorch.py",
             "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Pi-0.5/README.md"
           ],
-          "证据类型": "来源报告；未独立复测"
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
         }
       }
     },
     "GPU结论": "支持GPU，有官方实现",
-    "NPU结论": "有公开实现/指导，完整验收未认证",
+    "NPU结论": "仓内310P推理与外部A3训练均可查；样例规模、计时和路径问题需保留",
     "对照原文": {
       "性能基准": {
         "说明": "A3八卡155.1 FPS，对照70.8；global batch128/64，不是同条件加速比",
@@ -2888,7 +2934,7 @@
     "GPU查询状态": "已查原始资料",
     "设备核查日期": {
       "GPU": "2026-10-25",
-      "NPU": "2026-10-23"
+      "NPU": "2026-10-26"
     }
   },
   {
