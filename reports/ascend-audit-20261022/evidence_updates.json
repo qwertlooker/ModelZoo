@@ -1,5 +1,5 @@
 {
-  "checked_date": "2026-10-25",
+  "checked_date": "2026-10-26",
   "source_checks": [
     {
       "url": "https://github.com/chenjinyubuaa/AerialVLA/blob/main/README.md",
@@ -719,10 +719,10 @@
     },
     {
       "url": "https://github.com/PaddlePaddle/PaddleX/blob/ffb64904d23708863ff5b8da312a5cbd52a7f462/docs/support_list/model_list_npu.en.md",
-      "date": "2026-10-25",
+      "date": "2026-10-26",
       "method": "GitHub fetch_file",
       "blob_sha": "3997784842f85c1a60eaf328f9c8c0088a9dee69",
-      "note": "已读固定提交正文；blob SHA为文件标识，未执行代码或下载模型资产"
+      "note": "已读固定提交正文；未运行模型"
     },
     {
       "url": "https://github.com/mindspore-ai/mindscience/blob/c5299bc39204cc49b230edeb506c211c52abf7a6/SciAI/sciai/model/pinns/README.md",
@@ -751,6 +751,76 @@
       "method": "GitHub fetch_file",
       "blob_sha": "cad1b1dd7c1bbffede8432a803ab4b1cf53dd6f4",
       "note": "已读固定提交正文；blob SHA为文件标识，未执行代码或下载模型资产"
+    },
+    {
+      "url": "https://github.com/mindspore-ai/mindscience/blob/b233dc1ab152dfe29e0ff2cafb55c780dff34c67/MindSPONGE/applications/model_cards/afmultimer.md",
+      "date": "2026-10-26",
+      "method": "GitHub fetch_file",
+      "blob_sha": "59a4bf4171a1adf5d869894fd2ffcaa8430c61c6",
+      "note": "已读固定提交正文；文件blob SHA非仓库commit；未运行模型"
+    },
+    {
+      "url": "https://github.com/mindspore-ai/mindscience/blob/b233dc1ab152dfe29e0ff2cafb55c780dff34c67/tests/st/mindsponge/test_multimer/test_multimer.py",
+      "date": "2026-10-26",
+      "method": "GitHub fetch_file",
+      "blob_sha": "3ba6e0bbcee4d10b32d979176f389a20800e2157",
+      "note": "已读固定提交正文；文件blob SHA非仓库commit；未运行模型"
+    },
+    {
+      "url": "https://github.com/mindspore-ai/mindscience/blob/b233dc1ab152dfe29e0ff2cafb55c780dff34c67/MindSPONGE/src/mindsponge/pipeline/models/multimer/multimer.py",
+      "date": "2026-10-26",
+      "method": "GitHub fetch_file",
+      "blob_sha": "9a51c5239ce36da80065c753b2316006140dc414",
+      "note": "已读固定提交正文；文件blob SHA非仓库commit；未运行模型"
+    },
+    {
+      "url": "https://github.com/mindspore-ai/mindscience/blob/b233dc1ab152dfe29e0ff2cafb55c780dff34c67/MindSPONGE/applications/model_configs/Multimer/predict_256.yaml",
+      "date": "2026-10-26",
+      "method": "GitHub fetch_file",
+      "blob_sha": "dff324c5c431b99f545caf351e6f5bdb463d00b3",
+      "note": "已读固定长度配置；未运行模型"
+    },
+    {
+      "url": "https://github.com/PaddlePaddle/PaddleX/blob/ffb64904d23708863ff5b8da312a5cbd52a7f462/paddlex/inference/models/object_detection/predictor.py",
+      "date": "2026-10-26",
+      "method": "GitHub fetch_file",
+      "blob_sha": "e0d86e859535292dddf4e192cb5d42343e181a74",
+      "note": "已读固定提交正文；未运行模型"
+    },
+    {
+      "url": "https://gitcode.com/Ascend-SACT/ThermoMPNN/blob/34e25f601bebfa70a31e91d85af838a67a409460/README.md",
+      "date": "2026-10-26",
+      "method": "GitCode contents API",
+      "blob_sha": "81c3b6865f507ac2167d12f4dc2c0f24f3dcb371",
+      "note": "已读固定提交正文；未运行模型；README声明不等于独立复测"
+    },
+    {
+      "url": "https://gitcode.com/Ascend-SACT/ThermoMPNN/blob/34e25f601bebfa70a31e91d85af838a67a409460/device_utils.py",
+      "date": "2026-10-26",
+      "method": "GitCode contents API",
+      "blob_sha": "c2adb5398eb2d9b41e543783908d25755ecbb9ef",
+      "note": "已读固定提交正文；未运行模型；README声明不等于独立复测"
+    },
+    {
+      "url": "https://gitcode.com/Ascend-SACT/ThermoMPNN/blob/34e25f601bebfa70a31e91d85af838a67a409460/train_thermompnn.py",
+      "date": "2026-10-26",
+      "method": "GitCode contents API",
+      "blob_sha": "a8d7d267261acf4cd55560b6cf7d1533b5ccbc65",
+      "note": "已读固定提交正文；未运行模型；README声明不等于独立复测"
+    },
+    {
+      "url": "https://gitcode.com/Ascend-SACT/ThermoMPNN/blob/34e25f601bebfa70a31e91d85af838a67a409460/examples/inference_npu.sh",
+      "date": "2026-10-26",
+      "method": "GitCode contents API",
+      "blob_sha": "5d01f0e6ac1a5e0a42d577f71fcabf50024702ac",
+      "note": "已读固定提交正文；未运行模型；README声明不等于独立复测"
+    },
+    {
+      "url": "https://gitcode.com/Ascend-SACT/PatchCore/blob/ddca1579c779b889443ccaecb2010579d0d545e4/README.md",
+      "date": "2026-10-26",
+      "method": "GitCode contents API",
+      "blob_sha": "4050681c5d20b74ec4c3cae6c2c7a837bf1c419c",
+      "note": "已读固定提交正文；未运行模型；README声明不等于独立复测"
     }
   ],
   "target_master": "dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202",
@@ -2530,6 +2600,55 @@
       }
     },
     {
+      "number": 56,
+      "date": "2026-10-26",
+      "device": "NPU",
+      "conclusion": "有910B专项推理及单例测试；训练不支持，完整精度/性能基准未闭合",
+      "fields": {
+        "代码": {
+          "说明": "MindSPONGE r0.7专项Multimer实现，提供推理；训练方法为空。官方测试标记Ascend910B单卡，但测试源码存在不等于本次运行通过。",
+          "链接": [
+            "https://github.com/mindspore-ai/mindscience/blob/b233dc1ab152dfe29e0ff2cafb55c780dff34c67/MindSPONGE/applications/model_cards/afmultimer.md",
+            "https://github.com/mindspore-ai/mindscience/blob/b233dc1ab152dfe29e0ff2cafb55c780dff34c67/MindSPONGE/src/mindsponge/pipeline/models/multimer/multimer.py",
+            "https://github.com/mindspore-ai/mindscience/blob/b233dc1ab152dfe29e0ff2cafb55c780dff34c67/tests/st/mindsponge/test_multimer/test_multimer.py"
+          ],
+          "证据类型": "已读固定提交专项源码或指导；未独立运行模型"
+        },
+        "权重": {
+          "说明": "源码指定Multimer_Model_1.ckpt，链接HEAD 200（372814679字节）；未下载校验，也未确认对应DeepMind参数的具体版本，不与v2.3 Multimer权重混同。",
+          "链接": [
+            "https://github.com/mindspore-ai/mindscience/blob/b233dc1ab152dfe29e0ff2cafb55c780dff34c67/MindSPONGE/src/mindsponge/pipeline/models/multimer/multimer.py",
+            "https://download.mindspore.cn/mindscience/mindsponge/Multimer/checkpoint/Multimer_Model_1.ckpt"
+          ],
+          "证据类型": "已读固定提交专项源码或指导；未独立运行模型"
+        },
+        "数据集": {
+          "说明": "官方示例是预处理6T36.pkl（HEAD 200）；predict_256固定长度256，源码默认4次recycle。该单例不是完整PDB复合物测试集，也不证明原始FASTA到MSA的整链路。",
+          "链接": [
+            "https://github.com/mindspore-ai/mindscience/blob/b233dc1ab152dfe29e0ff2cafb55c780dff34c67/MindSPONGE/applications/model_cards/afmultimer.md",
+            "https://github.com/mindspore-ai/mindscience/blob/b233dc1ab152dfe29e0ff2cafb55c780dff34c67/MindSPONGE/applications/model_configs/Multimer/predict_256.yaml",
+            "https://github.com/mindspore-ai/mindscience/blob/b233dc1ab152dfe29e0ff2cafb55c780dff34c67/MindSPONGE/src/mindsponge/pipeline/models/multimer/multimer.py",
+            "https://download.mindspore.cn/mindscience/mindsponge/Multimer/examples/6T36.pkl"
+          ],
+          "证据类型": "已读固定提交专项源码或指导；未独立运行模型"
+        },
+        "性能基准": {
+          "说明": "测试注释提及cost_time阈值，实际代码没有耗时测量或断言；所读专项文件没有按长度分档的NPU耗时表。",
+          "链接": [
+            "https://github.com/mindspore-ai/mindscience/blob/b233dc1ab152dfe29e0ff2cafb55c780dff34c67/tests/st/mindsponge/test_multimer/test_multimer.py"
+          ],
+          "证据类型": "已读固定提交专项源码或指导；未独立运行模型"
+        },
+        "精度基准": {
+          "说明": "910B测试仅断言单个6T36的confidence>92，是模型置信度；未比较实验结构的DockQ/RMSD，不能视为92%结构准确率或完整精度验收。",
+          "链接": [
+            "https://github.com/mindspore-ai/mindscience/blob/b233dc1ab152dfe29e0ff2cafb55c780dff34c67/tests/st/mindsponge/test_multimer/test_multimer.py"
+          ],
+          "证据类型": "已读固定提交专项源码或指导；未独立运行模型"
+        }
+      }
+    },
+    {
       "number": 57,
       "date": "2026-10-25",
       "device": "GPU",
@@ -2815,6 +2934,54 @@
             "https://www.pnas.org/doi/10.1073/pnas.2314853121"
           ],
           "证据类型": "已读官方原文；公开基准，未独立复测"
+        }
+      }
+    },
+    {
+      "number": 65,
+      "date": "2026-10-26",
+      "device": "NPU",
+      "conclusion": "有910C适配代码；存在CPU回退与配套差异，完整基准待验",
+      "fields": {
+        "代码": {
+          "说明": "已读910C适配设备层、Lightning训练及推理脚本。resolve_accelerator在NPU转接层/原生加速器缺失时会返回CPU；命令成功不能证明实际用NPU。README写torch2.10，脚本前提却写2.5.1，配套须再确认。",
+          "链接": [
+            "https://gitcode.com/Ascend-SACT/ThermoMPNN/blob/34e25f601bebfa70a31e91d85af838a67a409460/device_utils.py",
+            "https://gitcode.com/Ascend-SACT/ThermoMPNN/blob/34e25f601bebfa70a31e91d85af838a67a409460/train_thermompnn.py",
+            "https://gitcode.com/Ascend-SACT/ThermoMPNN/blob/34e25f601bebfa70a31e91d85af838a67a409460/examples/inference_npu.sh",
+            "https://gitcode.com/Ascend-SACT/ThermoMPNN/blob/34e25f601bebfa70a31e91d85af838a67a409460/README.md"
+          ],
+          "证据类型": "已读固定提交专项源码或指导；未独立运行模型"
+        },
+        "权重": {
+          "说明": "README指定上游models/thermoMPNN_default.pt及ProteinMPNN v_48_020.pt；前者用于推理，后者用于训练初始化。未下载核验版本及SHA。",
+          "链接": [
+            "https://gitcode.com/Ascend-SACT/ThermoMPNN/blob/34e25f601bebfa70a31e91d85af838a67a409460/README.md",
+            "https://gitcode.com/Ascend-SACT/ThermoMPNN/blob/34e25f601bebfa70a31e91d85af838a67a409460/examples/inference_npu.sh"
+          ],
+          "证据类型": "已读固定提交专项源码或指导；未独立运行模型"
+        },
+        "数据集": {
+          "说明": "训练MegaScale/FireProt，源码分别构造train/val及CV划分；2OCJ饱和突变扫描3880条是参考输出一致性示例，不是完整实验ΔΔG测试集。",
+          "链接": [
+            "https://gitcode.com/Ascend-SACT/ThermoMPNN/blob/34e25f601bebfa70a31e91d85af838a67a409460/README.md",
+            "https://gitcode.com/Ascend-SACT/ThermoMPNN/blob/34e25f601bebfa70a31e91d85af838a67a409460/train_thermompnn.py"
+          ],
+          "证据类型": "已读固定提交专项源码或指导；未独立运行模型"
+        },
+        "性能基准": {
+          "说明": "README训练日志出现800步/10:30及0.4x、0.7x占位示例，不能当正式性能或精度数值；未给固定长度/突变数下的NPU推理耗时与多次统计。",
+          "链接": [
+            "https://gitcode.com/Ascend-SACT/ThermoMPNN/blob/34e25f601bebfa70a31e91d85af838a67a409460/README.md"
+          ],
+          "证据类型": "已读固定提交专项源码或指导；未独立运行模型"
+        },
+        "精度基准": {
+          "说明": "README称2OCJ共3880条预测偏差在1e-3量级，实际表仅展示5条；缺完整误差文件及全测试集Spearman。该结果属于对参考输出一致性，不是实验稳定性预测质量验收。",
+          "链接": [
+            "https://gitcode.com/Ascend-SACT/ThermoMPNN/blob/34e25f601bebfa70a31e91d85af838a67a409460/README.md"
+          ],
+          "证据类型": "已读固定提交专项源码或指导；未独立运行模型"
         }
       }
     },
@@ -3875,6 +4042,49 @@
       "note": "MAPPO是训练算法，权重由具体环境训练产生；硬件配置和采样效率不等于GPU墙钟性能。"
     },
     {
+      "number": 107,
+      "date": "2026-10-26",
+      "device": "NPU",
+      "conclusion": "有社区手工迁移指导及结果表；非完整源码交付，CPU/NPU混合",
+      "fields": {
+        "代码": {
+          "说明": "固定提交仅README和.gitattributes，交付是手工给原始两脚本添加torch_npu/transfer_to_npu的指导，没有配套源码补丁。要求不启用--faiss_on_gpu，FAISS留在CPU；不是全流程NPU实现。",
+          "链接": [
+            "https://gitcode.com/Ascend-SACT/PatchCore/blob/ddca1579c779b889443ccaecb2010579d0d545e4/README.md"
+          ],
+          "证据类型": "已读固定提交专项源码或指导；未独立运行模型"
+        },
+        "权重": {
+          "说明": "指导使用WideResNet50提特征及训练生成的memory bank；提示项目models里的pkl可能是LFS指针、直接加载失败，建议使用本地训练产物。未验证成品资产。",
+          "链接": [
+            "https://gitcode.com/Ascend-SACT/PatchCore/blob/ddca1579c779b889443ccaecb2010579d0d545e4/README.md"
+          ],
+          "证据类型": "已读固定提交专项源码或指导；未独立运行模型"
+        },
+        "数据集": {
+          "说明": "MVTec AD，命令列15类，resize256、imagesize224、coreset比例0.1；未给冻结的样本manifest及分数聚合规则。",
+          "链接": [
+            "https://gitcode.com/Ascend-SACT/PatchCore/blob/ddca1579c779b889443ccaecb2010579d0d545e4/README.md"
+          ],
+          "证据类型": "已读固定提交专项源码或指导；未独立运行模型"
+        },
+        "性能基准": {
+          "说明": "社区表报A2/910B4、32GB单卡throughput_fps=2.1510577；未说明计时起止、预热、重复次数。撤回此前E2E定性，不能确定端到端范围，也不是纯NPU算子速度。",
+          "链接": [
+            "https://gitcode.com/Ascend-SACT/PatchCore/blob/ddca1579c779b889443ccaecb2010579d0d545e4/README.md"
+          ],
+          "证据类型": "已读固定提交专项源码或指导；未独立运行模型"
+        },
+        "精度基准": {
+          "说明": "同表报instance AUROC0.9905298、full-pixel0.9812325、anomaly-pixel0.9737028；未附逐类结果、原始日志或GPU对照，不把社区表数值当独立验收。",
+          "链接": [
+            "https://gitcode.com/Ascend-SACT/PatchCore/blob/ddca1579c779b889443ccaecb2010579d0d545e4/README.md"
+          ],
+          "证据类型": "已读固定提交专项源码或指导；未独立运行模型"
+        }
+      }
+    },
+    {
       "date": "2026-10-25",
       "device": "GPU",
       "number": 108,
@@ -4079,6 +4289,52 @@
       },
       "note": "纠正此前“GPU交付未确认”混淆：论文GPU实验已确认，公开源码/微调资产仍未取得。",
       "conclusion": "论文GPU实验和4090计时已确认；公开源码/微调资产待核"
+    },
+    {
+      "number": 113,
+      "date": "2026-10-26",
+      "device": "NPU",
+      "conclusion": "第一代NPU清单及实现路径已确认；缺硬件对应精度/性能对照",
+      "fields": {
+        "代码": {
+          "说明": "PaddleX NPU清单收录第一代RT-DETR-H/L/R18/R50/X；预测器区分Runner和Transformers路径。清单收录不能证明各后端在指定NPU全部通过，不覆盖RT-DETRv2。",
+          "链接": [
+            "https://github.com/PaddlePaddle/PaddleX/blob/ffb64904d23708863ff5b8da312a5cbd52a7f462/docs/support_list/model_list_npu.en.md",
+            "https://github.com/PaddlePaddle/PaddleX/blob/ffb64904d23708863ff5b8da312a5cbd52a7f462/paddlex/inference/models/object_detection/predictor.py"
+          ],
+          "证据类型": "已读固定提交专项源码或指导；未独立运行模型"
+        },
+        "权重": {
+          "说明": "已核验R50推理包及训练参数链接HEAD均200；没有下载或校验SHA。其他四种规模列在清单，本批未逐个下载验证。",
+          "链接": [
+            "https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/RT-DETR-R50_infer.tar",
+            "https://paddle-model-ecology.bj.bcebos.com/paddlex/official_pretrained_model/RT-DETR-R50_pretrained.pdparams",
+            "https://github.com/PaddlePaddle/PaddleX/blob/ffb64904d23708863ff5b8da312a5cbd52a7f462/docs/support_list/model_list_npu.en.md"
+          ],
+          "证据类型": "已读固定提交专项源码或指导；未独立运行模型"
+        },
+        "数据集": {
+          "说明": "COCO2017 validation，指标mAP@0.5:0.95；布局检测RT-DETR-H_layout_3cls/17cls是不同数据与权重，不能混用。",
+          "链接": [
+            "https://github.com/PaddlePaddle/PaddleX/blob/ffb64904d23708863ff5b8da312a5cbd52a7f462/docs/support_list/model_list_npu.en.md"
+          ],
+          "证据类型": "已读固定提交专项源码或指导；未独立运行模型"
+        },
+        "性能基准": {
+          "说明": "所读NPU清单没有第一代各规模的独立NPU计时；通用T4/GPU速度及RT-DETRv2结果不能填入。",
+          "链接": [
+            "https://github.com/PaddlePaddle/PaddleX/blob/ffb64904d23708863ff5b8da312a5cbd52a7f462/docs/support_list/model_list_npu.en.md"
+          ],
+          "证据类型": "已读固定提交专项源码或指导；未独立运行模型"
+        },
+        "精度基准": {
+          "说明": "清单列H56.3、L53.0、R18 46.5、R50 53.1、X54.8（COCO mAP%）；未说明NPU独立复测或迁移差值，只作为发布指标参考，不借用v2 AP48.0。",
+          "链接": [
+            "https://github.com/PaddlePaddle/PaddleX/blob/ffb64904d23708863ff5b8da312a5cbd52a7f462/docs/support_list/model_list_npu.en.md"
+          ],
+          "证据类型": "已读固定提交专项源码或指导；未独立运行模型"
+        }
+      }
     },
     {
       "number": 114,

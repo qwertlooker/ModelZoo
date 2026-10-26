@@ -299,4 +299,22 @@ class ReportTests(unittest.TestCase):
         self.assertFalse(review['truncated'])
         self.assertEqual(review['commits'],1)
         self.assertTrue(all(p=='ACL_PyTorch/ModeList.md' or p.startswith('ACL_PyTorch/built-in/cv/DEIMv2/') for p in review['changed_paths']))
+    def test_inference_test_is_not_structural_accuracy_and_mixed_device_limits(self):
+        def text(n, field):
+            return self.rows[n-1]['设备维度']['NPU'][field]['说明']
+        for n, field, tokens in [
+            (56,'代码',['910B','训练方法为空']),
+            (56,'数据集',['6T36','固定长度256','不是完整']),
+            (56,'精度基准',['confidence>92','置信度','不能视为92%']),
+            (56,'性能基准',['实际代码没有耗时测量']),
+            (65,'代码',['返回CPU','2.10','2.5.1']),
+            (65,'性能基准',['0.4x','占位']),
+            (65,'精度基准',['3880','仅展示5条','不是实验稳定性']),
+            (107,'代码',['仅README','没有配套源码补丁','FAISS留在CPU']),
+            (107,'性能基准',['2.1510577','撤回此前E2E','不能确定端到端']),
+            (113,'精度基准',['53.1','发布指标参考','不借用v2']),
+        ]:
+            for token in tokens:
+                with self.subTest(number=n,field=field,token=token):
+                    self.assertIn(token,text(n,field))
 if __name__=='__main__':unittest.main()

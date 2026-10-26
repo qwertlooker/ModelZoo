@@ -1030,6 +1030,26 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://download.mindspore.cn/mindscience/mindsponge/Multimer/checkpoint/Multimer_Model_1.ckpt",
+    "checked_at_utc": "2026-10-26T07:26:17.433297+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://download.mindspore.cn/mindscience/mindsponge/Multimer/checkpoint/Multimer_Model_1.ckpt",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://download.mindspore.cn/mindscience/mindsponge/Multimer/examples/6T36.pkl",
+    "checked_at_utc": "2026-10-26T07:26:17.433798+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://download.mindspore.cn/mindscience/mindsponge/Multimer/examples/6T36.pkl",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://download.openmmlab.com/mmdetection/v2.0/faster_rcnn/faster_rcnn_r50_fpn_1x_coco/faster_rcnn_r50_fpn_1x_coco_20200130-047c8118.pth",
     "checked_at_utc": "2026-10-25T07:30:39.405578+00:00",
     "method": "HEAD",
@@ -1140,6 +1160,16 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://gitcode.com/Ascend-SACT/PatchCore/blob/ddca1579c779b889443ccaecb2010579d0d545e4/README.md",
+    "checked_at_utc": "2026-10-26T07:26:17.434269+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://ai.gitcode.com/Ascend-SACT/PatchCore/blob/ddca1579c779b889443ccaecb2010579d0d545e4/README.md",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://gitcode.com/Ascend-SACT/ThermoMPNN/blob/34e25f601bebfa70a31e91d85af838a67a409460/README.md",
     "checked_at_utc": "2026-10-23T02:46:02.620067+00:00",
     "method": "HEAD",
@@ -1147,6 +1177,36 @@
     "version": "pinned",
     "status": 200,
     "final_url": "https://ai.gitcode.com/Ascend-SACT/ThermoMPNN/blob/34e25f601bebfa70a31e91d85af838a67a409460/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend-SACT/ThermoMPNN/blob/34e25f601bebfa70a31e91d85af838a67a409460/device_utils.py",
+    "checked_at_utc": "2026-10-26T07:26:17.434589+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://ai.gitcode.com/Ascend-SACT/ThermoMPNN/blob/34e25f601bebfa70a31e91d85af838a67a409460/device_utils.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend-SACT/ThermoMPNN/blob/34e25f601bebfa70a31e91d85af838a67a409460/examples/inference_npu.sh",
+    "checked_at_utc": "2026-10-26T07:26:17.434921+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://ai.gitcode.com/Ascend-SACT/ThermoMPNN/blob/34e25f601bebfa70a31e91d85af838a67a409460/examples/inference_npu.sh",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend-SACT/ThermoMPNN/blob/34e25f601bebfa70a31e91d85af838a67a409460/train_thermompnn.py",
+    "checked_at_utc": "2026-10-26T07:26:17.435312+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://ai.gitcode.com/Ascend-SACT/ThermoMPNN/blob/34e25f601bebfa70a31e91d85af838a67a409460/train_thermompnn.py",
     "result": "http_reachable"
   },
   {
@@ -3220,6 +3280,16 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://github.com/PaddlePaddle/PaddleX/blob/ffb64904d23708863ff5b8da312a5cbd52a7f462/paddlex/inference/models/object_detection/predictor.py",
+    "checked_at_utc": "2026-10-26T07:26:17.436064+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/PaddlePaddle/PaddleX/blob/ffb64904d23708863ff5b8da312a5cbd52a7f462/paddlex/inference/models/object_detection/predictor.py",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://github.com/PaddlePaddle/PaddleX/blob/ffb64904d23708863ff5b8da312a5cbd52a7f462/paddlex/inference/models/ts_forecasting/predictor.py",
     "checked_at_utc": "2026-10-26T07:00:50.324325+00:00",
     "method": "HEAD",
@@ -3987,6 +4057,46 @@
     "version": "pinned",
     "status": 200,
     "final_url": "https://github.com/mindspore-ai/mindscience/blob/971c015b0111d229608ff05b9e77704dbb0793b4/MindSPONGE/applications/AlphaFold3/run_alphafold.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/mindspore-ai/mindscience/blob/b233dc1ab152dfe29e0ff2cafb55c780dff34c67/MindSPONGE/applications/model_cards/afmultimer.md",
+    "checked_at_utc": "2026-10-26T07:26:17.436406+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/mindspore-ai/mindscience/blob/b233dc1ab152dfe29e0ff2cafb55c780dff34c67/MindSPONGE/applications/model_cards/afmultimer.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/mindspore-ai/mindscience/blob/b233dc1ab152dfe29e0ff2cafb55c780dff34c67/MindSPONGE/applications/model_configs/Multimer/predict_256.yaml",
+    "checked_at_utc": "2026-10-26T07:26:17.542041+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/mindspore-ai/mindscience/blob/b233dc1ab152dfe29e0ff2cafb55c780dff34c67/MindSPONGE/applications/model_configs/Multimer/predict_256.yaml",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/mindspore-ai/mindscience/blob/b233dc1ab152dfe29e0ff2cafb55c780dff34c67/MindSPONGE/src/mindsponge/pipeline/models/multimer/multimer.py",
+    "checked_at_utc": "2026-10-26T07:26:17.601002+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/mindspore-ai/mindscience/blob/b233dc1ab152dfe29e0ff2cafb55c780dff34c67/MindSPONGE/src/mindsponge/pipeline/models/multimer/multimer.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/mindspore-ai/mindscience/blob/b233dc1ab152dfe29e0ff2cafb55c780dff34c67/tests/st/mindsponge/test_multimer/test_multimer.py",
+    "checked_at_utc": "2026-10-26T07:26:17.782849+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/mindspore-ai/mindscience/blob/b233dc1ab152dfe29e0ff2cafb55c780dff34c67/tests/st/mindsponge/test_multimer/test_multimer.py",
     "result": "http_reachable"
   },
   {
@@ -5600,6 +5710,16 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/RT-DETR-R50_infer.tar",
+    "checked_at_utc": "2026-10-26T07:26:17.786648+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/RT-DETR-R50_infer.tar",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/TimesNet_infer.tar",
     "checked_at_utc": "2026-10-23T02:46:26.849073+00:00",
     "method": "HEAD",
@@ -5607,6 +5727,16 @@
     "version": "dynamic_or_unversioned",
     "status": 200,
     "final_url": "https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/TimesNet_infer.tar",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://paddle-model-ecology.bj.bcebos.com/paddlex/official_pretrained_model/RT-DETR-R50_pretrained.pdparams",
+    "checked_at_utc": "2026-10-26T07:26:17.876914+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://paddle-model-ecology.bj.bcebos.com/paddlex/official_pretrained_model/RT-DETR-R50_pretrained.pdparams",
     "result": "http_reachable"
   },
   {
