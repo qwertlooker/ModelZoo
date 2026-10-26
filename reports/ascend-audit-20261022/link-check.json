@@ -1260,6 +1260,56 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://gitcode.com/Ascend/MindSpeed-MM/blob/76a1db58a2f87c4ae6ec1bb6f495ec17ab805542/examples/internvl3/README.md",
+    "checked_at_utc": "2026-10-26T07:53:51.702925+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/MindSpeed-MM/blob/76a1db58a2f87c4ae6ec1bb6f495ec17ab805542/examples/internvl3/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/MindSpeed-MM/blob/76a1db58a2f87c4ae6ec1bb6f495ec17ab805542/examples/internvl3/data_8B.json",
+    "checked_at_utc": "2026-10-26T07:53:51.703337+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/MindSpeed-MM/blob/76a1db58a2f87c4ae6ec1bb6f495ec17ab805542/examples/internvl3/data_8B.json",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/MindSpeed-MM/blob/76a1db58a2f87c4ae6ec1bb6f495ec17ab805542/examples/internvl3/finetune_internvl3_8B.sh",
+    "checked_at_utc": "2026-10-26T07:53:51.703822+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/MindSpeed-MM/blob/76a1db58a2f87c4ae6ec1bb6f495ec17ab805542/examples/internvl3/finetune_internvl3_8B.sh",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/MindSpeed-MM/blob/76a1db58a2f87c4ae6ec1bb6f495ec17ab805542/examples/internvl3/inference_8B.json",
+    "checked_at_utc": "2026-10-26T07:53:51.703971+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/MindSpeed-MM/blob/76a1db58a2f87c4ae6ec1bb6f495ec17ab805542/examples/internvl3/inference_8B.json",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/MindSpeed-MM/blob/76a1db58a2f87c4ae6ec1bb6f495ec17ab805542/examples/internvl3/inference_internvl.sh",
+    "checked_at_utc": "2026-10-26T07:53:51.704441+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/MindSpeed-MM/blob/76a1db58a2f87c4ae6ec1bb6f495ec17ab805542/examples/internvl3/inference_internvl.sh",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/audio/LSTM/ReadMe.md",
     "checked_at_utc": "2026-10-23T02:46:02.650593+00:00",
     "method": "HEAD",
@@ -4170,6 +4220,26 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://github.com/huggingface/peft/blob/a7e8ea4a12275b9b5846eb3e899e75ea6fdeeee1/docs/source/developer_guides/checkpoint.md",
+    "checked_at_utc": "2026-10-26T07:53:51.704752+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/huggingface/peft/blob/a7e8ea4a12275b9b5846eb3e899e75ea6fdeeee1/docs/source/developer_guides/checkpoint.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/huggingface/peft/blob/a7e8ea4a12275b9b5846eb3e899e75ea6fdeeee1/src/peft/utils/other.py",
+    "checked_at_utc": "2026-10-26T07:53:51.705390+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/huggingface/peft/blob/a7e8ea4a12275b9b5846eb3e899e75ea6fdeeee1/src/peft/utils/other.py",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://github.com/huggingface/peft/blob/main/src/peft/utils/other.py",
     "checked_at_utc": "2026-10-23T02:46:17.910473+00:00",
     "method": "HEAD",
@@ -4407,6 +4477,16 @@
     "version": "pinned",
     "status": 200,
     "final_url": "https://github.com/mindspore-ai/mindscience/blob/c5299bc39204cc49b230edeb506c211c52abf7a6/SciAI/sciai/model/xpinns/train.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/modelscope/ms-swift/blob/942be5a6120d46443f1b1940f2902c3757e312a5/docs/source_en/BestPractices/NPU-support.md",
+    "checked_at_utc": "2026-10-26T07:53:51.705914+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/modelscope/ms-swift/blob/942be5a6120d46443f1b1940f2902c3757e312a5/docs/source_en/BestPractices/NPU-support.md",
     "result": "http_reachable"
   },
   {
@@ -5307,6 +5387,16 @@
     "version": "dynamic_or_unversioned",
     "status": 200,
     "final_url": "https://huggingface.co/datasets/IPEC-COMMUNITY/fractal20220817_data_lerobot",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/datasets/OpenGVLab/InternVL-Chat-V1-2-SFT-Data",
+    "checked_at_utc": "2026-10-26T07:53:51.798048+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/datasets/OpenGVLab/InternVL-Chat-V1-2-SFT-Data",
     "result": "http_reachable"
   },
   {

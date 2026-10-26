@@ -11934,7 +11934,7 @@
   {
     "编号": 93,
     "原始条目": "InternVL3",
-    "核查日期": "2026-10-25",
+    "核查日期": "2026-10-26",
     "结论": "有公开实现/指导，完整验收未认证",
     "分析与缺口": "第三方原模型基线测速；不是InternVL3官方通用速度，不能套用于3.5或蒸馏后的1B模型。",
     "本次实测状态": "未做模型运行；不认证S3/S4；未校验权重与数据SHA",
@@ -12011,43 +12011,60 @@
       },
       "NPU": {
         "代码": {
-          "说明": "官方平台支持指导，非源码逐文件核验",
+          "说明": "当前ms-swift列InternVL3-8B NPU SFT验证组合；历史MindSpeed-MM指南列8B/78B微调及8B单卡推理，本批读8B启动脚本和配置。其目录在当前MindSpeed-MM HEAD已不存在，须固定历史版本，不能直接照旧指南克隆master。",
           "链接": [
-            "https://support.huaweicloud.com/bestpractice-modelarts/ModelArts最佳实践（中国站）-pdf.pdf"
+            "https://github.com/modelscope/ms-swift/blob/942be5a6120d46443f1b1940f2902c3757e312a5/docs/source_en/BestPractices/NPU-support.md",
+            "https://gitcode.com/Ascend/MindSpeed-MM/blob/76a1db58a2f87c4ae6ec1bb6f495ec17ab805542/examples/internvl3/README.md",
+            "https://gitcode.com/Ascend/MindSpeed-MM/blob/76a1db58a2f87c4ae6ec1bb6f495ec17ab805542/examples/internvl3/finetune_internvl3_8B.sh",
+            "https://gitcode.com/Ascend/MindSpeed-MM/blob/76a1db58a2f87c4ae6ec1bb6f495ec17ab805542/examples/internvl3/inference_internvl.sh"
           ],
-          "证据类型": "来源报告；未独立复测"
+          "证据类型": "已读固定提交官方指导与源码；未独立运行模型"
         },
         "权重": {
-          "说明": "各规模分别准备",
+          "说明": "历史8B路径需OpenGVLab/InternVL3-8B经InternVLConverter转换至MindSpeed-MM格式；训练PP4与单卡推理的层切分不同，tokenizer仍用原HF目录。未验证14B/38B/78B全部权重及转换结果。",
           "链接": [
-            "https://support.huaweicloud.com/bestpractice-modelarts/ModelArts最佳实践（中国站）-pdf.pdf"
+            "https://gitcode.com/Ascend/MindSpeed-MM/blob/76a1db58a2f87c4ae6ec1bb6f495ec17ab805542/examples/internvl3/README.md",
+            "https://gitcode.com/Ascend/MindSpeed-MM/blob/76a1db58a2f87c4ae6ec1bb6f495ec17ab805542/examples/internvl3/inference_8B.json",
+            "https://huggingface.co/OpenGVLab/InternVL3-8B"
           ],
-          "证据类型": "来源报告；未独立复测"
+          "证据类型": "已读固定提交官方指导与源码；未独立运行模型"
         },
         "数据集": {
-          "说明": "未找到固定NPU评测集",
-          "链接": [],
-          "证据类型": "来源报告；未独立复测"
+          "说明": "指南用InternVL-Chat-V1-2-SFT-Data中的ShareGPT4V caption100k训练子集；配置图像448×448、dynamic patches 1–12，推理仅图片/视频描述样例。没有固定完整NPU精度测试split。",
+          "链接": [
+            "https://gitcode.com/Ascend/MindSpeed-MM/blob/76a1db58a2f87c4ae6ec1bb6f495ec17ab805542/examples/internvl3/README.md",
+            "https://gitcode.com/Ascend/MindSpeed-MM/blob/76a1db58a2f87c4ae6ec1bb6f495ec17ab805542/examples/internvl3/data_8B.json",
+            "https://gitcode.com/Ascend/MindSpeed-MM/blob/76a1db58a2f87c4ae6ec1bb6f495ec17ab805542/examples/internvl3/inference_8B.json",
+            "https://huggingface.co/datasets/OpenGVLab/InternVL-Chat-V1-2-SFT-Data"
+          ],
+          "证据类型": "已读固定提交官方指导与源码；未独立运行模型"
         },
         "性能基准": {
-          "说明": "未找到完整数表",
-          "链接": [],
-          "证据类型": "来源报告；未独立复测"
+          "说明": "8B历史脚本给BF16、seq4096、microbatch1、PP4及日志均值提取；推理为单卡。没有附可复核的训练吞吐/TTFT/解码速度结果，脚本配置不等于性能实测。",
+          "链接": [
+            "https://gitcode.com/Ascend/MindSpeed-MM/blob/76a1db58a2f87c4ae6ec1bb6f495ec17ab805542/examples/internvl3/finetune_internvl3_8B.sh",
+            "https://gitcode.com/Ascend/MindSpeed-MM/blob/76a1db58a2f87c4ae6ec1bb6f495ec17ab805542/examples/internvl3/inference_internvl.sh"
+          ],
+          "证据类型": "已读固定提交官方指导与源码；未独立运行模型"
         },
         "精度基准": {
-          "说明": "未找到各规模独立对齐",
-          "链接": [],
-          "证据类型": "来源报告；未独立复测"
+          "说明": "ms-swift有8B SFT支持组合，历史MindSpeed-MM有描述图片/视频入口；所读专项资料未列MMBench/DocVQA等NPU对照值，不能把上游GPU得分或示例文本当NPU质量验收。",
+          "链接": [
+            "https://github.com/modelscope/ms-swift/blob/942be5a6120d46443f1b1940f2902c3757e312a5/docs/source_en/BestPractices/NPU-support.md",
+            "https://gitcode.com/Ascend/MindSpeed-MM/blob/76a1db58a2f87c4ae6ec1bb6f495ec17ab805542/examples/internvl3/README.md",
+            "https://gitcode.com/Ascend/MindSpeed-MM/blob/76a1db58a2f87c4ae6ec1bb6f495ec17ab805542/examples/internvl3/inference_8B.json"
+          ],
+          "证据类型": "已读固定提交官方指导与源码；未独立运行模型"
         }
       }
     },
     "GPU结论": "支持GPU，有官方实现",
-    "NPU结论": "有公开实现/指导，完整验收未认证",
+    "NPU结论": "有8B NPU训练路线及历史单卡推理实现；版本/规模需区分，完整基准待补",
     "对照原文": {},
     "GPU查询状态": "已查原始资料",
     "设备核查日期": {
       "GPU": "2026-10-25",
-      "NPU": "2026-10-23"
+      "NPU": "2026-10-26"
     }
   },
   {
@@ -12629,7 +12646,7 @@
   {
     "编号": 98,
     "原始条目": "LoRA/PEFT（高效微调）",
-    "核查日期": "2026-10-23",
+    "核查日期": "2026-10-26",
     "结论": "有公开实现/指导，完整验收未认证",
     "分析与缺口": "来源报告未复测；缺完整资产SHA、正式任务对齐或三次独立NPU测量时不认证完成。",
     "本次实测状态": "未做模型运行；不认证S3/S4；未校验权重与数据SHA",
@@ -12706,42 +12723,52 @@
       },
       "NPU": {
         "代码": {
-          "说明": "PEFT有NPU设备选择，非所有组合通过",
+          "说明": "PEFT infer_device有NPU选择；更完整的官方实例为ms-swift NPU LoRA训练/合并/推理。该路线明确支持LoRA、不支持QLoRA，并限制部分Transformers5 MoE fused-expert LoRA组合；不能推广到所有PEFT方法和底座。",
           "链接": [
-            "https://github.com/huggingface/peft/blob/main/src/peft/utils/other.py"
+            "https://github.com/huggingface/peft/blob/a7e8ea4a12275b9b5846eb3e899e75ea6fdeeee1/src/peft/utils/other.py",
+            "https://github.com/modelscope/ms-swift/blob/942be5a6120d46443f1b1940f2902c3757e312a5/docs/source_en/BestPractices/NPU-support.md"
           ],
-          "证据类型": "来源报告；未独立复测"
+          "证据类型": "已读固定提交官方指导与源码；未独立运行模型"
         },
         "权重": {
-          "说明": "依底座/adapter",
+          "说明": "PEFT adapter_model.safetensors/bin只含适配参数，须同时准备adapter_config.json及原底座；不是完整独立模型。ms-swift可导出合并权重，但本轮未取得对应示例训练产物或校验SHA。",
           "链接": [
-            "https://github.com/huggingface/peft/blob/main/src/peft/utils/other.py"
+            "https://github.com/huggingface/peft/blob/a7e8ea4a12275b9b5846eb3e899e75ea6fdeeee1/docs/source/developer_guides/checkpoint.md",
+            "https://github.com/modelscope/ms-swift/blob/942be5a6120d46443f1b1940f2902c3757e312a5/docs/source_en/BestPractices/NPU-support.md"
           ],
-          "证据类型": "来源报告；未独立复测"
+          "证据类型": "已读固定提交官方指导与源码；未独立运行模型"
         },
         "数据集": {
-          "说明": "依具体任务",
+          "说明": "ms-swift快速例用Qwen3-0.6B及alpaca-gpt4-data-zh前1000条、1%验证；另Qwen2-7B示例用blossom-math-v2。数据集版本未冻结，不能作为所有LoRA任务的统一验收集。",
           "链接": [
-            "https://github.com/huggingface/peft/blob/main/src/peft/utils/other.py"
+            "https://github.com/modelscope/ms-swift/blob/942be5a6120d46443f1b1940f2902c3757e312a5/docs/source_en/BestPractices/NPU-support.md"
           ],
-          "证据类型": "来源报告；未独立复测"
+          "证据类型": "已读固定提交官方指导与源码；未独立运行模型"
         },
         "性能基准": {
-          "说明": "未找到统一基准",
-          "链接": [],
-          "证据类型": "来源报告；未独立复测"
+          "说明": "官方Qwen2-7B-Instruct/blossom-math-v2、5 epochs示例：910B3单卡约8h/28GB，4卡DDP约2h/每卡22GB。原文未列完整batch/长度/步数及重复统计，不能外推为LoRA通用吞吐或加速比。",
+          "链接": [
+            "https://github.com/modelscope/ms-swift/blob/942be5a6120d46443f1b1940f2902c3757e312a5/docs/source_en/BestPractices/NPU-support.md"
+          ],
+          "证据类型": "已读固定提交官方指导与源码；未独立运行模型"
         },
         "精度基准": {
-          "说明": "未找到统一精度",
-          "链接": [],
-          "证据类型": "来源报告；未独立复测"
+          "说明": "官方另报Qwen3.5-4B、8张Atlas900 A2、BF16、300步LoRA的loss/grad有限且趋势对齐GPU；未给任务得分及数值容差。只属该组合稳定性记录，不是所有PEFT方法精度验收。",
+          "链接": [
+            "https://github.com/modelscope/ms-swift/blob/942be5a6120d46443f1b1940f2902c3757e312a5/docs/source_en/BestPractices/NPU-support.md"
+          ],
+          "证据类型": "已读固定提交官方指导与源码；未独立运行模型"
         }
       }
     },
     "GPU结论": "有GPU使用路线，按底座和量化组合核查",
-    "NPU结论": "有公开实现/指导，完整验收未认证",
+    "NPU结论": "有官方NPU LoRA完整使用路线；QLoRA及部分MoE组合受限，需逐底座验收",
     "对照原文": {},
-    "GPU查询状态": "已查原始资料"
+    "GPU查询状态": "已查原始资料",
+    "设备核查日期": {
+      "GPU": "2026-10-23",
+      "NPU": "2026-10-26"
+    }
   },
   {
     "编号": 99,

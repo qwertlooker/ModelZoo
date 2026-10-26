@@ -3,9 +3,9 @@
 日期：2026-10-26，Asia/Shanghai；首次全量基线为2026-10-23。
 
 - 119项按原始编号逐项保留；代码、权重、数据、性能、精度分别记录证据类型和链接。
-- 23项回归测试通过：覆盖顺序、字段结构、非认证边界、易混指标回归、原始资源边界、固定ModelZoo文件存在、CSV/Markdown完整性、链接清单覆盖、GPU重查、后续证据增补、发布状态、计时范围、设备/仓库归属及可重复构建。
-- 当前链接清单644个：610个有成功HEAD记录、34个未确认（26个Hugging Face限流429、5个403、1个404、Kvasir-SEG证书错误1个、华为云567共1个）。本批检查14个新增URL，全部成功；TimesNet训练参数404保留原检查记录。其他URL保留原检查时间，不把限流/访问限制等同于链接不存在。
-- 固定提交链接224个；动态或未版本化链接420个。数量按URL路径形式统计，含同页不同锚点，不表示全部外部来源已冻结。
+- 24项回归测试通过：覆盖顺序、字段结构、非认证边界、易混指标回归、原始资源边界、固定ModelZoo文件存在、CSV/Markdown完整性、链接清单覆盖、GPU重查、后续证据增补、发布状态、计时范围、设备/仓库归属及可重复构建。
+- 当前链接清单653个：619个有成功HEAD记录、34个未确认（26个Hugging Face限流429、5个403、1个404、Kvasir-SEG证书错误1个、华为云567共1个）。本批检查9个新增URL，全部成功；TimesNet训练参数404保留原检查记录。其他URL保留原检查时间，不把限流/访问限制等同于链接不存在。
+- 固定提交链接232个；动态或未版本化链接421个。数量按URL路径形式统计，含同页不同锚点，不表示全部外部来源已冻结。
 - 原始文件/JSON读取和HTTP结果均不等于独立模型复测。
 - 未执行：NPU/CPU模型运行、依赖安装、资产下载及SHA、完整任务精度、三次独立NPU性能、clean-room和上库门禁。
 - 详细边界、修正内容和命令见REVIEW_FIXES.md；逐URL状态见link-check.json。
@@ -148,3 +148,15 @@ CSV删除每格重复免责声明、内部证据类型和长段对照原文；�
 - 累计114个设备增补条目、涉及102个原始条目、146条源码/正文读取记录。新增14个链接均可访问，现644个URL（610可访问、34未确认），23项回归及可重复构建通过。119项原始顺序和GPU/NPU分列不变，两项用户暂缓；仍未认定全量分析完成。
 
 - 推送前再次只读确认origin归属；push --dry-run仍返回pcb1990无写权限/HTTP403。只保留本地提交，未实际推送、更改远程或凭据。
+
+## 第十一批：LoRA/PEFT与InternVL3支持边界
+
+- ModelZoo master仍为153c97646d940f0eefefe81cbc891693d7243eaa。分别查询PEFT、ms-swift、MindSpeed-MM当前HEAD，并使用固定提交读取资料；没有安装依赖、训练模型或启动服务。
+- LoRA/PEFT：PEFT固定a7e8ea4a12275b9b5846eb3e899e75ea6fdeeee1，读取infer_device及checkpoint格式；adapter参数必须配套原底座和adapter_config。ms-swift固定942be5a6120d46443f1b1940f2902c3757e312a5，官方NPU指导覆盖训练、合并及推理；明确该路线支持LoRA、不支持QLoRA，部分Transformers5 MoE fused-expert组合不稳定，不能外推全部方法/底座。
+- 记录官方Qwen2-7B/blossom-math-v2、5epochs的910B3单卡8h/28GB、4卡DDP2h/22GB示例，但缺完整batch/长度及多次统计，不作为LoRA统一吞吐。Qwen3.5-4B的300步loss/grad稳定只作为该组合稳定性记录，未当作任务精度结果。
+- InternVL3：ms-swift当前支持表列8B SFT组合。另读取官方MindSpeed-MM历史提交76a1db58a2f87c4ae6ec1bb6f495ec17ab805542的README、8B微调/推理脚本和配置；当前HEAD 2d9db8318ef74661c2567b53d90daa8ca51facdf对应examples/internvl3目录404，需固定历史版本，未宣称当前master仍保留该路径。
+- 历史8B权重需InternVLConverter转换，PP4训练/单卡推理层切分不同，tokenizer使用原始HF目录。训练数据为InternVL-Chat-V1-2-SFT-Data中的ShareGPT4V caption100k，448图像/动态切片1–12；没有完整NPU任务基准表。脚本seq4096、BF16等配置不当作性能数值。
+- 同步读取dummy_optimizer特性说明：它用于参数冻结的pipeline stage，不能因示例含该参数就误判全模型没有权重更新。
+- 累计116个设备增补条目、涉及103个原始条目、155条正文读取记录。新增9个URL均可访问，现653个URL（619可访问、34未确认）；24项回归、可重复构建及diff检查通过。保留原119项与两项用户暂缓，尚未将全量目标标完成。
+
+- 本批普通push --dry-run仍因pcb1990无qwertlooker/ModelZoo写权限返回403；保留本地提交，未实际推送或修改远程/凭据。

@@ -352,4 +352,20 @@ class ReportTests(unittest.TestCase):
                 with self.subTest(number=n,field=field,token=token):
                     self.assertIn(token,text(n,field))
         self.assertIn('未实现完整ssGBLUP',self.rows[51]['NPU结论'])
+    def test_peft_route_and_internvl_history_are_scoped(self):
+        def text(n, field):
+            return self.rows[n-1]['设备维度']['NPU'][field]['说明']
+        for n, field, tokens in [
+            (98,'代码',['ms-swift','不支持QLoRA','不能推广']),
+            (98,'权重',['只含适配参数','原底座','不是完整独立模型']),
+            (98,'性能基准',['Qwen2-7B','8h/28GB','未列完整batch']),
+            (98,'精度基准',['Qwen3.5-4B','300步','稳定性记录']),
+            (93,'代码',['当前ms-swift','历史MindSpeed-MM','HEAD已不存在']),
+            (93,'权重',['转换','PP4','未验证14B/38B/78B']),
+            (93,'性能基准',['seq4096','没有附可复核','不等于性能实测']),
+            (93,'精度基准',['未列MMBench/DocVQA','不能把上游GPU得分']),
+        ]:
+            for token in tokens:
+                with self.subTest(number=n,field=field,token=token):
+                    self.assertIn(token,text(n,field))
 if __name__=='__main__':unittest.main()
