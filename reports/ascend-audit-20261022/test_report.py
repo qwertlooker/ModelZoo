@@ -423,4 +423,20 @@ class ReportTests(unittest.TestCase):
             for token in tokens:
                 with self.subTest(number=n,device=device,field=field,token=token):
                     self.assertIn(token,value)
+    def test_cosmos_training_metrics_and_actual_entry_paths(self):
+        for n, field, tokens in [
+            (4,'代码',['2B/14B','未覆盖0.6B','不是指定ModelZoo']),
+            (4,'性能基准',['nproc_per_node/step_time','未计多机总卡数','不能当视频FPS']),
+            (5,'数据集',['128条视频','Waymo','单视角front']),
+            (5,'精度基准',['-0.4570/-0.4805','不擅改符号','不能证明控制生成质量']),
+            (6,'代码',['4卡policy+4卡rollout','非8卡全部用于policy']),
+            (6,'精度基准',['RL Final Reward','1.9219','1.9688','把Reward写成loss']),
+            (6,'性能基准',['51–100步','6–15步','不是生成tokens/s']),
+            (7,'代码',['inference_pipeline.sh','inference-pipeline.sh','直接照抄会找不到文件']),
+            (7,'数据集',['--skip lidar','不证明LiDAR数据生成']),
+        ]:
+            value=self.rows[n-1]['设备维度']['NPU'][field]['说明']
+            for token in tokens:
+                with self.subTest(number=n,field=field,token=token):
+                    self.assertIn(token,value)
 if __name__=='__main__':unittest.main()

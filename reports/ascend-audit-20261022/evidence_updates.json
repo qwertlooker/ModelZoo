@@ -1435,6 +1435,97 @@
       "date": "2026-10-26",
       "blob_sha": "ed601ec82035fa9c3d8529788d544e1a9bd689b0",
       "note": "外部CANN专项推理/评测路线，不计指定ModelZoo仓内交付"
+    },
+    {
+      "url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Predict2/README.md",
+      "method": "GitHub fetch_file正文",
+      "date": "2026-10-26",
+      "blob_sha": "242689c8e8996aaeebf9134af5d722adf97617bf",
+      "note": "固定DrivingSDK快照；原始结果未独立复测"
+    },
+    {
+      "url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Transfer1/README.md",
+      "method": "GitHub fetch_file正文",
+      "date": "2026-10-26",
+      "blob_sha": "4a4d883662009adcabac165de2718f3f2c212cf9",
+      "note": "固定DrivingSDK快照；原始结果未独立复测"
+    },
+    {
+      "url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Reason1/README.md",
+      "method": "GitHub fetch_file正文",
+      "date": "2026-10-26",
+      "blob_sha": "e0b01c5d51046cd740c6cf274db51b9d83fa1178",
+      "note": "固定DrivingSDK快照；原始结果未独立复测"
+    },
+    {
+      "url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Drive-Dreams/README.md",
+      "method": "GitHub fetch_file正文",
+      "date": "2026-10-26",
+      "blob_sha": "691a62c0a4ce78fb52f93c019b04be4c3108df78",
+      "note": "固定DrivingSDK快照；原始结果未独立复测"
+    },
+    {
+      "url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Reason1/test/train.sh",
+      "method": "GitHub fetch_file启动脚本正文",
+      "date": "2026-10-26",
+      "blob_sha": "8371dd4719df65ecd4149483ece118e162b68142",
+      "note": "只读未执行；核对计时、阶段范围和错误传播"
+    },
+    {
+      "url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Predict2/test/train.sh",
+      "method": "GitHub fetch_file启动脚本正文",
+      "date": "2026-10-26",
+      "blob_sha": "e181eba0b594c7ed33f7767f3ca94d594db11033",
+      "note": "只读未执行；核对计时、阶段范围和错误传播"
+    },
+    {
+      "url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Transfer1/test/inference_cosmos_transfer_7b.sh",
+      "method": "GitHub fetch_file启动脚本正文",
+      "date": "2026-10-26",
+      "blob_sha": "19d29f2c7cbe62a7fe309e7497464ad2b66a729c",
+      "note": "只读未执行；核对计时、阶段范围和错误传播"
+    },
+    {
+      "url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Drive-Dreams/test/inference-pipeline.sh",
+      "method": "GitHub fetch_file启动脚本正文",
+      "date": "2026-10-26",
+      "blob_sha": "83bd93321917e1d6da248d5782b5fde187becd42",
+      "note": "只读未执行；核对计时、阶段范围和错误传播"
+    },
+    {
+      "url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Predict2/cosmos_predict2.patch",
+      "method": "GitCode contents API读取patch；核对diff路径与NPU相关hunk",
+      "date": "2026-10-26",
+      "blob_sha": "7081a2ae765131a04a1f7fbc4ea8316463bfbe25",
+      "note": "没有应用patch或运行；不代表所有改动逐行验收"
+    },
+    {
+      "url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Transfer1/Cosmos_transfer1.patch",
+      "method": "GitCode contents API读取patch；核对diff路径与NPU相关hunk",
+      "date": "2026-10-26",
+      "blob_sha": "ccf12504dc50ace38fbec1b14229c88e6e608f6e",
+      "note": "没有应用patch或运行；不代表所有改动逐行验收"
+    },
+    {
+      "url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Reason1/cosmos-rl.patch",
+      "method": "GitCode contents API读取patch；核对diff路径与NPU相关hunk",
+      "date": "2026-10-26",
+      "blob_sha": "be6b91f0b5538774962e1bf857252586265ca853",
+      "note": "没有应用patch或运行；不代表所有改动逐行验收"
+    },
+    {
+      "url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Drive-Dreams/Cosmos-Drive-Dreams.patch",
+      "method": "GitCode contents API读取patch；核对diff路径与NPU相关hunk",
+      "date": "2026-10-26",
+      "blob_sha": "4173415a88cac2bdd942d80cdd4f25b4811a9d16",
+      "note": "没有应用patch或运行；不代表所有改动逐行验收"
+    },
+    {
+      "url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Drive-Dreams/Cosmos-Transfer1.patch",
+      "method": "GitCode contents API读取patch；核对diff路径与NPU相关hunk",
+      "date": "2026-10-26",
+      "blob_sha": "ec23e278a1ac59b5b06f1cc1cc31be985321dcd1",
+      "note": "没有应用patch或运行；不代表所有改动逐行验收"
     }
   ],
   "target_master": "dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202",
@@ -1656,6 +1747,57 @@
       "note": "NATTEN与原版、图像与视频分别统计；PBench模型页和基准页列名存在错位，已按基准专页及分项表归属。官方GPU时间表的视频长度/采样步数仍需匹配配置。"
     },
     {
+      "number": 4,
+      "device": "NPU",
+      "date": "2026-10-26",
+      "fields": {
+        "代码": {
+          "说明": "DrivingSDK提供2B/14B Text2Image和Video2World训练/单卡推理，Released=N；固定上游ccb40411应用cosmos_predict2.patch，含torch_npu融合RMSNorm/RoPE/Attention及设备迁移。不是指定ModelZoo仓内交付，未覆盖0.6B。",
+          "链接": [
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Predict2/README.md",
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Predict2/cosmos_predict2.patch",
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Predict2/test/train.sh"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "权重": {
+          "说明": "按任务选择2B/14B Text2Image或Video2World checkpoint，另需google-t5/t5-11b；推理安全检查可选Cosmos-1.0-Guardrail，文档默认CPU运行。没有独立NPU转换权重/SHA发布证据。",
+          "链接": [
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Predict2/README.md",
+            "https://huggingface.co/nvidia/Cosmos-Predict2-2B-Video2World",
+            "https://huggingface.co/nvidia/Cosmos-Predict2-14B-Video2World",
+            "https://huggingface.co/google-t5/t5-11b"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "数据集": {
+          "说明": "Cosmos-NeMo-Assets视频及T5 embedding；Text2Image另按stride30抽帧，不能混同Video2World。文档没有独立固定测试split/样本清单，500步训练结果不等于正式质量评测。",
+          "链接": [
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Predict2/README.md",
+            "https://huggingface.co/datasets/nvidia/Cosmos-NeMo-Assets"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "性能基准": {
+          "说明": "README没有可引用的NPU生成耗时/吞吐值；训练脚本取step5到25日志计算单步时间，FPS=nproc_per_node/step_time，未计多机总卡数或实际样本/帧数，不能当视频FPS或全局吞吐。",
+          "链接": [
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Predict2/README.md",
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Predict2/test/train.sh"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "精度基准": {
+          "说明": "Video2World14B：16×Atlas800T A2、global batch16、500步，Final loss0.0409；竞品A0.0402，GPU型号未列。没有NPU GenEval/PBench质量结果，不能借GPU分数认定NPU质量已复现；EMA初始化随机状态有文档提示。",
+          "链接": [
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Predict2/README.md"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        }
+      },
+      "conclusion": "外部DrivingSDK有四变体训练/推理；公开NPU任务质量与吞吐仍缺",
+      "note": "仅认定固定DrivingSDK版本开发自验；2B/14B与Text2Image/Video2World分开，0.6B不能外推。"
+    },
+    {
       "number": 5,
       "date": "2026-10-25",
       "device": "GPU",
@@ -1683,6 +1825,58 @@
         }
       },
       "note": "均匀四模态基准不代表任意控制权重；64卡实时生成不是单卡性能，7B原版不能用Edge蒸馏版一部采样结果代替。"
+    },
+    {
+      "number": 5,
+      "device": "NPU",
+      "date": "2026-10-26",
+      "fields": {
+        "代码": {
+          "说明": "DrivingSDK固定上游fc6376b0及Cosmos_transfer1.patch，支持7B、Sample-AV、Single2MultiView训练/推理，另有4K与蒸馏推理入口。已读patch设备迁移/RMSNorm及Edge启动脚本，未实际应用或运行；非ModelZoo仓内交付。",
+          "链接": [
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Transfer1/README.md",
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Transfer1/Cosmos_transfer1.patch",
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Transfer1/test/inference_cosmos_transfer_7b.sh"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "权重": {
+          "说明": "7B base_model.pt+edge_control.pt、AV base+lidar_control、Single2MultiView t2w_base_model.pt+t2w_hdmap_control.pt分别准备，训练先拆TP8 checkpoint。另有T5/tokenizer/guardrail等辅助资产，Llama-Guard-3-8B需授权。",
+          "链接": [
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Transfer1/README.md",
+            "https://huggingface.co/nvidia/Cosmos-Transfer1-7B",
+            "https://huggingface.co/nvidia/Cosmos-Transfer1-7B-Sample-AV",
+            "https://huggingface.co/nvidia/Cosmos-Transfer1-7B-Sample-AV-Single2MultiView",
+            "https://huggingface.co/meta-llama/Llama-Guard-3-8B"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "数据集": {
+          "说明": "基础7B用HD-VILA-100M子集，示例下载128条视频并生成caption/T5 embedding及控制输入；AV用Waymo处理子集，单视角front与多视角目录不同，不能合并成同一评测集。",
+          "链接": [
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Transfer1/README.md",
+            "https://github.com/nv-tlabs/cosmos-av-sample-toolkits/blob/main/docs/processing_waymo_for_transfer1.md"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "性能基准": {
+          "说明": "8×Atlas800T A2、TP8、混精训练单步：7B 10.34s、AV11.13s、多视角20.90s；竞品A分别8.93/10.91/23.02s但型号未列。Edge脚本支持1/4卡且offload文本/guardrail，未附生成计时表；不能与GPU B200推理延迟直接比较。",
+          "链接": [
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Transfer1/README.md",
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Transfer1/test/inference_cosmos_transfer_7b.sh"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "精度基准": {
+          "说明": "训练loss（NPU/竞品A）：7B -0.4570/-0.4805，AV0.4648/0.4707，多视角0.0757/0.0608；负loss按原表保留，不擅改符号。已读README未给NPU TransferBench SSIM/F1/si-RMSE/mIoU/DOVER，训练loss不能证明控制生成质量。",
+          "链接": [
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Transfer1/README.md"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        }
+      },
+      "conclusion": "外部DrivingSDK有7B多变体训练/推理；NPU生成质量未闭合",
+      "note": "基础7B、AV、多视角和4K分开；训练迭代秒数不作为推理性能，不能用上游TransferBench填NPU结果。"
     },
     {
       "number": 6,
@@ -1717,6 +1911,57 @@
       "note": "7B/56B、SFT/RL阶段及六项/七项均值分开；指定公开checkpoint对应哪一阶段仍需核对。"
     },
     {
+      "number": 6,
+      "device": "NPU",
+      "date": "2026-10-26",
+      "fields": {
+        "代码": {
+          "说明": "DrivingSDK仅声明Reason1-7B SFT/RL训练开发自验；固定cosmos-rl dbbf358b、Reason1 8743e1bb及vLLM0.11.0。已读cosmos-rl.patch有NPU设备/HCCL/融合算子；train.sh SFT用8卡，RL为4卡policy+4卡rollout，非8卡全部用于policy。",
+          "链接": [
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Reason1/README.md",
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Reason1/cosmos-rl.patch",
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Reason1/test/train.sh"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "权重": {
+          "说明": "预训练nvidia/Cosmos-Reason1-7B作为SFT/RL起点；文档没有附对应NPU实验产出checkpoint下载或SHA。不能用原始7B权重代替训练后评测权重。",
+          "链接": [
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Reason1/README.md",
+            "https://huggingface.co/nvidia/Cosmos-Reason1-7B"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "数据集": {
+          "说明": "分别使用Cosmos-Reason1-SFT-Dataset与RL-Dataset；SFT global batch256、1 epoch，RL batch512、8 epochs。训练集上的loss/reward不是独立物理常识/具身推理测试集成绩。",
+          "链接": [
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Reason1/README.md",
+            "https://huggingface.co/datasets/nvidia/Cosmos-Reason1-SFT-Dataset",
+            "https://huggingface.co/datasets/nvidia/Cosmos-Reason1-RL-Dataset"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "性能基准": {
+          "说明": "8×Atlas800T A2：SFT16.57s/迭代（batch256，1epoch），RL43.58s/迭代（batch512，8epochs）；竞品A14.52/25.16s。脚本SFT取51–100步、RL取6–15步日志均值，非独立重复中位数，也不是生成tokens/s。",
+          "链接": [
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Reason1/README.md",
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Reason1/test/train.sh"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "精度基准": {
+          "说明": "SFT Final loss：NPU0.380/竞品A0.378；RL Final Reward：NPU1.9219/竞品A1.9688，纠正此前把Reward写成loss的错误。脚本分别提取Loss与Reward Mean；没有NPU七项推理基准正确率，reward值不能当准确率。",
+          "链接": [
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Reason1/README.md",
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Reason1/test/train.sh"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        }
+      },
+      "conclusion": "外部DrivingSDK有SFT/RL训练；RL1.9219为Reward，任务精度未闭合",
+      "note": "已修正RL指标归属；当前GPU论文基准与此NPU训练Reward不可直接比较。"
+    },
+    {
       "number": 7,
       "date": "2026-10-25",
       "device": "GPU",
@@ -1745,6 +1990,59 @@
         }
       },
       "note": "AV生成流水线应逐组件验证；下游检测增益不能写成生成模型精度，也不能把公开子模型推理当作完整流水线已验收。"
+    },
+    {
+      "number": 7,
+      "device": "NPU",
+      "date": "2026-10-26",
+      "fields": {
+        "代码": {
+          "说明": "DrivingSDK提供Drive-Dreams推理patch与串行入口；但README写inference_pipeline.sh及Cosmos_Drive_Dreams.patch/Cosmos_Transfer1.patch，实际文件为inference-pipeline.sh、Cosmos-Drive-Dreams.patch、Cosmos-Transfer1.patch，直接照抄会找不到文件。不是ModelZoo仓内交付。",
+          "链接": [
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Drive-Dreams/README.md",
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Drive-Dreams/test/inference-pipeline.sh",
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Drive-Dreams/Cosmos-Drive-Dreams.patch",
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Drive-Dreams/Cosmos-Transfer1.patch"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "权重": {
+          "说明": "依赖Transfer1-7B、AV、Single2MultiView、Cosmos tokenizer/prompt upsampler/guardrail及T5、SAM2、DepthAnything、GroundingDINO，Llama-Guard-3-8B需授权；这是一组流水线资产，不能只列一个checkpoint。",
+          "链接": [
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Drive-Dreams/README.md",
+            "https://huggingface.co/nvidia/Cosmos-Transfer1-7B",
+            "https://huggingface.co/nvidia/Cosmos-Transfer1-7B-Sample-AV-Single2MultiView",
+            "https://huggingface.co/meta-llama/Llama-Guard-3-8B"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "数据集": {
+          "说明": "实际入口使用assets/example及captions，先render_from_rds_hq.py处理条件，显式--skip lidar，再做提示改写、front视频、多视角视频。该默认脚本不证明LiDAR数据生成或全量驾驶场景已验证。",
+          "链接": [
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Drive-Dreams/README.md",
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Drive-Dreams/test/inference-pipeline.sh"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "性能基准": {
+          "说明": "已读README和实际流水线脚本没有硬件/输入规模固定的端到端耗时表，也没有逐阶段同步计时或三次结果；仅输出各阶段完成信息，不能引用为吞吐验收。",
+          "链接": [
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Drive-Dreams/README.md",
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Drive-Dreams/test/inference-pipeline.sh"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "精度基准": {
+          "说明": "已读README及入口未报告NPU生成质量、物理一致性或下游车道检测F1；文件产出/阶段完成不等于质量通过，上游GPU合成数据收益不能写为NPU复测成绩。",
+          "链接": [
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Drive-Dreams/README.md",
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Drive-Dreams/test/inference-pipeline.sh"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        }
+      },
+      "conclusion": "外部DrivingSDK有推理代码；README文件名不一致，性能/质量缺证据",
+      "note": "固定快照存在补丁与入口文件名错误；默认跳过LiDAR，不认定全流水线或全任务已验收。"
     },
     {
       "number": 8,
@@ -6895,6 +7193,25 @@
         "Gazebo Ascend NPU"
       ],
       "result": "OptEx仅核估计设备代码线索；空间智能原始仓列VGGT等，不证明ORB-SLAM3；同名Ascend Engineering非华为昇腾。"
+    }
+  ],
+  "delivery_path_checks": [
+    {
+      "number": 7,
+      "date": "2026-10-26",
+      "ref": "27375a9c561578d6aee7270edfac6ae7955942f5",
+      "method": "GitCode contents API directory listing; GitHub fetch_file existing entry",
+      "expected_from_readme": [
+        "Cosmos_Drive_Dreams.patch",
+        "Cosmos_Transfer1.patch",
+        "test/inference_pipeline.sh"
+      ],
+      "actual_files": [
+        "Cosmos-Drive-Dreams.patch",
+        "Cosmos-Transfer1.patch",
+        "test/inference-pipeline.sh"
+      ],
+      "result": "README file names differ; missing underscore script GitHub fetch 404; actual hyphen script read successfully"
     }
   ]
 }

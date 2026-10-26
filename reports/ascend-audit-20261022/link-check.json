@@ -3080,6 +3080,26 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Drive-Dreams/Cosmos-Drive-Dreams.patch",
+    "checked_at_utc": "2026-10-26T14:55:16.430496+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Drive-Dreams/Cosmos-Drive-Dreams.patch",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Drive-Dreams/Cosmos-Transfer1.patch",
+    "checked_at_utc": "2026-10-26T14:55:16.430954+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Drive-Dreams/Cosmos-Transfer1.patch",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Drive-Dreams/README.md",
     "checked_at_utc": "2026-10-23T02:46:09.713956+00:00",
     "method": "HEAD",
@@ -3087,6 +3107,16 @@
     "version": "pinned",
     "status": 200,
     "final_url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Drive-Dreams/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Drive-Dreams/test/inference-pipeline.sh",
+    "checked_at_utc": "2026-10-26T14:55:16.431415+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Drive-Dreams/test/inference-pipeline.sh",
     "result": "http_reachable"
   },
   {
@@ -3100,6 +3130,26 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Predict2/cosmos_predict2.patch",
+    "checked_at_utc": "2026-10-26T14:55:16.431685+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Predict2/cosmos_predict2.patch",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Predict2/test/train.sh",
+    "checked_at_utc": "2026-10-26T14:55:16.432002+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Predict2/test/train.sh",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Reason1/README.md",
     "checked_at_utc": "2026-10-23T02:46:09.770986+00:00",
     "method": "HEAD",
@@ -3110,6 +3160,36 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Reason1/cosmos-rl.patch",
+    "checked_at_utc": "2026-10-26T14:55:16.432338+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Reason1/cosmos-rl.patch",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Reason1/test/train.sh",
+    "checked_at_utc": "2026-10-26T14:55:16.433153+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Reason1/test/train.sh",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Transfer1/Cosmos_transfer1.patch",
+    "checked_at_utc": "2026-10-26T14:55:16.433619+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Transfer1/Cosmos_transfer1.patch",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Transfer1/README.md",
     "checked_at_utc": "2026-10-23T02:46:09.829556+00:00",
     "method": "HEAD",
@@ -3117,6 +3197,16 @@
     "version": "pinned",
     "status": 200,
     "final_url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Transfer1/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Transfer1/test/inference_cosmos_transfer_7b.sh",
+    "checked_at_utc": "2026-10-26T14:55:16.544183+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Transfer1/test/inference_cosmos_transfer_7b.sh",
     "result": "http_reachable"
   },
   {
@@ -4720,6 +4810,16 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://github.com/nv-tlabs/cosmos-av-sample-toolkits/blob/main/docs/processing_waymo_for_transfer1.md",
+    "checked_at_utc": "2026-10-26T14:55:16.588018+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/nv-tlabs/cosmos-av-sample-toolkits/blob/main/docs/processing_waymo_for_transfer1.md",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://github.com/nvidia-cosmos/cosmos-predict2/blob/main/README.md",
     "checked_at_utc": "2026-10-23T02:46:18.810988+00:00",
     "method": "HEAD",
@@ -6000,6 +6100,16 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://huggingface.co/google-t5/t5-11b",
+    "checked_at_utc": "2026-10-26T14:55:18.077190+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/google-t5/t5-11b",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://huggingface.co/google/paligemma-3b-pt-224",
     "checked_at_utc": "2026-10-23T02:46:25.359149+00:00",
     "method": "HEAD",
@@ -6030,6 +6140,26 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://huggingface.co/meta-llama/Llama-Guard-3-8B",
+    "checked_at_utc": "2026-10-26T14:55:18.101559+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/meta-llama/Llama-Guard-3-8B",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/nvidia/Cosmos-Predict2-14B-Video2World",
+    "checked_at_utc": "2026-10-26T14:55:18.155688+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/nvidia/Cosmos-Predict2-14B-Video2World",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://huggingface.co/nvidia/Cosmos-Predict2-2B-Video2World",
     "checked_at_utc": "2026-10-23T02:46:25.615417+00:00",
     "method": "HEAD",
@@ -6048,6 +6178,36 @@
     "status": 429,
     "result": "not_confirmed",
     "error": "HTTP Error 429: Too Many Requests"
+  },
+  {
+    "url": "https://huggingface.co/nvidia/Cosmos-Transfer1-7B",
+    "checked_at_utc": "2026-10-26T14:55:18.260515+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/nvidia/Cosmos-Transfer1-7B",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/nvidia/Cosmos-Transfer1-7B-Sample-AV",
+    "checked_at_utc": "2026-10-26T14:55:18.295412+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/nvidia/Cosmos-Transfer1-7B-Sample-AV",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/nvidia/Cosmos-Transfer1-7B-Sample-AV-Single2MultiView",
+    "checked_at_utc": "2026-10-26T14:55:18.496609+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/nvidia/Cosmos-Transfer1-7B-Sample-AV-Single2MultiView",
+    "result": "http_reachable"
   },
   {
     "url": "https://huggingface.co/nvidia/GR00T-N1-2B",
