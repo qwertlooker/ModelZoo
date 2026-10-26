@@ -530,6 +530,16 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://arxiv.org/html/2509.22642v1",
+    "checked_at_utc": "2026-10-26T14:41:24.377620+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://arxiv.org/html/2509.22642v1",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://arxiv.org/html/2511.00108v2",
     "checked_at_utc": "2026-10-25T06:41:09.878548+00:00",
     "method": "HEAD",
@@ -737,6 +747,16 @@
     "version": "dynamic_or_unversioned",
     "status": 200,
     "final_url": "https://arxiv.org/html/2608.05597v1",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://arxiv.org/html/2608.11739v1",
+    "checked_at_utc": "2026-10-26T14:41:24.378008+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://arxiv.org/html/2608.11739v1",
     "result": "http_reachable"
   },
   {
@@ -2660,6 +2680,26 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://gitcode.com/wangguiqin/FastWAM-NPU/blob/5a7f8443a84bad1125298662d279436fb3edfe07/README_NPU.md",
+    "checked_at_utc": "2026-10-26T14:41:24.378406+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/wangguiqin/FastWAM-NPU/blob/5a7f8443a84bad1125298662d279436fb3edfe07/README_NPU.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/wangguiqin/FastWAM-NPU/blob/5a7f8443a84bad1125298662d279436fb3edfe07/VALIDATION_REPORT.md",
+    "checked_at_utc": "2026-10-26T14:41:24.378687+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/wangguiqin/FastWAM-NPU/blob/5a7f8443a84bad1125298662d279436fb3edfe07/VALIDATION_REPORT.md",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://gitcode.com/wangguiqin/FastWAM-NPU/blob/5a7f8443a84bad1125298662d279436fb3edfe07/scripts/eval_npu_suite.py",
     "checked_at_utc": "2026-10-23T02:46:09.194958+00:00",
     "method": "HEAD",
@@ -3637,6 +3677,26 @@
     "version": "dynamic_or_unversioned",
     "status": 200,
     "final_url": "https://github.com/PaddlePaddle/PaddleOCR/blob/main/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/PaddlePaddle/PaddleOCR/blob/main/docs/version3.x/module_usage/text_detection.md",
+    "checked_at_utc": "2026-10-26T14:41:24.379059+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/PaddlePaddle/PaddleOCR/blob/main/docs/version3.x/module_usage/text_detection.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/PaddlePaddle/PaddleOCR/blob/main/docs/version3.x/module_usage/text_recognition.md",
+    "checked_at_utc": "2026-10-26T14:41:24.379338+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/PaddlePaddle/PaddleOCR/blob/main/docs/version3.x/module_usage/text_recognition.md",
     "result": "http_reachable"
   },
   {
@@ -5000,6 +5060,26 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://github.com/wow-world-model/wow-world-model/blob/main/README.md",
+    "checked_at_utc": "2026-10-26T14:41:24.379906+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/wow-world-model/wow-world-model/blob/main/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/wow-world-model/wow-world-model/blob/main/demo/README.md",
+    "checked_at_utc": "2026-10-26T14:41:24.380628+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/wow-world-model/wow-world-model/blob/main/demo/README.md",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://github.com/wow-world-model/wow-world-model/blob/main/demo/wan_infer_demo.py",
     "checked_at_utc": "2026-10-23T02:46:21.025538+00:00",
     "method": "HEAD",
@@ -5181,13 +5261,33 @@
   },
   {
     "url": "https://huggingface.co/OpenGalaxea/G05",
-    "checked_at_utc": "2026-10-23T02:46:22.093926+00:00",
+    "checked_at_utc": "2026-10-26T14:42:13.231880+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
     "status": 200,
     "final_url": "https://huggingface.co/OpenGalaxea/G05",
     "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/OpenGalaxea/G05/resolve/main/g05-base/checkpoints/model_state_dict.pt",
+    "checked_at_utc": "2026-10-26T14:41:24.380920+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 401,
+    "result": "not_confirmed",
+    "error": "HTTP Error 401: Unauthorized"
+  },
+  {
+    "url": "https://huggingface.co/OpenGalaxea/G05/resolve/main/g05-libero/model.pt",
+    "checked_at_utc": "2026-10-26T14:41:24.428505+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 401,
+    "result": "not_confirmed",
+    "error": "HTTP Error 401: Unauthorized"
   },
   {
     "url": "https://huggingface.co/PaddlePaddle/PaddleOCR-VL-1.6",
@@ -5377,6 +5477,16 @@
     "version": "dynamic_or_unversioned",
     "status": 200,
     "final_url": "https://huggingface.co/X-Humanoid/WoW-1-Wan-14B-2M",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/WoW-world-model/WoW-1-Wan-14B-600k",
+    "checked_at_utc": "2026-10-26T14:41:25.116635+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/X-Humanoid/WoW-1-Wan-14B-600k",
     "result": "http_reachable"
   },
   {
@@ -6040,6 +6150,46 @@
     "error": "HTTP Error 429: Too Many Requests"
   },
   {
+    "url": "https://huggingface.co/yuanty/fastwam/resolve/main/libero_optional_idm_2cam224.pt",
+    "checked_at_utc": "2026-10-26T14:41:25.122747+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://us.aws.cdn.hf.co/xet-bridge-us/69c156d79365f044238d928e/3461c881a3027e96e5c8d4af35e6c1ec32d7b35730ef0ad4696f223475f5119a?X-Xet-Cas-Uid=public&xip=hpBWJT01Yhg&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27libero_optional_idm_2cam224.pt%3B+filename%3D%22libero_optional_idm_2cam224.pt%22%3B&user_id=public&Expires=1793029286&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjljMTU2ZDc5MzY1ZjA0NDIzOGQ5MjhlLzM0NjFjODgxYTMwMjdlOTZlNWM4ZDRhZjM1ZTZjMWVjMzJkN2IzNTczMGVmMGFkNDY5NmYyMjM0NzVmNTExOWFcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZ4aXA9aHBCV0pUMDFZaGcmcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj1pbmxpbmUlM0IrZmlsZW5hbWUlMkElM0RVVEYtOCUyNyUyN2xpYmVyb19vcHRpb25hbF9pZG1fMmNhbTIyNC5wdCUzQitmaWxlbmFtZSUzRCUyMmxpYmVyb19vcHRpb25hbF9pZG1fMmNhbTIyNC5wdCUyMiUzQiZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzkzMDI5Mjg2fX19XX0_&Signature=MEYCIQDWbtHs2F3jLFxTIBgMEIppJCLCfkHzCkqx-sA0aAmcTwIhAOkPNMaYfMewzVMmVcuE9F27APBE0gWG6YlzE3Y9Gm4g&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/yuanty/fastwam/resolve/main/libero_optional_idm_2cam224_dataset_stats.json",
+    "checked_at_utc": "2026-10-26T14:41:25.562123+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/api/resolve-cache/models/yuanty/fastwam/8eaceeb24c3cc92ff2a9c9a9d266a4941b836705/libero_optional_idm_2cam224_dataset_stats.json?%2Fyuanty%2Ffastwam%2Fresolve%2Fmain%2Flibero_optional_idm_2cam224_dataset_stats.json=&etag=%22e8ff7341ad86b9750dc1fbc26250da8c2c05f1a2%22",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/yuanty/fastwam/resolve/main/libero_uncond_2cam224.pt",
+    "checked_at_utc": "2026-10-26T14:41:25.594143+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://us.aws.cdn.hf.co/xet-bridge-us/69c156d79365f044238d928e/6abd45cf181afa5b899f9a6cb4e25c48938a4b51f4df913f74eb8a49906a4f30?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27libero_uncond_2cam224.pt%3B+filename%3D%22libero_uncond_2cam224.pt%22%3B&X-Xet-Cas-Uid=public&xip=hpBWJT01Yhg&user_id=public&Expires=1793029286&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjljMTU2ZDc5MzY1ZjA0NDIzOGQ5MjhlLzZhYmQ0NWNmMTgxYWZhNWI4OTlmOWE2Y2I0ZTI1YzQ4OTM4YTRiNTFmNGRmOTEzZjc0ZWI4YTQ5OTA2YTRmMzBcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3bGliZXJvX3VuY29uZF8yY2FtMjI0LnB0JTNCK2ZpbGVuYW1lJTNEJTIybGliZXJvX3VuY29uZF8yY2FtMjI0LnB0JTIyJTNCJlgtWGV0LUNhcy1VaWQ9cHVibGljJnhpcD1ocEJXSlQwMVloZyZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzkzMDI5Mjg2fX19XX0_&Signature=MEUCIA2mVK9xAsSOT3dy%7Ekw69gdu1Huc3fAthEL0icy4DpOLAiEA0EhjDq2bTRe9ffughqgFalzMBqeMT0r6MxGoXAjQQsQ_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/yuanty/fastwam/resolve/main/robotwin_uncond_3cam_384.pt",
+    "checked_at_utc": "2026-10-26T14:41:25.983158+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://us.aws.cdn.hf.co/xet-bridge-us/69c156d79365f044238d928e/55158d4565940ed0e3c5b691cc9f94cd702428a65e7fd4a62e148a556e4469bb?user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27robotwin_uncond_3cam_384.pt%3B+filename%3D%22robotwin_uncond_3cam_384.pt%22%3B&X-Xet-Cas-Uid=public&xip=hpBWJT01Yhg&Expires=1793029287&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjljMTU2ZDc5MzY1ZjA0NDIzOGQ5MjhlLzU1MTU4ZDQ1NjU5NDBlZDBlM2M1YjY5MWNjOWY5NGNkNzAyNDI4YTY1ZTdmZDRhNjJlMTQ4YTU1NmU0NDY5YmJcXD91c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3cm9ib3R3aW5fdW5jb25kXzNjYW1fMzg0LnB0JTNCK2ZpbGVuYW1lJTNEJTIycm9ib3R3aW5fdW5jb25kXzNjYW1fMzg0LnB0JTIyJTNCJlgtWGV0LUNhcy1VaWQ9cHVibGljJnhpcD1ocEJXSlQwMVloZyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzkzMDI5Mjg3fX19XX0_&Signature=MEUCIHqR461w-eUfwRbOfjoUHBqtIEGIUgE6CnsZXMHSKaowAiEApLnS4lbnaVlsuokO0NYDrqc3Lu7VmHrmq1EJm2HA5TU_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://image-net.org/challenges/LSVRC/2012/2012-downloads.php",
     "checked_at_utc": "2026-10-25T07:45:15.692620+00:00",
     "method": "HEAD",
@@ -6167,6 +6317,66 @@
     "version": "dynamic_or_unversioned",
     "status": 200,
     "final_url": "https://paddle-model-ecology.bj.bcebos.com/paddlex/data/Etth1.tar",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://paddle-model-ecology.bj.bcebos.com/paddlex/data/ocr_det_dataset_examples.tar",
+    "checked_at_utc": "2026-10-26T14:41:26.660667+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://paddle-model-ecology.bj.bcebos.com/paddlex/data/ocr_det_dataset_examples.tar",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://paddle-model-ecology.bj.bcebos.com/paddlex/data/ocr_rec_dataset_examples.tar",
+    "checked_at_utc": "2026-10-26T14:41:26.736453+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://paddle-model-ecology.bj.bcebos.com/paddlex/data/ocr_rec_dataset_examples.tar",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv5_server_det_infer.tar",
+    "checked_at_utc": "2026-10-26T14:41:26.737435+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv5_server_det_infer.tar",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv5_server_rec_infer.tar",
+    "checked_at_utc": "2026-10-26T14:41:26.836277+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv5_server_rec_infer.tar",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv6_medium_det_infer.tar",
+    "checked_at_utc": "2026-10-26T14:41:26.839210+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv6_medium_det_infer.tar",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv6_medium_rec_infer.tar",
+    "checked_at_utc": "2026-10-26T14:41:26.935760+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv6_medium_rec_infer.tar",
     "result": "http_reachable"
   },
   {

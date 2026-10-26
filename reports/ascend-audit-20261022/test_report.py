@@ -122,7 +122,11 @@ class ReportTests(unittest.TestCase):
                 self.assertEqual(row[update['device']+'结论'],update['conclusion'])
             for field,value in update['fields'].items():
                 self.assertEqual(row['设备维度'][update['device']][field],value)
-                self.assertTrue(value['链接'])
+                if not value['链接']:
+                    self.assertEqual(value['证据类型'],'未确认专项证据；本轮检索无可引用结果')
+                    self.assertTrue(value['说明'].startswith('尚无可引用'))
+                else:
+                    self.assertTrue(all(url.startswith('https://') for url in value['链接']))
         self.assertIn('不含编译',self.rows[54]['设备维度']['GPU']['性能基准']['说明'])
         self.assertIn('DSIFN14400/1360/192',self.rows[66]['设备维度']['GPU']['数据集']['说明'])
         self.assertIn('非百分比',self.rows[72]['设备维度']['GPU']['精度基准']['说明'])
@@ -381,6 +385,23 @@ class ReportTests(unittest.TestCase):
             (119,'GPU','性能基准',['H100','特征骨干','0.14/1.04/3.12','不含所有任务头']),
             (119,'NPU','性能基准',['训练吞吐','120/','未见乘每样本2帧','未给GPU型号']),
             (119,'NPU','精度基准',['loss','没有相机AUC']),
+        ]:
+            value=self.rows[n-1]['设备维度'][device][field]['说明']
+            for token in tokens:
+                with self.subTest(number=n,device=device,field=field,token=token):
+                    self.assertIn(token,value)
+    def test_ocr_and_robotics_reference_device_and_protocol_boundaries(self):
+        for n, device, field, tokens in [
+            (48,'GPU','性能基准',['T4','A100 40GB','16.02ms','5.38ms','不是整OCR产线']),
+            (48,'GPU','精度基准',['v6示例集对照是CPU','不属于GPU结果']),
+            (48,'NPU','精度基准',['对照列是CPU，不是A10','52.87%','77.27%']),
+            (48,'NPU','代码',['InferSession(0)','ParallelEnv私有字段']),
+            (1,'GPU','精度基准',['2000 episodes','shift5.0','仿真版本不同']),
+            (1,'NPU','性能基准',['训练','60步','100步','排除缓存构建','不是推理吞吐']),
+            (1,'NPU','权重',['仅列服务器本地路径','未提供']),
+            (9,'GPU','精度基准',['DROID82.5%','后训练','不是未训练过DROID']),
+            (9,'GPU','权重',['登录并接受条件','401','ActionCodec']),
+            (36,'GPU','精度基准',['12.37','34.97','不是成功率百分比','不等于评测代码已发布']),
         ]:
             value=self.rows[n-1]['设备维度'][device][field]['说明']
             for token in tokens:

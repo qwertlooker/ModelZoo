@@ -2,7 +2,7 @@
   {
     "编号": 1,
     "原始条目": "Fast-WAM",
-    "核查日期": "2026-10-23",
+    "核查日期": "2026-10-26",
     "结论": "有公开实现/指导，完整验收未认证",
     "分析与缺口": "NPU原版/优化版继续训练对照，不是CUDA迁移或完整从头收敛对照；原始JSON已读取，未独立复测。",
     "本次实测状态": "未做模型运行；不认证S3/S4；未校验权重与数据SHA",
@@ -48,86 +48,100 @@
     "设备维度": {
       "GPU": {
         "代码": {
-          "说明": "官方CUDA训练、LIBERO/RoboTwin评估",
+          "说明": "官方CUDA训练与LIBERO/RoboTwin评估；当前建议torch2.7.1+cu128，ActionDiT骨干预处理、T5缓存等需另准备，不能只下载单个策略权重即视为资产齐全。",
           "链接": [
             "https://github.com/yuantianyuan01/FastWAM/blob/main/README.md"
           ],
-          "证据类型": "本轮已读原始资料；非本次实测"
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
         },
         "权重": {
-          "说明": "yuanty/fastwam，含Optional IDM变体",
+          "说明": "LIBERO原版libero_uncond_2cam224.pt、Optional IDM版libero_optional_idm_2cam224.pt，均配对应dataset_stats.json；RoboTwin为robotwin_uncond_3cam_384.pt，配置和归一化不能混用。",
           "链接": [
-            "https://huggingface.co/yuanty/fastwam"
+            "https://github.com/yuantianyuan01/FastWAM/blob/main/README.md",
+            "https://huggingface.co/yuanty/fastwam/resolve/main/libero_uncond_2cam224.pt",
+            "https://huggingface.co/yuanty/fastwam/resolve/main/libero_optional_idm_2cam224.pt",
+            "https://huggingface.co/yuanty/fastwam/resolve/main/libero_optional_idm_2cam224_dataset_stats.json",
+            "https://huggingface.co/yuanty/fastwam/resolve/main/robotwin_uncond_3cam_384.pt"
           ],
-          "证据类型": "本轮已读原始资料；非本次实测"
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
         },
         "数据集": {
-          "说明": "LIBERO-fastwam、robotwin2.0-fastwam",
+          "说明": "官方LIBERO-fastwam支持LeRobot2.1/3.0；LIBERO仿真建议MuJoCo3.3.2与数据版本一致。RoboTwin公开转换数据，评估默认unseen指令，seen指令结果不可直接对比。",
           "链接": [
+            "https://github.com/yuantianyuan01/FastWAM/blob/main/README.md",
             "https://huggingface.co/datasets/yuanty/LIBERO-fastwam",
             "https://huggingface.co/datasets/yuanty/robotwin2.0-fastwam"
           ],
-          "证据类型": "本轮已读原始资料；非本次实测"
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
         },
         "性能基准": {
-          "说明": "官方更新：H20 470→210ms；RTX4090 190→110ms（端到端）",
+          "说明": "官方更新含文本编码/VAE编码的端到端推理：H20 470→210ms，RTX4090 190→110ms，LIBERO compile_action_infer=true。H20训练约+10%仅相对声明，无同表绝对吞吐；均未列三次独立重复。",
           "链接": [
             "https://github.com/yuantianyuan01/FastWAM/blob/main/README.md"
           ],
-          "证据类型": "本轮已读原始资料；非本次实测"
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
         },
         "精度基准": {
-          "说明": "Optional-IDM发布权重，完整LIBERO 40任务、每任务50次：IDM平均98.55%；First-frame平均97.75%；不对应NPU旧版200次评估",
+          "说明": "Optional IDM同一发布checkpoint、sigma_shift1.0，40任务×50次=2000 episodes：IDM98.55%、first-frame97.75%。原版复现要求shift5.0；NPU旧版仅40×5=200次且仿真版本不同，不能据此断言NPU下降。",
           "链接": [
             "https://github.com/yuantianyuan01/FastWAM/blob/main/README.md"
           ],
-          "证据类型": "本轮已读原始资料；非本次实测"
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
         }
       },
       "NPU": {
         "代码": {
-          "说明": "NPU训练、评测及优化代码",
+          "说明": "社区FastWAM-NPU有训练、精确latent缓存、通信重叠和LIBERO评估源码；不属于指定ModelZoo仓内交付。eval_npu_suite.py硬编码服务器site-packages和归一化路径，干净环境重放仍需处理。",
           "链接": [
-            "https://gitcode.com/wangguiqin/FastWAM-NPU/blob/5a7f8443a84bad1125298662d279436fb3edfe07/src/fastwam/runtime.py",
+            "https://gitcode.com/wangguiqin/FastWAM-NPU/blob/5a7f8443a84bad1125298662d279436fb3edfe07/README_NPU.md",
             "https://gitcode.com/wangguiqin/FastWAM-NPU/blob/5a7f8443a84bad1125298662d279436fb3edfe07/scripts/eval_npu_suite.py"
           ],
-          "证据类型": "来源报告；未独立复测"
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
         },
         "权重": {
-          "说明": "上游公开权重；优化评测权重仅服务器路径",
+          "说明": "基线来自已有step_021700.pt，优化后step_000120.pt仅列服务器本地路径；未提供该评测权重公开下载/SHA，不能拿当前Optional IDM权重代替。",
           "链接": [
-            "https://huggingface.co/yuanty/fastwam"
+            "https://gitcode.com/wangguiqin/FastWAM-NPU/blob/5a7f8443a84bad1125298662d279436fb3edfe07/VALIDATION_REPORT.md",
+            "https://github.com/yuantianyuan01/FastWAM/blob/main/README.md"
           ],
-          "证据类型": "来源报告；未独立复测"
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
         },
         "数据集": {
-          "说明": "LIBERO200配对episodes；继续训练120步",
+          "说明": "40个LIBERO任务×5初始状态=200 episodes/版本；MuJoCo3.9.0/robosuite1.4.0。训练是同一21700步checkpoint再续训120步，全局batch64，缓存含277713窗口，不是从头收敛验证。",
           "链接": [
-            "https://huggingface.co/datasets/yuanty/LIBERO-fastwam"
+            "https://gitcode.com/wangguiqin/FastWAM-NPU/blob/5a7f8443a84bad1125298662d279436fb3edfe07/README_NPU.md",
+            "https://gitcode.com/wangguiqin/FastWAM-NPU/blob/5a7f8443a84bad1125298662d279436fb3edfe07/VALIDATION_REPORT.md",
+            "https://gitcode.com/wangguiqin/FastWAM-NPU/blob/5a7f8443a84bad1125298662d279436fb3edfe07/scripts/eval_npu_suite.py"
           ],
-          "证据类型": "来源报告；未独立复测"
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
         },
         "性能基准": {
-          "说明": "4×910B3：20.2706→33.2963 samples/s；单窗口，不是三次中位数",
+          "说明": "4×910B3/BF16/ZeRO-1：训练20.2706→33.2963 samples/s；基线测60步、优化测100步，各预热20步，端点同步取最慢rank。排除缓存构建/保存，不是推理吞吐，也不是三次中位数；无同配置A100对照。",
           "链接": [
+            "https://gitcode.com/wangguiqin/FastWAM-NPU/blob/5a7f8443a84bad1125298662d279436fb3edfe07/VALIDATION_REPORT.md",
             "https://gitcode.com/wangguiqin/FastWAM-NPU/blob/5a7f8443a84bad1125298662d279436fb3edfe07/validation/baseline_workers8/performance.json",
             "https://gitcode.com/wangguiqin/FastWAM-NPU/blob/5a7f8443a84bad1125298662d279436fb3edfe07/validation/overlap_final/performance.json"
           ],
-          "证据类型": "来源报告；未独立复测"
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
         },
         "精度基准": {
-          "说明": "184/200→185/200；差值95%区间[-1.5,+2.5]个百分点，不证明提升",
+          "说明": "配对LIBERO184/200→185/200，差+0.5个百分点，bootstrap95%[-1.5,+2.5]；Long48/50→47/50。只证明该续训实验的观测结果，未证明统计显著提升或与GPU完整2000次基准等价。",
           "链接": [
+            "https://gitcode.com/wangguiqin/FastWAM-NPU/blob/5a7f8443a84bad1125298662d279436fb3edfe07/VALIDATION_REPORT.md",
             "https://gitcode.com/wangguiqin/FastWAM-NPU/blob/5a7f8443a84bad1125298662d279436fb3edfe07/validation/accuracy_comparison.json"
           ],
-          "证据类型": "来源报告；未独立复测"
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
         }
       }
     },
     "GPU结论": "支持GPU，有官方实现",
-    "NPU结论": "有公开实现/指导，完整验收未认证",
+    "NPU结论": "社区NPU续训与配对评估可查；公开评测权重和ModelZoo交付未闭合",
     "对照原文": {},
-    "GPU查询状态": "已查原始资料"
+    "GPU查询状态": "已查原始资料",
+    "设备核查日期": {
+      "GPU": "2026-10-26",
+      "NPU": "2026-10-26"
+    }
   },
   {
     "编号": 2,
@@ -1012,7 +1026,7 @@
   {
     "编号": 9,
     "原始条目": "G0.5",
-    "核查日期": "2026-10-23",
+    "核查日期": "2026-10-26",
     "结论": "未取得充分专项NPU证据",
     "分析与缺口": "未找到不等于不支持；原始资源不证明NPU适配。",
     "本次实测状态": "未做模型运行；不认证S3/S4；未校验权重与数据SHA",
@@ -1052,79 +1066,89 @@
     "设备维度": {
       "GPU": {
         "代码": {
-          "说明": "G0.5官方CUDA12.8训练及推理",
+          "说明": "G0.5官方CUDA训练、策略服务及LIBERO/RoboTwin客户端；Qwen3.5-2B骨干，统一AR推理/动作。不要用旧G0Plus或G0Tiny Orin/TensorRT部署支持替代该版本。",
           "链接": [
             "https://github.com/OpenGalaxea/GalaxeaVLA/blob/main/README.md"
           ],
-          "证据类型": "本轮已读原始资料；非本次实测"
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
         },
         "权重": {
-          "说明": "G05：base、LIBERO、DROID、RoboTwin等",
+          "说明": "G05发布base/libero/droid/robotwin20等checkpoint，另需ActionCodec tokenizer及匹配dataset_stats。已确认base与libero具体路径；下载需登录并接受条件，两个直链本次HEAD均401，不能写成免授权可下载。G0.5非商业社区许可，商业使用需另授权。",
           "链接": [
+            "https://github.com/OpenGalaxea/GalaxeaVLA/blob/main/README.md",
+            "https://huggingface.co/OpenGalaxea/G05/resolve/main/g05-base/checkpoints/model_state_dict.pt",
+            "https://huggingface.co/OpenGalaxea/G05/resolve/main/g05-libero/model.pt",
             "https://huggingface.co/OpenGalaxea/G05"
           ],
-          "证据类型": "本轮已读原始资料；非本次实测"
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
         },
         "数据集": {
-          "说明": "Galaxea Open-World；任务评估配置分别提供",
+          "说明": "公开Galaxea Open-World数据不等于完整14具身预训练混合；DROID不在基础预训练混合，而是后训练。LIBERO40任务各50次，RoboTwin clean/rand各100次/任务，不能混同评估规模。",
           "链接": [
+            "https://arxiv.org/html/2608.11739v1",
             "https://huggingface.co/datasets/OpenGalaxea/Galaxea-Open-World-Dataset"
           ],
-          "证据类型": "本轮已读原始资料；非本次实测"
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
         },
         "性能基准": {
-          "说明": "推理显存>8GB；全量微调>70GB，属于硬件要求，非吞吐",
+          "说明": "README推理>8GB、全量微调>70GB是显存要求；论文含延迟比较图，但已读正文未给可核对的GPU型号/计时配置，暂不写规范吞吐或复用G0Tiny 10Hz。",
           "链接": [
-            "https://github.com/OpenGalaxea/GalaxeaVLA/blob/main/README.md"
+            "https://github.com/OpenGalaxea/GalaxeaVLA/blob/main/README.md",
+            "https://arxiv.org/html/2608.11739v1"
           ],
-          "证据类型": "本轮已读原始资料；非本次实测"
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
         },
         "精度基准": {
-          "说明": "官方汇总：LIBERO98.9%、RoboTwin2 93.3%、DROID82.5%；各自任务协议",
+          "说明": "论文：LIBERO98.9%（40×50次）；RoboTwin2 clean93.7/rand92.8/平均93.3%（各100次/任务）；DROID82.5%是后训练后对未见环境/物体的转移，不是未训练过DROID的纯零样本。",
           "链接": [
+            "https://arxiv.org/html/2608.11739v1",
             "https://github.com/OpenGalaxea/GalaxeaVLA/blob/main/README.md"
           ],
-          "证据类型": "本轮已读原始资料；非本次实测"
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
         }
       },
       "NPU": {
         "代码": {
-          "说明": "仅原始项目/发布材料；未取得充分专项NPU代码",
+          "说明": "本轮重新检索仍未确认该具体版本的专项NPU实现；已读上游提供的是GPU入口，底座已有昇腾支持不能证明整套模型已适配。",
           "链接": [
-            "https://github.com/OpenGalaxea/GalaxeaVLA"
+            "https://github.com/OpenGalaxea/GalaxeaVLA/blob/main/README.md"
           ],
-          "证据类型": "原始资源，不证明NPU支持"
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
         },
         "权重": {
-          "说明": "原始资源入口；精确文件、许可和可用性未逐项闭合，不认定缺失",
+          "说明": "有原始GPU权重，但未确认对应NPU可运行配置、转换制品或专项评测checkpoint；原始权重可下载不等于NPU支持。",
           "链接": [
-            "https://github.com/OpenGalaxea/GalaxeaVLA"
+            "https://github.com/OpenGalaxea/GalaxeaVLA/blob/main/README.md"
           ],
-          "证据类型": "入口，非已验证文件"
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
         },
         "数据集": {
-          "说明": "原始资源入口；精确文件、许可和可用性未逐项闭合，不认定缺失",
+          "说明": "原始数据可作为候选评测材料；未确认该模型的NPU数据准备与正式任务评测协议。",
           "链接": [
-            "https://github.com/OpenGalaxea/GalaxeaVLA"
+            "https://github.com/OpenGalaxea/GalaxeaVLA/blob/main/README.md"
           ],
-          "证据类型": "入口，非已验证文件"
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
         },
         "性能基准": {
-          "说明": "未取得充分专项NPU证据",
+          "说明": "尚无可引用的该模型NPU硬件、输入配置及测量结果；不能借用底座或其他版本速度。",
           "链接": [],
-          "证据类型": "来源报告；未独立复测"
+          "证据类型": "未确认专项证据；本轮检索无可引用结果"
         },
         "精度基准": {
-          "说明": "未取得充分专项NPU证据",
+          "说明": "尚无可引用的该模型NPU任务结果或GPU/NPU对齐结果；上游GPU指标不填为NPU实测。",
           "链接": [],
-          "证据类型": "来源报告；未独立复测"
+          "证据类型": "未确认专项证据；本轮检索无可引用结果"
         }
       }
     },
-    "GPU结论": "支持GPU，有官方实现",
-    "NPU结论": "未取得充分专项NPU证据",
+    "GPU结论": "G0.5 GPU实现、具体权重和任务结果可查；硬件性能口径仍缺",
+    "NPU结论": "未确认专项NPU交付；不能由底座支持外推",
     "对照原文": {},
-    "GPU查询状态": "已查原始资料"
+    "GPU查询状态": "已查原始资料",
+    "设备核查日期": {
+      "GPU": "2026-10-26",
+      "NPU": "2026-10-26"
+    }
   },
   {
     "编号": 10,
@@ -4471,7 +4495,7 @@
   {
     "编号": 36,
     "原始条目": "WoW",
-    "核查日期": "2026-10-23",
+    "核查日期": "2026-10-26",
     "结论": "未取得充分专项NPU证据",
     "分析与缺口": "未找到不等于不支持；原始资源不证明NPU适配。",
     "本次实测状态": "未做模型运行；不认证S3/S4；未校验权重与数据SHA",
@@ -4511,80 +4535,91 @@
     "设备维度": {
       "GPU": {
         "代码": {
-          "说明": "官方Wan demo明确cuda:{gpu_id}；训练流水线和SOPHIA尚在路线图",
+          "说明": "官方Wan CUDA推理demo及Cosmos-DiT开发版入口；README仍把Training Pipeline、SOPHIA、WoWBench评测实现列为待发布，不能认定完整训练/评测工程已开源。",
           "链接": [
-            "https://github.com/wow-world-model/wow-world-model/blob/main/demo/wan_infer_demo.py"
+            "https://github.com/wow-world-model/wow-world-model/blob/main/README.md",
+            "https://github.com/wow-world-model/wow-world-model/blob/main/demo/README.md"
           ],
-          "证据类型": "本轮已读原始资料；非本次实测"
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
         },
         "权重": {
-          "说明": "1.3B/14B Wan、2B/7B DiT分别公开",
+          "说明": "官方列Wan14B-600k/2M、DiT2B/7B-600k等；Wan demo要求CLIP、T5、VAE、7片DiT及WoW_video_dit.pt，单个微调文件不足。1.3B条目链接命名与表标题有差异，需另核具体制品。",
           "链接": [
-            "https://huggingface.co/X-Humanoid/WoW-1-Wan-1.3B-2M",
+            "https://github.com/wow-world-model/wow-world-model/blob/main/README.md",
+            "https://github.com/wow-world-model/wow-world-model/blob/main/demo/README.md",
+            "https://huggingface.co/WoW-world-model/WoW-1-Wan-14B-600k",
             "https://huggingface.co/WoW-world-model/WoW-1-Wan-14B-2M"
           ],
-          "证据类型": "本轮已读原始资料；非本次实测"
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
         },
         "数据集": {
-          "说明": "WoW-1-Benchmark-Samples；不等于完整200万轨迹训练集",
+          "说明": "公开WoW-1-Benchmark-Samples为评估样例；不等于全部200万训练交互轨迹。论文训练混合涉及Agibot/DROID/Robomind等；完整数据/评测实现尚未闭合。",
           "链接": [
+            "https://github.com/wow-world-model/wow-world-model/blob/main/README.md",
+            "https://arxiv.org/html/2509.22642v1",
             "https://huggingface.co/datasets/WoW-world-model/WoW-1-Benchmark-Samples"
           ],
-          "证据类型": "本轮已读原始资料；非本次实测"
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
         },
         "性能基准": {
-          "说明": "demo的15FPS是视频编码帧率，不是生成吞吐",
+          "说明": "demo给H800/H100 80GB驻留参数70GB、RTX4090 24GB驻留20GB等建议，无相同配置实测耗时表；视频保存15FPS不是生成吞吐。不能把显存建议或图示速度直接写成可复现性能基准。",
           "链接": [
+            "https://github.com/wow-world-model/wow-world-model/blob/main/demo/README.md",
             "https://github.com/wow-world-model/wow-world-model/blob/main/demo/wan_infer_demo.py"
           ],
-          "证据类型": "本轮已读原始资料；非本次实测"
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
         },
         "精度基准": {
-          "说明": "WoWBench完整设计/指标仍列待发布",
+          "说明": "已找到论文表1结果：WoW-DiT/Wan人工Overall12.37、自动Overall34.97；Cosmos2为13.34/41.07。它们是WoWBench组合分数，不是成功率百分比；论文有指标不等于评测代码已发布，也未逐一映射到当前权重版本。",
           "链接": [
-            "https://github.com/wow-world-model/wow-world-model/blob/main/demo/wan_infer_demo.py"
+            "https://arxiv.org/html/2509.22642v1",
+            "https://github.com/wow-world-model/wow-world-model/blob/main/README.md"
           ],
-          "证据类型": "本轮已读原始资料；非本次实测"
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
         }
       },
       "NPU": {
         "代码": {
-          "说明": "仅原始项目/发布材料；未取得充分专项NPU代码",
+          "说明": "本轮重新检索仍未确认该具体版本的专项NPU实现；已读上游提供的是GPU入口，底座已有昇腾支持不能证明整套模型已适配。",
           "链接": [
-            "https://huggingface.co/X-Humanoid/WoW-1-Wan-1.3B-2M"
+            "https://github.com/wow-world-model/wow-world-model/blob/main/README.md"
           ],
-          "证据类型": "原始资源，不证明NPU支持"
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
         },
         "权重": {
-          "说明": "具体原始资源地址；未下载校验SHA/授权，不独立证明NPU适配",
+          "说明": "有原始GPU权重，但未确认对应NPU可运行配置、转换制品或专项评测checkpoint；原始权重可下载不等于NPU支持。",
           "链接": [
-            "https://huggingface.co/X-Humanoid/WoW-1-Wan-1.3B-2M"
+            "https://github.com/wow-world-model/wow-world-model/blob/main/README.md"
           ],
-          "证据类型": "模型卡/数据仓入口"
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
         },
         "数据集": {
-          "说明": "原始资源入口；精确文件、许可和可用性未逐项闭合，不认定缺失",
+          "说明": "原始数据可作为候选评测材料；未确认该模型的NPU数据准备与正式任务评测协议。",
           "链接": [
-            "https://huggingface.co/X-Humanoid/WoW-1-Wan-1.3B-2M"
+            "https://github.com/wow-world-model/wow-world-model/blob/main/README.md"
           ],
-          "证据类型": "入口，非已验证文件"
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
         },
         "性能基准": {
-          "说明": "未取得充分专项NPU证据",
+          "说明": "尚无可引用的该模型NPU硬件、输入配置及测量结果；不能借用底座或其他版本速度。",
           "链接": [],
-          "证据类型": "来源报告；未独立复测"
+          "证据类型": "未确认专项证据；本轮检索无可引用结果"
         },
         "精度基准": {
-          "说明": "未取得充分专项NPU证据",
+          "说明": "尚无可引用的该模型NPU任务结果或GPU/NPU对齐结果；上游GPU指标不填为NPU实测。",
           "链接": [],
-          "证据类型": "来源报告；未独立复测"
+          "证据类型": "未确认专项证据；本轮检索无可引用结果"
         }
       }
     },
-    "GPU结论": "支持GPU，有官方实现",
-    "NPU结论": "未取得充分专项NPU证据",
+    "GPU结论": "GPU推理与论文质量结果可查；训练和完整评测实现仍待发布",
+    "NPU结论": "未确认专项NPU交付；不能由底座支持外推",
     "对照原文": {},
-    "GPU查询状态": "已查原始资料"
+    "GPU查询状态": "已查原始资料",
+    "设备核查日期": {
+      "GPU": "2026-10-26",
+      "NPU": "2026-10-26"
+    }
   },
   {
     "编号": 37,
@@ -6069,9 +6104,9 @@
   {
     "编号": 48,
     "原始条目": "PaddleOCR",
-    "核查日期": "2026-10-23",
+    "核查日期": "2026-10-26",
     "结论": "有指定实现/指导，非完整验收认证",
-    "分析与缺口": "不同版本、硬件及子模块分开；示例集结果不等于官方全量榜单",
+    "分析与缺口": "PP-OCRv5 server与PP-OCRv6 medium分别统计；原表v6对照误写A10已修为CPU，内部质量集不能与示例集直接比较。",
     "本次实测状态": "未做模型运行；不认证S3/S4；未校验权重与数据SHA",
     "证据": {
       "代码": {
@@ -6128,98 +6163,113 @@
     "设备维度": {
       "GPU": {
         "代码": {
-          "说明": "官方工具库支持NVIDIA GPU；按PP-OCR具体版本选模型",
+          "说明": "官方PaddleOCR按具体组件支持GPU；此处核实PP-OCRv5 server与PP-OCRv6 medium的检测/识别，分别有Paddle静态、动态、Transformers及ONNX Runtime入口。",
           "链接": [
-            "https://github.com/PaddlePaddle/PaddleOCR/blob/main/README.md"
+            "https://github.com/PaddlePaddle/PaddleOCR/blob/main/docs/version3.x/module_usage/text_detection.md",
+            "https://github.com/PaddlePaddle/PaddleOCR/blob/main/docs/version3.x/module_usage/text_recognition.md"
           ],
-          "证据类型": "本轮已读原始资料；非本次实测"
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
         },
         "权重": {
-          "说明": "检测/识别/方向等组件分别下载",
+          "说明": "v5 server及v6 medium的det/rec各有独立推理权重tar；与NPU转换源对应。其他small/tiny及辅助模块不可用这四组结果覆盖。",
           "链接": [
-            "https://github.com/PaddlePaddle/PaddleOCR/blob/main/README.md"
+            "https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv5_server_det_infer.tar",
+            "https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv5_server_rec_infer.tar",
+            "https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv6_medium_det_infer.tar",
+            "https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv6_medium_rec_infer.tar",
+            "https://github.com/PaddlePaddle/PaddleOCR/blob/main/docs/version3.x/module_usage/text_detection.md",
+            "https://github.com/PaddlePaddle/PaddleOCR/blob/main/docs/version3.x/module_usage/text_recognition.md"
           ],
-          "证据类型": "本轮已读原始资料；非本次实测"
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
         },
         "数据集": {
-          "说明": "各版本OCR评测集",
+          "说明": "T4旧表：检测为自建多语种2677图、中文识别约1.1万图等；v6质量表改用内部多场景集。A100引擎速度表用单张示例图，不是完整质量评测集。ModelZoo示例集另列。",
           "链接": [
-            "https://github.com/PaddlePaddle/PaddleOCR/blob/main/README.md"
+            "https://github.com/PaddlePaddle/PaddleOCR/blob/main/docs/version3.x/module_usage/text_detection.md",
+            "https://github.com/PaddlePaddle/PaddleOCR/blob/main/docs/version3.x/module_usage/text_recognition.md",
+            "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/ocr/PPOCRv5/README.md",
+            "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/ocr/PPOCRv6/README.md"
           ],
-          "证据类型": "本轮已读原始资料；非本次实测"
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
         },
         "性能基准": {
-          "说明": "无工具库统一FPS",
+          "说明": "T4/CUDA11.8：v5 server det89.55/70.19ms、rec8.46/2.36ms（常规/高性能）。A100 40GB/CUDA12.6/Paddle静态单图：v5 det26.91ms、rec11.37ms；v6 medium det16.02ms、rec5.38ms，均为纯推理。A100表含前后处理的各模块耗时为43.05/14.69、33.14/8.08ms，不是整OCR产线耗时。",
           "链接": [
-            "https://github.com/PaddlePaddle/PaddleOCR/blob/main/README.md"
+            "https://github.com/PaddlePaddle/PaddleOCR/blob/main/docs/version3.x/module_usage/text_detection.md",
+            "https://github.com/PaddlePaddle/PaddleOCR/blob/main/docs/version3.x/module_usage/text_recognition.md"
           ],
-          "证据类型": "本轮已读原始资料；非本次实测"
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
         },
         "精度基准": {
-          "说明": "无工具库统一精度",
+          "说明": "上游质量表：v5 server检测Hmean83.8、识别Avg Accuracy86.38；v6 medium86.2/83.2，评估集不同不能直接比。ModelZoo另报v5示例集A10检测52.87%、识别72.27%；v6示例集对照是CPU46.73%/77.27%，不属于GPU结果。",
           "链接": [
-            "https://github.com/PaddlePaddle/PaddleOCR/blob/main/README.md"
+            "https://github.com/PaddlePaddle/PaddleOCR/blob/main/docs/version3.x/module_usage/text_detection.md",
+            "https://github.com/PaddlePaddle/PaddleOCR/blob/main/docs/version3.x/module_usage/text_recognition.md",
+            "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/ocr/PPOCRv5/README.md",
+            "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/ocr/PPOCRv6/README.md"
           ],
-          "证据类型": "本轮已读原始资料；非本次实测"
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
         }
       },
       "NPU": {
         "代码": {
-          "说明": "PP-OCRv5/v6导出、OM及评测入口",
+          "说明": "v5/v6均经Paddle导出ONNX、优化、ATC转OM，源码有推理及评测入口；v6在PaddleX产线替换det/rec runner。v6评测patch固定InferSession(0)，且修改ParallelEnv私有字段，不能视作任意卡号可移植实现；未实跑。",
           "链接": [
-            "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/ocr/PPOCRv5/paddleocr.patch",
-            "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/ocr/PPOCRv6/paddleocr.patch",
-            "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/ocr/PPOCRv5/infer.py",
-            "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/ocr/PPOCRv6/infer.py"
+            "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/ocr/PPOCRv5/README.md",
+            "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/ocr/PPOCRv6/README.md",
+            "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/ocr/PPOCRv6/infer.py",
+            "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/ocr/PPOCRv6/paddleocr.patch"
           ],
-          "证据类型": "交付文件存在；未运行"
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
         },
         "权重": {
-          "说明": "det/rec；v5另有方向分类和UVDoc权重链接",
+          "说明": "主结果：v5 server det/rec、v6 medium det/rec由官方tar转换；v5另列方向分类/UVDoc，v6 small/tiny仅给下载与参数，不能认定同等验收。",
           "链接": [
             "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/ocr/PPOCRv5/README.md",
             "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/ocr/PPOCRv6/README.md",
-            "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/ocr/PPOCRv5/eval_ori_accuracy.py",
-            "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/ocr/PPOCRv5/eval_uvdoc_accuracy.py"
+            "https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv5_server_det_infer.tar",
+            "https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv5_server_rec_infer.tar",
+            "https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv6_medium_det_infer.tar",
+            "https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv6_medium_rec_infer.tar"
           ],
-          "证据类型": "固定快照文档；未复测"
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
         },
         "数据集": {
-          "说明": "OCR官方示例集；v5辅助模块另有构造集/DocUNet",
+          "说明": "det/rec使用ocr_det_dataset_examples、ocr_rec_dataset_examples及val.txt；属于公开示例集。v5方向分类采用文档所述旋转构造集各1000样本，UVDoc用DocUNet130对，不是官方OCR完整测试集。",
           "链接": [
             "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/ocr/PPOCRv5/README.md",
             "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/ocr/PPOCRv6/README.md",
-            "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/ocr/PPOCRv5/eval_ori_accuracy.py",
-            "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/ocr/PPOCRv5/eval_uvdoc_accuracy.py"
+            "https://paddle-model-ecology.bj.bcebos.com/paddlex/data/ocr_det_dataset_examples.tar",
+            "https://paddle-model-ecology.bj.bcebos.com/paddlex/data/ocr_rec_dataset_examples.tar"
           ],
-          "证据类型": "固定快照文档；未复测"
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
         },
         "性能基准": {
-          "说明": "v5 det35.01/26.85ms(EP/RC)、rec2.63/6.09ms；v6 det4.28/rec1.43ms",
+          "说明": "纯OM/bs1/ais_bench loop100：v5 det960×960 EP(300I DUO)35.01ms、RC(310P RC176T)26.85ms；rec48×320 EP2.63ms、RC6.09ms。v6 medium/A2/CANN8.3 RC1 det4.28ms、rec1.43ms。均排除产线前后处理，无三次独立结果，不能相加当每图整产线延迟。",
           "链接": [
             "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/ocr/PPOCRv5/README.md",
-            "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/ocr/PPOCRv6/README.md",
-            "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/ocr/PPOCRv5/eval_ori_accuracy.py",
-            "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/ocr/PPOCRv5/eval_uvdoc_accuracy.py"
+            "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/ocr/PPOCRv6/README.md"
           ],
-          "证据类型": "固定快照文档；未复测"
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
         },
         "精度基准": {
-          "说明": "v5 hmean52.87%/acc72.27%；v6 46.73%/77.27%，各与A10相同",
+          "说明": "示例集v5检测Hmean52.87%、识别acc72.27%，A10列同值；v6 medium46.73%/77.27%，对照列是CPU，不是A10。v5另报doc_ori92.80%、textline_ori79.20%、UVDoc MS-SSIM0.4417。未由此证明原始完整任务集精度。",
           "链接": [
             "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/ocr/PPOCRv5/README.md",
-            "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/ocr/PPOCRv6/README.md",
-            "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/ocr/PPOCRv5/eval_ori_accuracy.py",
-            "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/ocr/PPOCRv5/eval_uvdoc_accuracy.py"
+            "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/ocr/PPOCRv6/README.md"
           ],
-          "证据类型": "固定快照文档；未复测"
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
         }
       }
     },
-    "GPU结论": "支持GPU，需指定OCR版本和组件",
-    "NPU结论": "有指定实现/指导，非完整验收认证",
+    "GPU结论": "GPU支持明确，已补T4/A100分组件基准",
+    "NPU结论": "有v5 server/v6 medium OM及示例集结果；v6对照为CPU",
     "对照原文": {},
-    "GPU查询状态": "已查原始资料"
+    "GPU查询状态": "已查原始资料",
+    "设备核查日期": {
+      "GPU": "2026-10-26",
+      "NPU": "2026-10-26"
+    }
   },
   {
     "编号": 49,
