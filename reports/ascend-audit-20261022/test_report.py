@@ -407,4 +407,20 @@ class ReportTests(unittest.TestCase):
             for token in tokens:
                 with self.subTest(number=n,device=device,field=field,token=token):
                     self.assertIn(token,value)
+    def test_platforms_algorithms_and_vggt_inference_are_not_conflated(self):
+        for n, device, field, tokens in [
+            (8,'NPU','代码',['Released=N','Active=Y','不是指定ModelZoo']),
+            (78,'GPU','性能基准',['资源要求','没有固定场景']),
+            (91,'NPU','代码',['OptEx','MaternKernel','不是ExactGP']),
+            (91,'NPU','精度基准',['没有GPR NPU预测RMSE','目标函数收敛']),
+            (92,'GPU','代码',['OpenGL','不代表PX4控制算法是CUDA']),
+            (103,'GPU','代码',['CMake未配置CUDA','CPU描述子循环','Pangolin']),
+            (119,'NPU','代码',['DrivingSDK训练线','CANN推理线','A2/A3']),
+            (119,'NPU','性能基准',['1121.09ms','未明确','实际启用卡数','排除读图']),
+            (119,'NPU','精度基准',['NPU91.1/GPU90.5','DTU Overall1.0072/1.0244','0.8个百分点','算术问题']),
+        ]:
+            value=self.rows[n-1]['设备维度'][device][field]['说明']
+            for token in tokens:
+                with self.subTest(number=n,device=device,field=field,token=token):
+                    self.assertIn(token,value)
 if __name__=='__main__':unittest.main()

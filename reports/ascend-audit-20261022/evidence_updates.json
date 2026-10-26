@@ -10,10 +10,10 @@
     },
     {
       "url": "https://github.com/nvidia-cosmos/cosmos-predict2/blob/main/README.md",
-      "method": "GitHub fetch_file",
-      "date": "2026-10-25",
+      "method": "GitHub fetch_file正文",
+      "date": "2026-10-26",
       "blob_sha": "be6c10f65fafcc5d7959751be1c561496c912351",
-      "note": "文件blob SHA，非仓库commit；已读正文，未执行代码"
+      "note": "文件blob SHA非仓库commit；只读，未运行"
     },
     {
       "url": "https://github.com/nvidia-cosmos/cosmos-reason1/blob/main/README.md",
@@ -1333,6 +1333,108 @@
       "method": "web open模型卡及访问条件正文",
       "date": "2026-10-26",
       "note": "公开列出具体文件，下载需登录接受条件；401不代表文件不存在"
+    },
+    {
+      "url": "https://github.com/microsoft/AirSim/blob/main/docs/faq.md",
+      "method": "GitHub fetch_file正文",
+      "date": "2026-10-26",
+      "blob_sha": "d061426349c2903ac1b0bef6fa77c46a5dd17e10",
+      "note": "文件blob SHA非仓库commit；只读，未运行"
+    },
+    {
+      "url": "https://github.com/UZ-SLAMLab/ORB_SLAM3/blob/master/README.md",
+      "method": "GitHub fetch_file正文",
+      "date": "2026-10-26",
+      "blob_sha": "0ca3a9f2d3e602b919c4529b671427bc32701dc6",
+      "note": "文件blob SHA非仓库commit；只读，未运行"
+    },
+    {
+      "url": "https://github.com/UZ-SLAMLab/ORB_SLAM3/blob/master/CMakeLists.txt",
+      "method": "GitHub fetch_file正文",
+      "date": "2026-10-26",
+      "blob_sha": "016e74354d6a6fe082978fe4065833de6307f8ee",
+      "note": "文件blob SHA非仓库commit；只读，未运行"
+    },
+    {
+      "url": "https://github.com/UZ-SLAMLab/ORB_SLAM3/blob/master/src/ORBextractor.cc",
+      "method": "GitHub fetch_file正文",
+      "date": "2026-10-26",
+      "blob_sha": "970b7cc7bf39630109f07b942b25c9f0115c5a7f",
+      "note": "文件blob SHA非仓库commit；只读，未运行"
+    },
+    {
+      "url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/docs/zh/models/support_list.md",
+      "method": "GitHub fetch_file正文",
+      "date": "2026-10-26",
+      "blob_sha": "6027cabb679a0482dd9aafb5e0f4346caa7e77b5",
+      "note": "文件blob SHA非仓库commit；只读，未运行"
+    },
+    {
+      "url": "https://github.com/hicann/cann-recipes-spatial-intelligence/blob/master/README.md",
+      "method": "GitHub fetch_file正文",
+      "date": "2026-10-26",
+      "blob_sha": "18f8300e5514c43d955fe233b0d904037f8e1de6",
+      "note": "文件blob SHA非仓库commit；只读，未运行"
+    },
+    {
+      "url": "https://github.com/youyve/OptEx/blob/main/README.md",
+      "method": "GitHub fetch_file正文",
+      "date": "2026-10-26",
+      "blob_sha": "19bd814cd86943e68fb5094f8667cd247658c277",
+      "note": "文件blob SHA非仓库commit；只读，未运行"
+    },
+    {
+      "url": "https://github.com/youyve/OptEx/blob/main/optex/optex.py",
+      "method": "GitHub fetch_file正文",
+      "date": "2026-10-26",
+      "blob_sha": "e10f9296f3c65b4335a1d4545fc305e14579a6e4",
+      "note": "文件blob SHA非仓库commit；只读，未运行"
+    },
+    {
+      "url": "https://docs.gpytorch.ai/en/stable/examples/02_Scalable_Exact_GPs/Simple_GP_Regression_CUDA.html",
+      "method": "web open/find官方教程正文",
+      "date": "2026-10-26",
+      "note": "核对具体设备路径与适用指标；未运行平台或算法"
+    },
+    {
+      "url": "https://docs.px4.io/v1.18/en/sim_gazebo_gz/",
+      "method": "web open/find官方教程正文",
+      "date": "2026-10-26",
+      "note": "核对具体设备路径与适用指标；未运行平台或算法"
+    },
+    {
+      "url": "https://gazebosim.org/docs/garden/troubleshooting/",
+      "method": "web open/find官方教程正文",
+      "date": "2026-10-26",
+      "note": "核对具体设备路径与适用指标；未运行平台或算法"
+    },
+    {
+      "url": "https://gitcode.com/cann/cann-recipes-embodied-ai/blob/master/3d_vision/vggt/README.md",
+      "method": "GitCode contents API正文",
+      "date": "2026-10-26",
+      "blob_sha": "e494c96e3af4b2da41ba2f05f8a39511345a15d6",
+      "note": "当前README明确A2/A3；独立查询master=21a5ed789ceb2a4b72277573f5ec5ec531b92ee1"
+    },
+    {
+      "url": "https://gitcode.com/cann/cann-recipes-embodied-ai/blob/21a5ed789ceb2a4b72277573f5ec5ec531b92ee1/docs/3d_vision/vggt/vggt_accuracy_evaluation.md",
+      "method": "GitCode contents API固定提交正文",
+      "date": "2026-10-26",
+      "blob_sha": "e40738323a492aecb0bafa54d7f71cf156de72d6",
+      "note": "外部CANN专项推理/评测路线，不计指定ModelZoo仓内交付"
+    },
+    {
+      "url": "https://gitcode.com/cann/cann-recipes-embodied-ai/blob/21a5ed789ceb2a4b72277573f5ec5ec531b92ee1/docs/3d_vision/vggt/vggt_optimization.md",
+      "method": "GitCode contents API固定提交正文",
+      "date": "2026-10-26",
+      "blob_sha": "d23bfc371e78f2ab4038009db1037d1f93c2dec5",
+      "note": "外部CANN专项推理/评测路线，不计指定ModelZoo仓内交付"
+    },
+    {
+      "url": "https://gitcode.com/cann/cann-recipes-embodied-ai/blob/21a5ed789ceb2a4b72277573f5ec5ec531b92ee1/3d_vision/vggt/demo_infer.py",
+      "method": "GitCode contents API固定提交正文",
+      "date": "2026-10-26",
+      "blob_sha": "ed601ec82035fa9c3d8529788d544e1a9bd689b0",
+      "note": "外部CANN专项推理/评测路线，不计指定ModelZoo仓内交付"
     }
   ],
   "target_master": "dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202",
@@ -1643,6 +1745,93 @@
         }
       },
       "note": "AV生成流水线应逐组件验证；下游检测增益不能写成生成模型精度，也不能把公开子模型推理当作完整流水线已验收。"
+    },
+    {
+      "number": 8,
+      "device": "GPU",
+      "date": "2026-10-26",
+      "fields": {
+        "代码": {
+          "说明": "cosmos是系列名，原清单#4–7已分别核查Predict2、Transfer1、Reason1、Drive-Dreams；各成员生成/迁移/推理任务不同。Predict2官方已提示迁移Predict2.5，不能混用版本支持。",
+          "链接": [
+            "https://github.com/nvidia-cosmos/cosmos-predict2/blob/main/README.md"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "权重": {
+          "说明": "没有系列统一checkpoint。Predict2明确区分0.6B/2B/14B Text2Image、2B/14B Video2World及动作条件样例；其他成员按#5–7权重列准备。",
+          "链接": [
+            "https://github.com/nvidia-cosmos/cosmos-predict2/blob/main/README.md"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "数据集": {
+          "说明": "没有系列统一数据集；按成员及Text2Image、Video2World、SFT/RL或驾驶生成任务选择，具体证据见#4–7，不能用一套数据代表全系列。",
+          "链接": [
+            "https://github.com/nvidia-cosmos/cosmos-predict2/blob/main/README.md"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "性能基准": {
+          "说明": "系列性能不适用；必须固定成员、参数量、任务、分辨率、帧数和GPU。Predict2保存视频fps=16是播放帧率，不是生成吞吐。",
+          "链接": [
+            "https://github.com/nvidia-cosmos/cosmos-predict2/blob/main/README.md"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "精度基准": {
+          "说明": "系列精度不适用；生成质量、物理推理正确率和训练loss不是同一指标，分别按#4–7记录。",
+          "链接": [
+            "https://github.com/nvidia-cosmos/cosmos-predict2/blob/main/README.md"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        }
+      },
+      "conclusion": "系列汇总项；具体GPU证据见原清单#4–7"
+    },
+    {
+      "number": 8,
+      "device": "NPU",
+      "date": "2026-10-26",
+      "fields": {
+        "代码": {
+          "说明": "DrivingSDK清单列Predict2、Transfer1、Reason1、Drive-Dreams，固定快照均Released=N、Active=Y，含义为开发自验而非版本发布测试通过；这些是外部DrivingSDK证据，不是指定ModelZoo仓内交付。",
+          "链接": [
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/docs/zh/models/support_list.md"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "权重": {
+          "说明": "按#4–7各自指导准备，部分成员含T5/guardrail等辅助资产；不存在可用于整个cosmos系列的通用NPU权重。",
+          "链接": [
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/docs/zh/models/support_list.md"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "数据集": {
+          "说明": "按具体成员的NPU指导和任务准备；清单列名不能独立证明数据、split及样本完整性已验收。",
+          "链接": [
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/docs/zh/models/support_list.md"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "性能基准": {
+          "说明": "没有系列统一NPU性能；清单中的训练迭代耗时不能写成整系列生成吞吐，具体条件见#4–7。",
+          "链接": [
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/docs/zh/models/support_list.md"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "精度基准": {
+          "说明": "没有系列统一NPU精度；清单中的开发自验状态不等于任务质量验收，成员训练loss不能代替完整视频/推理指标。",
+          "链接": [
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/docs/zh/models/support_list.md"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        }
+      },
+      "conclusion": "部分成员有DrivingSDK开发自验；系列不能统一判定完成",
+      "note": "系列汇总，成员保留原编号#4–7；外部生态证据与ModelZoo仓内交付分别标明。"
     },
     {
       "number": 9,
@@ -4704,6 +4893,93 @@
       }
     },
     {
+      "number": 78,
+      "device": "GPU",
+      "date": "2026-10-26",
+      "fields": {
+        "代码": {
+          "说明": "AirSim是Unreal仿真平台，GPU主要负责场景渲染；FAQ并未给出通用CUDA策略模型。外接感知/VLA应另核具体模型。",
+          "链接": [
+            "https://github.com/microsoft/AirSim/blob/main/docs/faq.md"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "权重": {
+          "说明": "平台本身没有统一神经网络权重；需准备Unreal场景、载具和配置，不能记为模型权重缺失。",
+          "链接": [
+            "https://github.com/microsoft/AirSim/blob/main/docs/faq.md"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "数据集": {
+          "说明": "按场景、传感器及settings配置采集仿真数据；不存在平台统一模型训练/测试split。",
+          "链接": [
+            "https://github.com/microsoft/AirSim/blob/main/docs/faq.md"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "性能基准": {
+          "说明": "FAQ按场景建议4GB/8GB显存，开发机示例TitanX；这是资源要求，没有固定场景/传感器/分辨率的可引用GPU FPS或实时因子。",
+          "链接": [
+            "https://github.com/microsoft/AirSim/blob/main/docs/faq.md"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "精度基准": {
+          "说明": "平台适用仿真动力学、传感器及控制一致性检查，不能填一个模型准确率；FAQ未给统一GPU数值验证结果。",
+          "链接": [
+            "https://github.com/microsoft/AirSim/blob/main/docs/faq.md"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        }
+      },
+      "conclusion": "GPU渲染平台；模型权重和统一准确率不适用",
+      "note": "AirSim平台运行与外接模型的GPU/NPU适配应分别核查。"
+    },
+    {
+      "number": 78,
+      "device": "NPU",
+      "date": "2026-10-26",
+      "fields": {
+        "代码": {
+          "说明": "本轮未确认该完整平台/算法的专项NPU后端；运行于含昇腾硬件的CPU主机、或外接NPU感知模型，不等于全部计算已迁移。",
+          "链接": [
+            "https://github.com/microsoft/AirSim/blob/main/docs/faq.md"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "权重": {
+          "说明": "平台没有统一神经网络权重；场景、载具和固件应按具体配置准备。",
+          "链接": [
+            "https://github.com/microsoft/AirSim/blob/main/docs/faq.md"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "数据集": {
+          "说明": "应复用平台/算法对应的场景、传感器或轨迹评测协议；未确认专项NPU完整验证材料，不能用其他模型数据代替。",
+          "链接": [
+            "https://github.com/microsoft/AirSim/blob/main/docs/faq.md"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "性能基准": {
+          "说明": "尚无可引用的该完整平台/算法NPU硬件、任务配置和计时结果；不将CPU运行或GPU渲染FPS标作NPU吞吐。",
+          "链接": [
+            "https://github.com/microsoft/AirSim/blob/main/docs/faq.md"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "精度基准": {
+          "说明": "尚无可引用的专项NPU仿真/轨迹正确性结果；模型统一准确率不适用于整个平台，外接AI模块应另评测。",
+          "链接": [
+            "https://github.com/microsoft/AirSim/blob/main/docs/faq.md"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        }
+      },
+      "conclusion": "未确认专项NPU后端；平台/算法与外接模型分别核查"
+    },
+    {
       "number": 79,
       "date": "2026-10-25",
       "device": "GPU",
@@ -5115,6 +5391,185 @@
       }
     },
     {
+      "number": 91,
+      "device": "GPU",
+      "date": "2026-10-26",
+      "fields": {
+        "代码": {
+          "说明": "GPR是算法类。已核实GPyTorch ExactGP+ConstantMean+RBFKernel示例，数据、模型和GaussianLikelihood显式.cuda()；证明该具体实现有CUDA路径，不能覆盖全部GPR实现。",
+          "链接": [
+            "https://docs.gpytorch.ai/en/stable/examples/02_Scalable_Exact_GPs/Simple_GP_Regression_CUDA.html"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "权重": {
+          "说明": "按数据拟合核长度尺度、输出尺度和噪声等参数；该教程没有统一预训练checkpoint，不应判为缺失权重。",
+          "链接": [
+            "https://docs.gpytorch.ai/en/stable/examples/02_Scalable_Exact_GPs/Simple_GP_Regression_CUDA.html"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "数据集": {
+          "说明": "教程100个[0,1]均匀训练点，y=sin(2πx)+高斯噪声（方差0.04），测试51点；是合成函数演示，不是业务评测集。",
+          "链接": [
+            "https://docs.gpytorch.ai/en/stable/examples/02_Scalable_Exact_GPs/Simple_GP_Regression_CUDA.html"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "性能基准": {
+          "说明": "已读CUDA教程未给指定GPU型号和同步计时结果；不能把100点演示运行或CPU结果换算成GPU性能。",
+          "链接": [
+            "https://docs.gpytorch.ai/en/stable/examples/02_Scalable_Exact_GPs/Simple_GP_Regression_CUDA.html"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "精度基准": {
+          "说明": "教程显示后验均值/置信区间及训练过程；未给固定种子独立测试RMSE/NLL等业务指标，不能写成通用GPR精度基准。",
+          "链接": [
+            "https://docs.gpytorch.ai/en/stable/examples/02_Scalable_Exact_GPs/Simple_GP_Regression_CUDA.html"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        }
+      },
+      "conclusion": "GPyTorch具体示例支持CUDA；算法没有统一权重或基准",
+      "note": "GPR需明确具体实现与业务数据；OptEx内核估计线索不等于完整GPR交付。"
+    },
+    {
+      "number": 91,
+      "device": "NPU",
+      "date": "2026-10-26",
+      "fields": {
+        "代码": {
+          "说明": "找到OptEx原始仓声明Ascend支持；源码检测torch_npu设备并将GPyTorch MaternKernel(nu=2.5)置于设备，用于历史梯度的核估计。它不是ExactGP回归任务交付，也不在指定ModelZoo仓，暂列相关代码线索。",
+          "链接": [
+            "https://github.com/youyve/OptEx/blob/main/README.md",
+            "https://github.com/youyve/OptEx/blob/main/optex/optex.py"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "权重": {
+          "说明": "该算法按任务拟合参数，无统一checkpoint要求；OptEx设备分支未提供可对应业务GPR验收的发布权重。",
+          "链接": [
+            "https://github.com/youyve/OptEx/blob/main/README.md",
+            "https://github.com/youyve/OptEx/blob/main/optex/optex.py"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "数据集": {
+          "说明": "OptEx示例是Sphere/Ackley/Rosenbrock优化及MNIST；不能充当GPR预测业务数据集，尚未确认专项NPU回归评测集。",
+          "链接": [
+            "https://github.com/youyve/OptEx/blob/main/README.md"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "性能基准": {
+          "说明": "已读OptEx README及核心源码未给可引用的GPR NPU硬件、规模、训练/预测计时表；优化算法加速声明不代替回归性能。",
+          "链接": [
+            "https://github.com/youyve/OptEx/blob/main/README.md",
+            "https://github.com/youyve/OptEx/blob/main/optex/optex.py"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "精度基准": {
+          "说明": "已读相关实现没有GPR NPU预测RMSE/NLL及GPU对齐结果；不能用OptEx目标函数收敛代替GPR预测精度。",
+          "链接": [
+            "https://github.com/youyve/OptEx/blob/main/README.md",
+            "https://github.com/youyve/OptEx/blob/main/optex/optex.py"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        }
+      },
+      "conclusion": "有NPU核估计相关实现线索；完整GPR回归适配未确认"
+    },
+    {
+      "number": 92,
+      "device": "GPU",
+      "date": "2026-10-26",
+      "fields": {
+        "代码": {
+          "说明": "PX4 SITL与Gazebo仿真组合；Gazebo默认Ogre2图形渲染需要合适OpenGL驱动，不代表PX4控制算法是CUDA实现。",
+          "链接": [
+            "https://docs.px4.io/v1.18/en/sim_gazebo_gz/",
+            "https://gazebosim.org/docs/garden/troubleshooting/"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "权重": {
+          "说明": "不适用统一预训练权重；准备飞控固件、机型SDF、world和传感器插件，不能记成缺少模型checkpoint。",
+          "链接": [
+            "https://docs.px4.io/v1.18/en/sim_gazebo_gz/"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "数据集": {
+          "说明": "按机型、world和传感器配置运行SITL；不是固定模型训练集。具体任务若接入感知策略须另列模型与测试集。",
+          "链接": [
+            "https://docs.px4.io/v1.18/en/sim_gazebo_gz/"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "性能基准": {
+          "说明": "可用HEADLESS=1 make px4_sitl gz_x500关闭GUI以减少资源；无固定机型/场景GPU实时因子表，不能把headless设置当GPU加速实测。",
+          "链接": [
+            "https://docs.px4.io/v1.18/en/sim_gazebo_gz/"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "精度基准": {
+          "说明": "应评估飞控任务、动力学及传感器正确性，统一模型准确率不适用；当前页面没有GPU模型任务精度。",
+          "链接": [
+            "https://docs.px4.io/v1.18/en/sim_gazebo_gz/"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        }
+      },
+      "conclusion": "GPU图形渲染平台；不是CUDA飞控模型",
+      "note": "Gazebo/PX4仿真运行与外接AI模型适配分开；不把OpenGL要求写成NPU算子支持。"
+    },
+    {
+      "number": 92,
+      "device": "NPU",
+      "date": "2026-10-26",
+      "fields": {
+        "代码": {
+          "说明": "本轮未确认该完整平台/算法的专项NPU后端；运行于含昇腾硬件的CPU主机、或外接NPU感知模型，不等于全部计算已迁移。",
+          "链接": [
+            "https://docs.px4.io/v1.18/en/sim_gazebo_gz/"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "权重": {
+          "说明": "平台没有统一神经网络权重；场景、载具和固件应按具体配置准备。",
+          "链接": [
+            "https://docs.px4.io/v1.18/en/sim_gazebo_gz/"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "数据集": {
+          "说明": "应复用平台/算法对应的场景、传感器或轨迹评测协议；未确认专项NPU完整验证材料，不能用其他模型数据代替。",
+          "链接": [
+            "https://docs.px4.io/v1.18/en/sim_gazebo_gz/"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "性能基准": {
+          "说明": "尚无可引用的该完整平台/算法NPU硬件、任务配置和计时结果；不将CPU运行或GPU渲染FPS标作NPU吞吐。",
+          "链接": [
+            "https://docs.px4.io/v1.18/en/sim_gazebo_gz/"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "精度基准": {
+          "说明": "尚无可引用的专项NPU仿真/轨迹正确性结果；模型统一准确率不适用于整个平台，外接AI模块应另评测。",
+          "链接": [
+            "https://docs.px4.io/v1.18/en/sim_gazebo_gz/"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        }
+      },
+      "conclusion": "未确认专项NPU后端；平台/算法与外接模型分别核查"
+    },
+    {
       "number": 93,
       "date": "2026-10-25",
       "device": "GPU",
@@ -5482,6 +5937,97 @@
           "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
         }
       }
+    },
+    {
+      "number": 103,
+      "device": "GPU",
+      "date": "2026-10-26",
+      "fields": {
+        "代码": {
+          "说明": "官方C++/OpenCV/DBoW2/g2o实现；当前CMake未配置CUDA，ORBextractor使用cv::Mat、FAST和CPU描述子循环。Pangolin可视化不证明SLAM计算有GPU后端；第三方加速分支须另验。",
+          "链接": [
+            "https://github.com/UZ-SLAMLab/ORB_SLAM3/blob/master/README.md",
+            "https://github.com/UZ-SLAMLab/ORB_SLAM3/blob/master/CMakeLists.txt",
+            "https://github.com/UZ-SLAMLab/ORB_SLAM3/blob/master/src/ORBextractor.cc"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "权重": {
+          "说明": "需要Vocabulary/ORBvoc.txt词袋及相机/IMU标定YAML，不是神经网络预训练权重。",
+          "链接": [
+            "https://github.com/UZ-SLAMLab/ORB_SLAM3/blob/master/README.md"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "数据集": {
+          "说明": "官方提供EuRoC、TUM-VI及RGB-D示例；EuRoC视觉与视觉惯性使用不同轨迹坐标系，TUM-VI真值仅覆盖起止房间，不能把漂移结果当全轨迹绝对精度。",
+          "链接": [
+            "https://github.com/UZ-SLAMLab/ORB_SLAM3/blob/master/README.md"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "性能基准": {
+          "说明": "README实时性能说明针对强CPU（如i7），未给GPU专项基准；REGISTER_TIMES可生成ExecTimeMean.txt，但本次未运行，不能填作GPU FPS。",
+          "链接": [
+            "https://github.com/UZ-SLAMLab/ORB_SLAM3/blob/master/README.md",
+            "https://github.com/UZ-SLAMLab/ORB_SLAM3/blob/master/CMakeLists.txt"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "精度基准": {
+          "说明": "官方提供RMS ATE评测入口；GPU专项轨迹结果未确认。EuRoC坐标变换和TUM-VI真值覆盖必须随协议记录，不能借CPU论文数值填为GPU结果。",
+          "链接": [
+            "https://github.com/UZ-SLAMLab/ORB_SLAM3/blob/master/README.md"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        }
+      },
+      "conclusion": "原始实现为CPU计算路径；未确认官方CUDA SLAM后端",
+      "note": "已核对构建文件和ORB特征提取源码；可视化GPU不等于SLAM计算GPU加速。"
+    },
+    {
+      "number": 103,
+      "device": "NPU",
+      "date": "2026-10-26",
+      "fields": {
+        "代码": {
+          "说明": "本轮未确认该完整平台/算法的专项NPU后端；运行于含昇腾硬件的CPU主机、或外接NPU感知模型，不等于全部计算已迁移。",
+          "链接": [
+            "https://github.com/UZ-SLAMLab/ORB_SLAM3/blob/master/README.md",
+            "https://github.com/hicann/cann-recipes-spatial-intelligence/blob/master/README.md"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "权重": {
+          "说明": "原始资源是ORB词袋和标定配置，神经网络权重不适用；没有专项NPU转换权重要求的证据。",
+          "链接": [
+            "https://github.com/UZ-SLAMLab/ORB_SLAM3/blob/master/README.md"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "数据集": {
+          "说明": "应复用平台/算法对应的场景、传感器或轨迹评测协议；未确认专项NPU完整验证材料，不能用其他模型数据代替。",
+          "链接": [
+            "https://github.com/UZ-SLAMLab/ORB_SLAM3/blob/master/README.md"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "性能基准": {
+          "说明": "尚无可引用的该完整平台/算法NPU硬件、任务配置和计时结果；不将CPU运行或GPU渲染FPS标作NPU吞吐。",
+          "链接": [
+            "https://github.com/UZ-SLAMLab/ORB_SLAM3/blob/master/README.md"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "精度基准": {
+          "说明": "尚无可引用的专项NPU仿真/轨迹正确性结果；模型统一准确率不适用于整个平台，外接AI模块应另评测。",
+          "链接": [
+            "https://github.com/UZ-SLAMLab/ORB_SLAM3/blob/master/README.md"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        }
+      },
+      "conclusion": "未确认专项NPU后端；平台/算法与外接模型分别核查"
     },
     {
       "number": 104,
@@ -6209,10 +6755,11 @@
           "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
         },
         "精度基准": {
-          "说明": "论文v1表1随机10帧前馈AUC@30：Re10K85.3、CO3Dv2 88.2；加BA为93.5/91.8。后续README另报CO3D原权重89.98、Commercial90.37，版本/协议不同，分别记录。",
+          "说明": "论文v1表1随机10帧前馈AUC@30：Re10K85.3、CO3Dv2 88.2；加BA为93.5/91.8。后续README另报CO3D原权重89.98、Commercial90.37，版本/协议不同，分别记录。 CANN第三方复现另报GPU AUC90.5、ETH3D Overall0.464、DTU Overall1.0244，协议不同，不归作原作者论文成绩。",
           "链接": [
             "https://arxiv.org/html/2503.11651v1",
-            "https://github.com/facebookresearch/vggt/blob/main/README.md"
+            "https://github.com/facebookresearch/vggt/blob/main/README.md",
+            "https://gitcode.com/cann/cann-recipes-embodied-ai/blob/21a5ed789ceb2a4b72277573f5ec5ec531b92ee1/docs/3d_vision/vggt/vggt_accuracy_evaluation.md"
           ],
           "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
         }
@@ -6224,45 +6771,58 @@
       "date": "2026-10-26",
       "fields": {
         "代码": {
-          "说明": "DrivingSDK专项为训练支持；固定VGGT上游97bbde57应用VGGT_npu.patch并使用8卡脚本。此证据来自DrivingSDK，不属于用户指定ModelZoo仓内交付。",
+          "说明": "DrivingSDK训练线：DrivingSDK专项为训练支持；固定VGGT上游97bbde57应用VGGT_npu.patch并使用8卡脚本。此证据来自DrivingSDK，不属于用户指定ModelZoo仓内交付。 CANN推理线：另有CANN Recipes专项推理与三任务评测，当前README声明A2/A3，CANN8.5.0/torch2.7.1/torch_npu2.7.1.post2，单卡/多卡序列并行及部分Linear W8A8。原空间智能仓已归档迁移；两条路线均非ModelZoo仓内交付。",
           "链接": [
             "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/VGGT/README.md",
-            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/VGGT/test/train_8p_vggt_perf.sh"
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/VGGT/test/train_8p_vggt_perf.sh",
+            "https://gitcode.com/cann/cann-recipes-embodied-ai/blob/master/3d_vision/vggt/README.md",
+            "https://gitcode.com/cann/cann-recipes-embodied-ai/blob/21a5ed789ceb2a4b72277573f5ec5ec531b92ee1/3d_vision/vggt/demo_infer.py"
           ],
           "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
         },
         "权重": {
-          "说明": "指导要求准备上游model.pt置于指定目录，再做CO3D微调；未列独立发布的NPU微调checkpoint及SHA。",
+          "说明": "DrivingSDK训练线：指导要求准备上游model.pt置于指定目录，再做CO3D微调；未列独立发布的NPU微调checkpoint及SHA。 CANN推理线：CANN推理复用facebook/VGGT-1B model.pt，并可本地生成VGGT_model_W8A8.pt；仅K=4096的Linear做8bit，不是全模型INT8。文档未固定上游commit与权重SHA。",
           "链接": [
             "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/VGGT/README.md",
-            "https://huggingface.co/facebook/VGGT-1B/resolve/main/model.pt"
+            "https://huggingface.co/facebook/VGGT-1B/resolve/main/model.pt",
+            "https://gitcode.com/cann/cann-recipes-embodied-ai/blob/master/3d_vision/vggt/README.md",
+            "https://gitcode.com/cann/cann-recipes-embodied-ai/blob/21a5ed789ceb2a4b72277573f5ec5ec531b92ee1/3d_vision/vggt/demo_infer.py"
           ],
           "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
         },
         "数据集": {
-          "说明": "仅验证CO3D的tv场景；全量约5.5TB但此结果不覆盖全类别。全局batch120、每卡15、固定图像数2、aspect ratio1，不能外推原论文多任务全量结果。",
+          "说明": "DrivingSDK训练线：仅验证CO3D的tv场景；全量约5.5TB但此结果不覆盖全类别。全局batch120、每卡15、固定图像数2、aspect ratio1，不能外推原论文多任务全量结果。 CANN推理线：CANN推理评测另用CO3D相机位姿、ETH3D点图、DTU深度融合；CO3D类别可自选、DTU提供全量/子集列表，评测范围须固定，不能与tv训练子集混用。",
           "链接": [
-            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/VGGT/README.md"
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/VGGT/README.md",
+            "https://gitcode.com/cann/cann-recipes-embodied-ai/blob/master/3d_vision/vggt/README.md",
+            "https://gitcode.com/cann/cann-recipes-embodied-ai/blob/21a5ed789ceb2a4b72277573f5ec5ec531b92ee1/docs/3d_vision/vggt/vggt_accuracy_evaluation.md"
           ],
           "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
         },
         "性能基准": {
-          "说明": "8×Atlas800T A2训练吞吐25.04，原表写FPS；脚本按120/平均Batch Time计算并标images/sec，取最后100条日志再丢前10条，未见乘每样本2帧，不能视为真实视频帧率。对照15.30仅标竞品A、未给GPU型号；不是H100推理对照。",
+          "说明": "DrivingSDK训练线：8×Atlas800T A2训练吞吐25.04，原表写FPS；脚本按120/平均Batch Time计算并标images/sec，取最后100条日志再丢前10条，未见乘每样本2帧，不能视为真实视频帧率。对照15.30仅标竞品A、未给GPU型号；不是H100推理对照。 CANN推理线：CANN推理文档在8卡A2机器、kitchen25图样例列1121.09ms，另列Ulysses8=6.47x/Ring8=6.42x；该表未明确1121.09对应实际启用卡数，不写成八卡绝对耗时。源码同步计时，单卡预热后多次均值，多卡丢前2次；排除读图/预处理，不是三次独立中位数。不能与H100骨干表直接算加速比。",
           "链接": [
             "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/VGGT/README.md",
-            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/VGGT/test/train_8p_vggt_perf.sh"
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/VGGT/test/train_8p_vggt_perf.sh",
+            "https://gitcode.com/cann/cann-recipes-embodied-ai/blob/master/3d_vision/vggt/README.md",
+            "https://gitcode.com/cann/cann-recipes-embodied-ai/blob/21a5ed789ceb2a4b72277573f5ec5ec531b92ee1/docs/3d_vision/vggt/vggt_optimization.md",
+            "https://gitcode.com/cann/cann-recipes-embodied-ai/blob/21a5ed789ceb2a4b72277573f5ec5ec531b92ee1/3d_vision/vggt/demo_infer.py"
           ],
           "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
         },
         "精度基准": {
-          "说明": "CO3D tv微调loss：NPU0.0165、竞品A0.0164；没有相机AUC、深度或点云任务指标。loss接近不能认定已复现GPU重建精度。",
+          "说明": "DrivingSDK训练线：CO3D tv微调loss：NPU0.0165、竞品A0.0164；没有相机AUC、深度或点云任务指标。loss接近不能认定已复现GPU重建精度。 CANN推理线：CANN专项另有任务结果：CO3D AUC@30 NPU91.1/GPU90.5；ETH3D Overall0.456/0.464；DTU Overall1.0072/1.0244。DTU远离论文0.382，文档承认协议差异；不能称复现论文质量。BF16由0.919降0.911是0.8个百分点，原文称损失0.5%以内有算术问题；INT8另为0.907。",
           "链接": [
-            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/VGGT/README.md"
+            "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/VGGT/README.md",
+            "https://gitcode.com/cann/cann-recipes-embodied-ai/blob/master/3d_vision/vggt/README.md",
+            "https://gitcode.com/cann/cann-recipes-embodied-ai/blob/21a5ed789ceb2a4b72277573f5ec5ec531b92ee1/docs/3d_vision/vggt/vggt_accuracy_evaluation.md",
+            "https://gitcode.com/cann/cann-recipes-embodied-ai/blob/21a5ed789ceb2a4b72277573f5ec5ec531b92ee1/docs/3d_vision/vggt/vggt_optimization.md"
           ],
           "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
         }
       },
-      "conclusion": "DrivingSDK有CO3D tv八卡训练；ModelZoo交付及几何任务验收未确认"
+      "conclusion": "外部DrivingSDK训练及CANN推理/几何评测均有证据；非ModelZoo仓内交付",
+      "note": "VGGT有独立推理路线，不能只列训练loss；CANN DTU协议与论文有差异，1121.09ms实际用卡数仍需核验。"
     }
   ],
   "deferred_items": [
@@ -6323,6 +6883,18 @@
         "WoW 昇腾 世界模型"
       ],
       "result": "本轮结果未取得可确认G0.5或WoW完整模型适配的专项原始资料，不据此断言不能运行。"
+    },
+    {
+      "date": "2026-10-26",
+      "queries": [
+        "GPR Ascend Gaussian process",
+        "GPyTorch torch_npu",
+        "高斯过程回归 昇腾 代码",
+        "ORB-SLAM3 昇腾",
+        "AirSim 昇腾 NPU",
+        "Gazebo Ascend NPU"
+      ],
+      "result": "OptEx仅核估计设备代码线索；空间智能原始仓列VGGT等，不证明ORB-SLAM3；同名Ascend Engineering非华为昇腾。"
     }
   ]
 }

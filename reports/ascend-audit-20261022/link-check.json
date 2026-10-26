@@ -2630,6 +2630,46 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://gitcode.com/cann/cann-recipes-embodied-ai/blob/21a5ed789ceb2a4b72277573f5ec5ec531b92ee1/3d_vision/vggt/demo_infer.py",
+    "checked_at_utc": "2026-10-26T14:49:23.998546+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/cann/cann-recipes-embodied-ai/blob/21a5ed789ceb2a4b72277573f5ec5ec531b92ee1/3d_vision/vggt/demo_infer.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/cann/cann-recipes-embodied-ai/blob/21a5ed789ceb2a4b72277573f5ec5ec531b92ee1/docs/3d_vision/vggt/vggt_accuracy_evaluation.md",
+    "checked_at_utc": "2026-10-26T14:49:23.998940+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/cann/cann-recipes-embodied-ai/blob/21a5ed789ceb2a4b72277573f5ec5ec531b92ee1/docs/3d_vision/vggt/vggt_accuracy_evaluation.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/cann/cann-recipes-embodied-ai/blob/21a5ed789ceb2a4b72277573f5ec5ec531b92ee1/docs/3d_vision/vggt/vggt_optimization.md",
+    "checked_at_utc": "2026-10-26T14:49:23.999368+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/cann/cann-recipes-embodied-ai/blob/21a5ed789ceb2a4b72277573f5ec5ec531b92ee1/docs/3d_vision/vggt/vggt_optimization.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/cann/cann-recipes-embodied-ai/blob/master/3d_vision/vggt/README.md",
+    "checked_at_utc": "2026-10-26T14:49:23.999654+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://gitcode.com/cann/cann-recipes-embodied-ai/blob/master/3d_vision/vggt/README.md",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://gitcode.com/gcw_1yOcCgy7/310p-spiritv1.5-infer",
     "checked_at_utc": "2026-10-23T02:46:09.177272+00:00",
     "method": "HEAD",
@@ -3027,6 +3067,16 @@
     "version": "pinned",
     "status": 200,
     "final_url": "https://gitee.com/mindspore-lab/mindrl/blob/7f55a67f90d248e8c535a2b6e61a6d68ca2c3c2d/mindspore_rl/algorithm/qmix/config.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/docs/zh/models/support_list.md",
+    "checked_at_utc": "2026-10-26T14:49:23.999906+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/docs/zh/models/support_list.md",
     "result": "http_reachable"
   },
   {
@@ -3960,6 +4010,16 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://github.com/UZ-SLAMLab/ORB_SLAM3/blob/master/CMakeLists.txt",
+    "checked_at_utc": "2026-10-26T14:49:24.000159+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/UZ-SLAMLab/ORB_SLAM3/blob/master/CMakeLists.txt",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://github.com/UZ-SLAMLab/ORB_SLAM3/blob/master/README.md",
     "checked_at_utc": "2026-10-23T02:46:15.215535+00:00",
     "method": "HEAD",
@@ -3967,6 +4027,16 @@
     "version": "dynamic_or_unversioned",
     "status": 200,
     "final_url": "https://github.com/UZ-SLAMLab/ORB_SLAM3/blob/master/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/UZ-SLAMLab/ORB_SLAM3/blob/master/src/ORBextractor.cc",
+    "checked_at_utc": "2026-10-26T14:49:24.000450+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/UZ-SLAMLab/ORB_SLAM3/blob/master/src/ORBextractor.cc",
     "result": "http_reachable"
   },
   {
@@ -4350,6 +4420,16 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://github.com/hicann/cann-recipes-spatial-intelligence/blob/master/README.md",
+    "checked_at_utc": "2026-10-26T14:49:24.000945+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/hicann/cann-recipes-spatial-intelligence/blob/master/README.md",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://github.com/huggingface/peft",
     "checked_at_utc": "2026-10-23T02:46:17.884141+00:00",
     "method": "HEAD",
@@ -4637,16 +4717,6 @@
     "version": "dynamic_or_unversioned",
     "status": 200,
     "final_url": "https://github.com/nv-tlabs/Cosmos-Drive-Dreams/blob/main/README.md",
-    "result": "http_reachable"
-  },
-  {
-    "url": "https://github.com/nvidia-cosmos",
-    "checked_at_utc": "2026-10-23T02:46:18.702186+00:00",
-    "method": "HEAD",
-    "content_verified": false,
-    "version": "dynamic_or_unversioned",
-    "status": 200,
-    "final_url": "https://github.com/nvidia-cosmos",
     "result": "http_reachable"
   },
   {
@@ -5107,6 +5177,26 @@
     "version": "dynamic_or_unversioned",
     "status": 200,
     "final_url": "https://github.com/yester31/Monocular_Depth_Estimation_TRT/blob/main/reports/bench/depth_anything_v2_518x518_bench_single_fp16.json",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/youyve/OptEx/blob/main/README.md",
+    "checked_at_utc": "2026-10-26T14:49:24.001336+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/youyve/OptEx/blob/main/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/youyve/OptEx/blob/main/optex/optex.py",
+    "checked_at_utc": "2026-10-26T14:49:24.001779+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/youyve/OptEx/blob/main/optex/optex.py",
     "result": "http_reachable"
   },
   {
