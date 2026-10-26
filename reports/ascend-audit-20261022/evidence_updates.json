@@ -581,6 +581,106 @@
       "date": "2026-10-25",
       "blob_sha": "643d8b443e71b360421b8e451b2ce38e72005a41",
       "note": "按master HEAD aa0696bd53c3724c8438860243b55025539de64a读取base64正文；未执行代码"
+    },
+    {
+      "url": "https://github.com/openvla/openvla/blob/main/README.md",
+      "method": "GitHub fetch_file",
+      "date": "2026-10-25",
+      "blob_sha": "075feef94adfeb802d1d89856159a974bf5358f8",
+      "note": "已读正文；文件blob SHA，非仓库commit；未运行代码"
+    },
+    {
+      "url": "https://github.com/Spirit-AI-Team/spirit-v1.5/blob/main/README.md",
+      "method": "GitHub fetch_file",
+      "date": "2026-10-25",
+      "blob_sha": "b11626530018f1f2626573c3965c7be5054dd18f",
+      "note": "已读正文；文件blob SHA，非仓库commit；未运行代码"
+    },
+    {
+      "url": "https://github.com/RosettaCommons/RFdiffusion2/blob/main/README.md",
+      "method": "GitHub fetch_file",
+      "date": "2026-10-25",
+      "blob_sha": "fa1f7dee1b4bd846ed310be66c11bd2765343a0c",
+      "note": "已读正文；文件blob SHA，非仓库commit；未运行代码"
+    },
+    {
+      "url": "https://github.com/Spirit-AI-Team/spirit-v1.5/blob/main/assets/rc_results.png",
+      "method": "GitHub fetch_file",
+      "date": "2026-10-25",
+      "blob_sha": "d5f98c5c76100eed9d539cc77f5a8cd372101f9a",
+      "note": "已查看官方结果图；文件blob SHA，非仓库commit"
+    },
+    {
+      "url": "https://gitee.com/mindspore-lab/mindrl/blob/7f55a67f90d248e8c535a2b6e61a6d68ca2c3c2d/example/maddpg/README.md",
+      "method": "Gitee contents API",
+      "date": "2026-10-25",
+      "blob_sha": "0a47403baeee5e3d47686eb83322245355d18cde",
+      "note": "固定仓库commit 7f55a67f90d248e8c535a2b6e61a6d68ca2c3c2d，已读正文；blob SHA非仓库commit；未运行代码"
+    },
+    {
+      "url": "https://gitee.com/mindspore-lab/mindrl/blob/7f55a67f90d248e8c535a2b6e61a6d68ca2c3c2d/example/maddpg/train.py",
+      "method": "Gitee contents API",
+      "date": "2026-10-25",
+      "blob_sha": "739018f10452762c4e6651d8d511c709a83a6b65",
+      "note": "固定仓库commit 7f55a67f90d248e8c535a2b6e61a6d68ca2c3c2d，已读正文；blob SHA非仓库commit；未运行代码"
+    },
+    {
+      "url": "https://gitee.com/mindspore-lab/mindrl/blob/7f55a67f90d248e8c535a2b6e61a6d68ca2c3c2d/mindspore_rl/algorithm/maddpg/config.py",
+      "method": "Gitee contents API",
+      "date": "2026-10-25",
+      "blob_sha": "d88b403125613c8f7fcf107e697559e7ed7cff40",
+      "note": "固定仓库commit 7f55a67f90d248e8c535a2b6e61a6d68ca2c3c2d，已读正文；blob SHA非仓库commit；未运行代码"
+    },
+    {
+      "url": "https://gitee.com/mindspore-lab/mindrl/blob/7f55a67f90d248e8c535a2b6e61a6d68ca2c3c2d/example/qmix/README.md",
+      "method": "Gitee contents API",
+      "date": "2026-10-25",
+      "blob_sha": "31f9e5099245d9a6a210e567d17db2b9034074b1",
+      "note": "固定仓库commit 7f55a67f90d248e8c535a2b6e61a6d68ca2c3c2d，已读正文；blob SHA非仓库commit；未运行代码"
+    },
+    {
+      "url": "https://gitee.com/mindspore-lab/mindrl/blob/7f55a67f90d248e8c535a2b6e61a6d68ca2c3c2d/example/qmix/train.py",
+      "method": "Gitee contents API",
+      "date": "2026-10-25",
+      "blob_sha": "4441bda2e09a314f79835ff7f0b8d6f4e0be16a9",
+      "note": "固定仓库commit 7f55a67f90d248e8c535a2b6e61a6d68ca2c3c2d，已读正文；blob SHA非仓库commit；未运行代码"
+    },
+    {
+      "url": "https://gitee.com/mindspore-lab/mindrl/blob/7f55a67f90d248e8c535a2b6e61a6d68ca2c3c2d/mindspore_rl/algorithm/qmix/config.py",
+      "method": "Gitee contents API",
+      "date": "2026-10-25",
+      "blob_sha": "fd8b2e52a6cd9ba67af8ef9f93c7e94184556553",
+      "note": "固定仓库commit 7f55a67f90d248e8c535a2b6e61a6d68ca2c3c2d，已读正文；blob SHA非仓库commit；未运行代码"
+    },
+    {
+      "url": "https://arxiv.org/html/2210.02186v3",
+      "method": "web正文读取",
+      "date": "2026-10-25",
+      "note": "已读v3附录表7、11、13及实验硬件；未运行模型"
+    },
+    {
+      "url": "https://arxiv.org/html/2606.03264v1",
+      "method": "web正文读取",
+      "date": "2026-10-25",
+      "note": "已读v1表2及评估章节；未运行模型"
+    },
+    {
+      "url": "https://arxiv.org/html/2406.09246v3",
+      "method": "web正文读取",
+      "date": "2026-10-25",
+      "note": "已读v3表12及LIBERO协议；未运行模型"
+    },
+    {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11168924/",
+      "method": "web正文读取",
+      "date": "2026-10-25",
+      "note": "已读原论文PoseBusters数据规模与训练截止条件；未运行模型"
+    },
+    {
+      "url": "https://www.nature.com/articles/s41592-025-02975-x",
+      "method": "web正文读取",
+      "date": "2026-10-25",
+      "note": "已读正式论文AME结果及成功门槛；未运行模型"
     }
   ],
   "target_master": "dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202",
@@ -1076,6 +1176,39 @@
       "note": "论文与README吞吐口径矛盾；RoboTwin基础/后训练权重、深度输入和评估协议不能混用。"
     },
     {
+      "number": 20,
+      "device": "GPU",
+      "date": "2026-10-25",
+      "fields": {
+        "权重": {
+          "说明": "基础版openvla-7b及prismatic版；另有Spatial/Object/Goal/10四套LIBERO微调checkpoint，不把基础版当作已微调策略。",
+          "链接": [
+            "https://github.com/openvla/openvla/blob/main/README.md",
+            "https://huggingface.co/openvla/openvla-7b-finetuned-libero-spatial",
+            "https://huggingface.co/openvla/openvla-7b-finetuned-libero-object",
+            "https://huggingface.co/openvla/openvla-7b-finetuned-libero-goal",
+            "https://huggingface.co/openvla/openvla-7b-finetuned-libero-10"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "数据集": {
+          "说明": "训练Open-X混合；LIBERO四套任务分别微调。论文重建256×256数据、去除失败/no-op示范；每套10任务×50次×3种子，不能直接使用原128×128数据复现。",
+          "链接": [
+            "https://github.com/openvla/openvla/blob/main/README.md",
+            "https://arxiv.org/html/2406.09246v3"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "精度基准": {
+          "说明": "论文表12，分别LoRA微调：Spatial84.7±0.9%、Object88.4±0.8%、Goal79.2±1.0%、Long53.7±1.3%，平均76.5±0.6%；不是单个策略联合评测，也不是OFT结果。",
+          "链接": [
+            "https://arxiv.org/html/2406.09246v3"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        }
+      }
+    },
+    {
       "number": 21,
       "date": "2026-10-25",
       "device": "GPU",
@@ -1248,6 +1381,30 @@
       },
       "note": "1.6与1.5分开；公司历史公告不是当前榜单状态证明。",
       "conclusion": "已有1.6官方发布；公开GPU实现、权重和可复核测速未确认"
+    },
+    {
+      "number": 26,
+      "device": "GPU",
+      "date": "2026-10-25",
+      "fields": {
+        "权重": {
+          "说明": "官方发布基础Spirit-v1.5及move-objects-into-box专项微调版；后者只对应一个任务，不能覆盖Table30全部任务。",
+          "链接": [
+            "https://huggingface.co/Spirit-AI-robotics/Spirit-v1.5",
+            "https://huggingface.co/Spirit-AI-robotics/Spirit-v1.5-for-RoboChallenge-move-objects-into-box",
+            "https://github.com/Spirit-AI-Team/spirit-v1.5/blob/main/README.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "精度基准": {
+          "说明": "官方结果图：RoboChallenge Table30成功率50.33%；README对应2026-01-11排名快照。图未给试验次数和GPU型号，不能当当前榜单或指定GPU复测。",
+          "链接": [
+            "https://github.com/Spirit-AI-Team/spirit-v1.5/blob/main/assets/rc_results.png",
+            "https://github.com/Spirit-AI-Team/spirit-v1.5/blob/main/README.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        }
+      }
     },
     {
       "number": 27,
@@ -2078,6 +2235,27 @@
       "note": "3.3.0默认hybrid effort=medium；该模式不支持image analysis。版本后端得分与独立模型卡得分分开引用。"
     },
     {
+      "number": 47,
+      "date": "2026-10-25",
+      "device": "GPU",
+      "fields": {
+        "精度基准": {
+          "说明": "原论文表2：OmniDocBench v1.6综合分96.33，Text Edit↓0.033、Formula CDM↑97.49、Table TEDS↑94.76、TEDS-S↑97.11；综合分不能当逐字符准确率，也不是NPU实测。",
+          "链接": [
+            "https://arxiv.org/html/2606.03264v1"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "性能基准": {
+          "说明": "1.6原论文提供质量基准，但未列绑定GPU型号、后端、并发的速度表；不能引用初代PaddleOCR-VL的A100吞吐替代1.6。",
+          "链接": [
+            "https://arxiv.org/html/2606.03264v1"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        }
+      }
+    },
+    {
       "number": 49,
       "date": "2026-10-25",
       "device": "GPU",
@@ -2184,6 +2362,20 @@
           "说明": "不含编译的模型推理：1024 tokens，单A100-80GB 62秒、单H100-80GB 34秒；5120 tokens分别2547/1416秒；不含CPU检索。16卡GPU秒不是端到端延迟。",
           "链接": [
             "https://github.com/google-deepmind/alphafold3/blob/main/docs/performance.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "数据集": {
+          "说明": "原论文PoseBusters v1含428个蛋白-配体结构，v2去除晶体接触后308个；使用2019-09-30训练截止的专项模型，须与当前开放参数区分。",
+          "链接": [
+            "https://pmc.ncbi.nlm.nih.gov/articles/PMC11168924/"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "精度基准": {
+          "说明": "配体指标为口袋对齐RMSD<2Å的比例；PB-valid是额外有效性检查。论文提供正式基准，但当前公开参数与2019截止模型不等同，尚未确认当前参数在同协议下的汇总得分。",
+          "链接": [
+            "https://pmc.ncbi.nlm.nih.gov/articles/PMC11168924/"
           ],
           "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
         }
@@ -2380,6 +2572,28 @@
             "https://pmc.ncbi.nlm.nih.gov/articles/PMC11978504/"
           ],
           "证据类型": "已读官方原文；公开基准，未独立复测"
+        }
+      }
+    },
+    {
+      "number": 62,
+      "device": "GPU",
+      "date": "2026-10-25",
+      "fields": {
+        "数据集": {
+          "说明": "AME包含41个M-CSA活性位点；每位点100个骨架，每骨架8条LigandMPNN序列，再经Chai-1回折；完整流水线不是只运行骨架生成。",
+          "链接": [
+            "https://github.com/RosettaCommons/RFdiffusion2/blob/main/README.md",
+            "https://www.nature.com/articles/s41592-025-02975-x"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "精度基准": {
+          "说明": "AME：41/41活性位点至少有一个通过设计，对照RFdiffusion为16/41；成功要求催化残基重原子RMSD<1.5Å且无配体碰撞。不是单设计100%成功率，也不是湿实验酶活成功率。",
+          "链接": [
+            "https://www.nature.com/articles/s41592-025-02975-x"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
         }
       }
     },
@@ -3285,6 +3499,53 @@
       "note": "公开GPU训练基准可引用；没有备件业务训练模型和数据，不能据此宣称业务精度达标。"
     },
     {
+      "number": 99,
+      "device": "NPU",
+      "date": "2026-10-25",
+      "fields": {
+        "代码": {
+          "说明": "MindRL专项README明确支持Ascend/GPU/CPU；train.py接受--device_target Ascend，fp16仅允许Ascend。属于指定仓实现，未证明已通过当前CANN配套验收。",
+          "链接": [
+            "https://gitee.com/mindspore-lab/mindrl/blob/7f55a67f90d248e8c535a2b6e61a6d68ca2c3c2d/example/maddpg/README.md",
+            "https://gitee.com/mindspore-lab/mindrl/blob/7f55a67f90d248e8c535a2b6e61a6d68ca2c3c2d/example/maddpg/train.py"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "权重": {
+          "说明": "提供从头训练及./ckpt保存配置；所读专项README未给可下载的Ascend预训练checkpoint。",
+          "链接": [
+            "https://gitee.com/mindspore-lab/mindrl/blob/7f55a67f90d248e8c535a2b6e61a6d68ca2c3c2d/example/maddpg/README.md",
+            "https://gitee.com/mindspore-lab/mindrl/blob/7f55a67f90d248e8c535a2b6e61a6d68ca2c3c2d/mindspore_rl/algorithm/maddpg/config.py"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "数据集": {
+          "说明": "PettingZoo MPE simple_spread，默认3个agent；环境交互生成样本，需固定PettingZoo及环境配置。",
+          "链接": [
+            "https://gitee.com/mindspore-lab/mindrl/blob/7f55a67f90d248e8c535a2b6e61a6d68ca2c3c2d/example/maddpg/README.md",
+            "https://gitee.com/mindspore-lab/mindrl/blob/7f55a67f90d248e8c535a2b6e61a6d68ca2c3c2d/mindspore_rl/algorithm/maddpg/config.py"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "性能基准": {
+          "说明": "README有逐episode耗时日志，但未注明设备和卡型，不能认作NPU性能基准；尚缺固定硬件的吞吐/耗时结果。",
+          "链接": [
+            "https://gitee.com/mindspore-lab/mindrl/blob/7f55a67f90d248e8c535a2b6e61a6d68ca2c3c2d/example/maddpg/README.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "精度基准": {
+          "说明": "MindSpore r2.2历史清单列回报-140；专项README未把该值绑定到Ascend卡型及测试配置，不能当当前NPU验收值。",
+          "链接": [
+            "https://www.mindspore.cn/docs/zh-CN/r2.2/note/official_models.html",
+            "https://gitee.com/mindspore-lab/mindrl/blob/7f55a67f90d248e8c535a2b6e61a6d68ca2c3c2d/example/maddpg/README.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        }
+      },
+      "conclusion": "MindRL有明确Ascend训练入口；未取得当前硬件的完整验收结果"
+    },
+    {
       "number": 101,
       "date": "2026-10-25",
       "device": "GPU",
@@ -3363,6 +3624,27 @@
       }
     },
     {
+      "number": 105,
+      "device": "GPU",
+      "date": "2026-10-25",
+      "fields": {
+        "数据集": {
+          "说明": "SB3提供PyBullet基准：2M环境步、6个随机种子；HalfCheetah/Ant/Hopper/Walker2D。在线交互环境，不是静态训练数据集。",
+          "链接": [
+            "https://stable-baselines3.readthedocs.io/en/master/modules/ppo.html"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "精度基准": {
+          "说明": "SB3 PyBullet公开回报，Gaussian/gSDE：HalfCheetah1976±479/2826±45，Ant2364±120/2782±76；2M步、6种子。文档未注明结果设备，只作为质量参考，不标GPU实测。",
+          "链接": [
+            "https://stable-baselines3.readthedocs.io/en/master/modules/ppo.html"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        }
+      }
+    },
+    {
       "number": 106,
       "date": "2026-10-25",
       "device": "GPU",
@@ -3420,6 +3702,57 @@
           "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
         }
       }
+    },
+    {
+      "number": 108,
+      "device": "NPU",
+      "date": "2026-10-25",
+      "fields": {
+        "代码": {
+          "说明": "MindRL train.py接受Ascend且fp16限定Ascend；同提交README只写GPU/CPU，和历史Ascend支持清单不一致。保留源码入口证据，待确认维护状态。",
+          "链接": [
+            "https://gitee.com/mindspore-lab/mindrl/blob/7f55a67f90d248e8c535a2b6e61a6d68ca2c3c2d/example/qmix/train.py",
+            "https://gitee.com/mindspore-lab/mindrl/blob/7f55a67f90d248e8c535a2b6e61a6d68ca2c3c2d/example/qmix/README.md",
+            "https://www.mindspore.cn/docs/zh-CN/r2.3.1/note/official_models.html"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "权重": {
+          "说明": "源码配置将训练checkpoint保存至./ckpt；专项README未列可下载的Ascend成品权重。",
+          "链接": [
+            "https://gitee.com/mindspore-lab/mindrl/blob/7f55a67f90d248e8c535a2b6e61a6d68ca2c3c2d/mindspore_rl/algorithm/qmix/config.py",
+            "https://gitee.com/mindspore-lab/mindrl/blob/7f55a67f90d248e8c535a2b6e61a6d68ca2c3c2d/example/qmix/README.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "数据集": {
+          "说明": "README描述SMAC；当前训练入口默认simple_spread.yaml，并分别分发MPE/StarCraft2环境。两种任务不能共用一项胜率。",
+          "链接": [
+            "https://gitee.com/mindspore-lab/mindrl/blob/7f55a67f90d248e8c535a2b6e61a6d68ca2c3c2d/example/qmix/train.py",
+            "https://gitee.com/mindspore-lab/mindrl/blob/7f55a67f90d248e8c535a2b6e61a6d68ca2c3c2d/mindspore_rl/algorithm/qmix/config.py",
+            "https://gitee.com/mindspore-lab/mindrl/blob/7f55a67f90d248e8c535a2b6e61a6d68ca2c3c2d/example/qmix/README.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "性能基准": {
+          "说明": "已读源码和专项README未列可归属Ascend具体卡型、环境、精度模式的训练/推理耗时。",
+          "链接": [
+            "https://gitee.com/mindspore-lab/mindrl/blob/7f55a67f90d248e8c535a2b6e61a6d68ca2c3c2d/example/qmix/README.md",
+            "https://gitee.com/mindspore-lab/mindrl/blob/7f55a67f90d248e8c535a2b6e61a6d68ca2c3c2d/example/qmix/train.py"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "精度基准": {
+          "说明": "历史r2.3.1支持清单列SMAC胜率90%及SimpleSpread回报-145；专项README没有相应Ascend实测表，当前默认任务为SimpleSpread，不能把90%直接套用。",
+          "链接": [
+            "https://www.mindspore.cn/docs/zh-CN/r2.3.1/note/official_models.html",
+            "https://gitee.com/mindspore-lab/mindrl/blob/7f55a67f90d248e8c535a2b6e61a6d68ca2c3c2d/example/qmix/README.md",
+            "https://gitee.com/mindspore-lab/mindrl/blob/7f55a67f90d248e8c535a2b6e61a6d68ca2c3c2d/example/qmix/train.py"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        }
+      },
+      "conclusion": "MindRL源码有Ascend入口；README支持范围冲突，硬件验收待确认"
     },
     {
       "number": 109,
@@ -3561,6 +3894,34 @@
       "device": "GPU"
     },
     {
+      "number": 116,
+      "device": "GPU",
+      "date": "2026-10-25",
+      "fields": {
+        "数据集": {
+          "说明": "长时预测ETT/ECL/Traffic/Weather等。论文表13输入长度96（ILI为36），按预测长度96/192/336/720分别评测；当前整合库需固定与论文相符的配置。",
+          "链接": [
+            "https://arxiv.org/html/2210.02186v3"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "精度基准": {
+          "说明": "论文v3表13，ETTh1输入96→预测96：MSE0.384、MAE0.402；ETTm1同长度0.338/0.375。这是长时预测结果，不能覆盖补全、分类和异常检测任务。",
+          "链接": [
+            "https://arxiv.org/html/2210.02186v3"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        },
+        "性能基准": {
+          "说明": "论文表11：单TITAN RTX 24GB，ETTh1补全任务，序列长度384/768/1536/3072时为0.024/0.040/0.045/0.073秒/迭代，显存1245/1585/2491/2353MiB。表7补全batch16；计时是逐迭代运行时间，不是单样本纯推理延迟。",
+          "链接": [
+            "https://arxiv.org/html/2210.02186v3"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
+        }
+      }
+    },
+    {
       "number": 117,
       "date": "2026-10-25",
       "device": "GPU",
@@ -3628,5 +3989,9 @@
         }
       }
     }
+  ],
+  "deferred_items": [
+    86,
+    100
   ]
 }

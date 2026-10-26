@@ -256,4 +256,25 @@ class ReportTests(unittest.TestCase):
                     self.assertIn(token,evidence(number,device,field)['说明'])
         self.assertTrue(all('/modelzoo-GPL/' in u for u in evidence(76,'NPU','代码')['链接']))
         self.assertIn('CPU',self.rows[80]['NPU结论'])
+    def test_new_benchmark_protocols_and_deferred_items(self):
+        def text(n, device, field):
+            return self.rows[n-1]['设备维度'][device][field]['说明']
+        for n, device, field, tokens in [
+            (20,'GPU','精度基准',['76.5','分别LoRA','不是OFT']),
+            (26,'GPU','精度基准',['50.33%','2026-01-11','未给试验次数']),
+            (55,'GPU','数据集',['428','308','2019-09-30']),
+            (62,'GPU','精度基准',['41/41','至少有一个','不是单设计100%']),
+            (105,'GPU','精度基准',['2M步','6种子','不标GPU实测']),
+            (116,'GPU','精度基准',['ETTh1','0.384','0.402']),
+            (116,'GPU','性能基准',['TITAN RTX 24GB','0.024','秒/迭代','不是单样本']),
+            (47,'GPU','精度基准',['96.33','综合分','不是NPU实测']),
+            (99,'NPU','性能基准',['未注明设备','不能认作NPU']),
+            (108,'NPU','代码',['Ascend','只写GPU/CPU','不一致']),
+        ]:
+            for token in tokens:
+                with self.subTest(number=n,device=device,field=field,token=token):
+                    self.assertIn(token,text(n,device,field))
+        for n in [86,100]:
+            for device in ['GPU','NPU']:
+                self.assertEqual(self.rows[n-1][device+'结论'],'按用户要求暂缓核查')
 if __name__=='__main__':unittest.main()

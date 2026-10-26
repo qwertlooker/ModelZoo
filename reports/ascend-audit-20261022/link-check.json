@@ -250,6 +250,16 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://arxiv.org/html/2210.02186v3",
+    "checked_at_utc": "2026-10-26T06:46:45.998178+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://arxiv.org/html/2210.02186v3",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://arxiv.org/html/2307.15818",
     "checked_at_utc": "2026-10-25T07:36:22.359471+00:00",
     "method": "HEAD",
@@ -267,6 +277,16 @@
     "version": "dynamic_or_unversioned",
     "status": 200,
     "final_url": "https://arxiv.org/html/2402.03216v4",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://arxiv.org/html/2406.09246v3",
+    "checked_at_utc": "2026-10-26T06:46:45.998630+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://arxiv.org/html/2406.09246v3",
     "result": "http_reachable"
   },
   {
@@ -627,6 +647,16 @@
     "version": "dynamic_or_unversioned",
     "status": 200,
     "final_url": "https://arxiv.org/html/2606.01955",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://arxiv.org/html/2606.03264v1",
+    "checked_at_utc": "2026-10-26T06:51:30.134482+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://arxiv.org/html/2606.03264v1",
     "result": "http_reachable"
   },
   {
@@ -2440,6 +2470,66 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://gitee.com/mindspore-lab/mindrl/blob/7f55a67f90d248e8c535a2b6e61a6d68ca2c3c2d/example/maddpg/README.md",
+    "checked_at_utc": "2026-10-26T06:46:45.999052+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitee.com/mindspore-lab/mindrl/blob/7f55a67f90d248e8c535a2b6e61a6d68ca2c3c2d/example/maddpg/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitee.com/mindspore-lab/mindrl/blob/7f55a67f90d248e8c535a2b6e61a6d68ca2c3c2d/example/maddpg/train.py",
+    "checked_at_utc": "2026-10-26T06:46:45.999390+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitee.com/mindspore-lab/mindrl/blob/7f55a67f90d248e8c535a2b6e61a6d68ca2c3c2d/example/maddpg/train.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitee.com/mindspore-lab/mindrl/blob/7f55a67f90d248e8c535a2b6e61a6d68ca2c3c2d/example/qmix/README.md",
+    "checked_at_utc": "2026-10-26T06:46:45.999685+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitee.com/mindspore-lab/mindrl/blob/7f55a67f90d248e8c535a2b6e61a6d68ca2c3c2d/example/qmix/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitee.com/mindspore-lab/mindrl/blob/7f55a67f90d248e8c535a2b6e61a6d68ca2c3c2d/example/qmix/train.py",
+    "checked_at_utc": "2026-10-26T06:46:45.999938+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitee.com/mindspore-lab/mindrl/blob/7f55a67f90d248e8c535a2b6e61a6d68ca2c3c2d/example/qmix/train.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitee.com/mindspore-lab/mindrl/blob/7f55a67f90d248e8c535a2b6e61a6d68ca2c3c2d/mindspore_rl/algorithm/maddpg/config.py",
+    "checked_at_utc": "2026-10-26T06:46:46.000213+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitee.com/mindspore-lab/mindrl/blob/7f55a67f90d248e8c535a2b6e61a6d68ca2c3c2d/mindspore_rl/algorithm/maddpg/config.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitee.com/mindspore-lab/mindrl/blob/7f55a67f90d248e8c535a2b6e61a6d68ca2c3c2d/mindspore_rl/algorithm/qmix/config.py",
+    "checked_at_utc": "2026-10-26T06:46:46.000612+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitee.com/mindspore-lab/mindrl/blob/7f55a67f90d248e8c535a2b6e61a6d68ca2c3c2d/mindspore_rl/algorithm/qmix/config.py",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/Cosmos-Drive-Dreams/README.md",
     "checked_at_utc": "2026-10-23T02:46:09.713956+00:00",
     "method": "HEAD",
@@ -3247,6 +3337,16 @@
     "version": "dynamic_or_unversioned",
     "status": 200,
     "final_url": "https://github.com/Spirit-AI-Team/spirit-v1.5/blob/main/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/Spirit-AI-Team/spirit-v1.5/blob/main/assets/rc_results.png",
+    "checked_at_utc": "2026-10-26T06:46:46.000847+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/Spirit-AI-Team/spirit-v1.5/blob/main/assets/rc_results.png",
     "result": "http_reachable"
   },
   {
@@ -4590,6 +4690,16 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://huggingface.co/Spirit-AI-robotics/Spirit-v1.5-for-RoboChallenge-move-objects-into-box",
+    "checked_at_utc": "2026-10-26T06:46:46.001078+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/Spirit-AI-robotics/Spirit-v1.5-for-RoboChallenge-move-objects-into-box",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://huggingface.co/StarVLA/Qwen-FAST-Bridge-RT-1",
     "checked_at_utc": "2026-10-25T07:30:40.933596+00:00",
     "method": "HEAD",
@@ -5150,14 +5260,44 @@
     "result": "http_reachable"
   },
   {
-    "url": "https://huggingface.co/openvla/openvla-7b",
-    "checked_at_utc": "2026-10-23T02:46:26.070394+00:00",
+    "url": "https://huggingface.co/openvla/openvla-7b-finetuned-libero-10",
+    "checked_at_utc": "2026-10-26T06:46:46.793605+00:00",
     "method": "HEAD",
     "content_verified": false,
     "version": "dynamic_or_unversioned",
-    "status": 429,
-    "result": "not_confirmed",
-    "error": "HTTP Error 429: Too Many Requests"
+    "status": 200,
+    "final_url": "https://huggingface.co/openvla/openvla-7b-finetuned-libero-10",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/openvla/openvla-7b-finetuned-libero-goal",
+    "checked_at_utc": "2026-10-26T06:46:46.985875+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/openvla/openvla-7b-finetuned-libero-goal",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/openvla/openvla-7b-finetuned-libero-object",
+    "checked_at_utc": "2026-10-26T06:46:47.023232+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/openvla/openvla-7b-finetuned-libero-object",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/openvla/openvla-7b-finetuned-libero-spatial",
+    "checked_at_utc": "2026-10-26T06:46:47.058171+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/openvla/openvla-7b-finetuned-libero-spatial",
+    "result": "http_reachable"
   },
   {
     "url": "https://huggingface.co/openvla/openvla-7b-prismatic",
@@ -5367,6 +5507,16 @@
     "version": "dynamic_or_unversioned",
     "status": 200,
     "final_url": "https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/TimesNet_infer.tar",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11168924/",
+    "checked_at_utc": "2026-10-26T06:46:47.058653+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11168924/",
     "result": "http_reachable"
   },
   {
@@ -5667,6 +5817,16 @@
     "version": "dynamic_or_unversioned",
     "status": 200,
     "final_url": "https://www.nature.com/articles/s41586-023-06415-8?error=cookies_not_supported&code=ec3ee865-24dd-4233-8ffc-5f8004f3d157",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://www.nature.com/articles/s41592-025-02975-x",
+    "checked_at_utc": "2026-10-26T06:46:47.062462+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://www.nature.com/articles/s41592-025-02975-x?error=cookies_not_supported&code=089fdab9-6e5a-49ef-b2a1-d232d2c90a5a",
     "result": "http_reachable"
   },
   {

@@ -2401,7 +2401,7 @@
   {
     "编号": 20,
     "原始条目": "OpenVLA",
-    "核查日期": "2026-10-23",
+    "核查日期": "2026-10-25",
     "结论": "有公开实现/指导，完整验收未认证",
     "分析与缺口": "来源报告未复测；缺完整资产SHA、正式任务对齐或三次独立NPU测量时不认证完成。",
     "本次实测状态": "未做模型运行；不认证S3/S4；未校验权重与数据SHA",
@@ -2452,19 +2452,23 @@
           "证据类型": "本轮已读原始资料；非本次实测"
         },
         "权重": {
-          "说明": "openvla-7b；完整微调用prismatic版本",
+          "说明": "基础版openvla-7b及prismatic版；另有Spatial/Object/Goal/10四套LIBERO微调checkpoint，不把基础版当作已微调策略。",
           "链接": [
-            "https://huggingface.co/openvla/openvla-7b",
-            "https://huggingface.co/openvla/openvla-7b-prismatic"
+            "https://github.com/openvla/openvla/blob/main/README.md",
+            "https://huggingface.co/openvla/openvla-7b-finetuned-libero-spatial",
+            "https://huggingface.co/openvla/openvla-7b-finetuned-libero-object",
+            "https://huggingface.co/openvla/openvla-7b-finetuned-libero-goal",
+            "https://huggingface.co/openvla/openvla-7b-finetuned-libero-10"
           ],
-          "证据类型": "本轮已读原始资料；非本次实测"
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
         },
         "数据集": {
-          "说明": "BridgeData V2、Open-X混合",
+          "说明": "训练Open-X混合；LIBERO四套任务分别微调。论文重建256×256数据、去除失败/no-op示范；每套10任务×50次×3种子，不能直接使用原128×128数据复现。",
           "链接": [
-            "https://rail.eecs.berkeley.edu/datasets/bridge_release/data/tfds/bridge_dataset/"
+            "https://github.com/openvla/openvla/blob/main/README.md",
+            "https://arxiv.org/html/2406.09246v3"
           ],
-          "证据类型": "本轮已读原始资料；非本次实测"
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
         },
         "性能基准": {
           "说明": "单A100-80GB是LoRA示例配置，非速度",
@@ -2474,11 +2478,11 @@
           "证据类型": "本轮已读原始资料；非本次实测"
         },
         "精度基准": {
-          "说明": "任务指标需按模型、机器人和数据协议核对",
+          "说明": "论文表12，分别LoRA微调：Spatial84.7±0.9%、Object88.4±0.8%、Goal79.2±1.0%、Long53.7±1.3%，平均76.5±0.6%；不是单个策略联合评测，也不是OFT结果。",
           "链接": [
-            "https://github.com/openvla/openvla/blob/main/README.md"
+            "https://arxiv.org/html/2406.09246v3"
           ],
-          "证据类型": "本轮已读原始资料；非本次实测"
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
         }
       },
       "NPU": {
@@ -2537,7 +2541,11 @@
         "证据类型": "来源报告；未独立复测"
       }
     },
-    "GPU查询状态": "已查原始资料"
+    "GPU查询状态": "已查原始资料",
+    "设备核查日期": {
+      "GPU": "2026-10-25",
+      "NPU": "2026-10-23"
+    }
   },
   {
     "编号": 21,
@@ -3204,7 +3212,7 @@
   {
     "编号": 26,
     "原始条目": "Spirit v1.5",
-    "核查日期": "2026-10-23",
+    "核查日期": "2026-10-25",
     "结论": "有公开实现/指导，完整验收未认证",
     "分析与缺口": "来源报告未复测；缺完整资产SHA、正式任务对齐或三次独立NPU测量时不认证完成。",
     "本次实测状态": "未做模型运行；不认证S3/S4；未校验权重与数据SHA",
@@ -3253,11 +3261,13 @@
           "证据类型": "本轮已读原始资料；非本次实测"
         },
         "权重": {
-          "说明": "Spirit-v1.5及move-objects-into-box微调版",
+          "说明": "官方发布基础Spirit-v1.5及move-objects-into-box专项微调版；后者只对应一个任务，不能覆盖Table30全部任务。",
           "链接": [
-            "https://huggingface.co/Spirit-AI-robotics/Spirit-v1.5"
+            "https://huggingface.co/Spirit-AI-robotics/Spirit-v1.5",
+            "https://huggingface.co/Spirit-AI-robotics/Spirit-v1.5-for-RoboChallenge-move-objects-into-box",
+            "https://github.com/Spirit-AI-Team/spirit-v1.5/blob/main/README.md"
           ],
-          "证据类型": "本轮已读原始资料；非本次实测"
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
         },
         "数据集": {
           "说明": "RoboChallenge Table30对应任务",
@@ -3274,11 +3284,12 @@
           "证据类型": "本轮已读原始资料；非本次实测"
         },
         "精度基准": {
-          "说明": "官方声明2026-01-11 Table30第一；未将排名写成成功率",
+          "说明": "官方结果图：RoboChallenge Table30成功率50.33%；README对应2026-01-11排名快照。图未给试验次数和GPU型号，不能当当前榜单或指定GPU复测。",
           "链接": [
+            "https://github.com/Spirit-AI-Team/spirit-v1.5/blob/main/assets/rc_results.png",
             "https://github.com/Spirit-AI-Team/spirit-v1.5/blob/main/README.md"
           ],
-          "证据类型": "本轮已读原始资料；非本次实测"
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
         }
       },
       "NPU": {
@@ -3326,7 +3337,11 @@
         "证据类型": "来源报告；未独立复测"
       }
     },
-    "GPU查询状态": "已查原始资料"
+    "GPU查询状态": "已查原始资料",
+    "设备核查日期": {
+      "GPU": "2026-10-25",
+      "NPU": "2026-10-23"
+    }
   },
   {
     "编号": 27,
@@ -5907,7 +5922,7 @@
   {
     "编号": 47,
     "原始条目": "PaddleOCR-VL-1.6",
-    "核查日期": "2026-10-23",
+    "核查日期": "2026-10-25",
     "结论": "有指定实现/指导，非完整验收认证",
     "分析与缺口": "仅支持Atlas350；模型服务与布局组件分别依赖软件配套；未重跑",
     "本次实测状态": "未做模型运行；不认证S3/S4；未校验权重与数据SHA",
@@ -5981,18 +5996,18 @@
           "证据类型": "本轮已读原始资料；非本次实测"
         },
         "性能基准": {
-          "说明": "未提取同硬件同后端性能",
+          "说明": "1.6原论文提供质量基准，但未列绑定GPU型号、后端、并发的速度表；不能引用初代PaddleOCR-VL的A100吞吐替代1.6。",
           "链接": [
-            "https://github.com/PaddlePaddle/PaddleOCR/blob/main/README.md"
+            "https://arxiv.org/html/2606.03264v1"
           ],
-          "证据类型": "本轮已读原始资料；非本次实测"
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
         },
         "精度基准": {
-          "说明": "官方OmniDocBench v1.6：96.3%；该分数不是NPU实测",
+          "说明": "原论文表2：OmniDocBench v1.6综合分96.33，Text Edit↓0.033、Formula CDM↑97.49、Table TEDS↑94.76、TEDS-S↑97.11；综合分不能当逐字符准确率，也不是NPU实测。",
           "链接": [
-            "https://github.com/PaddlePaddle/PaddleOCR/blob/main/README.md"
+            "https://arxiv.org/html/2606.03264v1"
           ],
-          "证据类型": "本轮已读原始资料；非本次实测"
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
         }
       },
       "NPU": {
@@ -6045,7 +6060,11 @@
     "GPU结论": "支持GPU，有官方实现",
     "NPU结论": "有指定实现/指导，非完整验收认证",
     "对照原文": {},
-    "GPU查询状态": "已查原始资料"
+    "GPU查询状态": "已查原始资料",
+    "设备核查日期": {
+      "GPU": "2026-10-25",
+      "NPU": "2026-10-23"
+    }
   },
   {
     "编号": 48,
@@ -7006,11 +7025,11 @@
           "证据类型": "本轮已读原始资料；非本次实测"
         },
         "数据集": {
-          "说明": "MSA/模板数据库及结构测试",
+          "说明": "原论文PoseBusters v1含428个蛋白-配体结构，v2去除晶体接触后308个；使用2019-09-30训练截止的专项模型，须与当前开放参数区分。",
           "链接": [
-            "https://github.com/google-deepmind/alphafold3/blob/main/README.md"
+            "https://pmc.ncbi.nlm.nih.gov/articles/PMC11168924/"
           ],
-          "证据类型": "本轮已读原始资料；非本次实测"
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
         },
         "性能基准": {
           "说明": "不含编译的模型推理：1024 tokens，单A100-80GB 62秒、单H100-80GB 34秒；5120 tokens分别2547/1416秒；不含CPU检索。16卡GPU秒不是端到端延迟。",
@@ -7020,11 +7039,11 @@
           "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
         },
         "精度基准": {
-          "说明": "原始AF3结构基准；不得以其他复现版代替",
+          "说明": "配体指标为口袋对齐RMSD<2Å的比例；PB-valid是额外有效性检查。论文提供正式基准，但当前公开参数与2019截止模型不等同，尚未确认当前参数在同协议下的汇总得分。",
           "链接": [
-            "https://github.com/google-deepmind/alphafold3/blob/main/README.md"
+            "https://pmc.ncbi.nlm.nih.gov/articles/PMC11168924/"
           ],
-          "证据类型": "本轮已读原始资料；非本次实测"
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
         }
       },
       "NPU": {
@@ -7867,7 +7886,7 @@
   {
     "编号": 62,
     "原始条目": "RFDiffusion2",
-    "核查日期": "2026-10-23",
+    "核查日期": "2026-10-25",
     "结论": "有公开实现/指导，完整验收未认证",
     "分析与缺口": "来源报告未复测；缺完整资产SHA、正式任务对齐或三次独立NPU测量时不认证完成。",
     "本次实测状态": "未做模型运行；不认证S3/S4；未校验权重与数据SHA",
@@ -7923,11 +7942,12 @@
           "证据类型": "本轮已读原始资料；非本次实测"
         },
         "数据集": {
-          "说明": "demo及AME enzyme benchmark",
+          "说明": "AME包含41个M-CSA活性位点；每位点100个骨架，每骨架8条LigandMPNN序列，再经Chai-1回折；完整流水线不是只运行骨架生成。",
           "链接": [
-            "https://github.com/RosettaCommons/RFdiffusion2/blob/main/README.md"
+            "https://github.com/RosettaCommons/RFdiffusion2/blob/main/README.md",
+            "https://www.nature.com/articles/s41592-025-02975-x"
           ],
-          "证据类型": "本轮已读原始资料；非本次实测"
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
         },
         "性能基准": {
           "说明": "RTX2060单case最多约10分钟，原文估计非统一基准",
@@ -7937,11 +7957,11 @@
           "证据类型": "本轮已读原始资料；非本次实测"
         },
         "精度基准": {
-          "说明": "完整pipeline应含LigandMPNN及Chai1",
+          "说明": "AME：41/41活性位点至少有一个通过设计，对照RFdiffusion为16/41；成功要求催化残基重原子RMSD<1.5Å且无配体碰撞。不是单设计100%成功率，也不是湿实验酶活成功率。",
           "链接": [
-            "https://github.com/RosettaCommons/RFdiffusion2/blob/main/README.md"
+            "https://www.nature.com/articles/s41592-025-02975-x"
           ],
-          "证据类型": "本轮已读原始资料；非本次实测"
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
         }
       },
       "NPU": {
@@ -7983,7 +8003,11 @@
     "GPU结论": "支持GPU，有官方实现",
     "NPU结论": "有公开实现/指导，完整验收未认证",
     "对照原文": {},
-    "GPU查询状态": "已查原始资料"
+    "GPU查询状态": "已查原始资料",
+    "设备核查日期": {
+      "GPU": "2026-10-25",
+      "NPU": "2026-10-23"
+    }
   },
   {
     "编号": 63,
@@ -11033,7 +11057,7 @@
     "原始条目": "DL-foils",
     "核查日期": "2026-10-23",
     "结论": "对象未唯一确认",
-    "分析与缺口": "未找到不等于不支持；原始资源不证明NPU适配。",
+    "分析与缺口": "名称尚不能唯一定位；用户表示不知道对应项目，先不核查。保留原始条目和已有检索记录。",
     "本次实测状态": "未做模型运行；不认证S3/S4；未校验权重与数据SHA",
     "证据": {
       "代码": {
@@ -11118,8 +11142,8 @@
         }
       }
     },
-    "GPU结论": "已查资料，GPU交付未确认",
-    "NPU结论": "对象未唯一确认",
+    "GPU结论": "按用户要求暂缓核查",
+    "NPU结论": "按用户要求暂缓核查",
     "对照原文": {},
     "GPU查询状态": "已查询；实现未确认"
   },
@@ -12632,7 +12656,7 @@
   {
     "编号": 99,
     "原始条目": "MADDPG",
-    "核查日期": "2026-10-23",
+    "核查日期": "2026-10-25",
     "结论": "有公开实现/指导，完整验收未认证",
     "分析与缺口": "来源报告未复测；缺完整资产SHA、正式任务对齐或三次独立NPU测量时不认证完成。",
     "本次实测状态": "未做模型运行；不认证S3/S4；未校验权重与数据SHA",
@@ -12711,51 +12735,61 @@
       },
       "NPU": {
         "代码": {
-          "说明": "历史官方Ascend支持记录，非源码运行",
+          "说明": "MindRL专项README明确支持Ascend/GPU/CPU；train.py接受--device_target Ascend，fp16仅允许Ascend。属于指定仓实现，未证明已通过当前CANN配套验收。",
           "链接": [
-            "https://www.mindspore.cn/docs/zh-CN/r2.2/note/official_models.html"
+            "https://gitee.com/mindspore-lab/mindrl/blob/7f55a67f90d248e8c535a2b6e61a6d68ca2c3c2d/example/maddpg/README.md",
+            "https://gitee.com/mindspore-lab/mindrl/blob/7f55a67f90d248e8c535a2b6e61a6d68ca2c3c2d/example/maddpg/train.py"
           ],
-          "证据类型": "来源报告；未独立复测"
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
         },
         "权重": {
-          "说明": "从头训练",
+          "说明": "提供从头训练及./ckpt保存配置；所读专项README未给可下载的Ascend预训练checkpoint。",
           "链接": [
-            "https://www.mindspore.cn/docs/zh-CN/r2.2/note/official_models.html"
+            "https://gitee.com/mindspore-lab/mindrl/blob/7f55a67f90d248e8c535a2b6e61a6d68ca2c3c2d/example/maddpg/README.md",
+            "https://gitee.com/mindspore-lab/mindrl/blob/7f55a67f90d248e8c535a2b6e61a6d68ca2c3c2d/mindspore_rl/algorithm/maddpg/config.py"
           ],
-          "证据类型": "来源报告；未独立复测"
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
         },
         "数据集": {
-          "说明": "simple_spread",
+          "说明": "PettingZoo MPE simple_spread，默认3个agent；环境交互生成样本，需固定PettingZoo及环境配置。",
           "链接": [
-            "https://www.mindspore.cn/docs/zh-CN/r2.2/note/official_models.html"
+            "https://gitee.com/mindspore-lab/mindrl/blob/7f55a67f90d248e8c535a2b6e61a6d68ca2c3c2d/example/maddpg/README.md",
+            "https://gitee.com/mindspore-lab/mindrl/blob/7f55a67f90d248e8c535a2b6e61a6d68ca2c3c2d/mindspore_rl/algorithm/maddpg/config.py"
           ],
-          "证据类型": "来源报告；未独立复测"
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
         },
         "性能基准": {
-          "说明": "未找到当前栈完整数表",
-          "链接": [],
-          "证据类型": "来源报告；未独立复测"
+          "说明": "README有逐episode耗时日志，但未注明设备和卡型，不能认作NPU性能基准；尚缺固定硬件的吞吐/耗时结果。",
+          "链接": [
+            "https://gitee.com/mindspore-lab/mindrl/blob/7f55a67f90d248e8c535a2b6e61a6d68ca2c3c2d/example/maddpg/README.md"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
         },
         "精度基准": {
-          "说明": "历史指定环境回报-140",
+          "说明": "MindSpore r2.2历史清单列回报-140；专项README未把该值绑定到Ascend卡型及测试配置，不能当当前NPU验收值。",
           "链接": [
-            "https://www.mindspore.cn/docs/zh-CN/r2.2/note/official_models.html"
+            "https://www.mindspore.cn/docs/zh-CN/r2.2/note/official_models.html",
+            "https://gitee.com/mindspore-lab/mindrl/blob/7f55a67f90d248e8c535a2b6e61a6d68ca2c3c2d/example/maddpg/README.md"
           ],
-          "证据类型": "来源报告；未独立复测"
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
         }
       }
     },
     "GPU结论": "有GPU实现（社区PyTorch版本）",
-    "NPU结论": "有公开实现/指导，完整验收未认证",
+    "NPU结论": "MindRL有明确Ascend训练入口；未取得当前硬件的完整验收结果",
     "对照原文": {},
-    "GPU查询状态": "已查原始资料"
+    "GPU查询状态": "已查原始资料",
+    "设备核查日期": {
+      "GPU": "2026-10-23",
+      "NPU": "2026-10-25"
+    }
   },
   {
     "编号": 100,
     "原始条目": "MLOps训推一体框架",
     "核查日期": "2026-10-23",
     "结论": "对象未唯一确认",
-    "分析与缺口": "未找到不等于不支持；原始资源不证明NPU适配。",
+    "分析与缺口": "名称尚不能唯一定位；用户表示不知道对应项目，先不核查。保留原始条目和已有检索记录。",
     "本次实测状态": "未做模型运行；不认证S3/S4；未校验权重与数据SHA",
     "证据": {
       "代码": {
@@ -12842,8 +12876,8 @@
         }
       }
     },
-    "GPU结论": "已查资料，GPU交付未确认",
-    "NPU结论": "对象未唯一确认",
+    "GPU结论": "按用户要求暂缓核查",
+    "NPU结论": "按用户要求暂缓核查",
     "对照原文": {},
     "GPU查询状态": "已查询；实现未确认"
   },
@@ -13337,7 +13371,7 @@
   {
     "编号": 105,
     "原始条目": "PPO",
-    "核查日期": "2026-10-23",
+    "核查日期": "2026-10-25",
     "结论": "有指定实现/指导，非完整验收认证",
     "分析与缺口": "固定环境/seed与统计区间；不同表性能不混用；非多seed统计",
     "本次实测状态": "未做模型运行；不认证S3/S4；未校验权重与数据SHA",
@@ -13402,11 +13436,11 @@
           "证据类型": "本轮已读原始资料；非本次实测"
         },
         "数据集": {
-          "说明": "Gymnasium/Atari等在线环境",
+          "说明": "SB3提供PyBullet基准：2M环境步、6个随机种子；HalfCheetah/Ant/Hopper/Walker2D。在线交互环境，不是静态训练数据集。",
           "链接": [
             "https://stable-baselines3.readthedocs.io/en/master/modules/ppo.html"
           ],
-          "证据类型": "本轮已读原始资料；非本次实测"
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
         },
         "性能基准": {
           "说明": "无统一GPU FPS，取决于环境和策略网络",
@@ -13416,11 +13450,11 @@
           "证据类型": "本轮已读原始资料；非本次实测"
         },
         "精度基准": {
-          "说明": "按环境回报/成功率及训练预算比较",
+          "说明": "SB3 PyBullet公开回报，Gaussian/gSDE：HalfCheetah1976±479/2826±45，Ant2364±120/2782±76；2M步、6种子。文档未注明结果设备，只作为质量参考，不标GPU实测。",
           "链接": [
             "https://stable-baselines3.readthedocs.io/en/master/modules/ppo.html"
           ],
-          "证据类型": "本轮已读原始资料；非本次实测"
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
         }
       },
       "NPU": {
@@ -13471,7 +13505,11 @@
     "GPU结论": "有GPU实现，按环境和策略核查",
     "NPU结论": "有指定实现/指导，非完整验收认证",
     "对照原文": {},
-    "GPU查询状态": "已查原始资料"
+    "GPU查询状态": "已查原始资料",
+    "设备核查日期": {
+      "GPU": "2026-10-25",
+      "NPU": "2026-10-23"
+    }
   },
   {
     "编号": 106,
@@ -13825,47 +13863,57 @@
       },
       "NPU": {
         "代码": {
-          "说明": "官方Ascend支持记录",
+          "说明": "MindRL train.py接受Ascend且fp16限定Ascend；同提交README只写GPU/CPU，和历史Ascend支持清单不一致。保留源码入口证据，待确认维护状态。",
           "链接": [
+            "https://gitee.com/mindspore-lab/mindrl/blob/7f55a67f90d248e8c535a2b6e61a6d68ca2c3c2d/example/qmix/train.py",
+            "https://gitee.com/mindspore-lab/mindrl/blob/7f55a67f90d248e8c535a2b6e61a6d68ca2c3c2d/example/qmix/README.md",
             "https://www.mindspore.cn/docs/zh-CN/r2.3.1/note/official_models.html"
           ],
-          "证据类型": "来源报告；未独立复测"
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
         },
         "权重": {
-          "说明": "从头训练",
+          "说明": "源码配置将训练checkpoint保存至./ckpt；专项README未列可下载的Ascend成品权重。",
           "链接": [
-            "https://www.mindspore.cn/docs/zh-CN/r2.3.1/note/official_models.html"
+            "https://gitee.com/mindspore-lab/mindrl/blob/7f55a67f90d248e8c535a2b6e61a6d68ca2c3c2d/mindspore_rl/algorithm/qmix/config.py",
+            "https://gitee.com/mindspore-lab/mindrl/blob/7f55a67f90d248e8c535a2b6e61a6d68ca2c3c2d/example/qmix/README.md"
           ],
-          "证据类型": "来源报告；未独立复测"
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
         },
         "数据集": {
-          "说明": "SMAC/SimpleSpread",
+          "说明": "README描述SMAC；当前训练入口默认simple_spread.yaml，并分别分发MPE/StarCraft2环境。两种任务不能共用一项胜率。",
           "链接": [
-            "https://www.mindspore.cn/docs/zh-CN/r2.3.1/note/official_models.html"
+            "https://gitee.com/mindspore-lab/mindrl/blob/7f55a67f90d248e8c535a2b6e61a6d68ca2c3c2d/example/qmix/train.py",
+            "https://gitee.com/mindspore-lab/mindrl/blob/7f55a67f90d248e8c535a2b6e61a6d68ca2c3c2d/mindspore_rl/algorithm/qmix/config.py",
+            "https://gitee.com/mindspore-lab/mindrl/blob/7f55a67f90d248e8c535a2b6e61a6d68ca2c3c2d/example/qmix/README.md"
           ],
-          "证据类型": "来源报告；未独立复测"
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
         },
         "性能基准": {
-          "说明": "未找到统一可比性能",
-          "链接": [],
-          "证据类型": "来源报告；未独立复测"
+          "说明": "已读源码和专项README未列可归属Ascend具体卡型、环境、精度模式的训练/推理耗时。",
+          "链接": [
+            "https://gitee.com/mindspore-lab/mindrl/blob/7f55a67f90d248e8c535a2b6e61a6d68ca2c3c2d/example/qmix/README.md",
+            "https://gitee.com/mindspore-lab/mindrl/blob/7f55a67f90d248e8c535a2b6e61a6d68ca2c3c2d/example/qmix/train.py"
+          ],
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
         },
         "精度基准": {
-          "说明": "指定SMAC胜率90%，环境需固定",
+          "说明": "历史r2.3.1支持清单列SMAC胜率90%及SimpleSpread回报-145；专项README没有相应Ascend实测表，当前默认任务为SimpleSpread，不能把90%直接套用。",
           "链接": [
-            "https://www.mindspore.cn/docs/zh-CN/r2.3.1/note/official_models.html"
+            "https://www.mindspore.cn/docs/zh-CN/r2.3.1/note/official_models.html",
+            "https://gitee.com/mindspore-lab/mindrl/blob/7f55a67f90d248e8c535a2b6e61a6d68ca2c3c2d/example/qmix/README.md",
+            "https://gitee.com/mindspore-lab/mindrl/blob/7f55a67f90d248e8c535a2b6e61a6d68ca2c3c2d/example/qmix/train.py"
           ],
-          "证据类型": "来源报告；未独立复测"
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
         }
       }
     },
     "GPU结论": "支持GPU，有官方实现",
-    "NPU结论": "有公开实现/指导，完整验收未认证",
+    "NPU结论": "MindRL源码有Ascend入口；README支持范围冲突，硬件验收待确认",
     "对照原文": {},
     "GPU查询状态": "已查原始资料",
     "设备核查日期": {
       "GPU": "2026-10-25",
-      "NPU": "2026-10-23"
+      "NPU": "2026-10-25"
     }
   },
   {
@@ -14830,7 +14878,7 @@
   {
     "编号": 116,
     "原始条目": "TimesNet",
-    "核查日期": "2026-10-23",
+    "核查日期": "2026-10-25",
     "结论": "有公开实现/指导，完整验收未认证",
     "分析与缺口": "来源报告未复测；缺完整资产SHA、正式任务对齐或三次独立NPU测量时不认证完成。",
     "本次实测状态": "未做模型运行；不认证S3/S4；未校验权重与数据SHA",
@@ -14886,25 +14934,25 @@
           "证据类型": "本轮已读原始资料；非本次实测"
         },
         "数据集": {
-          "说明": "ETT/ECL/Traffic等；严格固定split和预测长度",
+          "说明": "长时预测ETT/ECL/Traffic/Weather等。论文表13输入长度96（ILI为36），按预测长度96/192/336/720分别评测；当前整合库需固定与论文相符的配置。",
           "链接": [
-            "https://github.com/thuml/Time-Series-Library/blob/main/exp/exp_basic.py"
+            "https://arxiv.org/html/2210.02186v3"
           ],
-          "证据类型": "本轮已读原始资料；非本次实测"
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
         },
         "性能基准": {
-          "说明": "未提取同GPU训练/推理速度",
+          "说明": "论文表11：单TITAN RTX 24GB，ETTh1补全任务，序列长度384/768/1536/3072时为0.024/0.040/0.045/0.073秒/迭代，显存1245/1585/2491/2353MiB。表7补全batch16；计时是逐迭代运行时间，不是单样本纯推理延迟。",
           "链接": [
-            "https://github.com/thuml/Time-Series-Library/blob/main/exp/exp_basic.py"
+            "https://arxiv.org/html/2210.02186v3"
           ],
-          "证据类型": "本轮已读原始资料；非本次实测"
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
         },
         "精度基准": {
-          "说明": "预测MSE/MAE等按任务比较，不借用分类指标",
+          "说明": "论文v3表13，ETTh1输入96→预测96：MSE0.384、MAE0.402；ETTm1同长度0.338/0.375。这是长时预测结果，不能覆盖补全、分类和异常检测任务。",
           "链接": [
-            "https://github.com/thuml/Time-Series-Library/blob/main/exp/exp_basic.py"
+            "https://arxiv.org/html/2210.02186v3"
           ],
-          "证据类型": "本轮已读原始资料；非本次实测"
+          "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
         }
       },
       "NPU": {
@@ -14946,7 +14994,11 @@
     "GPU结论": "支持GPU，有官方实现",
     "NPU结论": "有公开实现/指导，完整验收未认证",
     "对照原文": {},
-    "GPU查询状态": "已查原始资料"
+    "GPU查询状态": "已查原始资料",
+    "设备核查日期": {
+      "GPU": "2026-10-25",
+      "NPU": "2026-10-23"
+    }
   },
   {
     "编号": 117,
