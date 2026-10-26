@@ -335,4 +335,21 @@ class ReportTests(unittest.TestCase):
             for token in tokens:
                 with self.subTest(number=n,field=field,token=token):
                     self.assertIn(token,text(n,field))
+    def test_genomic_prediction_scope_and_numeric_reference_boundaries(self):
+        def text(n, field):
+            return self.rows[n-1]['设备维度']['NPU'][field]['说明']
+        for n, field, tokens in [
+            (50,'代码',['libbglr_npu.so','未含该库','CPU']),
+            (50,'性能基准',['11.13ms','228倍仅指','不能写成整体加速']),
+            (50,'精度基准',['随机矩阵数值','不是育种值']),
+            (51,'代码',['REML/ML','CPU','回退']),
+            (51,'精度基准',['对R','1.12753e-5','参考对象不同','非模型复测']),
+            (52,'代码',['H矩阵','未实现','不是完整ssGBLUP']),
+            (52,'性能基准',['NPU更慢','稠密化','之后开始']),
+            (52,'精度基准',['全解差0.536','ridge','不能称全解等价']),
+        ]:
+            for token in tokens:
+                with self.subTest(number=n,field=field,token=token):
+                    self.assertIn(token,text(n,field))
+        self.assertIn('未实现完整ssGBLUP',self.rows[51]['NPU结论'])
 if __name__=='__main__':unittest.main()

@@ -2600,6 +2600,56 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://gitcode.com/xiaotao5571/BLUP-NPU/blob/5dfd7f7a8baa041d8de80a4086823c2d53b4a43b/README.md",
+    "checked_at_utc": "2026-10-26T07:45:29.750541+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/xiaotao5571/BLUP-NPU/blob/5dfd7f7a8baa041d8de80a4086823c2d53b4a43b/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/xiaotao5571/BLUP-NPU/blob/5dfd7f7a8baa041d8de80a4086823c2d53b4a43b/bench.py",
+    "checked_at_utc": "2026-10-26T07:45:29.750981+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/xiaotao5571/BLUP-NPU/blob/5dfd7f7a8baa041d8de80a4086823c2d53b4a43b/bench.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/xiaotao5571/BLUP-NPU/blob/5dfd7f7a8baa041d8de80a4086823c2d53b4a43b/bglr_gblup.py",
+    "checked_at_utc": "2026-10-26T07:45:29.751434+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/xiaotao5571/BLUP-NPU/blob/5dfd7f7a8baa041d8de80a4086823c2d53b4a43b/bglr_gblup.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/xiaotao5571/BLUP-NPU/blob/5dfd7f7a8baa041d8de80a4086823c2d53b4a43b/bglr_npu.py",
+    "checked_at_utc": "2026-10-26T07:45:29.751723+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/xiaotao5571/BLUP-NPU/blob/5dfd7f7a8baa041d8de80a4086823c2d53b4a43b/bglr_npu.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/xiaotao5571/BLUP-NPU/blob/5dfd7f7a8baa041d8de80a4086823c2d53b4a43b/deploy.sh",
+    "checked_at_utc": "2026-10-26T07:45:29.752015+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/xiaotao5571/BLUP-NPU/blob/5dfd7f7a8baa041d8de80a4086823c2d53b4a43b/deploy.sh",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://gitcode.com/xiaotao5571/NPU",
     "checked_at_utc": "2026-10-23T02:46:09.509548+00:00",
     "method": "HEAD",
@@ -2610,6 +2660,56 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://gitcode.com/xiaotao5571/NPU/blob/6b1724a553ed5b9596961457790c324677cfc935/README.md",
+    "checked_at_utc": "2026-10-26T07:45:29.752171+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/xiaotao5571/NPU/blob/6b1724a553ed5b9596961457790c324677cfc935/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/xiaotao5571/NPU/blob/6b1724a553ed5b9596961457790c324677cfc935/benchmark_npu.py",
+    "checked_at_utc": "2026-10-26T07:45:29.752672+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/xiaotao5571/NPU/blob/6b1724a553ed5b9596961457790c324677cfc935/benchmark_npu.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/xiaotao5571/NPU/blob/6b1724a553ed5b9596961457790c324677cfc935/gblup_npu.py",
+    "checked_at_utc": "2026-10-26T07:45:29.753209+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/xiaotao5571/NPU/blob/6b1724a553ed5b9596961457790c324677cfc935/gblup_npu.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/xiaotao5571/NPU/blob/6b1724a553ed5b9596961457790c324677cfc935/gblup_npu_cpu_result.json",
+    "checked_at_utc": "2026-10-26T07:45:29.753590+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/xiaotao5571/NPU/blob/6b1724a553ed5b9596961457790c324677cfc935/gblup_npu_cpu_result.json",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/xiaotao5571/NPU/blob/6b1724a553ed5b9596961457790c324677cfc935/gblup_npu_result.json",
+    "checked_at_utc": "2026-10-26T07:45:29.888685+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/xiaotao5571/NPU/blob/6b1724a553ed5b9596961457790c324677cfc935/gblup_npu_result.json",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://gitcode.com/xiaotao5571/ssGBLUP-npu_4212",
     "checked_at_utc": "2026-10-23T02:46:09.519328+00:00",
     "method": "HEAD",
@@ -2617,6 +2717,46 @@
     "version": "dynamic_or_unversioned",
     "status": 200,
     "final_url": "https://gitcode.com/xiaotao5571/ssGBLUP-npu_4212",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/xiaotao5571/ssGBLUP-npu_4212/blob/1714c823fec4150fbee95ac4907cebf835011651/README.md",
+    "checked_at_utc": "2026-10-26T07:45:30.561737+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/xiaotao5571/ssGBLUP-npu_4212/blob/1714c823fec4150fbee95ac4907cebf835011651/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/xiaotao5571/ssGBLUP-npu_4212/blob/1714c823fec4150fbee95ac4907cebf835011651/mme.py",
+    "checked_at_utc": "2026-10-26T07:45:30.568340+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/xiaotao5571/ssGBLUP-npu_4212/blob/1714c823fec4150fbee95ac4907cebf835011651/mme.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/xiaotao5571/ssGBLUP-npu_4212/blob/1714c823fec4150fbee95ac4907cebf835011651/solver.py",
+    "checked_at_utc": "2026-10-26T07:45:30.578976+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/xiaotao5571/ssGBLUP-npu_4212/blob/1714c823fec4150fbee95ac4907cebf835011651/solver.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/xiaotao5571/ssGBLUP-npu_4212/blob/1714c823fec4150fbee95ac4907cebf835011651/test_validation.py",
+    "checked_at_utc": "2026-10-26T07:45:30.579817+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/xiaotao5571/ssGBLUP-npu_4212/blob/1714c823fec4150fbee95ac4907cebf835011651/test_validation.py",
     "result": "http_reachable"
   },
   {

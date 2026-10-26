@@ -918,6 +918,104 @@
       "date": "2026-10-26",
       "method": "web正文读取",
       "note": "核对P69905序列及第48位D；与示例mask前后缀一致；未下载完整数据集"
+    },
+    {
+      "url": "https://gitcode.com/xiaotao5571/BLUP-NPU/blob/5dfd7f7a8baa041d8de80a4086823c2d53b4a43b/README.md",
+      "date": "2026-10-26",
+      "method": "GitCode contents API",
+      "blob_sha": "407054b7ae354ad5770470acc1c78a28e4b0119d",
+      "note": "已读固定提交README；数字均归属原作者报告，未独立复测"
+    },
+    {
+      "url": "https://gitcode.com/xiaotao5571/NPU/blob/6b1724a553ed5b9596961457790c324677cfc935/README.md",
+      "date": "2026-10-26",
+      "method": "GitCode contents API",
+      "blob_sha": "8dbe3d147349cd8151dea4cbb55aeb0aaa3cf18d",
+      "note": "已读固定提交README；数字均归属原作者报告，未独立复测"
+    },
+    {
+      "url": "https://gitcode.com/xiaotao5571/ssGBLUP-npu_4212/blob/1714c823fec4150fbee95ac4907cebf835011651/README.md",
+      "date": "2026-10-26",
+      "method": "GitCode contents API",
+      "blob_sha": "55427b7d80d9e277a7e23c4114f1ddf44efed68b",
+      "note": "已读固定提交README；数字均归属原作者报告，未独立复测"
+    },
+    {
+      "url": "https://gitcode.com/xiaotao5571/BLUP-NPU/blob/5dfd7f7a8baa041d8de80a4086823c2d53b4a43b/bglr_npu.py",
+      "date": "2026-10-26",
+      "method": "GitCode contents API",
+      "blob_sha": "fc16cb11d57269ad1ee57e73dfec6b22af10996d",
+      "note": "已读源码或结果JSON；未执行外部代码"
+    },
+    {
+      "url": "https://gitcode.com/xiaotao5571/BLUP-NPU/blob/5dfd7f7a8baa041d8de80a4086823c2d53b4a43b/bglr_gblup.py",
+      "date": "2026-10-26",
+      "method": "GitCode contents API",
+      "blob_sha": "a08b1d6255402160883d0c53d5aaa472d5bc01a0",
+      "note": "已读源码或结果JSON；未执行外部代码"
+    },
+    {
+      "url": "https://gitcode.com/xiaotao5571/BLUP-NPU/blob/5dfd7f7a8baa041d8de80a4086823c2d53b4a43b/bench.py",
+      "date": "2026-10-26",
+      "method": "GitCode contents API",
+      "blob_sha": "b673da3cbd9f987745037c2827d369558e511e45",
+      "note": "已读源码或结果JSON；未执行外部代码"
+    },
+    {
+      "url": "https://gitcode.com/xiaotao5571/NPU/blob/6b1724a553ed5b9596961457790c324677cfc935/gblup_npu.py",
+      "date": "2026-10-26",
+      "method": "GitCode contents API",
+      "blob_sha": "09809b01726e4d0660d05a20112b7f4555afe125",
+      "note": "已读源码或结果JSON；未执行外部代码"
+    },
+    {
+      "url": "https://gitcode.com/xiaotao5571/NPU/blob/6b1724a553ed5b9596961457790c324677cfc935/benchmark_npu.py",
+      "date": "2026-10-26",
+      "method": "GitCode contents API",
+      "blob_sha": "3e7215a0898544ddc75bb599bc6704f8ae14fb92",
+      "note": "已读源码或结果JSON；未执行外部代码"
+    },
+    {
+      "url": "https://gitcode.com/xiaotao5571/NPU/blob/6b1724a553ed5b9596961457790c324677cfc935/gblup_npu_result.json",
+      "date": "2026-10-26",
+      "method": "GitCode contents API",
+      "blob_sha": "c8c0d976171203eac8db55143ba0db3171931935",
+      "note": "已读源码或结果JSON；未执行外部代码"
+    },
+    {
+      "url": "https://gitcode.com/xiaotao5571/NPU/blob/6b1724a553ed5b9596961457790c324677cfc935/gblup_npu_cpu_result.json",
+      "date": "2026-10-26",
+      "method": "GitCode contents API",
+      "blob_sha": "709e1a27819cc2a6fdcf2d53e1327f16c8112ab3",
+      "note": "已读源码或结果JSON；未执行外部代码"
+    },
+    {
+      "url": "https://gitcode.com/xiaotao5571/ssGBLUP-npu_4212/blob/1714c823fec4150fbee95ac4907cebf835011651/solver.py",
+      "date": "2026-10-26",
+      "method": "GitCode contents API",
+      "blob_sha": "b8511108ba450acd3b66aff2175ee61e31c415a6",
+      "note": "已读源码或结果JSON；未执行外部代码"
+    },
+    {
+      "url": "https://gitcode.com/xiaotao5571/ssGBLUP-npu_4212/blob/1714c823fec4150fbee95ac4907cebf835011651/mme.py",
+      "date": "2026-10-26",
+      "method": "GitCode contents API",
+      "blob_sha": "f08878e12f38d8ef1ba9724bb4833bef9ce64099",
+      "note": "已读源码或结果JSON；未执行外部代码"
+    },
+    {
+      "url": "https://gitcode.com/xiaotao5571/ssGBLUP-npu_4212/blob/1714c823fec4150fbee95ac4907cebf835011651/test_validation.py",
+      "date": "2026-10-26",
+      "method": "GitCode contents API",
+      "blob_sha": "ccd0d75a185279cef2af11e1231ddd197c07255d",
+      "note": "已读源码或结果JSON；未执行外部代码"
+    },
+    {
+      "url": "https://gitcode.com/xiaotao5571/BLUP-NPU/blob/5dfd7f7a8baa041d8de80a4086823c2d53b4a43b/deploy.sh",
+      "date": "2026-10-26",
+      "method": "GitCode contents API",
+      "blob_sha": "704f770ab2139603f6284e57cbb8db80959a59fa",
+      "note": "已读部署脚本，不含动态库构建或获取过程；未执行"
     }
   ],
   "target_master": "dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202",
@@ -2520,6 +2618,156 @@
         }
       },
       "note": "2014论文基准与2019 CUDA10.1社区移植版本不相同，不能把旧硬件加速比当作当前NCBI BLASTn或当前GPU的性能。"
+    },
+    {
+      "number": 50,
+      "date": "2026-10-26",
+      "device": "NPU",
+      "conclusion": "有矩阵卸载接口；关键NPU库未随仓交付，完整预测验收未闭合",
+      "fields": {
+        "代码": {
+          "说明": "Python接口用ctypes加载仓外../../npu/libbglr_npu.so；当前提交未含该库或C/C++构建源码，deploy.sh也不生成。GBLUP只卸载G矩阵，Cholesky/特征分解/Gibbs仍在CPU，且G计算失败可回退NumPy。",
+          "链接": [
+            "https://gitcode.com/xiaotao5571/BLUP-NPU/blob/5dfd7f7a8baa041d8de80a4086823c2d53b4a43b/bglr_npu.py",
+            "https://gitcode.com/xiaotao5571/BLUP-NPU/blob/5dfd7f7a8baa041d8de80a4086823c2d53b4a43b/bglr_gblup.py",
+            "https://gitcode.com/xiaotao5571/BLUP-NPU/blob/5dfd7f7a8baa041d8de80a4086823c2d53b4a43b/deploy.sh"
+          ],
+          "证据类型": "已读固定提交专项源码/结果；未独立运行模型"
+        },
+        "权重": {
+          "说明": "统计求解算法，无神经网络预训练权重；仍需遗传力h²/正则化参数和输入X/y，另缺NPU动态库交付。",
+          "链接": [
+            "https://gitcode.com/xiaotao5571/BLUP-NPU/blob/5dfd7f7a8baa041d8de80a4086823c2d53b4a43b/README.md",
+            "https://gitcode.com/xiaotao5571/BLUP-NPU/blob/5dfd7f7a8baa041d8de80a4086823c2d53b4a43b/bglr_npu.py"
+          ],
+          "证据类型": "已读固定提交专项源码/结果；未独立运行模型"
+        },
+        "数据集": {
+          "说明": "benchmark随机生成0/0.5/1编码矩阵，最大演示599×1279；CLI可读X/y，未提供真实育种数据独立测试split及固定交叉验证折。",
+          "链接": [
+            "https://gitcode.com/xiaotao5571/BLUP-NPU/blob/5dfd7f7a8baa041d8de80a4086823c2d53b4a43b/bench.py",
+            "https://gitcode.com/xiaotao5571/BLUP-NPU/blob/5dfd7f7a8baa041d8de80a4086823c2d53b4a43b/README.md"
+          ],
+          "证据类型": "已读固定提交专项源码/结果；未独立运行模型"
+        },
+        "性能基准": {
+          "说明": "README报910B3、599×1279的XXᵀ为11.13ms，XᵀX为129.86ms，Xᵀe为0.14ms；属于局部kernel均值，不是GBLUP/MCMC端到端耗时。表中约228倍仅指XXᵀ，不能写成整体加速；关键动态库及底层计时实现缺失。",
+          "链接": [
+            "https://gitcode.com/xiaotao5571/BLUP-NPU/blob/5dfd7f7a8baa041d8de80a4086823c2d53b4a43b/README.md",
+            "https://gitcode.com/xiaotao5571/BLUP-NPU/blob/5dfd7f7a8baa041d8de80a4086823c2d53b4a43b/bench.py",
+            "https://gitcode.com/xiaotao5571/BLUP-NPU/blob/5dfd7f7a8baa041d8de80a4086823c2d53b4a43b/bglr_npu.py"
+          ],
+          "证据类型": "已读固定提交专项源码/结果；未独立运行模型"
+        },
+        "精度基准": {
+          "说明": "社区矩阵对照报XXᵀ/XᵀX误差0、Xᵀe相对误差1.28e-6；对应随机矩阵数值，不是育种值预测相关性、遗传增益或完整交叉验证精度。",
+          "链接": [
+            "https://gitcode.com/xiaotao5571/BLUP-NPU/blob/5dfd7f7a8baa041d8de80a4086823c2d53b4a43b/README.md",
+            "https://gitcode.com/xiaotao5571/BLUP-NPU/blob/5dfd7f7a8baa041d8de80a4086823c2d53b4a43b/bench.py"
+          ],
+          "证据类型": "已读固定提交专项源码/结果；未独立运行模型"
+        }
+      }
+    },
+    {
+      "number": 51,
+      "date": "2026-10-26",
+      "device": "NPU",
+      "conclusion": "有CPU/NPU混合GBLUP实现及结果文件；缺完整性能与独立预测质量验收",
+      "fields": {
+        "代码": {
+          "说明": "rrBLUP衍生实现：NPU FP32矩阵运算，REML/ML标量优化显式在CPU；README声明eigh/inv/solve依赖CPU回退。缺torch_npu时CLI改用CPU，输出device=npu也不足以证明所有运算均在NPU。",
+          "链接": [
+            "https://gitcode.com/xiaotao5571/NPU/blob/6b1724a553ed5b9596961457790c324677cfc935/gblup_npu.py",
+            "https://gitcode.com/xiaotao5571/NPU/blob/6b1724a553ed5b9596961457790c324677cfc935/README.md"
+          ],
+          "证据类型": "已读固定提交专项源码/结果；未独立运行模型"
+        },
+        "权重": {
+          "说明": "无神经网络预训练权重；输出为按数据估计的Vu/Ve、beta及育种值u，不是可通用部署的checkpoint。",
+          "链接": [
+            "https://gitcode.com/xiaotao5571/NPU/blob/6b1724a553ed5b9596961457790c324677cfc935/gblup_npu.py",
+            "https://gitcode.com/xiaotao5571/NPU/blob/6b1724a553ed5b9596961457790c324677cfc935/gblup_npu_result.json"
+          ],
+          "证据类型": "已读固定提交专项源码/结果；未独立运行模型"
+        },
+        "数据集": {
+          "说明": "wheat 599个体×1279标记，README用R导出wheat.X及wheat.Y第1性状；发布两份JSON各含599个u。缺冻结的独立预测测试划分，不把拟合结果一致性当泛化精度。",
+          "链接": [
+            "https://gitcode.com/xiaotao5571/NPU/blob/6b1724a553ed5b9596961457790c324677cfc935/README.md",
+            "https://gitcode.com/xiaotao5571/NPU/blob/6b1724a553ed5b9596961457790c324677cfc935/gblup_npu_result.json",
+            "https://gitcode.com/xiaotao5571/NPU/blob/6b1724a553ed5b9596961457790c324677cfc935/gblup_npu_cpu_result.json"
+          ],
+          "证据类型": "已读固定提交专项源码/结果；未独立运行模型"
+        },
+        "性能基准": {
+          "说明": "benchmark_npu.py计划3次取均值，分别测build_g与mixed_solve，但当前仓未给对应耗时报告；不能仅凭G矩阵上NPU或示例命令认定完整流水线加速。",
+          "链接": [
+            "https://gitcode.com/xiaotao5571/NPU/blob/6b1724a553ed5b9596961457790c324677cfc935/benchmark_npu.py",
+            "https://gitcode.com/xiaotao5571/NPU/blob/6b1724a553ed5b9596961457790c324677cfc935/README.md"
+          ],
+          "证据类型": "已读固定提交专项源码/结果；未独立运行模型"
+        },
+        "精度基准": {
+          "说明": "README报对R的NPU cor0.9999999999、RMSE9.75e-6；另对已发布CPU/NPU两份599维u直接算得RMSE1.12753e-5、最大绝对差3.95398e-5。两者参考对象不同；只是结果文件算术核对，非模型复测或预测质量。",
+          "链接": [
+            "https://gitcode.com/xiaotao5571/NPU/blob/6b1724a553ed5b9596961457790c324677cfc935/README.md",
+            "https://gitcode.com/xiaotao5571/NPU/blob/6b1724a553ed5b9596961457790c324677cfc935/gblup_npu_result.json",
+            "https://gitcode.com/xiaotao5571/NPU/blob/6b1724a553ed5b9596961457790c324677cfc935/gblup_npu_cpu_result.json"
+          ],
+          "证据类型": "已读固定提交专项源码/结果；未独立运行模型"
+        }
+      }
+    },
+    {
+      "number": 52,
+      "date": "2026-10-26",
+      "device": "NPU",
+      "conclusion": "该社区项目未实现完整ssGBLUP；仅animal-BLUP局部NPU求解",
+      "fields": {
+        "代码": {
+          "说明": "项目仅实现系谱animal-BLUP的A⁻¹/MME及NPU稠密FP32 PCG；README明确H矩阵与SNP/基因组整合未实现，因此不是完整ssGBLUP。MME构建在CPU，求解异常会回退CPU。",
+          "链接": [
+            "https://gitcode.com/xiaotao5571/ssGBLUP-npu_4212/blob/1714c823fec4150fbee95ac4907cebf835011651/README.md",
+            "https://gitcode.com/xiaotao5571/ssGBLUP-npu_4212/blob/1714c823fec4150fbee95ac4907cebf835011651/solver.py",
+            "https://gitcode.com/xiaotao5571/ssGBLUP-npu_4212/blob/1714c823fec4150fbee95ac4907cebf835011651/mme.py"
+          ],
+          "证据类型": "已读固定提交专项源码/结果；未独立运行模型"
+        },
+        "权重": {
+          "说明": "不需要神经网络权重；需表型、系谱、固定/随机效应和方差组分参数。因无基因组H矩阵模块，不能只靠参数文件补齐完整ssGBLUP。",
+          "链接": [
+            "https://gitcode.com/xiaotao5571/ssGBLUP-npu_4212/blob/1714c823fec4150fbee95ac4907cebf835011651/README.md",
+            "https://gitcode.com/xiaotao5571/ssGBLUP-npu_4212/blob/1714c823fec4150fbee95ac4907cebf835011651/mme.py"
+          ],
+          "证据类型": "已读固定提交专项源码/结果；未独立运行模型"
+        },
+        "数据集": {
+          "说明": "exmrode：5条记录、8动物、20方程；另一例9条记录、15动物、22方程。测试脚本使用固定/tmp外部路径，当前仓未附这些输入，不是大规模真实基因组预测测试。",
+          "链接": [
+            "https://gitcode.com/xiaotao5571/ssGBLUP-npu_4212/blob/1714c823fec4150fbee95ac4907cebf835011651/README.md",
+            "https://gitcode.com/xiaotao5571/ssGBLUP-npu_4212/blob/1714c823fec4150fbee95ac4907cebf835011651/test_validation.py"
+          ],
+          "证据类型": "已读固定提交专项源码/结果；未独立运行模型"
+        },
+        "性能基准": {
+          "说明": "社区报910B3 PCG求解20/22方程0.3431/0.3805s，CPU均0.0009s；小例NPU更慢。源码计时在稠密化、上传及ridge构造之后开始，非端到端；不能外推百万方程加速。",
+          "链接": [
+            "https://gitcode.com/xiaotao5571/ssGBLUP-npu_4212/blob/1714c823fec4150fbee95ac4907cebf835011651/README.md",
+            "https://gitcode.com/xiaotao5571/ssGBLUP-npu_4212/blob/1714c823fec4150fbee95ac4907cebf835011651/solver.py"
+          ],
+          "证据类型": "已读固定提交专项源码/结果；未独立运行模型"
+        },
+        "精度基准": {
+          "说明": "exmrode NPU对ARM最大绝对差7.82e-6；秩亏例全解差0.536、动物EBV差1.85e-6。NPU另加ridge=1e-7×max(diag)，测试只约束EBV差<1e-4，不能称全解等价或完整ssGBLUP精度通过。",
+          "链接": [
+            "https://gitcode.com/xiaotao5571/ssGBLUP-npu_4212/blob/1714c823fec4150fbee95ac4907cebf835011651/README.md",
+            "https://gitcode.com/xiaotao5571/ssGBLUP-npu_4212/blob/1714c823fec4150fbee95ac4907cebf835011651/solver.py",
+            "https://gitcode.com/xiaotao5571/ssGBLUP-npu_4212/blob/1714c823fec4150fbee95ac4907cebf835011651/test_validation.py"
+          ],
+          "证据类型": "已读固定提交专项源码/结果；未独立运行模型"
+        }
+      }
     },
     {
       "number": 53,
@@ -4786,6 +5034,19 @@
       ],
       "status": 404,
       "note": "两种方法均404；没有下载模型权重；只表示本次访问失败，不推断永久删除"
+    }
+  ],
+  "derived_checks": [
+    {
+      "name": "GBLUP已发布CPU/NPU u向量对比",
+      "sources": [
+        "https://gitcode.com/xiaotao5571/NPU/blob/6b1724a553ed5b9596961457790c324677cfc935/gblup_npu_result.json",
+        "https://gitcode.com/xiaotao5571/NPU/blob/6b1724a553ed5b9596961457790c324677cfc935/gblup_npu_cpu_result.json"
+      ],
+      "n": 599,
+      "rmse": 1.1275312621338799e-05,
+      "max_abs": 3.953979573884103e-05,
+      "note": "仅对公开JSON做算术核对，非模型复测；不与README对R的RMSE混同"
     }
   ]
 }
