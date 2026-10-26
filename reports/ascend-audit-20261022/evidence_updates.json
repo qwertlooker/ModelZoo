@@ -80,17 +80,17 @@
     },
     {
       "url": "https://github.com/wgcban/ChangeFormer/blob/main/README.md",
-      "method": "GitHub fetch_file",
-      "date": "2026-10-25",
+      "method": "GitHub fetch_file正文",
+      "date": "2026-10-26",
       "blob_sha": "8a4152be213018e18afa2eb3e492858e88aab1d7",
-      "note": "SHA为文件blob对象，不是仓库commit；读取正文，未执行代码"
+      "note": "核对实现与版本边界，未实际运行NPU"
     },
     {
       "url": "https://github.com/justchenhao/BIT_CD/blob/master/README.md",
-      "method": "GitHub fetch_file",
-      "date": "2026-10-25",
+      "method": "GitHub fetch_file正文",
+      "date": "2026-10-26",
       "blob_sha": "0bf793adc8a65941fd4785de51315f6ba524feba",
-      "note": "SHA为文件blob对象，不是仓库commit；读取正文，未执行代码"
+      "note": "核对实现与版本边界，未实际运行NPU"
     },
     {
       "url": "https://github.com/HuCaoFighting/Swin-Unet/blob/main/README.md",
@@ -332,17 +332,17 @@
     },
     {
       "url": "https://github.com/PaddlePaddle/PaddleSeg/blob/release/2.10/configs/segnet/README.md",
-      "method": "GitHub fetch_file",
-      "date": "2026-10-25",
+      "method": "GitHub fetch_file正文",
+      "date": "2026-10-26",
       "blob_sha": "4308f6e3c0011d08f9f1b88a9b326a986a93ec9d",
-      "note": "文件blob SHA，不是仓库commit；读取时的分支"
+      "note": "核对实现与版本边界，未实际运行NPU"
     },
     {
       "url": "https://github.com/DebeshJha/ResUNetPlusPlus/blob/master/README.md",
-      "method": "GitHub fetch_file",
-      "date": "2026-10-25",
+      "method": "GitHub fetch_file正文",
+      "date": "2026-10-26",
       "blob_sha": "34d0e90d17b23d856fbe77a362409da5315a9bef",
-      "note": "文件blob SHA，不是仓库commit；读取时的分支"
+      "note": "核对实现与版本边界，未实际运行NPU"
     },
     {
       "url": "https://github.com/pangfumin/CudaDwa/blob/master/README.md",
@@ -1678,6 +1678,45 @@
       "method": "web open/find原始官方文档正文",
       "date": "2026-10-26",
       "note": "版本/硬件范围，不把通用结果表当NPU实测"
+    },
+    {
+      "url": "https://github.com/PaddlePaddle/PaddleSeg/blob/release/2.10/tools/train.py",
+      "method": "GitHub fetch_file正文",
+      "date": "2026-10-26",
+      "blob_sha": "4b49ce01f18f4d908c32d8d3d4f9457d10b9dcab",
+      "note": "核对实现与版本边界，未实际运行NPU"
+    },
+    {
+      "url": "https://github.com/PaddlePaddle/PaddleSeg/blob/release/2.10/deploy/python/infer.py",
+      "method": "GitHub fetch_file正文",
+      "date": "2026-10-26",
+      "blob_sha": "736e2501960523224d24b2e242d7ab5af7cafced",
+      "note": "核对实现与版本边界，未实际运行NPU"
+    },
+    {
+      "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/classfication/Big-transfer/README.md",
+      "method": "GitCode contents API；概述/源模型及数据定义",
+      "date": "2026-10-26",
+      "blob_sha": "f6fc361e304771d8ed3ed303fb446ab020e261a7",
+      "note": "明确Big Transfer图像分类，不作为BIT_CD适配证据"
+    },
+    {
+      "url": "https://www.hiascend.com/activities/dynamic-news/20230627-1",
+      "method": "web open官方案例正文",
+      "date": "2026-10-26",
+      "note": "平台集成ChangeFormer；平台召回率非该模型独立成绩"
+    },
+    {
+      "url": "https://paddlepaddle.github.io/PaddleX/latest/support_list/model_list_npu.html",
+      "method": "web open/find NPU支持清单",
+      "date": "2026-10-26",
+      "note": "所读页面未出现SegNet，仅限定该清单，不证明所有实现不支持"
+    },
+    {
+      "url": "https://www.sciencedirect.com/science/article/pii/S1369800126002477",
+      "method": "web search出版方摘要/章节片段",
+      "date": "2026-10-26",
+      "note": "未取得论文全文或专用资产；不引用未经核实的NPU指标"
     }
   ],
   "target_master": "dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202",
@@ -5028,6 +5067,49 @@
       "note": "BIT论文与代码按网络变体和数据切块核对；FLOPs不能当GPU吞吐。"
     },
     {
+      "number": 66,
+      "device": "NPU",
+      "date": "2026-10-26",
+      "fields": {
+        "代码": {
+          "说明": "目标是遥感双时相BIT_CD。本轮未确认专项NPU实现；ModelZoo的Big-transfer/BiT是Google图像分类模型，使用CIFAR-10，不是BIT_CD，不能纳为该项适配证据。",
+          "链接": [
+            "https://github.com/justchenhao/BIT_CD/blob/master/README.md",
+            "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/classfication/Big-transfer/README.md"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "权重": {
+          "说明": "BIT_CD作者公开BIT_LEVIR/best_ckpt.pt原始权重；未确认对应NPU转换、运行配置或验收权重SHA。Big-transfer的bit.pth不能替代。",
+          "链接": [
+            "https://github.com/justchenhao/BIT_CD/blob/master/README.md",
+            "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/classfication/Big-transfer/README.md"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "数据集": {
+          "说明": "应使用BIT_CD的A/B/label及train/val/test清单，候选为LEVIR/WHU/DSIFN；未确认NPU执行所用split及切块清单，不能借CIFAR-10分类结果。",
+          "链接": [
+            "https://github.com/justchenhao/BIT_CD/blob/master/README.md",
+            "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/classfication/Big-transfer/README.md"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "性能基准": {
+          "说明": "尚无可引用的BIT_CD NPU型号、输入、batch及同步计时结果；原论文参数量/FLOPs和Big-transfer分类FPS均不适用。",
+          "链接": [],
+          "证据类型": "未确认专项证据；本轮检索无可引用结果"
+        },
+        "精度基准": {
+          "说明": "尚无可引用的BIT_CD NPU变化检测F1/IoU或GPU对齐结果；其他同名BiT、平台变化监测成绩不能补齐。",
+          "链接": [],
+          "证据类型": "未确认专项证据；本轮检索无可引用结果"
+        }
+      },
+      "conclusion": "BIT_CD专项NPU交付未确认；排除同名Big Transfer",
+      "note": "BIT指双时相变化检测模型，非Google BiT分类；当前ModelZoo名称检索无对应BIT_CD目录不等于整个生态无实现。"
+    },
+    {
       "number": 67,
       "date": "2026-10-25",
       "device": "GPU",
@@ -5064,6 +5146,50 @@
         }
       },
       "note": "原论文写随机初始化，当前README训练脚本使用ADE预训练；代码复现与论文差异需记录，不能默认完全同配置。"
+    },
+    {
+      "number": 67,
+      "device": "NPU",
+      "date": "2026-10-26",
+      "fields": {
+        "代码": {
+          "说明": "昇腾官方案例明确城市变化监测平台集成ChangeFormer并通过MindSpore/Atlas兼容性测试，属于应用支持线索；未提供该模型专项源码、版本或公开复现包，不能标为开源适配完成。",
+          "链接": [
+            "https://www.hiascend.com/activities/dynamic-news/20230627-1",
+            "https://github.com/wgcban/ChangeFormer/blob/main/README.md"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "权重": {
+          "说明": "作者公开ChangeFormerV6的LEVIR/DSIFN原始checkpoint；案例没有给对应MindSpore参数、转换步骤或NPU评测checkpoint，不能认定上游文件已在NPU验证。",
+          "链接": [
+            "https://github.com/wgcban/ChangeFormer/blob/main/README.md",
+            "https://www.hiascend.com/activities/dynamic-news/20230627-1"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "数据集": {
+          "说明": "案例用6景GF-2、约300平方公里0.8m城市监测数据，不是公开LEVIR/DSIFN测试集；没有ChangeFormer单模型split/样本清单或下载地址。",
+          "链接": [
+            "https://www.hiascend.com/activities/dynamic-news/20230627-1"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "性能基准": {
+          "说明": "尚无可引用的ChangeFormer单模型NPU同步时延、吞吐及输入/batch条件；平台效率描述不能当单模型性能。",
+          "链接": [],
+          "证据类型": "未确认专项证据；本轮检索无可引用结果"
+        },
+        "精度基准": {
+          "说明": "案例报告的是平台图斑召回率98%以上、像素召回率91%以上；包含多种算法，未隔离ChangeFormer贡献，也不是LEVIR F1/IoU，不能写为该模型NPU精度。",
+          "链接": [
+            "https://www.hiascend.com/activities/dynamic-news/20230627-1"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        }
+      },
+      "conclusion": "官方平台案例提及ChangeFormer；专项代码/权重/单模型验收未公开确认",
+      "note": "修正此前只列原始仓库的遗漏；新增官方应用线索，严格区分平台召回率与ChangeFormer单模型指标。"
     },
     {
       "number": 68,
@@ -5485,6 +5611,47 @@
       }
     },
     {
+      "number": 74,
+      "device": "NPU",
+      "date": "2026-10-26",
+      "fields": {
+        "代码": {
+          "说明": "作者原实现为TensorFlow ResUNet++，并链接独立PyTorch复现；本轮未确认两者专项NPU代码。普通U-Net、UNet++或其他残差U-Net的支持不能覆盖这两种具体结构。",
+          "链接": [
+            "https://github.com/DebeshJha/ResUNetPlusPlus/blob/master/README.md"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "权重": {
+          "说明": "作者README只说明files目录保存训练生成权重，没有可确认的NPU适配checkpoint/转换参数；PyTorch复现不能直接加载原TF权重，未确认不等于作者一定未发布。",
+          "链接": [
+            "https://github.com/DebeshJha/ResUNetPlusPlus/blob/master/README.md"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "数据集": {
+          "说明": "原始候选为Kvasir-SEG，GPU列另记录论文CVC-612及split；没有确认NPU实验的文件级split、增强流程或预处理清单，不能用任意医学U-Net测试集替代。",
+          "链接": [
+            "https://github.com/DebeshJha/ResUNetPlusPlus/blob/master/README.md",
+            "https://datasets.simula.no/kvasir-seg/"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "性能基准": {
+          "说明": "尚无可引用的该ResUNet/ResUNet++实现的NPU型号、输入尺寸、batch与计时结果；原论文单V100训练设置不是NPU性能。",
+          "链接": [],
+          "证据类型": "未确认专项证据；本轮检索无可引用结果"
+        },
+        "精度基准": {
+          "说明": "尚无可引用的这两种结构NPU Dice/mIoU及GPU对齐结果；ResUNet与ResUNet++的论文分数不可互换。",
+          "链接": [],
+          "证据类型": "未确认专项证据；本轮检索无可引用结果"
+        }
+      },
+      "conclusion": "ResUNet/ResUNet++专项NPU交付未确认；原TF及第三方PyTorch须分开",
+      "note": "名称相似不构成适配证明；代码框架、结构、checkpoint和数据划分均需对应。"
+    },
+    {
       "number": 75,
       "date": "2026-10-25",
       "device": "GPU",
@@ -5526,6 +5693,46 @@
         }
       },
       "note": "原始对象是SiC晶圆缺陷检测；保留全文访问限制，具体资产和硬件基准仍需全文核实。"
+    },
+    {
+      "number": 75,
+      "device": "NPU",
+      "date": "2026-10-26",
+      "fields": {
+        "代码": {
+          "说明": "UNet-ESH对应OMTS晶圆表面/内部缺陷检测论文中的边缘辅助U-Net；本轮检索未确认专项昇腾源码。普通医学U-Net的NPU实现不是该模型。",
+          "链接": [
+            "https://www.sciencedirect.com/science/article/pii/S1369800126002477"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "权重": {
+          "说明": "出版方可检索摘要未给可核对的UNet-ESH checkpoint；全文与资产清单尚未取得，未确认NPU转换权重，不能断言不存在。",
+          "链接": [
+            "https://www.sciencedirect.com/science/article/pii/S1369800126002477"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "数据集": {
+          "说明": "公开摘要说明以无缺陷芯片图像学习边缘轮廓，属于晶圆缺陷检测；没有确认NPU使用的数据下载、文件级split与标注。相关专利或其他光学系统数据不自动等同论文模型测试集。",
+          "链接": [
+            "https://www.sciencedirect.com/science/article/pii/S1369800126002477"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "性能基准": {
+          "说明": "尚无可引用的UNet-ESH NPU硬件、输入尺寸、batch及模型计时；OMTS光学采集频率不能充当NPU推理吞吐。",
+          "链接": [],
+          "证据类型": "未确认专项证据；本轮检索无可引用结果"
+        },
+        "精度基准": {
+          "说明": "尚无可引用的UNet-ESH NPU分割/缺陷检出指标及对齐结果；没有用通用U-Net或别的检测器成绩填补。",
+          "链接": [],
+          "证据类型": "未确认专项证据；本轮检索无可引用结果"
+        }
+      },
+      "conclusion": "已明确晶圆检测对象；专项NPU代码和五条件证据仍未确认",
+      "note": "出版方全文访问受限，不把摘要、专利示例或普通U-Net实现包装成已完成适配。"
     },
     {
       "number": 76,
@@ -5604,6 +5811,56 @@
           "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
         }
       }
+    },
+    {
+      "number": 77,
+      "device": "NPU",
+      "date": "2026-10-26",
+      "fields": {
+        "代码": {
+          "说明": "PaddleSeg release/2.10训练参数允许npu，部署脚本调用enable_custom_device('npu')，是通用设备路径线索。该版本SegNet README没有专项NPU验证；当前PaddleX NPU清单未列SegNet，不能据此断言所有PaddleSeg均不支持，也不能认定SegNet验收通过。",
+          "链接": [
+            "https://github.com/PaddlePaddle/PaddleSeg/blob/release/2.10/tools/train.py",
+            "https://github.com/PaddlePaddle/PaddleSeg/blob/release/2.10/deploy/python/infer.py",
+            "https://github.com/PaddlePaddle/PaddleSeg/blob/release/2.10/configs/segnet/README.md",
+            "https://paddlepaddle.github.io/PaddleX/latest/support_list/model_list_npu.html"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "权重": {
+          "说明": "PaddleSeg提供Cityscapes/1024×512/80k的model.pdparams原始checkpoint；尚未确认同权重的NPU导出制品、算子覆盖与SHA，不能借其他分割模型权重。",
+          "链接": [
+            "https://github.com/PaddlePaddle/PaddleSeg/blob/release/2.10/configs/segnet/README.md",
+            "https://bj.bcebos.com/paddleseg/dygraph/cityscapes/segnet_cityscapes_1024x512_80k/model.pdparams"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "数据集": {
+          "说明": "该PaddleSeg配置为Cityscapes，1024×512、80000训练迭代；没有专项NPU数据清单/运行记录。原论文Caffe CamVid/SUN RGB-D协议不同，不能混作同一对照。",
+          "链接": [
+            "https://github.com/PaddlePaddle/PaddleSeg/blob/release/2.10/configs/segnet/README.md"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "性能基准": {
+          "说明": "通用推理脚本有NPU分支，但未取得SegNet对应NPU型号、输入和batch固定的性能表；原Caffe GPU forward422.50ms不是PaddleSeg NPU性能。",
+          "链接": [
+            "https://github.com/PaddlePaddle/PaddleSeg/blob/release/2.10/deploy/python/infer.py",
+            "https://github.com/PaddlePaddle/PaddleSeg/blob/release/2.10/configs/segnet/README.md"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "精度基准": {
+          "说明": "SegNet README的mIoU60.09%、flip60.88%、ms+flip61.97%是原配置发布结果，未明确为NPU测得；通用设备入口不能证明NPU已复现这些成绩。",
+          "链接": [
+            "https://github.com/PaddlePaddle/PaddleSeg/blob/release/2.10/configs/segnet/README.md",
+            "https://paddlepaddle.github.io/PaddleX/latest/support_list/model_list_npu.html"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        }
+      },
+      "conclusion": "PaddleSeg存在通用NPU路径；SegNet专项数值验收未确认",
+      "note": "新增框架源码证据，撤回只给仓库入口的笼统描述；GPU发布指标不挪入NPU实测。"
     },
     {
       "number": 78,
@@ -7616,6 +7873,24 @@
         "GR00T-N1 昇腾 -N1.5 -N1.6 -N1.7"
       ],
       "result": "未确认初版N1-2B专项昇腾实现；RLinf当前非NVIDIA配方明确限定N1.5/LIBERO/ManiSkill，不覆盖N1.6/N1.7及原始N1。"
+    },
+    {
+      "date": "2026-10-26",
+      "queries": [
+        "BIT_CD 昇腾",
+        "BIT_CD NPU",
+        "BIT Bi-temporal Ascend",
+        "ChangeFormer 昇腾",
+        "ChangeFormer torch_npu",
+        "ResUNet Ascend NPU",
+        "ResUNet++ 昇腾",
+        "ResUNetPlusPlus NPU",
+        "SegNet PaddleSeg NPU",
+        "SegNet Ascend310",
+        "UNet-ESH Ascend",
+        "UNet-ESH NPU GPU code"
+      ],
+      "result": "ChangeFormer官方平台案例与PaddleSeg通用NPU源码是限定线索；未确认BIT_CD/ResUNet++/UNet-ESH专项NPU交付。排除Big Transfer、MapFormer及普通U-Net混淆。"
     }
   ],
   "delivery_path_checks": [

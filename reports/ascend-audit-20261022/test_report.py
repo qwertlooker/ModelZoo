@@ -457,4 +457,18 @@ class ReportTests(unittest.TestCase):
             for token in tokens:
                 with self.subTest(number=n,field=field,token=token):
                     self.assertIn(token,value)
+    def test_change_detection_and_segmentation_evidence_is_model_specific(self):
+        for n, field, tokens in [
+            (66,'代码',['BIT_CD','Big-transfer','CIFAR-10','不能纳为']),
+            (67,'代码',['官方案例','未提供该模型专项源码']),
+            (67,'精度基准',['平台图斑召回率98%','未隔离ChangeFormer','不是LEVIR F1/IoU']),
+            (74,'代码',['TensorFlow','独立PyTorch','普通U-Net']),
+            (75,'代码',['晶圆','未确认专项昇腾源码','不是该模型']),
+            (77,'代码',["enable_custom_device('npu')",'通用设备路径','不能认定SegNet验收通过']),
+            (77,'精度基准',['未明确为NPU测得','不能证明NPU已复现']),
+        ]:
+            value=self.rows[n-1]['设备维度']['NPU'][field]['说明']
+            for token in tokens:
+                with self.subTest(number=n,field=field,token=token):
+                    self.assertIn(token,value)
 if __name__=='__main__':unittest.main()

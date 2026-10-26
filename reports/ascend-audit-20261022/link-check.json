@@ -1890,6 +1890,16 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/classfication/Big-transfer/README.md",
+    "checked_at_utc": "2026-10-26T15:09:24.547651+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/classfication/Big-transfer/README.md",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/detection/Faster_R-CNN_ResNet50/README.md",
     "checked_at_utc": "2026-10-23T02:46:05.114957+00:00",
     "method": "HEAD",
@@ -4007,6 +4017,26 @@
     "version": "dynamic_or_unversioned",
     "status": 200,
     "final_url": "https://github.com/PaddlePaddle/PaddleSeg/blob/release/2.10/configs/segnet/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/PaddlePaddle/PaddleSeg/blob/release/2.10/deploy/python/infer.py",
+    "checked_at_utc": "2026-10-26T15:09:24.548076+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": null,
+    "result": "not_confirmed",
+    "error": "<urlopen error [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1082)>"
+  },
+  {
+    "url": "https://github.com/PaddlePaddle/PaddleSeg/blob/release/2.10/tools/train.py",
+    "checked_at_utc": "2026-10-26T15:09:24.548530+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/PaddlePaddle/PaddleSeg/blob/release/2.10/tools/train.py",
     "result": "http_reachable"
   },
   {
@@ -6820,6 +6850,16 @@
     "error": "HTTP Error 404: Not Found"
   },
   {
+    "url": "https://paddlepaddle.github.io/PaddleX/latest/support_list/model_list_npu.html",
+    "checked_at_utc": "2026-10-26T15:09:24.548708+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://paddlepaddle.github.io/PaddleX/latest/support_list/model_list_npu.html",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11168924/",
     "checked_at_utc": "2026-10-26T06:46:47.058653+00:00",
     "method": "HEAD",
@@ -7067,6 +7107,16 @@
     "version": "dynamic_or_unversioned",
     "status": 200,
     "final_url": "https://www.evolutionaryscale.ai/blog/esm3-release",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://www.hiascend.com/activities/dynamic-news/20230627-1",
+    "checked_at_utc": "2026-10-26T15:09:24.549151+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://www.hiascend.com/activities/dynamic-news/20230627-1",
     "result": "http_reachable"
   },
   {

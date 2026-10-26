@@ -3,9 +3,9 @@
 日期：2026-10-26，Asia/Shanghai；首次全量基线为2026-10-23。
 
 - 119项按原始编号逐项保留；代码、权重、数据、性能、精度分别记录证据类型和链接。
-- 29项回归测试通过：覆盖顺序、字段结构、非认证边界、易混指标回归、原始资源边界、固定ModelZoo文件存在、CSV/Markdown完整性、链接清单覆盖、GPU重查、后续证据增补、发布状态、计时范围、设备/仓库归属及可重复构建。
-- 当前链接清单723个：688个有成功HEAD记录、35个未确认（25个Hugging Face限流429、5个403、2个G0.5授权401、1个404、Kvasir-SEG证书错误1个、华为云567共1个）。本批检查16个新增URL，全部成功；其他URL保留原检查时间，HTTP状态不代替正文证据。
-- 固定提交链接264个；动态或未版本化链接459个。数量按URL路径形式统计，含同页不同锚点，不表示全部外部来源已冻结。
+- 30项回归测试通过：覆盖顺序、字段结构、非认证边界、易混指标回归、原始资源边界、固定ModelZoo文件存在、CSV/Markdown完整性、链接清单覆盖、GPU重查、后续证据增补、发布状态、计时范围、设备/仓库归属及可重复构建。
+- 当前链接清单728个：692个有成功HEAD记录、36个未确认（25个Hugging Face限流429、5个403、2个G0.5授权401、1个404、2个无HTTP状态、华为云567共1个）。无状态项分别为Kvasir-SEG证书错误及PaddleSeg推理源码HEAD超时。本批检查5个新增URL，4个成功、1个超时；超时文件已通过GitHub fetch_file读取正文并记录blob SHA，不当作不存在。其他URL保留原检查时间。
+- 固定提交链接265个；动态或未版本化链接463个。数量按URL路径形式统计，含同页不同锚点，不表示全部外部来源已冻结。
 - 原始文件/JSON读取和HTTP结果均不等于独立模型复测。
 - 未执行：NPU/CPU模型运行、依赖安装、资产下载及SHA、完整任务精度、三次独立NPU性能、clean-room和上库门禁。
 - 详细边界、修正内容和命令见REVIEW_FIXES.md；逐URL状态见link-check.json。
@@ -221,3 +221,16 @@ CSV删除每格重复免责声明、内部证据类型和长段对照原文；�
 - 读取3份ModelZoo README及4份有效核心/计时脚本、4份DrivingSDK README、4份性能脚本与5份patch/全训练脚本资料；patch仅核对路径/NPU hunk，未应用或运行。初次错误OpenPI路径未当有效来源，字段链接采用实际文件。
 - 执行build_report.py、test_report.py，29项通过；119行25列保持完整。新增回归覆盖版本隔离、仓内OM路线、样本规模、计时范围、dummy输入、卡/进程口径和实际路径。未执行模型实测、安装或下载权重/数据。
 - 同口径NPU概括/未闭合字段关键词筛选剩49项。该筛选不代表剩余全部工作，也不表示其余条件均已证明完成；仍需逐项正文复核及最终全表审核。
+
+## 2026-10-26第十七批复核：变化检测与分割模型的NPU证据边界
+
+- 逐一细化#66 BIT、#67 ChangeFormer（保留原清单拼写Changformer）、#74 ResUnet/ResUnet++、#75 UNet-ESH、#77 SegNet的25个NPU字段。累计158条设备更新、117个不同条目、248条正文/JSON读取记录。ModelZoo master仍为153c97646d940f0eefefe81cbc891693d7243eaa。
+- BIT明确为justchenhao/BIT_CD双时相变化检测。ModelZoo检索命中的Big-transfer README读取后确认为Google Big Transfer图像分类/CIFAR-10，不能作为BIT_CD适配证据。作者原始权重和LEVIR/WHU/DSIFN资料与NPU可运行/验收证据分开。
+- ChangeFormer新增昇腾官方2023-06-27平台案例，明确提到集成ChangeFormer和MindSpore/Atlas兼容性；这比此前仅给上游仓库更强，但仍无专项源码、checkpoint或独立评测。文中的98%以上图斑召回率、91%以上像素召回率是多算法平台结果，不能写为ChangeFormer单模型LEVIR F1/IoU。
+- ResUNet++重新读取作者TF README，核对其明确链接的独立PyTorch复现与原TF不同；未确认专项NPU交付。普通U-Net、UNet++或其他残差网络不能覆盖该结构，TF/PyTorch参数不可混用，未确认不当作断言永不支持。
+- UNet-ESH重新查询出版方摘要/章节片段及昇腾/NPU相关信息，保持OMTS晶圆边缘辅助分割对象；仍未取得全文或专用checkpoint，不用普通医学U-Net或相关专利示例作为该论文NPU验收。
+- SegNet新增PaddleSeg release/2.10训练脚本的npu设备选项及推理脚本enable_custom_device('npu')源码证据。该版本模型README没有SegNet专项NPU数据；PaddleX当前NPU列表检索未列SegNet，仅限这张清单，不推断所有PaddleSeg模型都不支持。GPU Cityscapes mIoU60.09/60.88/61.97不移动为NPU实测。
+- 初期尝试的PaddleSeg NPU文档路径不存在，没有作为证据；GitHub目录API限流403后改用连接器code search定位真实文件，再读取release/2.10原始内容。当前分支与release分支的同文件blob一致，但字段明确使用release版本。
+- 中英文搜索和同名排除记录写入search_checks；缺少专项NPU性能/精度时保留空链接与未确认角色，不用无关链接补齐。平台、框架线索均不计为指定ModelZoo仓内完整交付。
+- 执行build_report.py与test_report.py，30项通过，119行25列不变，新增回归覆盖同名模型、平台召回率、框架入口与具体模型验收边界。未运行任何模型、安装依赖或下载权重/数据。
+- 同口径NPU概括/未闭合关键词筛选剩44项，仍不是最终完成度判断；实际目标仍需全表逐条件证据审核。
