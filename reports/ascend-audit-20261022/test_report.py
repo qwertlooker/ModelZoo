@@ -317,4 +317,22 @@ class ReportTests(unittest.TestCase):
             for token in tokens:
                 with self.subTest(number=n,field=field,token=token):
                     self.assertIn(token,text(n,field))
+    def test_community_tensor_checks_do_not_become_task_accuracy(self):
+        def text(n, field):
+            return self.rows[n-1]['设备维度']['NPU'][field]['说明']
+        for n, field, tokens in [
+            (58,'数据集',['一个mask','[1,62,33]','不是独立']),
+            (58,'性能基准',['没有同步计时','其他同名社区项目']),
+            (58,'精度基准',['0.0001018%','第48位为D','不采信']),
+            (84,'代码',['异常会被捕获','SUCCESS不能独立证明']),
+            (84,'数据集',['随机图像','未固定随机种子']),
+            (84,'性能基准',['11.805ms','预热3次','10次','未做三次独立']),
+            (84,'精度基准',['CPU FP32/NPU FP16','不是任务错误率']),
+            (88,'代码',['transfer_to_npu','转CPU','NumPy']),
+            (88,'性能基准',['整个ViPE管线','不能作为DAV2单模型FPS']),
+            (88,'精度基准',['输出视频存在','SKIP','PASS不是深度质量']),
+        ]:
+            for token in tokens:
+                with self.subTest(number=n,field=field,token=token):
+                    self.assertIn(token,text(n,field))
 if __name__=='__main__':unittest.main()

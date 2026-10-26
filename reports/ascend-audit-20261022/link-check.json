@@ -1210,6 +1210,56 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://gitcode.com/Ascend-SACT/vipe-npu/blob/47694287e5a3a2ed17b0a3bc5ec76152b3dfa6de/README_NPU.md",
+    "checked_at_utc": "2026-10-26T07:37:23.869362+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend-SACT/vipe-npu/blob/47694287e5a3a2ed17b0a3bc5ec76152b3dfa6de/README_NPU.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend-SACT/vipe-npu/blob/47694287e5a3a2ed17b0a3bc5ec76152b3dfa6de/run.py",
+    "checked_at_utc": "2026-10-26T07:37:23.869838+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend-SACT/vipe-npu/blob/47694287e5a3a2ed17b0a3bc5ec76152b3dfa6de/run.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend-SACT/vipe-npu/blob/47694287e5a3a2ed17b0a3bc5ec76152b3dfa6de/test_infer.sh",
+    "checked_at_utc": "2026-10-26T07:37:23.870339+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend-SACT/vipe-npu/blob/47694287e5a3a2ed17b0a3bc5ec76152b3dfa6de/test_infer.sh",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend-SACT/vipe-npu/blob/47694287e5a3a2ed17b0a3bc5ec76152b3dfa6de/vipe/priors/depth/dav2/__init__.py",
+    "checked_at_utc": "2026-10-26T07:37:23.870600+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend-SACT/vipe-npu/blob/47694287e5a3a2ed17b0a3bc5ec76152b3dfa6de/vipe/priors/depth/dav2/__init__.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend-SACT/vipe-v1.0/blob/e5145e07fd0e20d7d22eac203dc5c1032191b128/README.md",
+    "checked_at_utc": "2026-10-26T07:37:23.870853+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://ai.gitcode.com/Ascend-SACT/vipe-v1.0/blob/e5145e07fd0e20d7d22eac203dc5c1032191b128/README.md",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/built-in/audio/LSTM/ReadMe.md",
     "checked_at_utc": "2026-10-23T02:46:02.650593+00:00",
     "method": "HEAD",
@@ -2450,6 +2500,46 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://gitcode.com/gcw_93rlw6ed/esm2_t33_650M_UR50D-npu/blob/e1b33d04fc0f603e925bbfd6ef28499d5eb6fd64/inference.py",
+    "checked_at_utc": "2026-10-26T07:37:23.871117+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://ai.gitcode.com/gcw_93rlw6ed/esm2_t33_650M_UR50D-npu/blob/e1b33d04fc0f603e925bbfd6ef28499d5eb6fd64/inference.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/gcw_93rlw6ed/esm2_t33_650M_UR50D-npu/blob/e1b33d04fc0f603e925bbfd6ef28499d5eb6fd64/precision_compare.py",
+    "checked_at_utc": "2026-10-26T07:37:23.871599+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://ai.gitcode.com/gcw_93rlw6ed/esm2_t33_650M_UR50D-npu/blob/e1b33d04fc0f603e925bbfd6ef28499d5eb6fd64/precision_compare.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/gcw_93rlw6ed/esm2_t33_650M_UR50D-npu/blob/e1b33d04fc0f603e925bbfd6ef28499d5eb6fd64/precision_report.json",
+    "checked_at_utc": "2026-10-26T07:37:23.872120+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://ai.gitcode.com/gcw_93rlw6ed/esm2_t33_650M_UR50D-npu/blob/e1b33d04fc0f603e925bbfd6ef28499d5eb6fd64/precision_report.json",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/gcw_93rlw6ed/esm2_t33_650M_UR50D-npu/blob/e1b33d04fc0f603e925bbfd6ef28499d5eb6fd64/readme.md",
+    "checked_at_utc": "2026-10-26T07:37:23.872595+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://ai.gitcode.com/gcw_93rlw6ed/esm2_t33_650M_UR50D-npu/blob/e1b33d04fc0f603e925bbfd6ef28499d5eb6fd64/readme.md",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://gitcode.com/wangguiqin/FastWAM-NPU/blob/5a7f8443a84bad1125298662d279436fb3edfe07/scripts/eval_npu_suite.py",
     "checked_at_utc": "2026-10-23T02:46:09.194958+00:00",
     "method": "HEAD",
@@ -2537,6 +2627,46 @@
     "version": "dynamic_or_unversioned",
     "status": 200,
     "final_url": "https://gitcode.com/xujiashuai/dinov2-large",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/xujiashuai/dinov2-large/blob/7159789e728fc6cd9edb62e5b626bc418e0338b1/README.md",
+    "checked_at_utc": "2026-10-26T07:37:24.018343+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/xujiashuai/dinov2-large/blob/7159789e728fc6cd9edb62e5b626bc418e0338b1/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/xujiashuai/dinov2-large/blob/7159789e728fc6cd9edb62e5b626bc418e0338b1/evaluate.py",
+    "checked_at_utc": "2026-10-26T07:37:24.562569+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/xujiashuai/dinov2-large/blob/7159789e728fc6cd9edb62e5b626bc418e0338b1/evaluate.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/xujiashuai/dinov2-large/blob/7159789e728fc6cd9edb62e5b626bc418e0338b1/logs/02_evaluate.log",
+    "checked_at_utc": "2026-10-26T07:37:24.582115+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/xujiashuai/dinov2-large/blob/7159789e728fc6cd9edb62e5b626bc418e0338b1/logs/02_evaluate.log",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/xujiashuai/dinov2-large/blob/7159789e728fc6cd9edb62e5b626bc418e0338b1/report.json",
+    "checked_at_utc": "2026-10-26T07:37:24.582281+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/xujiashuai/dinov2-large/blob/7159789e728fc6cd9edb62e5b626bc418e0338b1/report.json",
     "result": "http_reachable"
   },
   {
@@ -5260,6 +5390,16 @@
     "error": "HTTP Error 429: Too Many Requests"
   },
   {
+    "url": "https://huggingface.co/depth-anything/Depth-Anything-V2-Base/resolve/main/depth_anything_v2_vitb.pth",
+    "checked_at_utc": "2026-10-26T07:37:24.655056+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://us.aws.cdn.hf.co/xet-bridge-us/666b1a774c61de4322ffeaef/6edb68314085b896936dd0ca275c81a4c7263b3a6850104562849bf8e9592298?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27depth_anything_v2_vitb.pth%3B+filename%3D%22depth_anything_v2_vitb.pth%22%3B&user_id=public&xip=FlWlKg2g0sA&Expires=1793003844&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjY2YjFhNzc0YzYxZGU0MzIyZmZlYWVmLzZlZGI2ODMxNDA4NWI4OTY5MzZkZDBjYTI3NWM4MWE0YzcyNjNiM2E2ODUwMTA0NTYyODQ5YmY4ZTk1OTIyOThcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZGVwdGhfYW55dGhpbmdfdjJfdml0Yi5wdGglM0IrZmlsZW5hbWUlM0QlMjJkZXB0aF9hbnl0aGluZ192Ml92aXRiLnB0aCUyMiUzQiZ1c2VyX2lkPXB1YmxpYyZ4aXA9RmxXbEtnMmcwc0EiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc5MzAwMzg0NH19fV19&Signature=MEUCIQDFgHzeZ-hUlszmVXDijYyZa7cTF%7Es3RYEropGgXyqEoQIgVYpFaXhqfaY2WWjW4RM4a359w6SxtW55Y5yKo3M5wq0_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://huggingface.co/depth-anything/Depth-Anything-V2-Metric-Hypersim-Base",
     "checked_at_utc": "2026-10-25T06:37:40.716249+00:00",
     "method": "HEAD",
@@ -5298,6 +5438,16 @@
     "status": 429,
     "result": "not_confirmed",
     "error": "HTTP Error 429: Too Many Requests"
+  },
+  {
+    "url": "https://huggingface.co/facebook/dinov2-large",
+    "checked_at_utc": "2026-10-26T07:37:24.656973+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/facebook/dinov2-large",
+    "result": "http_reachable"
   },
   {
     "url": "https://huggingface.co/facebook/esm2_t33_650M_UR50D",
@@ -5857,6 +6007,16 @@
     "version": "dynamic_or_unversioned",
     "status": 200,
     "final_url": "https://research.nvidia.com/labs/cosmos-lab/pbench/",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://rest.uniprot.org/uniprotkb/P69905.fasta",
+    "checked_at_utc": "2026-10-26T07:37:24.930823+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://rest.uniprot.org/uniprotkb/P69905.fasta",
     "result": "http_reachable"
   },
   {

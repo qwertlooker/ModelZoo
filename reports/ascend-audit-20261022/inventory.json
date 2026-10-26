@@ -7368,7 +7368,7 @@
   {
     "编号": 58,
     "原始条目": "ESM2",
-    "核查日期": "2026-10-25",
+    "核查日期": "2026-10-26",
     "结论": "有公开实现/指导，完整验收未认证",
     "分析与缺口": "ESM2规模未指定：原始权重以650M举例，15B训练测速另列；需确定规模、蛋白长度和下游任务后才能建立统一验收基线。",
     "本次实测状态": "未做模型运行；不认证S3/S4；未校验权重与数据SHA",
@@ -7450,47 +7450,57 @@
       },
       "NPU": {
         "代码": {
-          "说明": "650M社区功能实现",
+          "说明": "650M专项inference.py明确导入torch_npu、检查设备并迁移npu:0；另提供CPU/NPU logits比较脚本。只核实掩码语言模型前向，不覆盖ESMFold结构预测或全部ESM2规模。",
           "链接": [
-            "https://ai.gitcode.com/gcw_93rlw6ed/esm2_t33_650M_UR50D-npu"
+            "https://gitcode.com/gcw_93rlw6ed/esm2_t33_650M_UR50D-npu/blob/e1b33d04fc0f603e925bbfd6ef28499d5eb6fd64/inference.py",
+            "https://gitcode.com/gcw_93rlw6ed/esm2_t33_650M_UR50D-npu/blob/e1b33d04fc0f603e925bbfd6ef28499d5eb6fd64/precision_compare.py"
           ],
-          "证据类型": "来源报告；未独立复测"
+          "证据类型": "已读固定提交源码及报告；未独立运行模型"
         },
         "权重": {
-          "说明": "具体原始资源地址；未下载校验SHA/授权，不独立证明NPU适配",
+          "说明": "加载本地model目录的AutoModelForMaskedLM/Tokenizer，原权重为facebook/esm2_t33_650M_UR50D；源码未固定HF revision。仓内列有model.safetensors，未下载核对LFS完整资产或SHA。",
           "链接": [
+            "https://gitcode.com/gcw_93rlw6ed/esm2_t33_650M_UR50D-npu/blob/e1b33d04fc0f603e925bbfd6ef28499d5eb6fd64/inference.py",
+            "https://gitcode.com/gcw_93rlw6ed/esm2_t33_650M_UR50D-npu/blob/e1b33d04fc0f603e925bbfd6ef28499d5eb6fd64/readme.md",
             "https://huggingface.co/facebook/esm2_t33_650M_UR50D"
           ],
-          "证据类型": "模型卡/数据仓入口"
+          "证据类型": "已读固定提交源码及报告；未独立运行模型"
         },
         "数据集": {
-          "说明": "示例序列",
+          "说明": "只有一条P69905血红蛋白片段、一个mask，报告logits形状[1,62,33]；不是独立蛋白质下游测试集。",
           "链接": [
-            "https://ai.gitcode.com/gcw_93rlw6ed/esm2_t33_650M_UR50D-npu"
+            "https://gitcode.com/gcw_93rlw6ed/esm2_t33_650M_UR50D-npu/blob/e1b33d04fc0f603e925bbfd6ef28499d5eb6fd64/inference.py",
+            "https://gitcode.com/gcw_93rlw6ed/esm2_t33_650M_UR50D-npu/blob/e1b33d04fc0f603e925bbfd6ef28499d5eb6fd64/precision_report.json"
           ],
-          "证据类型": "来源报告；未独立复测"
+          "证据类型": "已读固定提交源码及报告；未独立运行模型"
         },
         "性能基准": {
-          "说明": "未找到正式性能表",
-          "链接": [],
-          "证据类型": "来源报告；未独立复测"
+          "说明": "该固定实现没有同步计时或吞吐报告，不能用其他同名社区项目的243ms代替；CPU/NPU logits接近也不证明性能提升。",
+          "链接": [
+            "https://gitcode.com/gcw_93rlw6ed/esm2_t33_650M_UR50D-npu/blob/e1b33d04fc0f603e925bbfd6ef28499d5eb6fd64/inference.py",
+            "https://gitcode.com/gcw_93rlw6ed/esm2_t33_650M_UR50D-npu/blob/e1b33d04fc0f603e925bbfd6ef28499d5eb6fd64/precision_report.json"
+          ],
+          "证据类型": "已读固定提交源码及报告；未独立运行模型"
         },
         "精度基准": {
-          "说明": "fill-mask样例，非下游任务",
+          "说明": "单例报告：平均归一化logits误差0.0001018%、最大绝对误差5.34e-5、argmax一致100%；非下游精度。README称mask真实残基N，但UniProt P69905第48位为D，故不采信其生物预测正确性说明。",
           "链接": [
-            "https://ai.gitcode.com/gcw_93rlw6ed/esm2_t33_650M_UR50D-npu"
+            "https://gitcode.com/gcw_93rlw6ed/esm2_t33_650M_UR50D-npu/blob/e1b33d04fc0f603e925bbfd6ef28499d5eb6fd64/precision_report.json",
+            "https://gitcode.com/gcw_93rlw6ed/esm2_t33_650M_UR50D-npu/blob/e1b33d04fc0f603e925bbfd6ef28499d5eb6fd64/precision_compare.py",
+            "https://gitcode.com/gcw_93rlw6ed/esm2_t33_650M_UR50D-npu/blob/e1b33d04fc0f603e925bbfd6ef28499d5eb6fd64/readme.md",
+            "https://rest.uniprot.org/uniprotkb/P69905.fasta"
           ],
-          "证据类型": "来源报告；未独立复测"
+          "证据类型": "已读固定提交源码及报告；未独立运行模型"
         }
       }
     },
     "GPU结论": "支持GPU，有官方实现",
-    "NPU结论": "有公开实现/指导，完整验收未认证",
+    "NPU结论": "有650M NPU前向及单例数值对照；未有下游任务验收，样例解释有误",
     "对照原文": {},
     "GPU查询状态": "已查原始资料",
     "设备核查日期": {
       "GPU": "2026-10-25",
-      "NPU": "2026-10-23"
+      "NPU": "2026-10-26"
     }
   },
   {
@@ -10779,7 +10789,7 @@
   {
     "编号": 84,
     "原始条目": "DINOv2",
-    "核查日期": "2026-10-23",
+    "核查日期": "2026-10-26",
     "结论": "有公开实现/指导，完整验收未认证",
     "分析与缺口": "来源报告未复测；缺完整资产SHA、正式任务对齐或三次独立NPU测量时不认证完成。",
     "本次实测状态": "未做模型运行；不认证S3/S4；未校验权重与数据SHA",
@@ -10860,46 +10870,58 @@
       },
       "NPU": {
         "代码": {
-          "说明": "社区large推理/evaluate",
+          "说明": "已读large评估脚本与JSON：加载AutoModel迁移NPU做特征推理；精度比较异常会被捕获，之后仍写SUCCESS，因此SUCCESS不能独立证明精度通过。",
           "链接": [
-            "https://gitcode.com/xujiashuai/dinov2-large"
+            "https://gitcode.com/xujiashuai/dinov2-large/blob/7159789e728fc6cd9edb62e5b626bc418e0338b1/evaluate.py",
+            "https://gitcode.com/xujiashuai/dinov2-large/blob/7159789e728fc6cd9edb62e5b626bc418e0338b1/report.json"
           ],
-          "证据类型": "来源报告；未独立复测"
+          "证据类型": "已读固定提交源码及报告；未独立运行模型"
         },
         "权重": {
-          "说明": "DINOv2-large",
+          "说明": "facebook/dinov2-large，报告304368640参数；from_pretrained未指定revision，依赖远程下载或本地缓存，权重实际文件及SHA未核验。",
           "链接": [
-            "https://gitcode.com/xujiashuai/dinov2-large"
+            "https://gitcode.com/xujiashuai/dinov2-large/blob/7159789e728fc6cd9edb62e5b626bc418e0338b1/evaluate.py",
+            "https://huggingface.co/facebook/dinov2-large"
           ],
-          "证据类型": "来源报告；未独立复测"
+          "证据类型": "已读固定提交源码及报告；未独立运行模型"
         },
         "数据集": {
-          "说明": "特征样例",
+          "说明": "torch.randn随机图像，batch1、224×224；输出[1,257,1024]。未固定随机种子/保存输入，不是ImageNet分类或语义分割测试集。",
           "链接": [
-            "https://gitcode.com/xujiashuai/dinov2-large"
+            "https://gitcode.com/xujiashuai/dinov2-large/blob/7159789e728fc6cd9edb62e5b626bc418e0338b1/evaluate.py",
+            "https://gitcode.com/xujiashuai/dinov2-large/blob/7159789e728fc6cd9edb62e5b626bc418e0338b1/report.json"
           ],
-          "证据类型": "来源报告；未独立复测"
+          "证据类型": "已读固定提交源码及报告；未独立运行模型"
         },
         "性能基准": {
-          "说明": "约12.18ms，样例条件",
+          "说明": "当前提交910B4报告：FP16、batch1、224×224，预热3次后10次同步计时均值11.805ms、峰值分配显存0.611GiB；替换旧表12.18ms。未做三次独立运行取中位数。",
           "链接": [
-            "https://gitcode.com/xujiashuai/dinov2-large"
+            "https://gitcode.com/xujiashuai/dinov2-large/blob/7159789e728fc6cd9edb62e5b626bc418e0338b1/README.md",
+            "https://gitcode.com/xujiashuai/dinov2-large/blob/7159789e728fc6cd9edb62e5b626bc418e0338b1/evaluate.py",
+            "https://gitcode.com/xujiashuai/dinov2-large/blob/7159789e728fc6cd9edb62e5b626bc418e0338b1/report.json",
+            "https://gitcode.com/xujiashuai/dinov2-large/blob/7159789e728fc6cd9edb62e5b626bc418e0338b1/logs/02_evaluate.log"
           ],
-          "证据类型": "来源报告；未独立复测"
+          "证据类型": "已读固定提交源码及报告；未独立运行模型"
         },
         "精度基准": {
-          "说明": "余弦0.999936，非下游任务",
+          "说明": "当前报告CPU FP32/NPU FP16特征cosine=0.9999527；0.0047%由(1-cosine)×100得到，不是任务错误率。旧表0.999936已替换；只证明随机单例数值接近。",
           "链接": [
-            "https://gitcode.com/xujiashuai/dinov2-large"
+            "https://gitcode.com/xujiashuai/dinov2-large/blob/7159789e728fc6cd9edb62e5b626bc418e0338b1/evaluate.py",
+            "https://gitcode.com/xujiashuai/dinov2-large/blob/7159789e728fc6cd9edb62e5b626bc418e0338b1/report.json",
+            "https://gitcode.com/xujiashuai/dinov2-large/blob/7159789e728fc6cd9edb62e5b626bc418e0338b1/logs/02_evaluate.log"
           ],
-          "证据类型": "来源报告；未独立复测"
+          "证据类型": "已读固定提交源码及报告；未独立运行模型"
         }
       }
     },
     "GPU结论": "支持GPU，有官方实现",
-    "NPU结论": "有公开实现/指导，完整验收未认证",
+    "NPU结论": "有910B4特征推理和随机单例报告；非下游任务精度验收",
     "对照原文": {},
-    "GPU查询状态": "已查原始资料"
+    "GPU查询状态": "已查原始资料",
+    "设备核查日期": {
+      "GPU": "2026-10-23",
+      "NPU": "2026-10-26"
+    }
   },
   {
     "编号": 85,
@@ -11290,7 +11312,7 @@
   {
     "编号": 88,
     "原始条目": "Depth Anything V2",
-    "核查日期": "2026-10-25",
+    "核查日期": "2026-10-26",
     "结论": "有公开实现/指导，完整验收未认证",
     "分析与缺口": "来源报告未复测；缺完整资产SHA、正式任务对齐或三次独立NPU测量时不认证完成。",
     "本次实测状态": "未做模型运行；不认证S3/S4；未校验权重与数据SHA",
@@ -11370,38 +11392,50 @@
       },
       "NPU": {
         "代码": {
-          "说明": "NPU集成组件线索，独立设备边界未确认",
+          "说明": "从vipe-v1.0说明追溯到vipe-npu实际DAV2封装；仍调用.cuda()，须先由run.py启用transfer_to_npu。入口缺torch_npu时会转CPU，模型还把输入转CPU/NumPy预处理，不是独立纯NPU实现。",
           "链接": [
-            "https://ai.gitcode.com/Ascend-SACT/vipe-v1.0"
+            "https://gitcode.com/Ascend-SACT/vipe-v1.0/blob/e5145e07fd0e20d7d22eac203dc5c1032191b128/README.md",
+            "https://gitcode.com/Ascend-SACT/vipe-npu/blob/47694287e5a3a2ed17b0a3bc5ec76152b3dfa6de/vipe/priors/depth/dav2/__init__.py",
+            "https://gitcode.com/Ascend-SACT/vipe-npu/blob/47694287e5a3a2ed17b0a3bc5ec76152b3dfa6de/run.py"
           ],
-          "证据类型": "来源报告；未独立复测"
+          "证据类型": "已读固定提交源码及报告；未独立运行模型"
         },
         "权重": {
-          "说明": "V2组件权重",
+          "说明": "WEIGHTS_ROOT本地加载depth_anything_v2_<变体>.pth；默认相对深度与Hypersim/VKITTI度量分支分别选不同文件。README default管线使用vitb，不能把所有变体/度量分支都认作已测。资产未下载校验。",
           "链接": [
-            "https://ai.gitcode.com/Ascend-SACT/vipe-v1.0"
+            "https://gitcode.com/Ascend-SACT/vipe-npu/blob/47694287e5a3a2ed17b0a3bc5ec76152b3dfa6de/vipe/priors/depth/dav2/__init__.py",
+            "https://gitcode.com/Ascend-SACT/vipe-npu/blob/47694287e5a3a2ed17b0a3bc5ec76152b3dfa6de/README_NPU.md",
+            "https://huggingface.co/depth-anything/Depth-Anything-V2-Base/resolve/main/depth_anything_v2_vitb.pth"
           ],
-          "证据类型": "来源报告；未独立复测"
+          "证据类型": "已读固定提交源码及报告；未独立运行模型"
         },
         "数据集": {
-          "说明": "未找到独立NPU测试集",
-          "链接": [],
-          "证据类型": "来源报告；未独立复测"
+          "说明": "社区演示视频test-2s.mp4共59帧；未提供DAV2独立的NYUv2/KITTI测试split及真实深度标注。",
+          "链接": [
+            "https://gitcode.com/Ascend-SACT/vipe-npu/blob/47694287e5a3a2ed17b0a3bc5ec76152b3dfa6de/README_NPU.md",
+            "https://gitcode.com/Ascend-SACT/vipe-npu/blob/47694287e5a3a2ed17b0a3bc5ec76152b3dfa6de/test_infer.sh"
+          ],
+          "证据类型": "已读固定提交源码及报告；未独立运行模型"
         },
         "性能基准": {
-          "说明": "未找到独立性能",
-          "链接": [],
-          "证据类型": "来源报告；未独立复测"
+          "说明": "README日志是整个ViPE管线，包含SLAM、其他深度模型、对齐和可视化；不能作为DAV2单模型FPS。未取得固定DAV2变体的独立NPU计时。",
+          "链接": [
+            "https://gitcode.com/Ascend-SACT/vipe-npu/blob/47694287e5a3a2ed17b0a3bc5ec76152b3dfa6de/README_NPU.md"
+          ],
+          "证据类型": "已读固定提交源码及报告；未独立运行模型"
         },
         "精度基准": {
-          "说明": "未找到AbsRel/δ1对照",
-          "链接": [],
-          "证据类型": "来源报告；未独立复测"
+          "说明": "test-all检查进程成功及输出视频存在，部分pipeline可SKIP；没有DAV2 AbsRel/δ1或CPU/NPU深度误差阈值。PASS不是深度质量验收。",
+          "链接": [
+            "https://gitcode.com/Ascend-SACT/vipe-npu/blob/47694287e5a3a2ed17b0a3bc5ec76152b3dfa6de/test_infer.sh",
+            "https://gitcode.com/Ascend-SACT/vipe-npu/blob/47694287e5a3a2ed17b0a3bc5ec76152b3dfa6de/README_NPU.md"
+          ],
+          "证据类型": "已读固定提交源码及报告；未独立运行模型"
         }
       }
     },
     "GPU结论": "支持GPU，有官方实现",
-    "NPU结论": "有公开实现/指导，完整验收未认证",
+    "NPU结论": "有ViPE内DAV2的NPU转接代码；CPU/NPU混合，缺独立模型基准",
     "对照原文": {
       "精度基准": {
         "说明": "未找到AbsRel/δ1对照",
@@ -11412,7 +11446,7 @@
     "GPU查询状态": "已查原始资料",
     "设备核查日期": {
       "GPU": "2026-10-25",
-      "NPU": "2026-10-23"
+      "NPU": "2026-10-26"
     }
   },
   {
