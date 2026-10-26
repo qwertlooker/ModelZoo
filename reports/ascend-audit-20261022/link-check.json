@@ -330,6 +330,16 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://arxiv.org/html/2503.11651v1",
+    "checked_at_utc": "2026-10-26T09:49:52.818609+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://arxiv.org/html/2503.11651v1",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://arxiv.org/html/2503.14492v2",
     "checked_at_utc": "2026-10-25T06:59:20.720234+00:00",
     "method": "HEAD",
@@ -800,6 +810,16 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://ascend-repo-modelzoo.obs.cn-east-2.myhuaweicloud.com/model/1_PyTorch_PTH/Deeplabv3%2B/PTH/deeplab-resnet.pth.tar",
+    "checked_at_utc": "2026-10-26T09:49:52.819065+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://ascend-repo-modelzoo.obs.cn-east-2.myhuaweicloud.com/model/1_PyTorch_PTH/Deeplabv3%2B/PTH/deeplab-resnet.pth.tar",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://ascend-repo-modelzoo.obs.cn-east-2.myhuaweicloud.com/model/1_PyTorch_PTH/LSTM/PTH/ctc_best_model.pth",
     "checked_at_utc": "2026-10-23T02:46:01.312801+00:00",
     "method": "HEAD",
@@ -1057,6 +1077,46 @@
     "version": "dynamic_or_unversioned",
     "status": 200,
     "final_url": "https://download.openmmlab.com/mmdetection/v2.0/faster_rcnn/faster_rcnn_r50_fpn_1x_coco/faster_rcnn_r50_fpn_1x_coco_20200130-047c8118.pth",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://download.openmmlab.com/mmdetection/v2.0/swin/mask_rcnn_swin-s-p4-w7_fpn_fp16_ms-crop-3x_coco/mask_rcnn_swin-s-p4-w7_fpn_fp16_ms-crop-3x_coco_20210903_104808-b92c91f1.pth",
+    "checked_at_utc": "2026-10-26T09:49:52.819524+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://download.openmmlab.com/mmdetection/v2.0/swin/mask_rcnn_swin-s-p4-w7_fpn_fp16_ms-crop-3x_coco/mask_rcnn_swin-s-p4-w7_fpn_fp16_ms-crop-3x_coco_20210903_104808-b92c91f1.pth",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://download.openmmlab.com/mmsegmentation/v0.5/deeplabv3plus/deeplabv3plus_r50-d8_512x1024_40k_cityscapes/deeplabv3plus_r50-d8_512x1024_40k_cityscapes_20200605_094610-d222ffcd.pth",
+    "checked_at_utc": "2026-10-26T09:49:52.819676+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://download.openmmlab.com/mmsegmentation/v0.5/deeplabv3plus/deeplabv3plus_r50-d8_512x1024_40k_cityscapes/deeplabv3plus_r50-d8_512x1024_40k_cityscapes_20200605_094610-d222ffcd.pth",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://download.openmmlab.com/mmsegmentation/v0.5/segformer/segformer_mit-b0_512x512_160k_ade20k/segformer_mit-b0_512x512_160k_ade20k_20210726_101530-8ffa8fda.pth",
+    "checked_at_utc": "2026-10-26T09:49:52.820035+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://download.openmmlab.com/mmsegmentation/v0.5/segformer/segformer_mit-b0_512x512_160k_ade20k/segformer_mit-b0_512x512_160k_ade20k_20210726_101530-8ffa8fda.pth",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://download.openmmlab.com/mmsegmentation/v0.5/segformer/segformer_mit-b0_8x1_1024x1024_160k_cityscapes/segformer_mit-b0_8x1_1024x1024_160k_cityscapes_20211208_101857-e7f88502.pth",
+    "checked_at_utc": "2026-10-26T09:49:52.820295+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://download.openmmlab.com/mmsegmentation/v0.5/segformer/segformer_mit-b0_8x1_1024x1024_160k_cityscapes/segformer_mit-b0_8x1_1024x1024_160k_cityscapes_20211208_101857-e7f88502.pth",
     "result": "http_reachable"
   },
   {
@@ -1797,6 +1857,16 @@
     "version": "pinned",
     "status": 200,
     "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/detection/Mask_Rcnn_SwinS/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/detection/Mask_Rcnn_SwinS/data_postprocess.py",
+    "checked_at_utc": "2026-10-26T09:49:52.820930+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202/ACL_PyTorch/contrib/cv/detection/Mask_Rcnn_SwinS/data_postprocess.py",
     "result": "http_reachable"
   },
   {
@@ -3027,6 +3097,16 @@
     "version": "pinned",
     "status": 200,
     "final_url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/VGGT/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/VGGT/test/train_8p_vggt_perf.sh",
+    "checked_at_utc": "2026-10-26T09:49:52.821468+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/Ascend/DrivingSDK/blob/27375a9c561578d6aee7270edfac6ae7955942f5/model_examples/VGGT/test/train_8p_vggt_perf.sh",
     "result": "http_reachable"
   },
   {
@@ -5650,16 +5730,6 @@
     "result": "http_reachable"
   },
   {
-    "url": "https://huggingface.co/facebook/VGGT-1B",
-    "checked_at_utc": "2026-10-23T02:46:25.182545+00:00",
-    "method": "HEAD",
-    "content_verified": false,
-    "version": "dynamic_or_unversioned",
-    "status": 429,
-    "result": "not_confirmed",
-    "error": "HTTP Error 429: Too Many Requests"
-  },
-  {
     "url": "https://huggingface.co/facebook/VGGT-1B-Commercial",
     "checked_at_utc": "2026-10-23T02:46:25.188278+00:00",
     "method": "HEAD",
@@ -5668,6 +5738,16 @@
     "status": 429,
     "result": "not_confirmed",
     "error": "HTTP Error 429: Too Many Requests"
+  },
+  {
+    "url": "https://huggingface.co/facebook/VGGT-1B/resolve/main/model.pt",
+    "checked_at_utc": "2026-10-26T09:49:52.821626+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://us.aws.cdn.hf.co/xet-bridge-us/67d0b23ddad86bc152fda202/2d887d5ae700a7c6934a2a7d43b1e48470a488b2e777e41c674f3222ad1fc5a0?xip=FlWlKg2g0sA&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27model.pt%3B+filename%3D%22model.pt%22%3B&user_id=public&X-Xet-Cas-Uid=public&Expires=1793011793&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjdkMGIyM2RkYWQ4NmJjMTUyZmRhMjAyLzJkODg3ZDVhZTcwMGE3YzY5MzRhMmE3ZDQzYjFlNDg0NzBhNDg4YjJlNzc3ZTQxYzY3NGYzMjIyYWQxZmM1YTBcXD94aXA9RmxXbEtnMmcwc0EmcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj1pbmxpbmUlM0IrZmlsZW5hbWUlMkElM0RVVEYtOCUyNyUyN21vZGVsLnB0JTNCK2ZpbGVuYW1lJTNEJTIybW9kZWwucHQlMjIlM0ImdXNlcl9pZD1wdWJsaWMmWC1YZXQtQ2FzLVVpZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc5MzAxMTc5M319fV19&Signature=MEQCIG%7EmZx5micSTBcyx57rZC9V1enbWM49cXGBi-wOUAbu9AiBtrurjaJk67BuNn9MLnbmilGGQXasQZOb7CUXl9We8ug__&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256",
+    "result": "http_reachable"
   },
   {
     "url": "https://huggingface.co/facebook/dinov2-large",

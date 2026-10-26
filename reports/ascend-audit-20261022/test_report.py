@@ -368,4 +368,22 @@ class ReportTests(unittest.TestCase):
             for token in tokens:
                 with self.subTest(number=n,field=field,token=token):
                     self.assertIn(token,text(n,field))
+    def test_segmentation_and_vggt_benchmark_protocols_stay_separate(self):
+        for n, device, field, tokens in [
+            (68,'NPU','性能基准',['165.545','单位未标','训练','252.83']),
+            (71,'GPU','精度基准',['ADE20K','37.41','Cityscapes76.54']),
+            (71,'NPU','性能基准',['6.01','未注明硬件','不能认定为GPU']),
+            (72,'NPU','精度基准',["metric=['bbox']",'mask AP43.2']),
+            (72,'NPU','性能基准',['单位未标','5.17','2.5']),
+            (115,'NPU','数据集',['iscrowd','真实bbox','实例IoU']),
+            (115,'NPU','性能基准',['分模块','不能相加','视频FPS']),
+            (115,'NPU','精度基准',['0.15个百分点','不是视频J&F']),
+            (119,'GPU','性能基准',['H100','特征骨干','0.14/1.04/3.12','不含所有任务头']),
+            (119,'NPU','性能基准',['训练吞吐','120/','未见乘每样本2帧','未给GPU型号']),
+            (119,'NPU','精度基准',['loss','没有相机AUC']),
+        ]:
+            value=self.rows[n-1]['设备维度'][device][field]['说明']
+            for token in tokens:
+                with self.subTest(number=n,device=device,field=field,token=token):
+                    self.assertIn(token,value)
 if __name__=='__main__':unittest.main()
