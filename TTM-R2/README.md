@@ -27,7 +27,12 @@ python3 -m pip check
 
 ## 文件目录
 
-`model.py`、`common.py`、`prepare_series.py` 为工具入口，`performance.py` 为独立性能汇总，`test_model.py`、`test_performance.py` 为离线回归；权重、数据、输出不入正式候选。
+```text
+README.md
+LICENSE
+model.py
+prepare_series.py
+```
 
 ## 快速上手
 
@@ -61,14 +66,14 @@ ETTh1 context 512/horizon 96，官方 Granite R2 原始结果表 zero-shot MSE 0
 
 ## NPU 独立性能报告
 
-每次 `infer` 成功后额外生成 `<输出文件>.performance.json`，保存逐批同步耗时、总模型调用时间、吞吐、结果 SHA、命令和运行 ID。元信息含 Python、PyTorch、torch_npu、设备名称、进程内逻辑卡号及 `ASCEND_RT_VISIBLE_DEVICES` 原值；物理卡映射仍须结合 `npu-smi info` 核对。`performance.py` 校验至少三次不同运行 ID、相同模型/数据/设备/参数，再汇总独立运行中位数；CPU 报告不能用于 NPU 性能结论。
+每次 `infer` 成功后额外生成 推理输出文件旁的 `.performance.json`，保存逐批同步耗时、总模型调用时间、吞吐、结果 SHA、命令和运行 ID。元信息含 Python、PyTorch、torch_npu、设备名称、进程内逻辑卡号及 `ASCEND_RT_VISIBLE_DEVICES` 原值；物理卡映射仍须结合 `npu-smi info` 核对。`model.py performance` 校验至少三次不同运行 ID、相同模型/数据/设备/参数，再汇总独立运行中位数；CPU 报告不能用于 NPU 性能结论。
 
 ```bash
 set -e
 for RUN in 1 2 3; do
   python3 model.py infer --model-dir "$MODEL_WORK_DIR/model" --input "$MODEL_WORK_DIR/test.npz" --output "$MODEL_WORK_DIR/npu-run-$RUN.npz" --device npu --task forecast
 done
-python3 performance.py --runs "$MODEL_WORK_DIR"/npu-run-*.npz.performance.json --output "$MODEL_WORK_DIR/performance-median.json"
+python3 model.py performance --runs "$MODEL_WORK_DIR"/npu-run-*.npz.performance.json --output "$MODEL_WORK_DIR/performance-median.json"
 ```
 
 统计包括末尾不足 batch 的批次；吞吐单位为输入样本/秒（TimesFM 为通道序列/秒）。这是纯模型调用口径，端到端时间、首次编译和峰值 HBM 仍需在目标 NPU 单独实测。报告校验不能认证人工编辑的文件或证明设备证据真实，发布前须核对原始日志。
@@ -81,10 +86,10 @@ python3 performance.py --runs "$MODEL_WORK_DIR"/npu-run-*.npz.performance.json -
 |---|---|
 | 上游源码 | https://github.com/ibm-granite/granite-tsfm/tree/9d0b839f997eb4918822a43036012ce8c277687c |
 | 固定权重 | https://huggingface.co/ibm-granite/granite-timeseries-ttm-r2/tree/d6a79570cac0f33d526601cd3a0fc7c80a8f9a2f |
-| 公开参考 | https://github.com/ibm-granite/granite-tsfm/blob/9d0b839f997eb4918822a43036012ce8c277687c/notebooks/hfdemo/tinytimemixer/full_benchmarking/combined_results-granite-r2.csv |
-| ETTh1 数据 | https://github.com/zhouhaoyi/ETDataset/blob/1d16c8f4f943005d613b5bc962e9eeb06058cf07/ETT-small/ETTh1.csv |
+| 公开参考 | https://raw.githubusercontent.com/ibm-granite/granite-tsfm/9d0b839f997eb4918822a43036012ce8c277687c/notebooks/hfdemo/tinytimemixer/full_benchmarking/combined_results-granite-r2.csv |
+| ETTh1 数据 | https://raw.githubusercontent.com/zhouhaoyi/ETDataset/1d16c8f4f943005d613b5bc962e9eeb06058cf07/ETT-small/ETTh1.csv |
 | 下载或依赖地址 | https://huggingface.co/ibm-granite/granite-timeseries-ttm-r2/resolve/d6a79570cac0f33d526601cd3a0fc7c80a8f9a2f/config.json |
 | 下载或依赖地址 | https://huggingface.co/ibm-granite/granite-timeseries-ttm-r2/resolve/d6a79570cac0f33d526601cd3a0fc7c80a8f9a2f/model.safetensors |
 | 下载或依赖地址 | https://raw.githubusercontent.com/zhouhaoyi/ETDataset/1d16c8f4f943005d613b5bc962e9eeb06058cf07/ETT-small/ETTh1.csv |
 | 参考许可证 | https://raw.githubusercontent.com/ibm-granite/granite-tsfm/9d0b839f997eb4918822a43036012ce8c277687c/LICENSE |
-| 官方软件配套表 | https://github.com/Ascend/pytorch/blob/94dd5bf251144e6227e2b5228ad9f878878c0bf4/COMPATIBILITY.en.md |
+| 官方软件配套表 | https://raw.githubusercontent.com/Ascend/pytorch/94dd5bf251144e6227e2b5228ad9f878878c0bf4/COMPATIBILITY.en.md |

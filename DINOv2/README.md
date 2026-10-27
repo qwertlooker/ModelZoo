@@ -27,7 +27,13 @@ python3 -m pip check
 
 ## 文件目录
 
-`model.py`、`common.py`、`make_manifest.py`、`split_manifest.py`、`prepare_images.py`、`aggregate_metrics.py` 为工具入口，`performance.py` 为独立性能汇总，`test_model.py`、`test_performance.py` 为离线回归；权重、数据、输出不入正式候选。
+```text
+README.md
+LICENSE
+model.py
+prepare_data.py
+aggregate_metrics.py
+```
 
 ## 快速上手
 
@@ -49,13 +55,13 @@ export IMAGE_MANIFEST="$MODEL_WORK_DIR/images.csv"
 export IMAGENET_VAL_DIR="$MODEL_WORK_DIR/data/imagenet_val_by_class"
 export IMAGENET_CLASS_MAP="$MODEL_WORK_DIR/data/imagenet_class_indices.json"
 test -d "$IMAGENET_VAL_DIR" && test -f "$IMAGENET_CLASS_MAP"
-python3 make_manifest.py --root "$IMAGENET_VAL_DIR" --class-map "$IMAGENET_CLASS_MAP" --output "$IMAGE_MANIFEST" --expected-count 50000
-python3 split_manifest.py --manifest "$IMAGE_MANIFEST" --output-dir "$MODEL_WORK_DIR/shards" --shard-size 256
+python3 prepare_data.py manifest --root "$IMAGENET_VAL_DIR" --class-map "$IMAGENET_CLASS_MAP" --output "$IMAGE_MANIFEST" --expected-count 50000
+python3 prepare_data.py split --manifest "$IMAGE_MANIFEST" --output-dir "$MODEL_WORK_DIR/shards" --shard-size 256
 mkdir -p "$MODEL_WORK_DIR/inputs" "$MODEL_WORK_DIR/results" "$MODEL_WORK_DIR/scores"
 export HEAD_SHA256="$(sha256sum "$MODEL_WORK_DIR/linear4.pth" | cut -d ' ' -f 1)"
 for SHARD in "$MODEL_WORK_DIR"/shards/shard-*.csv; do
   STEM="$(basename "$SHARD" .csv)"
-  python3 prepare_images.py --model-dir "$MODEL_WORK_DIR/model" --manifest "$SHARD" --output "$MODEL_WORK_DIR/inputs/$STEM.npz"
+  python3 prepare_data.py images --model-dir "$MODEL_WORK_DIR/model" --manifest "$SHARD" --output "$MODEL_WORK_DIR/inputs/$STEM.npz"
   python3 model.py infer --model-dir "$MODEL_WORK_DIR/model" --input "$MODEL_WORK_DIR/inputs/$STEM.npz" --output "$MODEL_WORK_DIR/results/$STEM.npz" --device npu --task classification --head "$MODEL_WORK_DIR/linear4.pth" --head-sha256 "$HEAD_SHA256"
   python3 model.py evaluate --input "$MODEL_WORK_DIR/inputs/$STEM.npz" --results "$MODEL_WORK_DIR/results/$STEM.npz" --output "$MODEL_WORK_DIR/scores/$STEM.json" --metric classification
 done
@@ -79,7 +85,7 @@ python3 model.py compare --reference "$MODEL_WORK_DIR/cpu.npz" --candidate "$MOD
 
 ## NPU 独立性能报告
 
-每次 `infer` 成功后额外生成 `<输出文件>.performance.json`，保存逐批同步耗时、总模型调用时间、吞吐、结果 SHA、命令和运行 ID。元信息含 Python、PyTorch、torch_npu、设备名称、进程内逻辑卡号及 `ASCEND_RT_VISIBLE_DEVICES` 原值；物理卡映射仍须结合 `npu-smi info` 核对。`performance.py` 校验至少三次不同运行 ID、相同模型/数据/设备/参数，再汇总独立运行中位数；CPU 报告不能用于 NPU 性能结论。
+每次 `infer` 成功后额外生成 推理输出文件旁的 `.performance.json`，保存逐批同步耗时、总模型调用时间、吞吐、结果 SHA、命令和运行 ID。元信息含 Python、PyTorch、torch_npu、设备名称、进程内逻辑卡号及 `ASCEND_RT_VISIBLE_DEVICES` 原值；物理卡映射仍须结合 `npu-smi info` 核对。`model.py performance` 校验至少三次不同运行 ID、相同模型/数据/设备/参数，再汇总独立运行中位数；CPU 报告不能用于 NPU 性能结论。
 
 以下性能命令只测固定首个分片，不能作为完整 ImageNet 精度验收；完整精度仍按前述所有分片执行。
 
@@ -88,7 +94,7 @@ set -e
 for RUN in 1 2 3; do
   python3 model.py infer --model-dir "$MODEL_WORK_DIR/model" --input "$MODEL_WORK_DIR/inputs/shard-00000.npz" --output "$MODEL_WORK_DIR/npu-run-$RUN.npz" --device npu --task classification --head "$MODEL_WORK_DIR/linear4.pth" --head-sha256 "$HEAD_SHA256"
 done
-python3 performance.py --runs "$MODEL_WORK_DIR"/npu-run-*.npz.performance.json --output "$MODEL_WORK_DIR/performance-median.json"
+python3 model.py performance --runs "$MODEL_WORK_DIR"/npu-run-*.npz.performance.json --output "$MODEL_WORK_DIR/performance-median.json"
 ```
 
 统计包括末尾不足 batch 的批次；吞吐单位为输入样本/秒（TimesFM 为通道序列/秒）。这是纯模型调用口径，端到端时间、首次编译和峰值 HBM 仍需在目标 NPU 单独实测。报告校验不能认证人工编辑的文件或证明设备证据真实，发布前须核对原始日志。
@@ -101,7 +107,7 @@ python3 performance.py --runs "$MODEL_WORK_DIR"/npu-run-*.npz.performance.json -
 |---|---|
 | 上游源码 | https://github.com/facebookresearch/dinov2/tree/7764ea0f912e53c92e82eb78a2a1631e92725fc8 |
 | 固定权重 | https://huggingface.co/facebook/dinov2-large/tree/47b73eefe95e8d44ec3623f8890bd894b6ea2d6c |
-| 公开参考 | https://github.com/facebookresearch/dinov2/blob/7764ea0f912e53c92e82eb78a2a1631e92725fc8/README.md |
+| 公开参考 | https://raw.githubusercontent.com/facebookresearch/dinov2/7764ea0f912e53c92e82eb78a2a1631e92725fc8/README.md |
 | 官方 linear4 头 | https://dl.fbaipublicfiles.com/dinov2/dinov2_vitl14/dinov2_vitl14_linear4_head.pth |
 | 下载或依赖地址 | https://huggingface.co/facebook/dinov2-large/resolve/47b73eefe95e8d44ec3623f8890bd894b6ea2d6c/config.json |
 | 下载或依赖地址 | https://huggingface.co/facebook/dinov2-large/resolve/47b73eefe95e8d44ec3623f8890bd894b6ea2d6c/model.safetensors |

@@ -11,7 +11,11 @@ import time
 from datetime import datetime, timedelta
 from pathlib import Path
 
-import performance
+import os
+import platform
+import sys
+import uuid
+from importlib.metadata import version
 
 DATA_SHA = "f18de3ad269cef59bb07b5438d79bb3042d3be49bdeecf01c1cd6d29695ee066"
 MODEL_SHA = "b53f6d52114e2ad786890f3c4637ce05f580b7800d6e24401f88b398b76035ef"
@@ -56,19 +60,30 @@ def prepare(args):
     if digest != args.expected_sha256:
         raise ValueError(f"dataset SHA mismatch: {digest}")
     columns = read_series(args.dataset)
-    if args.test_end > len(columns[CHANNELS[0]]) or args.test_end - args.test_start < args.horizon:
+    if (
+        args.test_end > len(columns[CHANNELS[0]])
+        or args.test_end - args.test_start < args.horizon
+    ):
         raise ValueError("test split does not fit the dataset or horizon")
     starts = range(args.test_start, args.test_end - args.horizon + 1, args.stride)
     manifest = {
-        "schema": "timesfm-etth1-v1", "dataset_path": str(Path(args.dataset).resolve()),
-        "dataset_sha256": digest, "dataset_rows": len(columns[CHANNELS[0]]),
-        "test_start": args.test_start, "test_end": args.test_end,
-        "context": args.context, "horizon": args.horizon, "stride": args.stride,
-        "channels": list(CHANNELS), "window_count": len(starts),
+        "schema": "timesfm-etth1-v1",
+        "dataset_path": str(Path(args.dataset).resolve()),
+        "dataset_sha256": digest,
+        "dataset_rows": len(columns[CHANNELS[0]]),
+        "test_start": args.test_start,
+        "test_end": args.test_end,
+        "context": args.context,
+        "horizon": args.horizon,
+        "stride": args.stride,
+        "channels": list(CHANNELS),
+        "window_count": len(starts),
         "series_count": len(starts) * len(CHANNELS),
         "preprocessing": "raw values; TimesFM model performs internal normalization",
     }
-    Path(args.output).write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    Path(args.output).write_text(
+        json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )
     print(f"manifest: {args.output}; {manifest['series_count']} series")
 
 
@@ -82,21 +97,41 @@ def load_manifest(path):
         raise ValueError("dataset has changed since manifest creation")
     if not 1 <= manifest["horizon"] <= 128 or manifest["stride"] <= 0:
         raise ValueError("invalid manifest horizon or stride")
-    if not 0 < manifest["context"] <= min(manifest["test_start"], 16384) or not manifest["test_start"] < manifest["test_end"] <= manifest["dataset_rows"]:
+    if (
+        not 0 < manifest["context"] <= min(manifest["test_start"], 16384)
+        or not manifest["test_start"] < manifest["test_end"] <= manifest["dataset_rows"]
+    ):
         raise ValueError("invalid manifest context or test split")
-    starts = range(manifest["test_start"], manifest["test_end"] - manifest["horizon"] + 1, manifest["stride"])
-    if not starts or manifest["window_count"] != len(starts) or manifest["series_count"] != len(starts) * len(CHANNELS):
+    starts = range(
+        manifest["test_start"],
+        manifest["test_end"] - manifest["horizon"] + 1,
+        manifest["stride"],
+    )
+    if (
+        not starts
+        or manifest["window_count"] != len(starts)
+        or manifest["series_count"] != len(starts) * len(CHANNELS)
+    ):
         raise ValueError("manifest sample counts do not match split")
     return manifest
 
 
 def batches(manifest, columns, batch_size):
     pending = []
-    for start in range(manifest["test_start"], manifest["test_end"] - manifest["horizon"] + 1, manifest["stride"]):
+    for start in range(
+        manifest["test_start"],
+        manifest["test_end"] - manifest["horizon"] + 1,
+        manifest["stride"],
+    ):
         for name in manifest["channels"]:
             values = columns[name]
-            pending.append((f"{start}:{name}", values[start - manifest["context"]:start],
-                            values[start:start + manifest["horizon"]]))
+            pending.append(
+                (
+                    f"{start}:{name}",
+                    values[start - manifest["context"] : start],
+                    values[start : start + manifest["horizon"]],
+                )
+            )
             if len(pending) == batch_size:
                 yield pending
                 pending = []
@@ -106,6 +141,7 @@ def batches(manifest, columns, batch_size):
 
 def require_transformers_version():
     from importlib.metadata import version
+
     if version("transformers") != "5.3.0":
         raise RuntimeError("TimesFM entry requires transformers==5.3.0")
 
@@ -118,13 +154,18 @@ def infer(args):
     if len(columns[CHANNELS[0]]) != manifest["dataset_rows"]:
         raise ValueError("manifest dataset row count differs from actual data")
     model_dir = Path(args.model_dir)
-    for filename, expected in (("model.safetensors", MODEL_SHA), ("config.json", CONFIG_SHA)):
+    for filename, expected in (
+        ("model.safetensors", MODEL_SHA),
+        ("config.json", CONFIG_SHA),
+    ):
         digest = sha256(model_dir / filename)
         if digest != expected:
             raise ValueError(f"{filename} SHA mismatch: {digest}")
     import torch
+
     if args.device == "npu":
         import importlib
+
         importlib.import_module("torch_npu")
         if not torch.npu.is_available():
             raise RuntimeError("NPU requested but torch.npu.is_available() is false")
@@ -134,13 +175,19 @@ def infer(args):
             raise RuntimeError("CUDA requested but unavailable")
         sync = torch.cuda.synchronize
     else:
+
         def sync():
             return None
+
     require_transformers_version()
     from transformers import TimesFm2_5ModelForPrediction
+
     model, loading = TimesFm2_5ModelForPrediction.from_pretrained(
-        str(model_dir), local_files_only=True, attn_implementation=args.attention, dtype=torch.float32,
-        output_loading_info=True
+        str(model_dir),
+        local_files_only=True,
+        attn_implementation=args.attention,
+        dtype=torch.float32,
+        output_loading_info=True,
     )
     for key in ("missing_keys", "unexpected_keys", "mismatched_keys", "error_msgs"):
         if loading.get(key):
@@ -148,20 +195,39 @@ def infer(args):
     model = model.to(args.device).eval()
     for parameter in model.parameters():
         if parameter.device.type != args.device or parameter.dtype != torch.float32:
-            raise ValueError("model parameters are not on the requested device in float32")
-    metadata = {"type": "metadata", "manifest_sha256": sha256(args.manifest), "dataset_sha256": manifest["dataset_sha256"],
-                "model_sha256": MODEL_SHA, "config_sha256": CONFIG_SHA, "device": args.device,
-                "dtype": "float32", "batch_size": args.batch_size, "warmup": args.warmup,
-                "context": manifest["context"], "horizon": manifest["horizon"],
-                "torch_version": torch.__version__, "transformers_version": "5.3.0",
-                "attention": args.attention, "adapter_sha256": sha256(__file__),
-                "timing_sha256": sha256(performance.__file__)}
+            raise ValueError(
+                "model parameters are not on the requested device in float32"
+            )
+    metadata = {
+        "type": "metadata",
+        "manifest_sha256": sha256(args.manifest),
+        "dataset_sha256": manifest["dataset_sha256"],
+        "model_sha256": MODEL_SHA,
+        "config_sha256": CONFIG_SHA,
+        "device": args.device,
+        "dtype": "float32",
+        "batch_size": args.batch_size,
+        "warmup": args.warmup,
+        "context": manifest["context"],
+        "horizon": manifest["horizon"],
+        "torch_version": torch.__version__,
+        "transformers_version": "5.3.0",
+        "attention": args.attention,
+        "adapter_sha256": sha256(__file__),
+        "timing_sha256": sha256(__file__),
+    }
     latencies = []
     written = 0
-    with Path(args.output).open("w", encoding="utf-8", newline="\n") as out, torch.inference_mode():
+    with (
+        Path(args.output).open("w", encoding="utf-8", newline="\n") as out,
+        torch.inference_mode(),
+    ):
         out.write(json.dumps(metadata) + "\n")
         for i, batch in enumerate(batches(manifest, columns, args.batch_size)):
-            inputs = [torch.tensor(x[1], dtype=torch.float32, device=args.device) for x in batch]
+            inputs = [
+                torch.tensor(x[1], dtype=torch.float32, device=args.device)
+                for x in batch
+            ]
             if i == 0:
                 for _ in range(args.warmup):
                     model(past_values=inputs, forecast_context_len=manifest["context"])
@@ -172,19 +238,32 @@ def infer(args):
             sync()
             latencies.append((time.perf_counter() - start) * 1000)
             predictions = result.mean_predictions.detach().to("cpu").tolist()
-            if len(predictions) != len(batch) or any(len(p) < manifest["horizon"] for p in predictions):
+            if len(predictions) != len(batch) or any(
+                len(p) < manifest["horizon"] for p in predictions
+            ):
                 raise ValueError("model output shape does not match requested horizon")
             for (sample_id, _, truth), pred in zip(batch, predictions):
-                pred = pred[:manifest["horizon"]]
+                pred = pred[: manifest["horizon"]]
                 if not all(math.isfinite(v) for v in pred):
                     raise ValueError(f"non-finite prediction: {sample_id}")
-                out.write(json.dumps({"id": sample_id, "truth": truth, "prediction": pred}) + "\n")
+                out.write(
+                    json.dumps({"id": sample_id, "truth": truth, "prediction": pred})
+                    + "\n"
+                )
                 written += 1
     if written != manifest["series_count"]:
         raise ValueError(f"incomplete output: {written} != {manifest['series_count']}")
-    performance.write_report(args.output, metadata, latencies, written)
-    print(json.dumps({"series": written, "batches": len(latencies), "batch_latency_median_ms": statistics.median(latencies),
-                      "scope": "model call with device synchronization; host preparation and output transfer excluded"}))
+    write_report(args.output, metadata, latencies, written)
+    print(
+        json.dumps(
+            {
+                "series": written,
+                "batches": len(latencies),
+                "batch_latency_median_ms": statistics.median(latencies),
+                "scope": "model call with device synchronization; host preparation and output transfer excluded",
+            }
+        )
+    )
 
 
 def read_results(path):
@@ -196,7 +275,10 @@ def read_results(path):
     if not rows or len({row["id"] for row in rows}) != len(rows):
         raise ValueError("empty or duplicate predictions")
     for row in rows:
-        if len(row["truth"]) != metadata["horizon"] or len(row["prediction"]) != metadata["horizon"]:
+        if (
+            len(row["truth"]) != metadata["horizon"]
+            or len(row["prediction"]) != metadata["horizon"]
+        ):
             raise ValueError("invalid prediction or truth length")
         if not all(math.isfinite(x) for x in row["truth"] + row["prediction"]):
             raise ValueError("non-finite output")
@@ -206,26 +288,46 @@ def read_results(path):
 def evaluate(args):
     manifest = load_manifest(args.manifest)
     meta, rows = read_results(args.results)
-    if meta["manifest_sha256"] != sha256(args.manifest) or len(rows) != manifest["series_count"]:
+    if (
+        meta["manifest_sha256"] != sha256(args.manifest)
+        or len(rows) != manifest["series_count"]
+    ):
         raise ValueError("result manifest or count mismatch")
-    for key, expected_value in (("dataset_sha256", manifest["dataset_sha256"]),
-                                ("model_sha256", MODEL_SHA), ("config_sha256", CONFIG_SHA),
-                                ("context", manifest["context"]), ("horizon", manifest["horizon"])):
+    for key, expected_value in (
+        ("dataset_sha256", manifest["dataset_sha256"]),
+        ("model_sha256", MODEL_SHA),
+        ("config_sha256", CONFIG_SHA),
+        ("context", manifest["context"]),
+        ("horizon", manifest["horizon"]),
+    ):
         if meta[key] != expected_value:
             raise ValueError(f"result metadata mismatch: {key}")
-    expected = (sample for batch in batches(manifest, read_series(manifest["dataset_path"]), 64) for sample in batch)
+    expected = (
+        sample
+        for batch in batches(manifest, read_series(manifest["dataset_path"]), 64)
+        for sample in batch
+    )
     square, absolute, count = 0.0, 0.0, 0
     for row, (sample_id, _, truth) in zip(rows, expected):
         if row["id"] != sample_id or row["truth"] != truth:
-            raise ValueError("result sample identity/order or ground truth differs from dataset")
+            raise ValueError(
+                "result sample identity/order or ground truth differs from dataset"
+            )
         for pred, truth in zip(row["prediction"], row["truth"]):
             delta = pred - truth
             square += delta * delta
             absolute += abs(delta)
             count += 1
-    report = {"dataset": "ETTh1", "device": meta["device"], "series": len(rows), "values": count,
-              "mse": square / count, "mae": absolute / count, "unit": "original input scale",
-              "manifest_sha256": meta["manifest_sha256"]}
+    report = {
+        "dataset": "ETTh1",
+        "device": meta["device"],
+        "series": len(rows),
+        "values": count,
+        "mse": square / count,
+        "mae": absolute / count,
+        "unit": "original input scale",
+        "manifest_sha256": meta["manifest_sha256"],
+    }
     Path(args.output).write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(report))
 
@@ -235,7 +337,15 @@ def compare(args):
         raise ValueError("max-absolute must be finite and nonnegative")
     left_meta, left = read_results(args.reference)
     right_meta, right = read_results(args.candidate)
-    for key in ("manifest_sha256", "dataset_sha256", "model_sha256", "config_sha256", "dtype", "context", "horizon"):
+    for key in (
+        "manifest_sha256",
+        "dataset_sha256",
+        "model_sha256",
+        "config_sha256",
+        "dtype",
+        "context",
+        "horizon",
+    ):
         if left_meta[key] != right_meta[key]:
             raise ValueError(f"incompatible result metadata: {key}")
     if len(left) != len(right):
@@ -244,13 +354,113 @@ def compare(args):
     for a, b in zip(left, right):
         if a["id"] != b["id"] or a["truth"] != b["truth"]:
             raise ValueError("sample identity/order or ground truth differs")
-        largest = max(largest, *(abs(x - y) for x, y in zip(a["prediction"], b["prediction"])))
-    report = {"max_absolute_error": largest, "threshold": args.max_absolute, "passed": largest <= args.max_absolute,
-              "reference_device": left_meta["device"], "candidate_device": right_meta["device"]}
+        largest = max(
+            largest, *(abs(x - y) for x, y in zip(a["prediction"], b["prediction"]))
+        )
+    report = {
+        "max_absolute_error": largest,
+        "threshold": args.max_absolute,
+        "passed": largest <= args.max_absolute,
+        "reference_device": left_meta["device"],
+        "candidate_device": right_meta["device"],
+    }
     Path(args.output).write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(report))
     if not report["passed"]:
         raise ValueError("comparison threshold exceeded")
+
+
+def write_report(output, metadata, durations_ms, samples):
+    if (
+        not durations_ms
+        or samples < 1
+        or any((not math.isfinite(t) or t <= 0 for t in durations_ms))
+    ):
+        raise ValueError("performance needs positive finite timings and samples")
+    identity = dict(metadata)
+    identity.update(
+        python_version=platform.python_version(),
+        visible_devices=os.environ.get("ASCEND_RT_VISIBLE_DEVICES"),
+    )
+    if metadata["device"] == "npu":
+        import torch
+
+        identity.update(
+            torch_npu_version=version("torch-npu"),
+            device_name=torch.npu.get_device_name(),
+            logical_device=torch.npu.current_device(),
+        )
+    elapsed = sum(durations_ms) / 1000
+    report = {
+        "schema": "synchronized-model-timing-v1",
+        "run_id": str(uuid.uuid4()),
+        "identity": identity,
+        "samples": samples,
+        "batch_durations_ms": durations_ms,
+        "model_seconds": elapsed,
+        "samples_per_second": samples / elapsed,
+        "scope": "synchronized model calls; excludes loading, warmup, input/output and file IO",
+        "result_sha256": sha256(output),
+        "command": sys.argv,
+    }
+    Path(str(output) + ".performance.json").write_text(
+        json.dumps(report, indent=2, allow_nan=False) + "\n", encoding="utf-8"
+    )
+    return report
+
+
+def summarize_performance(paths):
+    if len(paths) < 3:
+        raise ValueError("at least three independent NPU runs required")
+    reports = [json.loads(Path(p).read_text(encoding="utf-8")) for p in paths]
+    seen = set()
+    for report in reports:
+        if (
+            report["schema"] != "synchronized-model-timing-v1"
+            or report["identity"]["device"] != "npu"
+        ):
+            raise ValueError("only NPU synchronized timing reports are accepted")
+        if report["run_id"] in seen:
+            raise ValueError("duplicate run ID; do not reuse one run")
+        seen.add(report["run_id"])
+        if (
+            report["identity"] != reports[0]["identity"]
+            or report["samples"] != reports[0]["samples"]
+        ):
+            raise ValueError("run model, data, device or benchmark settings differ")
+        timings = report["batch_durations_ms"]
+        if (
+            not timings
+            or report["samples"] < 1
+            or any((not math.isfinite(t) or t <= 0 for t in timings))
+        ):
+            raise ValueError("invalid timings or sample count")
+        elapsed = sum(timings) / 1000
+        if not math.isclose(report["model_seconds"], elapsed) or not math.isclose(
+            report["samples_per_second"], report["samples"] / elapsed
+        ):
+            raise ValueError("inconsistent performance statistics")
+    return {
+        "identity": reports[0]["identity"],
+        "runs": len(reports),
+        "scope": reports[0]["scope"],
+        "samples_per_run": reports[0]["samples"],
+        "median_model_seconds": statistics.median(
+            (r["model_seconds"] for r in reports)
+        ),
+        "median_samples_per_second": statistics.median(
+            (r["samples_per_second"] for r in reports)
+        ),
+        "reports": [{"path": str(p), "sha256": sha256(p)} for p in paths],
+    }
+
+
+def performance_report(args):
+    report = summarize_performance(args.runs)
+    Path(args.output).write_text(
+        json.dumps(report, indent=2, allow_nan=False) + "\n", encoding="utf-8"
+    )
+    print(json.dumps(report, allow_nan=False))
 
 
 def main():
@@ -286,6 +496,12 @@ def main():
     p.add_argument("--max-absolute", type=float, required=True)
     p.add_argument("--output", required=True)
     p.set_defaults(run=compare)
+    p = sub.add_parser(
+        "performance", help="summarize three independent NPU timing reports"
+    )
+    p.add_argument("--runs", nargs="+", required=True)
+    p.add_argument("--output", required=True)
+    p.set_defaults(run=performance_report)
     args = parser.parse_args()
     args.run(args)
 

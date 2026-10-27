@@ -5,7 +5,7 @@ import json
 import math
 from pathlib import Path
 
-import common
+import model
 
 
 def main():
@@ -19,7 +19,7 @@ def main():
     import numpy as np
     shard_dir, work = Path(args.shard_dir), Path(args.work_dir)
     index = json.loads((shard_dir / "index.json").read_text(encoding="utf-8"))
-    common.checked_file(args.manifest, index["manifest_sha256"])
+    model.checked_file(args.manifest, index["manifest_sha256"])
     if index["count"] != args.expected_count or args.expected_count < 1:
         raise ValueError("manifest count does not match expected count")
     original = Path(args.manifest).resolve(strict=True)
@@ -41,7 +41,7 @@ def main():
             raise ValueError("invalid or duplicate shard name")
         seen.add(name)
         manifest = shard_dir / name
-        common.checked_file(manifest, shard["sha256"])
+        model.checked_file(manifest, shard["sha256"])
         with manifest.open(encoding="utf-8-sig", newline="") as f:
             reader = csv.DictReader(f)
             if reader.fieldnames != ["path", "label"]:
@@ -51,7 +51,7 @@ def main():
         inputs = work / "inputs" / (stem + ".npz")
         result = work / "results" / (stem + ".npz")
         score = json.loads((work / "scores" / (stem + ".json")).read_text(encoding="utf-8"))
-        predictions, result_meta = common.read_prediction(result)
+        predictions, result_meta = model.read_prediction(result)
         identity = {k: result_meta[k] for k in ("model", "model_sha256", "config_sha256", "head_sha256", "dtype", "task", "device")}
         if baseline is None:
             baseline = identity
@@ -62,9 +62,9 @@ def main():
             targets = data["targets"]
             count = len(targets)
         if (prep["manifest_sha256"] != shard["sha256"] or count != shard["count"]
-                or score["samples"] != count or score["input_sha256"] != common.digest(inputs)
-                or result_meta["input_sha256"] != common.digest(inputs)
-                or score["results_sha256"] != common.digest(result)):
+                or score["samples"] != count or score["input_sha256"] != model.digest(inputs)
+                or result_meta["input_sha256"] != model.digest(inputs)
+                or score["results_sha256"] != model.digest(result)):
             raise ValueError(f"shard provenance mismatch: {name}")
         if (predictions.shape != (count, 1000) or targets.shape != (count,)
                 or targets.dtype.kind not in "iu" or np.any(targets < 0) or np.any(targets >= 1000)):

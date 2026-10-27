@@ -1,15 +1,30 @@
 """Datadog Toto 2.0 22m median forecast using the official implementation."""
-import sys
 
-import common
+import sys
+import argparse
+import hashlib
+import importlib
+import json
+import math
+import statistics
+import time
+from pathlib import Path
+import os
+import platform
+import uuid
+from importlib.metadata import version
 
 MODEL = "Datadog/Toto-2.0-22m@685e4ae3e2be8d8998025e53dd98e7fdcb296a89"
-ASSETS = {"model.safetensors": "9cd503d82df3aa71747862688f47a31c1d0a4b80f898df6e046189016eaa21dd",
-          "config.json": "abeaf0fcd54aaac66757fde69ec3ddb4d3bfdcf96e0c8f767aefd03ab4c9e8d9"}
+ASSETS = {
+    "model.safetensors": "9cd503d82df3aa71747862688f47a31c1d0a4b80f898df6e046189016eaa21dd",
+    "config.json": "abeaf0fcd54aaac66757fde69ec3ddb4d3bfdcf96e0c8f767aefd03ab4c9e8d9",
+}
 
 
 def verify_config(raw, actual):
-    bad = [key for key, value in raw.items() if key not in actual or actual[key] != value]
+    bad = [
+        key for key, value in raw.items() if key not in actual or actual[key] != value
+    ]
     if bad:
         raise ValueError(f"Toto config values did not load unchanged: {bad}")
 
@@ -17,48 +32,495 @@ def verify_config(raw, actual):
 def validate_input(args, x, targets):
     import json
     import numpy as np
+
     if x.ndim != 3 or x.shape[-1] == 0 or x.shape[-1] % 32:
-        raise ValueError("Toto inputs require [batch,variates,time], time divisible by 32")
-    if targets is None or targets.ndim != 3 or targets.shape[:2] != x.shape[:2] or targets.shape[-1] == 0:
+        raise ValueError(
+            "Toto inputs require [batch,variates,time], time divisible by 32"
+        )
+    if (
+        targets is None
+        or targets.ndim != 3
+        or targets.shape[:2] != x.shape[:2]
+        or (targets.shape[-1] == 0)
+    ):
         raise ValueError("Toto targets require [batch,variates,horizon]")
     if args.head or args.task != "forecast":
         raise ValueError("Toto does not use a separate head or task switch")
     with np.load(args.input, allow_pickle=False) as data:
         info = json.loads(str(data["preparation"].item()))
-    if info.get("model") != "Toto-2.0" or info.get("task") != "forecast" or info.get("scaling") != "none":
+    if (
+        info.get("model") != "Toto-2.0"
+        or info.get("task") != "forecast"
+        or info.get("scaling") != "none"
+    ):
         raise ValueError("Toto requires raw ETTh1 forecasting data")
 
 
 def load_model(args, model_dir, device):
     import dataclasses
     import json
+
     if sys.version_info < (3, 12):
         raise RuntimeError("Toto 2.0 requires Python >=3.12")
-    common.require_package("toto-2", "2.0.0")
-    common.require_package("dd-unit-scaling", "0.1.0")
-    common.require_torch_range("2.14")
+    require_package("toto-2", "2.0.0")
+    require_package("dd-unit-scaling", "0.1.0")
+    require_torch_range("2.14")
     from toto2 import Toto2Model
     from toto2.configuration import Toto2ModelConfig
-    common.require_source(Toto2Model, "62614814939484b05aac1423d6ebf09977543fda75a53e3dadb5a54f8ec6fdbf")
-    common.require_source(Toto2ModelConfig, "1e699fcbbc38a7f64071ee98a298f8e8a810369556775bf229613d62820b33e8")
+
+    require_source(
+        Toto2Model, "62614814939484b05aac1423d6ebf09977543fda75a53e3dadb5a54f8ec6fdbf"
+    )
+    require_source(
+        Toto2ModelConfig,
+        "1e699fcbbc38a7f64071ee98a298f8e8a810369556775bf229613d62820b33e8",
+    )
     raw = json.loads((model_dir / "config.json").read_text(encoding="utf-8"))
     known = {field.name for field in dataclasses.fields(Toto2ModelConfig)}
     if set(raw) - known:
         raise ValueError(f"unsupported Toto config keys: {sorted(set(raw) - known)}")
-    model = Toto2Model.from_pretrained(str(model_dir), local_files_only=True, strict=True)
+    model = Toto2Model.from_pretrained(
+        str(model_dir), local_files_only=True, strict=True
+    )
     verify_config(raw, dataclasses.asdict(model.config))
     return model.to(device).eval()
 
 
 def predict(args, model, batch, target):
     import torch
-    inputs = {"target": batch, "target_mask": torch.ones_like(batch, dtype=torch.bool),
-              "series_ids": torch.zeros(batch.shape[:2], dtype=torch.long, device=batch.device)}
-    output = model.forecast(inputs, horizon=target.shape[-1], decode_block_size=None, has_missing_values=False)
+
+    inputs = {
+        "target": batch,
+        "target_mask": torch.ones_like(batch, dtype=torch.bool),
+        "series_ids": torch.zeros(
+            batch.shape[:2], dtype=torch.long, device=batch.device
+        ),
+    }
+    output = model.forecast(
+        inputs,
+        horizon=target.shape[-1],
+        decode_block_size=None,
+        has_missing_values=False,
+    )
     if tuple(output.shape) != (9, len(batch), batch.shape[1], target.shape[-1]):
         raise ValueError("unexpected Toto quantile output shape")
-    return output[4], output
+    return (output[4], output)
+
+
+def digest(path):
+    h = hashlib.sha256()
+    with Path(path).open("rb") as f:
+        for block in iter(lambda: f.read(1024 * 1024), b""):
+            h.update(block)
+    return h.hexdigest()
+
+
+def checked_file(path, expected):
+    actual = digest(path)
+    if actual != expected:
+        raise ValueError(f"SHA256 mismatch for {path}: {actual}")
+
+
+def require_package(name, version):
+    from importlib.metadata import version as package_version
+
+    actual = package_version(name)
+    if actual != version:
+        raise RuntimeError(f"{name} must be {version}, got {actual}")
+
+
+def require_source(cls, expected_sha256):
+    import inspect
+
+    source = inspect.getsourcefile(cls)
+    if source is None:
+        raise RuntimeError("model source file unavailable")
+    checked_file(source, expected_sha256)
+
+
+def require_torch_range(minimum, maximum=None):
+    import torch
+    from packaging.version import Version
+
+    actual = Version(torch.__version__)
+    if actual < Version(minimum) or (
+        maximum is not None and actual >= Version(maximum)
+    ):
+        raise RuntimeError(f"unsupported torch version: {actual}")
+
+
+def input_arrays(path):
+    import numpy as np
+
+    with np.load(path, allow_pickle=False) as data:
+        x = data["inputs"]
+        y = data["targets"] if "targets" in data else None
+    if (
+        x.ndim == 0
+        or x.dtype != np.float32
+        or (not np.isfinite(x).all())
+        or (x.shape[0] == 0)
+    ):
+        raise ValueError("inputs must be nonempty, finite float32")
+    if y is not None and (
+        y.ndim == 0 or not np.isfinite(y).all() or y.shape[0] != x.shape[0]
+    ):
+        raise ValueError("invalid target values or sample count")
+    return (x, y)
+
+
+def device_and_sync(name):
+    import torch
+
+    if name == "npu":
+        importlib.import_module("torch_npu")
+        if not torch.npu.is_available():
+            raise RuntimeError("NPU requested but unavailable")
+        return (torch.device("npu"), torch.npu.synchronize)
+    if name == "cuda":
+        if not torch.cuda.is_available():
+            raise RuntimeError("CUDA requested but unavailable")
+        return (torch.device("cuda"), torch.cuda.synchronize)
+    return (torch.device("cpu"), lambda: None)
+
+
+def check_model_device(model, device):
+    for parameter in model.parameters():
+        if (
+            parameter.device.type != device.type
+            or parameter.dtype != __import__("torch").float32
+        ):
+            raise ValueError("model parameters must be on selected device and float32")
+
+
+def parse_args():
+    p = argparse.ArgumentParser(
+        description="Strict offline inference, evaluation and comparison"
+    )
+    sub = p.add_subparsers(dest="command", required=True)
+    inf = sub.add_parser("infer")
+    inf.add_argument("--model-dir", required=True)
+    inf.add_argument("--input", required=True)
+    inf.add_argument("--output", required=True)
+    inf.add_argument("--device", choices=("npu", "cpu", "cuda"), default="npu")
+    inf.add_argument("--batch-size", type=int, default=8)
+    inf.add_argument("--warmup", type=int, default=3)
+    inf.set_defaults(head=None, head_sha256=None)
+    inf.add_argument("--task", choices=("forecast",), default="forecast")
+    score = sub.add_parser("evaluate")
+    score.add_argument("--input", required=True)
+    score.add_argument("--results", required=True)
+    score.add_argument("--output", required=True)
+    score.add_argument("--metric", choices=("regression",), required=True)
+    comp = sub.add_parser("compare")
+    comp.add_argument("--reference", required=True)
+    comp.add_argument("--candidate", required=True)
+    comp.add_argument("--max-absolute", type=float, required=True)
+    comp.add_argument("--output", required=True)
+    perf = sub.add_parser(
+        "performance", help="summarize three independent NPU timing reports"
+    )
+    perf.add_argument("--runs", nargs="+", required=True)
+    perf.add_argument("--output", required=True)
+    return p.parse_args()
+
+
+def read_prediction(path):
+    import numpy as np
+
+    with np.load(path, allow_pickle=False) as data:
+        prediction = data["prediction"]
+        meta = json.loads(str(data["metadata"].item()))
+    if prediction.size == 0 or not np.isfinite(prediction).all():
+        raise ValueError("invalid predictions")
+    return (prediction, meta)
+
+
+def infer(args):
+    import numpy as np
+    import torch
+
+    if args.batch_size <= 0 or args.warmup < 0:
+        raise ValueError("invalid batch-size or warmup")
+    if Path(args.output).suffix != ".npz":
+        raise ValueError("output must end in .npz")
+    if Path(args.output).resolve() == Path(args.input).resolve():
+        raise ValueError("output must not overwrite input")
+    x, targets = input_arrays(args.input)
+    validate_input(args, x, targets)
+    model_dir = Path(args.model_dir)
+    for filename, expected in ASSETS.items():
+        checked_file(model_dir / filename, expected)
+    if args.head:
+        if not args.head_sha256 or len(args.head_sha256) != 64:
+            raise ValueError("a head requires its explicit SHA256")
+        checked_file(args.head, args.head_sha256)
+    elif args.head_sha256:
+        raise ValueError("head SHA provided without head file")
+    device, synchronize = device_and_sync(args.device)
+    model = load_model(args, model_dir, device)
+    check_model_device(model, device)
+    output, quantiles, durations = ([], [], [])
+    with torch.inference_mode():
+        for start in range(0, len(x), args.batch_size):
+            batch = torch.from_numpy(x[start : start + args.batch_size]).to(device)
+            target_batch = (
+                None if targets is None else targets[start : start + args.batch_size]
+            )
+            if start == 0:
+                for _ in range(args.warmup):
+                    predict(args, model, batch, target_batch)
+                synchronize()
+            synchronize()
+            t0 = time.perf_counter()
+            result, distribution = predict(args, model, batch, target_batch)
+            synchronize()
+            durations.append((time.perf_counter() - t0) * 1000)
+            output.append(result.detach().to("cpu").float().numpy())
+            quantiles.append(distribution.detach().to("cpu").float().numpy())
+    prediction = np.concatenate(output, axis=0)
+    if prediction.shape[0] != len(x) or not np.isfinite(prediction).all():
+        raise ValueError("invalid model output")
+    meta = {
+        "model": MODEL,
+        "model_sha256": ASSETS["model.safetensors"],
+        "config_sha256": ASSETS["config.json"],
+        "input_sha256": digest(args.input),
+        "head_sha256": args.head_sha256,
+        "device": args.device,
+        "dtype": "float32",
+        "task": args.task,
+        "batch_size": args.batch_size,
+        "warmup": args.warmup,
+        "torch_version": torch.__version__,
+        "adapter_sha256": digest(__file__),
+    }
+    distribution = np.concatenate(quantiles, axis=1)
+    if (
+        distribution.shape != (9, *prediction.shape)
+        or not np.isfinite(distribution).all()
+    ):
+        raise ValueError("invalid Toto quantile outputs")
+    np.savez_compressed(
+        args.output,
+        prediction=prediction,
+        quantiles=distribution,
+        metadata=json.dumps(meta, sort_keys=True),
+    )
+    write_report(args.output, meta, durations, len(x))
+    print(
+        json.dumps(
+            {
+                "samples": len(x),
+                "batch_latency_median_ms": statistics.median(durations),
+                "scope": "synchronized model calls only; single run, not independent-run median",
+            }
+        )
+    )
+
+
+def evaluate(args):
+    import numpy as np
+
+    _, targets = input_arrays(args.input)
+    pred, meta = read_prediction(args.results)
+    if meta["input_sha256"] != digest(args.input) or targets is None:
+        raise ValueError("missing targets or input digest mismatch")
+    if pred.ndim == 0 or len(pred) != len(targets):
+        raise ValueError("prediction and target sample counts differ")
+    if pred.shape != targets.shape:
+        raise ValueError(f"regression shape mismatch: {pred.shape} != {targets.shape}")
+    delta = pred.astype(np.float64) - targets
+    report = {
+        "mse": float(np.mean(delta * delta)),
+        "mae": float(np.mean(np.abs(delta))),
+        "samples": len(pred),
+    }
+    with np.load(args.results, allow_pickle=False) as data:
+        quantiles = data["quantiles"]
+    if quantiles.shape != (9, *targets.shape) or not np.isfinite(quantiles).all():
+        raise ValueError("invalid quantile array")
+    if not np.array_equal(pred, quantiles[4]):
+        raise ValueError("median prediction differs from the 0.5 quantile")
+    targets = targets.astype(np.float64)
+    quantiles = quantiles.astype(np.float64)
+    denominator = float(np.abs(targets).sum())
+    if denominator == 0:
+        raise ValueError("weighted quantile loss undefined for all-zero targets")
+    wql = []
+    for i, q in enumerate(np.arange(1, 10) / 10):
+        error = targets - quantiles[i]
+        wql.append(
+            float(2 * np.maximum(q * error, (q - 1) * error).sum() / denominator)
+        )
+    report["mean_wql"] = float(np.mean(wql))
+    report["quantile_crossing_fraction"] = float(
+        np.mean(np.diff(quantiles, axis=0) < 0)
+    )
+    report.update(
+        model=meta["model"],
+        model_sha256=meta["model_sha256"],
+        device=meta["device"],
+        input_sha256=digest(args.input),
+        results_sha256=digest(args.results),
+    )
+    Path(args.output).write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+    print(json.dumps(report))
+
+
+def compare(args):
+    import numpy as np
+
+    if not math.isfinite(args.max_absolute) or args.max_absolute < 0:
+        raise ValueError("max-absolute must be finite and nonnegative")
+    ref, a = read_prediction(args.reference)
+    out, b = read_prediction(args.candidate)
+    for key in (
+        "model",
+        "model_sha256",
+        "config_sha256",
+        "head_sha256",
+        "input_sha256",
+        "dtype",
+        "task",
+    ):
+        if a[key] != b[key]:
+            raise ValueError(f"incompatible metadata: {key}")
+    if ref.shape != out.shape:
+        raise ValueError("prediction shapes differ")
+    with (
+        np.load(args.reference, allow_pickle=False) as a_data,
+        np.load(args.candidate, allow_pickle=False) as b_data,
+    ):
+        q_ref, q_out = (a_data["quantiles"], b_data["quantiles"])
+    if (
+        q_ref.shape != (9, *ref.shape)
+        or q_ref.shape != q_out.shape
+        or (not np.isfinite(q_ref).all())
+        or (not np.isfinite(q_out).all())
+    ):
+        raise ValueError("quantile shapes or values differ")
+    if not np.array_equal(ref, q_ref[4]) or not np.array_equal(out, q_out[4]):
+        raise ValueError("median prediction differs from the 0.5 quantile")
+    error = float(
+        max(
+            np.max(np.abs(ref.astype(np.float64) - out.astype(np.float64))),
+            np.max(np.abs(q_ref.astype(np.float64) - q_out.astype(np.float64))),
+        )
+    )
+    report = {
+        "max_absolute": error,
+        "threshold": args.max_absolute,
+        "passed": error <= args.max_absolute,
+        "reference_device": a["device"],
+        "candidate_device": b["device"],
+    }
+    Path(args.output).write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+    print(json.dumps(report))
+    if not report["passed"]:
+        raise ValueError("comparison threshold exceeded")
+
+
+def write_report(output, metadata, durations_ms, samples):
+    if (
+        not durations_ms
+        or samples < 1
+        or any((not math.isfinite(t) or t <= 0 for t in durations_ms))
+    ):
+        raise ValueError("performance needs positive finite timings and samples")
+    identity = dict(metadata)
+    identity.update(
+        python_version=platform.python_version(),
+        visible_devices=os.environ.get("ASCEND_RT_VISIBLE_DEVICES"),
+    )
+    if metadata["device"] == "npu":
+        import torch
+
+        identity.update(
+            torch_npu_version=version("torch-npu"),
+            device_name=torch.npu.get_device_name(),
+            logical_device=torch.npu.current_device(),
+        )
+    elapsed = sum(durations_ms) / 1000
+    report = {
+        "schema": "synchronized-model-timing-v1",
+        "run_id": str(uuid.uuid4()),
+        "identity": identity,
+        "samples": samples,
+        "batch_durations_ms": durations_ms,
+        "model_seconds": elapsed,
+        "samples_per_second": samples / elapsed,
+        "scope": "synchronized model calls; excludes loading, warmup, input/output and file IO",
+        "result_sha256": digest(output),
+        "command": sys.argv,
+    }
+    Path(str(output) + ".performance.json").write_text(
+        json.dumps(report, indent=2, allow_nan=False) + "\n", encoding="utf-8"
+    )
+    return report
+
+
+def summarize_performance(paths):
+    if len(paths) < 3:
+        raise ValueError("at least three independent NPU runs required")
+    reports = [json.loads(Path(p).read_text(encoding="utf-8")) for p in paths]
+    seen = set()
+    for report in reports:
+        if (
+            report["schema"] != "synchronized-model-timing-v1"
+            or report["identity"]["device"] != "npu"
+        ):
+            raise ValueError("only NPU synchronized timing reports are accepted")
+        if report["run_id"] in seen:
+            raise ValueError("duplicate run ID; do not reuse one run")
+        seen.add(report["run_id"])
+        if (
+            report["identity"] != reports[0]["identity"]
+            or report["samples"] != reports[0]["samples"]
+        ):
+            raise ValueError("run model, data, device or benchmark settings differ")
+        timings = report["batch_durations_ms"]
+        if (
+            not timings
+            or report["samples"] < 1
+            or any((not math.isfinite(t) or t <= 0 for t in timings))
+        ):
+            raise ValueError("invalid timings or sample count")
+        elapsed = sum(timings) / 1000
+        if not math.isclose(report["model_seconds"], elapsed) or not math.isclose(
+            report["samples_per_second"], report["samples"] / elapsed
+        ):
+            raise ValueError("inconsistent performance statistics")
+    return {
+        "identity": reports[0]["identity"],
+        "runs": len(reports),
+        "scope": reports[0]["scope"],
+        "samples_per_run": reports[0]["samples"],
+        "median_model_seconds": statistics.median(
+            (r["model_seconds"] for r in reports)
+        ),
+        "median_samples_per_second": statistics.median(
+            (r["samples_per_second"] for r in reports)
+        ),
+        "reports": [{"path": str(p), "sha256": digest(p)} for p in paths],
+    }
+
+
+def main():
+    args = parse_args()
+    if args.command == "infer":
+        infer(args)
+    elif args.command == "evaluate":
+        evaluate(args)
+    elif args.command == "compare":
+        compare(args)
+    else:
+        report = summarize_performance(args.runs)
+        Path(args.output).write_text(
+            json.dumps(report, indent=2, allow_nan=False) + "\n", encoding="utf-8"
+        )
+        print(json.dumps(report, allow_nan=False))
 
 
 if __name__ == "__main__":
-    common.main(sys.modules[__name__])
+    main()

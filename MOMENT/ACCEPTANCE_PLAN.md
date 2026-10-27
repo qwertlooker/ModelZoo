@@ -2,7 +2,7 @@
 
 ## 原始测试集与官方/公开指标
 
-官方教程 large、ETTh1 horizon 192、训练 head 一轮后 MSE 0.422/MAE 0.432；当前 FP32 训练路径尚未证明与教程 AMP 配方及数据处理完全一致。 来源：https://github.com/moment-timeseries-foundation-model/moment/blob/38f7310ad594100747ca2a8357e9c7ca7d323e0e/tutorials/forecasting.ipynb
+官方教程 large、ETTh1 horizon 192、训练 head 一轮后 MSE 0.422/MAE 0.432；当前 FP32 训练路径尚未证明与教程 AMP 配方及数据处理完全一致。 来源：https://raw.githubusercontent.com/moment-timeseries-foundation-model/moment/38f7310ad594100747ca2a8357e9c7ca7d323e0e/tutorials/forecasting.ipynb
 
 输入 `[batch,channels,512]`，预测输出 `[batch,channels,192]`；外部标准化只用训练分区。重建模式输出输入长度 512，默认全观测，不是缺失值补全验收。 官方预训练仅重建头；预测头必须先训练并保存 `head.safetensors` 及同名 `.json` 元数据，入口检查 SHA、训练步数、预测长度和 backbone。该元数据只验证记录一致性，仍需检查训练日志与数据真实性。
 
@@ -18,8 +18,11 @@
 
 记录目标卡型、驱动、CANN、Python、torch/torch_npu、上游和权重 SHA、数据/标签 SHA、命令、样本数、精度、数值误差、三次性能及不可比项。正式候选需通过目标仓贡献门禁及干净目录完整重放；当前 NPU 验证、完整数据精度、性能及 clean-room 均未执行。
 
-## 本轮工具回归与剩余正式门禁
+## 入口与最低正式验收清单
 
-2026-10-27：本目录 11 项离线回归通过（包括异常输入、结果一致性和性能报告负向测试），不构成真实模型或 NPU 验收。推理成功后保存 `<输出文件>.performance.json`；按 README 独立执行至少三次并用 `performance.py --runs ... --output ...` 汇总，检查相同模型/数据/设备/参数及独立运行 ID。至少保留一次完整数据的精度评测，性能子集与完整质量评测必须明确区分。
+- 数据准备：`prepare_series.py`。
+- 推理、评测和比较：同一模型入口的 `infer`、`evaluate`、`compare` 子命令；参数与 README 一致，失败必须非零退出。
+- 性能：同一入口的 `performance --runs` 子命令，汇总至少三次独立 NPU 运行 sidecar；保留同步计时、输入/模型 SHA、设备和参数，CPU 报告不得用于 NPU 性能结论。
+- 最低补验：确认硬件与配套环境、干净安装/import、权重/数据校验、真实 CPU/NPU 输出、完整范围精度对齐、有依据阈值比较、三次性能、端到端/首次编译/HBM、目标仓正式自测与候选完整重放。
 
-最低正式补验：选定对外卡型及配套镜像/CANN/驱动 → 固定权重和数据校验 → 干净安装并导入模型 → 真实 CPU/NPU 功能和声明范围质量对齐 → 有依据阈值的 compare → 三次 NPU 性能报告 → 端到端/首次编译/HBM → 目标仓正式自测和独立候选完整重放。演示阈值不能升级为验收门槛，缺任一实测项均保留待验收。
+开发回归集中在迁移仓 `tools/tests`，不进入正式候选。工具测试及 CLI/fixture 重放只能证明相应软件行为，不证明真实模型、NPU 精度或性能。入口和计时模块位置变化后，先前代码 SHA 对应的推理/性能证据不能直接沿用；当前仍无 S2/S3 实测证据。模型版本、权重、数据协议和主要计算逻辑保持原有边界。

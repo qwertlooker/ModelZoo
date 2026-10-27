@@ -2,34 +2,40 @@
 
 ## 版本边界
 
-- 日期 2026-10-27；目标仓 master `933c1f91b60896f76719d9373e3aa7a9972b2eac`，本次最新变更为 GSNet。拟合入路径 `ACL_PyTorch/built-in/cv/DINOv2`，固定提交 contents API 返回 404，当前按新增准备；提交上库前重查目标路径与 README。
+- 日期 2026-10-27；目标仓 master `933c1f91b60896f76719d9373e3aa7a9972b2eac`，本次最新变更为 GSNet。拟合入路径 `ACL_PyTorch/built-in/cv/DINOv2`，本轮固定目标 commit 的 git ls-tree 未发现该路径，按新增准备。
 - 参考目录：ACL_PyTorch/built-in/cv/GSNet，最后实质变更 933c1f91b60896f76719d9373e3aa7a9972b2eac（2026-10-27），近期 CV 在线 torch_npu、DINO 骨干参考；任务为语义分割，与本模型分类头不同；选择该目录是因为同领域或同在线 PyTorch 路线，提交前仍需按最新实质变更重新采样。
 - 上游：https://github.com/facebookresearch/dinov2/tree/7764ea0f912e53c92e82eb78a2a1631e92725fc8；权重 revision `47b73eefe95e8d44ec3623f8890bd894b6ea2d6c`，模型和 config SHA 见 README。许可证 Apache-2.0。
 
-## 上库文件清单与贡献门禁
+## 本轮目标仓与参考复核
 
-拟交付 `README.md`、`model.py`、`common.py`、`make_manifest.py`、`split_manifest.py`、`prepare_images.py`、`aggregate_metrics.py`；`test_model.py` 是否随候选纳入以目标仓自测试规则为准。排除 `NPU_ADAPTATION.md`、`ACCEPTANCE_PLAN.md`、权重、数据、缓存、日志、输出。贡献门禁、许可证文件及 `modelzoo_level.txt` 的当前适用要求仍待核实。源码未修改，上游使用固定版本；本目录为新增入口，不声称已上库。
+- 检查日期：2026-10-27；目标仓 commit：`933c1f91b60896f76719d9373e3aa7a9972b2eac`，本轮重新 git ls-remote；五个目标路径均未发现同名目录，本次为新增候选准备。
+- 近期参考目录：`ACL_PyTorch/built-in/cv/GSNet`，最后实质变更 `933c1f91b60896f76719d9373e3aa7a9972b2eac`（2026-10-27）；同为 CV 在线 PyTorch，参考最小 patch 与推理/评测组织，不采用分割指标。
+- 贡献门禁：规范来源为`Ascend/modelzoo@5eab9a4921c7f12edb555079836429a8f285cd1f`；参考许可证（License）已保留。正式在线推理自测、版权头归属、CLA、modelzoo_level.txt 与 PR CI 尚未满足或确认豁免，不生成虚假 OK 状态。
 
-## 方案与验证
+## 适配范围与收敛
 
-输入图像/标签清单 CSV（列名 `path,label`；相对路径相对于清单目录，label 必须是 ImageNet 类别索引）；预处理为 `[N,3,224,224]`，输出 logits `[N,1000]`。仅当清单覆盖完整 ImageNet 验证集且标签映射正确时，top1/top5 才是全量结果。 分类头单独从 Meta 官方地址获取，尚未取得官方固定 SHA；运行前记录实际 SHA 只保证后续文件一致，不证明来源。HF backbone 的中间层归一化与 Meta 原始路径仍需逐层/数据集比较；图像批处理一次装入内存，大规模验证需分批及加权汇总。
+继续复用固定 Transformers 4.57.6 backbone 和官方 linear4 head；HF/Meta 中间层与预处理等价性、官方 head 的可信固定 SHA 仍待补证。manifest/split/images 仅合并入口，保留分片有界内存与完整性校验；aggregate_metrics.py 保留独立汇总入口。
 
-2026-10-27 执行 7 项离线回归、结构门禁，以及独立目录 Python 隔离模式的 `--help`。无 ImageNet 图片，未运行真实图像预处理或分类。未执行真实权重加载、模型功能输出、NPU 精度/性能或完整 clean-room；CPU mock 不能作为真实运行证据。Windows/WSL 未安装 ruff，未运行该 lint；目标硬件和配套环境未确定。
+本轮仅整理已新增的适配入口，未修改 pip/site-packages 或上游源码，因此没有源码 patch，不生成空补丁。复用上游模型类；本地评测协议与公开指标的可比性仍按验收计划逐项确认。
 
-## 2026-10-27 本轮检视修正（以本节为当前结论）
+- 推理、评测、比较、同步计时与三次性能汇总集中到 `model.py`，仅暴露本模型支持的任务/metric。
+- 开发回归移到迁移仓 tools/tests 的两份模型测试，去掉其他模型的不可达模板分支；正式候选不依赖这些测试。
+- 既有结果校验、失败非零、设备不静默回退保持不变；本轮不变更权重、训练配方、CANN 或原始模型计算。
 
-修正 CPU 文档命令缺少 --task classification；评测拒绝截短预测。分片汇总重算 logits 的 top1/top5，检查标签与清单、结果 input SHA、score 与模型/设备身份，拒绝修改分数或替换分片来源。
+## 上库文件清单与排除项
 
-- 目标仓 commit：本轮重新 `git ls-remote` 确认目标 master 为 `933c1f91b60896f76719d9373e3aa7a9972b2eac`，固定该 commit 的 `git ls-tree` 未发现五个拟合入目录，本次仍按新增准备，无需替换目标现有文件。
-- 最新参考目录：本轮按目标路径历史重新筛选样本：同任务 chronos-2 实质提交 `058e04c7d4aa09bc535e30380bf9133b0ea25c60`（2026-06-09），与当前目标的目录 tree 均为 `0abeb7008df7adc3e3e064b94ffe6724e4246c83`，内容未变；优先用于四个时序模型。另核对更新的 `nlp/Laya`（`e779117e8cfeba296a7105e26adac0741ab04768`，2026-10-12），作为在线 PyTorch 环境/patch 的补充，任务并非预测；DINOv2 采用 `cv/GSNet`（`933c1f91b60896f76719d9373e3aa7a9972b2eac`，2026-10-27）作同域近期参考，不照搬其分割指标。现有 checkout 为 shallow，已额外取得并检查 chronos-2 原始提交和 tree；GitHub commits API 本轮返回 403 rate limit，不声称取得完整 API 历史。
-- 当前贡献规范重新查询为 `Ascend/modelzoo@5eab9a4921c7f12edb555079836429a8f285cd1f`。规范要求参考许可证、自测试和 built-in `modelzoo_level.txt`；已补真实参考 LICENSE 和离线回归。正式 NPU 自测未运行，不能生成 OK 状态文件；CLA、版权头归属和 PR CI 仍为上库阻塞项，不声明获豁免。
-- 精确候选清单（覆盖上文暂定清单）：`LICENSE`, `README.md`, `aggregate_metrics.py`, `common.py`, `make_manifest.py`, `model.py`, `performance.py`, `prepare_images.py`, `split_manifest.py`, `test_model.py`, `test_performance.py`。单元测试只验证工具，不能替代目标仓正式自测试。继续排除两份内部文档、worklog、权重、数据、日志、缓存、upstream/、.codex-reference/ 和性能 sidecar。
+精确候选清单：`README.md`, `LICENSE`, `model.py`, `prepare_data.py`, `aggregate_metrics.py`。这些文件可直接复制到拟合入路径，不需要迁移仓 tools、缓存或旧模块。
+
+排除 NPU_ADAPTATION.md、ACCEPTANCE_PLAN.md、README_old.md、全部开发回归、worklog、日志、数据、权重、输出 sidecar、upstream/ 和 .codex-reference/。正式 NPU 自测仍是缺失门禁，不能用开发单测替代。
+
 - LICENSE 来源：https://raw.githubusercontent.com/facebookresearch/dinov2/7764ea0f912e53c92e82eb78a2a1631e92725fc8/LICENSE；SHA256 `600cc67cc4cb2f5ea317dcfc687ad1c74dc4bec8782bbe9db0afd83513b935b7`，保留上游许可原文；数据/权重授权仍按各来源核对。
-- 每次推理新增 `.performance.json`，持久化同步计时、吞吐、结果 SHA 和设备/软件元信息；`performance.py` 在至少三次不同运行 ID 且配置一致时报告中位数，拒绝 CPU 或混用输入/设备/参数。结果校验不等于真实性认证，CANN/驱动及物理卡映射须另留原始环境日志。
-- 控制机实际为 Windows、Python 3.14.6、torch 2.13.0+cpu，未安装 torch_npu；本轮未安装/修改全局依赖或启动外部服务。已执行 11 项离线测试、ruff check、README 审计；所有离线数字均非真实模型精度或 NPU 性能。独立候选目录的 CLI 与 fixture 重放记录在本轮项目内 `.codex-reference/five-model-review-20261027/checks.json`；完整模型安装/加载与 NPU 重放仍未执行。
 
-- 独立目录以 `python -E -s` 执行所有 CLI --help 均通过；TTM-R2/DINOv2/Toto/MOMENT 的隔离单测因禁用用户 site 后缺少 numpy 而失败，原始错误已保留；使用现有控制机依赖重放 fixture 仅验证候选边界，不代表干净环境安装成功。仓库结构审计器另有 6 项回归通过；未找到独立 Git Bash；使用 Windows 的 WSL bash -n，通过 UTF-8/LF stdin 对全部 README 命令块完成语法检查（不执行命令），未执行 Linux 安装。target-readiness 实际返回非零，S3/正式自测及验收仍未满足。
+## 本轮验证与状态
 
-- 本轮固定 revision 的权重 URL HEAD 复查：config.json: HTTP 200, 549 字节, model.safetensors: HTTP 200, 1217522888 字节；只检查元信息，没有下载权重或运行模型。完整记录保存在本轮项目内 `weight-head-checks.json`。
+控制机为 Windows/Python 3.14.6/torch 2.13.0+cpu，无 torch_npu。回归包括迁移仓工具测试、CLI/负向路径、DINO 数据准备 fixture、性能报告边界，以及独立候选的无模型 CLI/轻量 fixture；精确命令、退出码和日志保存在 `.codex-reference/five-model-consolidation-20261027/checks.json`。未安装全局依赖或使用 NPU。未执行的检查及原因：控制机缺少 NPU 及目标运行栈，完整依赖安装、真实权重加载、CPU/NPU 功能、全量质量、三次 NPU 实测与完整 clean-room 均待验收。
 
-当前状态: S0 分析和部分静态入口已准备；S1 尚待完整静态审查及依赖核验，S2/S3/S4 未完成。计划上库前需独立候选、完整 clean-room 及门禁。
+本轮结果：63 项仓级回归和 57 项独立候选 fixture 重放通过；CLI、ruff、README/结构审计和 Bash 语法检查通过。独立候选 fixture 使用控制机现有依赖，未验证干净安装或真实模型。target-readiness 仍因 S3 和待验收项缺失而非零退出，保持未就绪。
+
+本轮入口变化使旧代码 SHA 的功能/性能证据需重新核验；历史日志保留，不把历史 fixture 当成当前 NPU 证据。README 审计和结构审计结果与 target-readiness 分别记录。
+
+当前状态: S0 分析和部分静态入口已准备；S1 尚待目标依赖链与完整静态门禁，S2/S3/S4 未完成，上库候选未就绪。

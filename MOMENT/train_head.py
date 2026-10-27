@@ -4,7 +4,6 @@ import json
 import math
 from pathlib import Path
 
-import common
 import model as moment_model
 
 
@@ -24,13 +23,13 @@ def main():
         raise ValueError("invalid output or training parameters")
     import numpy as np
     import torch
-    common.require_package("momentfm", "0.1.5")
-    common.require_package("transformers", "4.57.6")
-    common.require_torch_range("2.0.1")
+    moment_model.require_package("momentfm", "0.1.5")
+    moment_model.require_package("transformers", "4.57.6")
+    moment_model.require_torch_range("2.0.1")
     from momentfm import MOMENTPipeline
     from safetensors.torch import load_model, save_file
-    common.require_source(MOMENTPipeline, "70510f443376c9e15bc41326cf7ed3374b1f9e43d9cda2ac448e6004c0943820")
-    x, y = common.input_arrays(args.train)
+    moment_model.require_source(MOMENTPipeline, "70510f443376c9e15bc41326cf7ed3374b1f9e43d9cda2ac448e6004c0943820")
+    x, y = moment_model.input_arrays(args.train)
     with np.load(args.train, allow_pickle=False) as data:
         prep = json.loads(str(data["preparation"].item()))
     if (prep.get("model") != "MOMENT" or prep.get("split") != "train" or prep.get("task") != "forecast"
@@ -40,8 +39,8 @@ def main():
         raise ValueError("invalid MOMENT training tensors")
     model_dir = Path(args.model_dir)
     for filename, expected in moment_model.ASSETS.items():
-        common.checked_file(model_dir / filename, expected)
-    device, synchronize = common.device_and_sync(args.device)
+        moment_model.checked_file(model_dir / filename, expected)
+    device, synchronize = moment_model.device_and_sync(args.device)
     torch.manual_seed(args.seed)
     config = json.loads((model_dir / "config.json").read_text(encoding="utf-8"))
     net = MOMENTPipeline(config, model_kwargs={"task_name": "forecasting", "forecast_horizon": y.shape[-1]})
@@ -52,7 +51,7 @@ def main():
     for parameter in net.head.parameters():
         parameter.requires_grad_(True)
     net.to(device)
-    common.check_model_device(net, device)
+    moment_model.check_model_device(net, device)
     optimizer = torch.optim.Adam(net.head.parameters(), lr=args.learning_rate)
     dataset = torch.utils.data.TensorDataset(torch.from_numpy(x), torch.from_numpy(y))
     loader = torch.utils.data.DataLoader(dataset, batch_size=args.batch_size, shuffle=True)
@@ -76,7 +75,7 @@ def main():
             scheduler.step()
     synchronize()
     save_file({k: v.detach().cpu().contiguous() for k, v in net.head.state_dict().items()}, args.output)
-    report = {"head_sha256": common.digest(args.output), "training_data_sha256": common.digest(args.train),
+    report = {"head_sha256": moment_model.digest(args.output), "training_data_sha256": moment_model.digest(args.train),
               "upstream_model_sha256": moment_model.ASSETS["model.safetensors"], "device": args.device,
               "train_split": "train", "source_dataset_sha256": prep["dataset_sha256"], "horizon": y.shape[-1],
               "epochs": args.epochs, "batch_size": args.batch_size, "seed": args.seed,

@@ -2,7 +2,7 @@
 
 ## 原始测试集与官方/公开指标
 
-官方 ViT-L/14 无 register 的 ImageNet kNN 83.5%、linear 86.3%；复用匹配 head、预处理、评估范围及标签映射后才能比较。当前 HF backbone + Meta head 组合还未验证等价。 来源：https://github.com/facebookresearch/dinov2/blob/7764ea0f912e53c92e82eb78a2a1631e92725fc8/README.md
+官方 ViT-L/14 无 register 的 ImageNet kNN 83.5%、linear 86.3%；复用匹配 head、预处理、评估范围及标签映射后才能比较。当前 HF backbone + Meta head 组合还未验证等价。 来源：https://raw.githubusercontent.com/facebookresearch/dinov2/7764ea0f912e53c92e82eb78a2a1631e92725fc8/README.md
 
 输入图像/标签清单 CSV（列名 `path,label`；相对路径相对于清单目录，label 必须是 ImageNet 类别索引）；预处理为 `[N,3,224,224]`，输出 logits `[N,1000]`。仅当清单覆盖完整 ImageNet 验证集且标签映射正确时，top1/top5 才是全量结果。 分类头单独从 Meta 官方地址获取，尚未取得官方固定 SHA；运行前记录实际 SHA 只保证后续文件一致，不证明来源。HF backbone 的中间层归一化与 Meta 原始路径仍需逐层/数据集比较；图像批处理一次装入内存，大规模验证需分批及加权汇总。
 
@@ -18,8 +18,11 @@
 
 记录目标卡型、驱动、CANN、Python、torch/torch_npu、上游和权重 SHA、数据/标签 SHA、命令、样本数、精度、数值误差、三次性能及不可比项。正式候选需通过目标仓贡献门禁及干净目录完整重放；当前 NPU 验证、完整数据精度、性能及 clean-room 均未执行。
 
-## 本轮工具回归与剩余正式门禁
+## 入口与最低正式验收清单
 
-2026-10-27：本目录 11 项离线回归通过（包括异常输入、结果一致性和性能报告负向测试），不构成真实模型或 NPU 验收。推理成功后保存 `<输出文件>.performance.json`；按 README 独立执行至少三次并用 `performance.py --runs ... --output ...` 汇总，检查相同模型/数据/设备/参数及独立运行 ID。至少保留一次完整数据的精度评测，性能子集与完整质量评测必须明确区分。
+- 数据准备：`prepare_data.py manifest/split/images`。
+- 推理、评测和比较：同一模型入口的 `infer`、`evaluate`、`compare` 子命令；参数与 README 一致，失败必须非零退出。
+- 性能：同一入口的 `performance --runs` 子命令，汇总至少三次独立 NPU 运行 sidecar；保留同步计时、输入/模型 SHA、设备和参数，CPU 报告不得用于 NPU 性能结论。
+- 最低补验：确认硬件与配套环境、干净安装/import、权重/数据校验、真实 CPU/NPU 输出、完整范围精度对齐、有依据阈值比较、三次性能、端到端/首次编译/HBM、目标仓正式自测与候选完整重放。
 
-最低正式补验：选定对外卡型及配套镜像/CANN/驱动 → 固定权重和数据校验 → 干净安装并导入模型 → 真实 CPU/NPU 功能和声明范围质量对齐 → 有依据阈值的 compare → 三次 NPU 性能报告 → 端到端/首次编译/HBM → 目标仓正式自测和独立候选完整重放。演示阈值不能升级为验收门槛，缺任一实测项均保留待验收。
+开发回归集中在迁移仓 `tools/tests`，不进入正式候选。工具测试及 CLI/fixture 重放只能证明相应软件行为，不证明真实模型、NPU 精度或性能。入口和计时模块位置变化后，先前代码 SHA 对应的推理/性能证据不能直接沿用；当前仍无 S2/S3 实测证据。模型版本、权重、数据协议和主要计算逻辑保持原有边界。
