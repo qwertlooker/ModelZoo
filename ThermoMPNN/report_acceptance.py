@@ -30,6 +30,15 @@ def validate_run(run_dir):
     if run['simulated'] is not False or run['device'] != 'npu':
         raise ValueError('Real NPU run evidence required')
     validate_environment(run)
+    if run['inference_mode'] not in ('batch-all', 'gnn-bucket', 'per-protein', 'upstream-head'):
+        raise ValueError('Unknown inference mode')
+    if run['gelu'] != 'exact-erf' or not isinstance(run['infer_sha256'], str) or not run['infer_sha256']:
+        raise ValueError('Missing inference implementation evidence; rerun inference')
+    if run['patch_sha256'] is None:
+        if run['inference_mode'] == 'batch-all':
+            raise ValueError('Full batching requires patch evidence')
+    elif not isinstance(run['patch_sha256'], str) or not run['patch_sha256']:
+        raise ValueError('Invalid patch evidence')
     if not isinstance(run['run_id'], str) or not run['run_id'].strip():
         raise ValueError('Empty process run ID')
     for key in ('samples', 'proteins', 'runs'):
@@ -72,7 +81,8 @@ def performance(run_dirs, reference):
                 raise ValueError(f'Performance environment differs: {key}')
         for key in ('manifest_sha256', 'checkpoint_sha256', 'backbone_sha256',
                     'upstream_commit', 'dtype', 'samples', 'proteins', 'warmup',
-                    'runs', 'timing_scope', 'visible_devices'):
+                    'runs', 'timing_scope', 'visible_devices', 'infer_sha256',
+                    'patch_sha256', 'inference_mode', 'gelu'):
             if run[key] != reference[key]:
                 raise ValueError(f'Performance configuration differs: {key}')
         medians.append(run['median_seconds'])
