@@ -1,0 +1,502 @@
+[
+  {
+    "url": "https://gitcode.com/anning-2026/MOMENT-1-small/blob/bb481bd53393223e9675006c69702bad80aefcef/inference.py",
+    "checked_at_utc": "2026-10-27T00:56:09.957835+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://ai.gitcode.com/anning-2026/MOMENT-1-small/blob/bb481bd53393223e9675006c69702bad80aefcef/inference.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/anning-2026/MOMENT-1-small/blob/bb481bd53393223e9675006c69702bad80aefcef/readme.md",
+    "checked_at_utc": "2026-10-27T00:56:10.407657+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://ai.gitcode.com/anning-2026/MOMENT-1-small/blob/bb481bd53393223e9675006c69702bad80aefcef/readme.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/m0_63918125/granite-timeseries-ttm-r2/blob/a5255ba55d8b3c172dd54cc734fe6f1c0a76f8a4/README.md",
+    "checked_at_utc": "2026-10-27T00:56:07.729547+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://ai.gitcode.com/m0_63918125/granite-timeseries-ttm-r2/blob/a5255ba55d8b3c172dd54cc734fe6f1c0a76f8a4/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/m0_63918125/granite-timeseries-ttm-r2/blob/a5255ba55d8b3c172dd54cc734fe6f1c0a76f8a4/inference.py",
+    "checked_at_utc": "2026-10-27T00:56:08.709931+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://ai.gitcode.com/m0_63918125/granite-timeseries-ttm-r2/blob/a5255ba55d8b3c172dd54cc734fe6f1c0a76f8a4/inference.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/weixin_72661020/Toto-2.0-4m/blob/658a07a206dcc3b23c1ad98ac7a68d411477c9c8/inference.py",
+    "checked_at_utc": "2026-10-27T00:56:08.708889+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://ai.gitcode.com/weixin_72661020/Toto-2.0-4m/blob/658a07a206dcc3b23c1ad98ac7a68d411477c9c8/inference.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/weixin_72661020/Toto-2.0-4m/blob/658a07a206dcc3b23c1ad98ac7a68d411477c9c8/readme.md",
+    "checked_at_utc": "2026-10-27T00:56:09.674625+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://ai.gitcode.com/weixin_72661020/Toto-2.0-4m/blob/658a07a206dcc3b23c1ad98ac7a68d411477c9c8/readme.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/weixin_72661020/timesfm-2.5-200m/blob/a4da0bda9990850b363ce6945cc19fad1a579f2f/inference.py",
+    "checked_at_utc": "2026-10-27T00:56:09.551719+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://ai.gitcode.com/weixin_72661020/timesfm-2.5-200m/blob/a4da0bda9990850b363ce6945cc19fad1a579f2f/inference.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/weixin_72661020/timesfm-2.5-200m/blob/a4da0bda9990850b363ce6945cc19fad1a579f2f/readme.md",
+    "checked_at_utc": "2026-10-27T00:56:08.709279+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://ai.gitcode.com/weixin_72661020/timesfm-2.5-200m/blob/a4da0bda9990850b363ce6945cc19fad1a579f2f/readme.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/wrhhh/Datadog-Toto-Open-Base-1.0-NPU/blob/e8c6c836de217b4a19b02b0e72956ee0fe33b302/inference.py",
+    "checked_at_utc": "2026-10-27T00:56:08.599597+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://ai.gitcode.com/wrhhh/Datadog-Toto-Open-Base-1.0-NPU/blob/e8c6c836de217b4a19b02b0e72956ee0fe33b302/inference.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/wrhhh/Datadog-Toto-Open-Base-1.0-NPU/blob/e8c6c836de217b4a19b02b0e72956ee0fe33b302/readme.md",
+    "checked_at_utc": "2026-10-27T00:56:08.699027+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://ai.gitcode.com/wrhhh/Datadog-Toto-Open-Base-1.0-NPU/blob/e8c6c836de217b4a19b02b0e72956ee0fe33b302/readme.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/xujiashuai/dinov2-large/blob/7159789e728fc6cd9edb62e5b626bc418e0338b1/evaluate.py",
+    "checked_at_utc": "2026-10-26T07:37:24.562569+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/xujiashuai/dinov2-large/blob/7159789e728fc6cd9edb62e5b626bc418e0338b1/evaluate.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/xujiashuai/dinov2-large/blob/7159789e728fc6cd9edb62e5b626bc418e0338b1/report.json",
+    "checked_at_utc": "2026-10-26T07:37:24.582281+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/xujiashuai/dinov2-large/blob/7159789e728fc6cd9edb62e5b626bc418e0338b1/report.json",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/DataDog/toto/blob/1d3e1c97ccf615016d38fe910602c905ae31fbb7/README.md",
+    "checked_at_utc": "2026-10-27T00:56:10.747893+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/DataDog/toto/blob/1d3e1c97ccf615016d38fe910602c905ae31fbb7/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/DataDog/toto/blob/1d3e1c97ccf615016d38fe910602c905ae31fbb7/boom/README.md",
+    "checked_at_utc": "2026-10-27T00:56:09.752948+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/DataDog/toto/blob/1d3e1c97ccf615016d38fe910602c905ae31fbb7/boom/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/DataDog/toto/blob/1d3e1c97ccf615016d38fe910602c905ae31fbb7/boom/notebooks/timesfm2_5.ipynb",
+    "checked_at_utc": "2026-10-27T00:59:33.813023+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/DataDog/toto/blob/1d3e1c97ccf615016d38fe910602c905ae31fbb7/boom/notebooks/timesfm2_5.ipynb",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/DataDog/toto/blob/1d3e1c97ccf615016d38fe910602c905ae31fbb7/toto2/toto2/model.py",
+    "checked_at_utc": "2026-10-27T00:56:10.341638+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/DataDog/toto/blob/1d3e1c97ccf615016d38fe910602c905ae31fbb7/toto2/toto2/model.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/facebookresearch/dinov2/blob/7764ea0f912e53c92e82eb78a2a1631e92725fc8/README.md",
+    "checked_at_utc": "2026-10-27T00:56:06.337075+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/facebookresearch/dinov2/blob/7764ea0f912e53c92e82eb78a2a1631e92725fc8/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/facebookresearch/dinov2/blob/7764ea0f912e53c92e82eb78a2a1631e92725fc8/dinov2/eval/linear.py",
+    "checked_at_utc": "2026-10-27T00:56:06.337210+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/facebookresearch/dinov2/blob/7764ea0f912e53c92e82eb78a2a1631e92725fc8/dinov2/eval/linear.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/facebookresearch/dinov2/blob/7764ea0f912e53c92e82eb78a2a1631e92725fc8/dinov2/layers/attention.py",
+    "checked_at_utc": "2026-10-27T00:56:06.336065+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/facebookresearch/dinov2/blob/7764ea0f912e53c92e82eb78a2a1631e92725fc8/dinov2/layers/attention.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/facebookresearch/dinov2/blob/7764ea0f912e53c92e82eb78a2a1631e92725fc8/dinov2/models/vision_transformer.py",
+    "checked_at_utc": "2026-10-27T00:56:08.868101+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/facebookresearch/dinov2/blob/7764ea0f912e53c92e82eb78a2a1631e92725fc8/dinov2/models/vision_transformer.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/google-research/timesfm/blob/e51928e27119cb17bebc005be2696b75e0a9e688/README.md",
+    "checked_at_utc": "2026-10-27T00:56:07.731028+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/google-research/timesfm/blob/e51928e27119cb17bebc005be2696b75e0a9e688/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/google-research/timesfm/blob/e51928e27119cb17bebc005be2696b75e0a9e688/src/timesfm/timesfm_2p5/timesfm_2p5_torch.py",
+    "checked_at_utc": "2026-10-27T00:56:09.625162+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/google-research/timesfm/blob/e51928e27119cb17bebc005be2696b75e0a9e688/src/timesfm/timesfm_2p5/timesfm_2p5_torch.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/ibm-granite/granite-tsfm/blob/9d0b839f997eb4918822a43036012ce8c277687c/README.md",
+    "checked_at_utc": "2026-10-27T00:56:07.730425+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/ibm-granite/granite-tsfm/blob/9d0b839f997eb4918822a43036012ce8c277687c/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/ibm-granite/granite-tsfm/blob/9d0b839f997eb4918822a43036012ce8c277687c/notebooks/hfdemo/tinytimemixer/full_benchmarking/README.md",
+    "checked_at_utc": "2026-10-27T00:56:07.734037+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/ibm-granite/granite-tsfm/blob/9d0b839f997eb4918822a43036012ce8c277687c/notebooks/hfdemo/tinytimemixer/full_benchmarking/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/ibm-granite/granite-tsfm/blob/9d0b839f997eb4918822a43036012ce8c277687c/notebooks/hfdemo/tinytimemixer/full_benchmarking/combined_results-granite-r2.csv",
+    "checked_at_utc": "2026-10-27T00:56:09.606978+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/ibm-granite/granite-tsfm/blob/9d0b839f997eb4918822a43036012ce8c277687c/notebooks/hfdemo/tinytimemixer/full_benchmarking/combined_results-granite-r2.csv",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/ibm-granite/granite-tsfm/blob/9d0b839f997eb4918822a43036012ce8c277687c/notebooks/hfdemo/tinytimemixer/full_benchmarking/ttm_full_benchmarking.py",
+    "checked_at_utc": "2026-10-27T00:56:10.819391+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/ibm-granite/granite-tsfm/blob/9d0b839f997eb4918822a43036012ce8c277687c/notebooks/hfdemo/tinytimemixer/full_benchmarking/ttm_full_benchmarking.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/ibm-granite/granite-tsfm/blob/9d0b839f997eb4918822a43036012ce8c277687c/tsfm_public/models/tinytimemixer/modeling_tinytimemixer.py",
+    "checked_at_utc": "2026-10-27T00:56:09.665341+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/ibm-granite/granite-tsfm/blob/9d0b839f997eb4918822a43036012ce8c277687c/tsfm_public/models/tinytimemixer/modeling_tinytimemixer.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/moment-timeseries-foundation-model/moment-research/blob/3ab637e413f35f2c317573c0ace280d825c558de/README.md",
+    "checked_at_utc": "2026-10-27T00:56:10.655931+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/moment-timeseries-foundation-model/moment-research/blob/3ab637e413f35f2c317573c0ace280d825c558de/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/moment-timeseries-foundation-model/moment/blob/38f7310ad594100747ca2a8357e9c7ca7d323e0e/README.md",
+    "checked_at_utc": "2026-10-27T00:56:08.654970+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/moment-timeseries-foundation-model/moment/blob/38f7310ad594100747ca2a8357e9c7ca7d323e0e/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/moment-timeseries-foundation-model/moment/blob/38f7310ad594100747ca2a8357e9c7ca7d323e0e/momentfm/data/informer_dataset.py",
+    "checked_at_utc": "2026-10-27T00:56:07.731817+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/moment-timeseries-foundation-model/moment/blob/38f7310ad594100747ca2a8357e9c7ca7d323e0e/momentfm/data/informer_dataset.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/moment-timeseries-foundation-model/moment/blob/38f7310ad594100747ca2a8357e9c7ca7d323e0e/momentfm/models/moment.py",
+    "checked_at_utc": "2026-10-27T00:56:09.856964+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/moment-timeseries-foundation-model/moment/blob/38f7310ad594100747ca2a8357e9c7ca7d323e0e/momentfm/models/moment.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/moment-timeseries-foundation-model/moment/blob/38f7310ad594100747ca2a8357e9c7ca7d323e0e/tutorials/forecasting.ipynb",
+    "checked_at_utc": "2026-10-27T00:56:08.856462+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/moment-timeseries-foundation-model/moment/blob/38f7310ad594100747ca2a8357e9c7ca7d323e0e/tutorials/forecasting.ipynb",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/zhouhaoyi/ETDataset",
+    "checked_at_utc": "2026-10-27T00:56:09.019259+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://github.com/zhouhaoyi/ETDataset",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/AutonLab/MOMENT-1-large/resolve/ca58581bc7bea2ebed4e80dc0a3e4b8b609c6ecc/model.safetensors",
+    "checked_at_utc": "2026-10-27T00:56:07.728958+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://us.aws.cdn.hf.co/xet-bridge-us/663cf0ea871fe37c2f68de03/af5b4759aa1db5156f62e235036eda27f86233cbee95bbb7e4eeeabf86254ab5?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27model.safetensors%3B+filename%3D%22model.safetensors%22%3B&user_id=public&xip=iT0bZVIHC78&X-Xet-Cas-Uid=public&Expires=1793066168&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjYzY2YwZWE4NzFmZTM3YzJmNjhkZTAzL2FmNWI0NzU5YWExZGI1MTU2ZjYyZTIzNTAzNmVkYTI3Zjg2MjMzY2JlZTk1YmJiN2U0ZWVlYWJmODYyNTRhYjVcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3bW9kZWwuc2FmZXRlbnNvcnMlM0IrZmlsZW5hbWUlM0QlMjJtb2RlbC5zYWZldGVuc29ycyUyMiUzQiZ1c2VyX2lkPXB1YmxpYyZ4aXA9aVQwYlpWSUhDNzgmWC1YZXQtQ2FzLVVpZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc5MzA2NjE2OH19fV19&Signature=MEUCID5L1oAzjbJVprtkdabK1EriQIwqk8EH6NKjR5wotyyHAiEA31SIlWrXa1g7A-8sKMJ5L3QJ3F-VO5QZVPeUa5Bb%7EGI_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/AutonLab/MOMENT-1-small/resolve/411e288267f82cce86296dbe4d6c8bc533cc162f/config.json",
+    "checked_at_utc": "2026-10-27T00:56:10.415900+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/api/resolve-cache/models/AutonLab/MOMENT-1-small/411e288267f82cce86296dbe4d6c8bc533cc162f/config.json?%2FAutonLab%2FMOMENT-1-small%2Fresolve%2F411e288267f82cce86296dbe4d6c8bc533cc162f%2Fconfig.json=&etag=%228001b2ca08030badec2c1380b5914c8a4cf1c0ca%22",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/AutonLab/MOMENT-1-small/resolve/411e288267f82cce86296dbe4d6c8bc533cc162f/model.safetensors",
+    "checked_at_utc": "2026-10-27T00:56:08.669447+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://us.aws.cdn.hf.co/xet-bridge-us/67084ee911e7ab6c834c46eb/c81407dfd7e389fb6d771a2a84c18cf0ff00e76bc44c3dd76977a0c1bb89b7ff?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27model.safetensors%3B+filename%3D%22model.safetensors%22%3B&user_id=public&xip=iT0bZVIHC78&Expires=1793066169&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjcwODRlZTkxMWU3YWI2YzgzNGM0NmViL2M4MTQwN2RmZDdlMzg5ZmI2ZDc3MWEyYTg0YzE4Y2YwZmYwMGU3NmJjNDRjM2RkNzY5NzdhMGMxYmI4OWI3ZmZcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3bW9kZWwuc2FmZXRlbnNvcnMlM0IrZmlsZW5hbWUlM0QlMjJtb2RlbC5zYWZldGVuc29ycyUyMiUzQiZ1c2VyX2lkPXB1YmxpYyZ4aXA9aVQwYlpWSUhDNzgiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc5MzA2NjE2OX19fV19&Signature=MEUCIB%7EwAdGoBVwLt0nS6eYN99O53gtn0H7LOE9zuGLGTQ8-AiEA8GPus127XnRqLp3wrCdzL4hLZqyNu5kCdlSw6g1h4FI_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/Datadog/Toto-2.0-22m/resolve/685e4ae3e2be8d8998025e53dd98e7fdcb296a89/README.md",
+    "checked_at_utc": "2026-10-27T00:56:07.730099+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/api/resolve-cache/models/Datadog/Toto-2.0-22m/685e4ae3e2be8d8998025e53dd98e7fdcb296a89/README.md?%2FDatadog%2FToto-2.0-22m%2Fresolve%2F685e4ae3e2be8d8998025e53dd98e7fdcb296a89%2FREADME.md=&etag=%22f717537f17b5fd2b68a64e8b050f395fa5a7b716%22",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/Datadog/Toto-2.0-22m/resolve/685e4ae3e2be8d8998025e53dd98e7fdcb296a89/model.safetensors",
+    "checked_at_utc": "2026-10-27T00:56:10.814497+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://us.aws.cdn.hf.co/xet-bridge-us/69dea5e236056d27fc9386a7/0ff5f12d24c052ea0e7a0034d63c5cbb18ec26110fe2b060a9f155a6ec0f1af3?xip=iT0bZVIHC78&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27model.safetensors%3B+filename%3D%22model.safetensors%22%3B&X-Xet-Cas-Uid=public&user_id=public&Expires=1793066171&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjlkZWE1ZTIzNjA1NmQyN2ZjOTM4NmE3LzBmZjVmMTJkMjRjMDUyZWEwZTdhMDAzNGQ2M2M1Y2JiMThlYzI2MTEwZmUyYjA2MGE5ZjE1NWE2ZWMwZjFhZjNcXD94aXA9aVQwYlpWSUhDNzgmcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj1pbmxpbmUlM0IrZmlsZW5hbWUlMkElM0RVVEYtOCUyNyUyN21vZGVsLnNhZmV0ZW5zb3JzJTNCK2ZpbGVuYW1lJTNEJTIybW9kZWwuc2FmZXRlbnNvcnMlMjIlM0ImWC1YZXQtQ2FzLVVpZD1wdWJsaWMmdXNlcl9pZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc5MzA2NjE3MX19fV19&Signature=MEQCIHuYXQVnaVXjrVQT6t8tJRVtaZzFEqsy5otNOfAZwLSwAiAi7GZz-l6ysq7vN3Tea-6%7EYGl6eO8258ZWr3t6ovlxYw__&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/Datadog/Toto-Open-Base-1.0/resolve/0411ceb27bdf7fc3e4892e99edc8ad08192dc3c5/model.safetensors",
+    "checked_at_utc": "2026-10-27T00:56:10.843709+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://us.aws.cdn.hf.co/xet-bridge-us/68123721ec67f8f30be63c47/d5c49dc01d2cfb2e89f724958109f92b1191ea880e8bb1a794c642027c879124?xip=iT0bZVIHC78&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27model.safetensors%3B+filename%3D%22model.safetensors%22%3B&X-Xet-Cas-Uid=public&user_id=public&Expires=1793066171&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjgxMjM3MjFlYzY3ZjhmMzBiZTYzYzQ3L2Q1YzQ5ZGMwMWQyY2ZiMmU4OWY3MjQ5NTgxMDlmOTJiMTE5MWVhODgwZThiYjFhNzk0YzY0MjAyN2M4NzkxMjRcXD94aXA9aVQwYlpWSUhDNzgmcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj1pbmxpbmUlM0IrZmlsZW5hbWUlMkElM0RVVEYtOCUyNyUyN21vZGVsLnNhZmV0ZW5zb3JzJTNCK2ZpbGVuYW1lJTNEJTIybW9kZWwuc2FmZXRlbnNvcnMlMjIlM0ImWC1YZXQtQ2FzLVVpZD1wdWJsaWMmdXNlcl9pZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc5MzA2NjE3MX19fV19&Signature=MEUCIQDtqOWMiFMzBbRqr4HjleKHi%7E5MdNMcQktbcCMLjibhnQIgLUwmH%7EYcTOJ9cXhIID0j0jsfb4-522m1jSPQpYHfbcg_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/datasets/Datadog/BOOM",
+    "checked_at_utc": "2026-10-27T00:56:09.822624+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/datasets/Datadog/BOOM",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/facebook/dinov2-large/resolve/47b73eefe95e8d44ec3623f8890bd894b6ea2d6c/model.safetensors",
+    "checked_at_utc": "2026-10-27T00:56:06.336555+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://us.aws.cdn.hf.co/xet-bridge-us/64b57085cf312e548807eff5/14377984bf1cbe0fea804ba125fca8f5575d7fdb55424ca594f8698e41bd25f7?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27model.safetensors%3B+filename%3D%22model.safetensors%22%3B&user_id=public&X-Xet-Cas-Uid=public&xip=iT0bZVIHC78&Expires=1793066167&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjRiNTcwODVjZjMxMmU1NDg4MDdlZmY1LzE0Mzc3OTg0YmYxY2JlMGZlYTgwNGJhMTI1ZmNhOGY1NTc1ZDdmZGI1NTQyNGNhNTk0Zjg2OThlNDFiZDI1ZjdcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3bW9kZWwuc2FmZXRlbnNvcnMlM0IrZmlsZW5hbWUlM0QlMjJtb2RlbC5zYWZldGVuc29ycyUyMiUzQiZ1c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZ4aXA9aVQwYlpWSUhDNzgiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc5MzA2NjE2N319fV19&Signature=MEUCIQC-Bu6GBFOGsBNZnxfANfrtrR%7Ev5oJIlrXy7-X2g57SOgIgSUZWi38mURt9i6A3xgJsrS1VUcKuzIx2vcWOcKEtA0o_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/google/timesfm-2.5-200m-pytorch/resolve/1d952420fba87f3c6dee4f240de0f1a0fbc790e3/model.safetensors",
+    "checked_at_utc": "2026-10-27T00:56:07.732867+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://us.aws.cdn.hf.co/xet-bridge-us/68b73db1de97c88f2d88400e/3e9dfddd4dc496415af5612b656f9a58befcadbdb871e9caf53a7552807c4d65?xip=iT0bZVIHC78&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27model.safetensors%3B+filename%3D%22model.safetensors%22%3B&user_id=public&Expires=1793066168&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjhiNzNkYjFkZTk3Yzg4ZjJkODg0MDBlLzNlOWRmZGRkNGRjNDk2NDE1YWY1NjEyYjY1NmY5YTU4YmVmY2FkYmRiODcxZTljYWY1M2E3NTUyODA3YzRkNjVcXD94aXA9aVQwYlpWSUhDNzgmWC1YZXQtQ2FzLVVpZD1wdWJsaWMmcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj1pbmxpbmUlM0IrZmlsZW5hbWUlMkElM0RVVEYtOCUyNyUyN21vZGVsLnNhZmV0ZW5zb3JzJTNCK2ZpbGVuYW1lJTNEJTIybW9kZWwuc2FmZXRlbnNvcnMlMjIlM0ImdXNlcl9pZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc5MzA2NjE2OH19fV19&Signature=MEYCIQDmwR0FEZzVjdQ2VAVS4jMgfwX3icxnawMqWXYM8E6InwIhAKQeV7lWf9QMRd6-36SpBNgr%7E-ndlQ3RUTsSv3MzPoXD&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/google/timesfm-2.5-200m-transformers/resolve/5a9806b9b291fad9233b5249d88263f1846304d3/README.md",
+    "checked_at_utc": "2026-10-27T00:56:07.732306+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/api/resolve-cache/models/google/timesfm-2.5-200m-transformers/5a9806b9b291fad9233b5249d88263f1846304d3/README.md?%2Fgoogle%2Ftimesfm-2.5-200m-transformers%2Fresolve%2F5a9806b9b291fad9233b5249d88263f1846304d3%2FREADME.md=&etag=%220aac9fa3e661322d455ce25a9c6dba6f62d074f0%22",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/google/timesfm-2.5-200m-transformers/resolve/5a9806b9b291fad9233b5249d88263f1846304d3/model.safetensors",
+    "checked_at_utc": "2026-10-27T00:56:07.733340+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://us.aws.cdn.hf.co/xet-bridge-us/699789f5f0b5adaaf0240536/59545b5f6a44258dc78d7be613a602db534495065ffe3eed2b68f12b7781c08e?user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27model.safetensors%3B+filename%3D%22model.safetensors%22%3B&xip=iT0bZVIHC78&X-Xet-Cas-Uid=public&Expires=1793066168&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjk5Nzg5ZjVmMGI1YWRhYWYwMjQwNTM2LzU5NTQ1YjVmNmE0NDI1OGRjNzhkN2JlNjEzYTYwMmRiNTM0NDk1MDY1ZmZlM2VlZDJiNjhmMTJiNzc4MWMwOGVcXD91c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3bW9kZWwuc2FmZXRlbnNvcnMlM0IrZmlsZW5hbWUlM0QlMjJtb2RlbC5zYWZldGVuc29ycyUyMiUzQiZ4aXA9aVQwYlpWSUhDNzgmWC1YZXQtQ2FzLVVpZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc5MzA2NjE2OH19fV19&Signature=MEYCIQCwhv6%7EuYv4F8Vk5NK1SWYptUqjefSP6tj8w%7EMW7mS2EQIhAJoP6%7EYxmegbhxDT%7EeCidJt61kE5sk7TMLG5Zdr%7EYWbp&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/ibm-granite/granite-timeseries-ttm-r2/resolve/d6a79570cac0f33d526601cd3a0fc7c80a8f9a2f/README.md",
+    "checked_at_utc": "2026-10-27T00:56:10.328355+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/api/resolve-cache/models/ibm-granite/granite-timeseries-ttm-r2/d6a79570cac0f33d526601cd3a0fc7c80a8f9a2f/README.md?%2Fibm-granite%2Fgranite-timeseries-ttm-r2%2Fresolve%2Fd6a79570cac0f33d526601cd3a0fc7c80a8f9a2f%2FREADME.md=&etag=%224c00db826f5c4d4d7ef741fba28b4d7251112551%22",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/ibm-granite/granite-timeseries-ttm-r2/resolve/d6a79570cac0f33d526601cd3a0fc7c80a8f9a2f/model.safetensors",
+    "checked_at_utc": "2026-10-27T00:56:09.665222+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://us.aws.cdn.hf.co/xet-bridge-us/67050dbd1f611d0d1b8202b0/962856255df8e9a85dfd389fe37f8f19a07bc53ed3d60108172679551008892a?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27model.safetensors%3B+filename%3D%22model.safetensors%22%3B&X-Xet-Cas-Uid=public&user_id=public&xip=iT0bZVIHC78&Expires=1793066170&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjcwNTBkYmQxZjYxMWQwZDFiODIwMmIwLzk2Mjg1NjI1NWRmOGU5YTg1ZGZkMzg5ZmUzN2Y4ZjE5YTA3YmM1M2VkM2Q2MDEwODE3MjY3OTU1MTAwODg5MmFcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3bW9kZWwuc2FmZXRlbnNvcnMlM0IrZmlsZW5hbWUlM0QlMjJtb2RlbC5zYWZldGVuc29ycyUyMiUzQiZYLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyZ4aXA9aVQwYlpWSUhDNzgiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc5MzA2NjE3MH19fV19&Signature=MEQCIDxLHYdDrQ65-DSWwi9W7j2%7ELmVi0-SL%7EvgmkQAqm7ekAiARTWX7ymzzzk-vVfAXvAuUBqUv8YsXLHtZE9WorEJqHg__&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/spaces/Datadog/BOOM/resolve/2bc23d1a3eeebb7ac73a610afcb5db9470c72552/results/leaderboards/BOOM_leaderboard.csv",
+    "checked_at_utc": "2026-10-27T00:59:33.812718+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/api/resolve-cache/spaces/Datadog/BOOM/2bc23d1a3eeebb7ac73a610afcb5db9470c72552/results%2Fleaderboards%2FBOOM_leaderboard.csv?%2Fspaces%2FDatadog%2FBOOM%2Fresolve%2F2bc23d1a3eeebb7ac73a610afcb5db9470c72552%2Fresults%2Fleaderboards%2FBOOM_leaderboard.csv=&etag=%2268fd4fb3f5aec14f3550b741946f367c7441e009%22",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/spaces/Datadog/BOOM/resolve/2bc23d1a3eeebb7ac73a610afcb5db9470c72552/results/models_info/timesfm_2_5_200m/config.json",
+    "checked_at_utc": "2026-10-27T00:59:33.811357+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/api/resolve-cache/spaces/Datadog/BOOM/2bc23d1a3eeebb7ac73a610afcb5db9470c72552/results%2Fmodels_info%2Ftimesfm_2_5_200m%2Fconfig.json?%2Fspaces%2FDatadog%2FBOOM%2Fresolve%2F2bc23d1a3eeebb7ac73a610afcb5db9470c72552%2Fresults%2Fmodels_info%2Ftimesfm_2_5_200m%2Fconfig.json=&etag=%2250a08ba4c01efe7afe295ec448fdcc7aab130d04%22",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/spaces/Salesforce/GIFT-Eval/resolve/35b8db119291d791ceb7c63f362133e8ba6c905b/results/TimesFM-2.5/all_results.csv",
+    "checked_at_utc": "2026-10-27T00:59:33.811794+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/api/resolve-cache/spaces/Salesforce/GIFT-Eval/35b8db119291d791ceb7c63f362133e8ba6c905b/results%2FTimesFM-2.5%2Fall_results.csv?%2Fspaces%2FSalesforce%2FGIFT-Eval%2Fresolve%2F35b8db119291d791ceb7c63f362133e8ba6c905b%2Fresults%2FTimesFM-2.5%2Fall_results.csv=&etag=%22de38d426afd186db61fe5dbe08f54900615119d9%22",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/spaces/Salesforce/GIFT-Eval/resolve/35b8db119291d791ceb7c63f362133e8ba6c905b/results/TimesFM-2.5/config.json",
+    "checked_at_utc": "2026-10-27T00:59:33.812130+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/api/resolve-cache/spaces/Salesforce/GIFT-Eval/35b8db119291d791ceb7c63f362133e8ba6c905b/results%2FTimesFM-2.5%2Fconfig.json?%2Fspaces%2FSalesforce%2FGIFT-Eval%2Fresolve%2F35b8db119291d791ceb7c63f362133e8ba6c905b%2Fresults%2FTimesFM-2.5%2Fconfig.json=&etag=%22c76d7aff88aa4a8ed45ced6b7e9db680bdb3f45e%22",
+    "result": "http_reachable"
+  }
+]

@@ -1240,6 +1240,76 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://gitcode.com/AI4Science/LifeScience/blob/27065e4053aa860774b9a005e6a5307854d062a8/PyTorch/RFdiffusion_pyg/docs/huawei_910b.md",
+    "checked_at_utc": "2026-10-26T15:17:35.585989+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/AI4Science/LifeScience/blob/27065e4053aa860774b9a005e6a5307854d062a8/PyTorch/RFdiffusion_pyg/docs/huawei_910b.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/AI4Science/LifeScience/blob/27065e4053aa860774b9a005e6a5307854d062a8/PyTorch/RFdiffusion_pyg/docs/perf_tuning.md",
+    "checked_at_utc": "2026-10-26T15:17:35.586594+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/AI4Science/LifeScience/blob/27065e4053aa860774b9a005e6a5307854d062a8/PyTorch/RFdiffusion_pyg/docs/perf_tuning.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/AI4Science/LifeScience/blob/27065e4053aa860774b9a005e6a5307854d062a8/PyTorch/RFdiffusion_pyg/docs/pyg_migration_report.md",
+    "checked_at_utc": "2026-10-26T15:17:35.586928+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://gitcode.com/AI4Science/LifeScience/blob/27065e4053aa860774b9a005e6a5307854d062a8/PyTorch/RFdiffusion_pyg/docs/pyg_migration_report.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/AI4Science/RoseTTAFold/blob/310d4d0c77636a41ac5d7d518b5fdb40ccf2fdf3/README.md",
+    "checked_at_utc": "2026-10-26T15:17:35.587362+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://ai.gitcode.com/AI4Science/RoseTTAFold/blob/310d4d0c77636a41ac5d7d518b5fdb40ccf2fdf3/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/AI4Science/RoseTTAFold/blob/310d4d0c77636a41ac5d7d518b5fdb40ccf2fdf3/network/predict_e2e.py",
+    "checked_at_utc": "2026-10-26T15:17:35.587742+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://ai.gitcode.com/AI4Science/RoseTTAFold/blob/310d4d0c77636a41ac5d7d518b5fdb40ccf2fdf3/network/predict_e2e.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/AI4Science/esm3/blob/4de224584befa8e93fb2c7e5ebc8ce0187fb3bf4/README.md",
+    "checked_at_utc": "2026-10-26T15:17:35.588439+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://ai.gitcode.com/AI4Science/esm3/blob/4de224584befa8e93fb2c7e5ebc8ce0187fb3bf4/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://gitcode.com/AI4Science/esm3/blob/4de224584befa8e93fb2c7e5ebc8ce0187fb3bf4/test-esm3.py",
+    "checked_at_utc": "2026-10-26T15:17:35.589012+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://ai.gitcode.com/AI4Science/esm3/blob/4de224584befa8e93fb2c7e5ebc8ce0187fb3bf4/test-esm3.py",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://gitcode.com/Ascend-SACT/PatchCore/blob/ddca1579c779b889443ccaecb2010579d0d545e4/README.md",
     "checked_at_utc": "2026-10-26T07:26:17.434269+00:00",
     "method": "HEAD",
@@ -4470,13 +4540,33 @@
     "result": "http_reachable"
   },
   {
-    "url": "https://github.com/facebookresearch/dinov2/blob/main/README.md",
-    "checked_at_utc": "2026-10-23T02:46:16.260409+00:00",
+    "url": "https://github.com/facebookresearch/dinov2/blob/7764ea0f912e53c92e82eb78a2a1631e92725fc8/README.md",
+    "checked_at_utc": "2026-10-27T00:56:06.337075+00:00",
     "method": "HEAD",
     "content_verified": false,
-    "version": "dynamic_or_unversioned",
+    "version": "pinned",
     "status": 200,
-    "final_url": "https://github.com/facebookresearch/dinov2/blob/main/README.md",
+    "final_url": "https://github.com/facebookresearch/dinov2/blob/7764ea0f912e53c92e82eb78a2a1631e92725fc8/README.md",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/facebookresearch/dinov2/blob/7764ea0f912e53c92e82eb78a2a1631e92725fc8/dinov2/eval/linear.py",
+    "checked_at_utc": "2026-10-27T00:56:06.337210+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/facebookresearch/dinov2/blob/7764ea0f912e53c92e82eb78a2a1631e92725fc8/dinov2/eval/linear.py",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://github.com/facebookresearch/dinov2/blob/7764ea0f912e53c92e82eb78a2a1631e92725fc8/dinov2/layers/attention.py",
+    "checked_at_utc": "2026-10-27T00:56:06.336065+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "pinned",
+    "status": 200,
+    "final_url": "https://github.com/facebookresearch/dinov2/blob/7764ea0f912e53c92e82eb78a2a1631e92725fc8/dinov2/layers/attention.py",
     "result": "http_reachable"
   },
   {
@@ -5570,6 +5660,16 @@
     "result": "http_reachable"
   },
   {
+    "url": "https://huggingface.co/EvolutionaryScale/esm3-sm-open-v1/tree/main",
+    "checked_at_utc": "2026-10-26T15:17:35.589226+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://huggingface.co/biohub/esm3-sm-open-v1/tree/main",
+    "result": "http_reachable"
+  },
+  {
     "url": "https://huggingface.co/OpenGVLab/InternVL2-8B",
     "checked_at_utc": "2026-10-23T02:46:21.989251+00:00",
     "method": "HEAD",
@@ -6237,6 +6337,16 @@
     "version": "dynamic_or_unversioned",
     "status": 200,
     "final_url": "https://huggingface.co/facebook/dinov2-large",
+    "result": "http_reachable"
+  },
+  {
+    "url": "https://huggingface.co/facebook/dinov2-large/resolve/47b73eefe95e8d44ec3623f8890bd894b6ea2d6c/model.safetensors",
+    "checked_at_utc": "2026-10-27T00:56:06.336555+00:00",
+    "method": "HEAD",
+    "content_verified": false,
+    "version": "dynamic_or_unversioned",
+    "status": 200,
+    "final_url": "https://us.aws.cdn.hf.co/xet-bridge-us/64b57085cf312e548807eff5/14377984bf1cbe0fea804ba125fca8f5575d7fdb55424ca594f8698e41bd25f7?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27model.safetensors%3B+filename%3D%22model.safetensors%22%3B&user_id=public&X-Xet-Cas-Uid=public&xip=iT0bZVIHC78&Expires=1793066167&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjRiNTcwODVjZjMxMmU1NDg4MDdlZmY1LzE0Mzc3OTg0YmYxY2JlMGZlYTgwNGJhMTI1ZmNhOGY1NTc1ZDdmZGI1NTQyNGNhNTk0Zjg2OThlNDFiZDI1ZjdcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3bW9kZWwuc2FmZXRlbnNvcnMlM0IrZmlsZW5hbWUlM0QlMjJtb2RlbC5zYWZldGVuc29ycyUyMiUzQiZ1c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZ4aXA9aVQwYlpWSUhDNzgiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc5MzA2NjE2N319fV19&Signature=MEUCIQC-Bu6GBFOGsBNZnxfANfrtrR%7Ev5oJIlrXy7-X2g57SOgIgSUZWi38mURt9i6A3xgJsrS1VUcKuzIx2vcWOcKEtA0o_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256",
     "result": "http_reachable"
   },
   {

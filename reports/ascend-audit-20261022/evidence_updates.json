@@ -1,5 +1,5 @@
 {
-  "checked_date": "2026-10-26",
+  "checked_date": "2026-10-27",
   "source_checks": [
     {
       "url": "https://github.com/chenjinyubuaa/AerialVLA/blob/main/README.md",
@@ -1717,6 +1717,93 @@
       "method": "web search出版方摘要/章节片段",
       "date": "2026-10-26",
       "note": "未取得论文全文或专用资产；不引用未经核实的NPU指标"
+    },
+    {
+      "url": "https://gitcode.com/AI4Science/RoseTTAFold/blob/310d4d0c77636a41ac5d7d518b5fdb40ccf2fdf3/README.md",
+      "method": "GitCode contents API读取固定提交完整文件并base64解码",
+      "date": "2026-10-26",
+      "blob_sha": "7f1b351273d6fbe5193e1d24bf96588417ef87fe",
+      "note": "源码与README边界核查；未运行模型"
+    },
+    {
+      "url": "https://gitcode.com/AI4Science/RoseTTAFold/blob/310d4d0c77636a41ac5d7d518b5fdb40ccf2fdf3/network/predict_e2e.py",
+      "method": "GitCode contents API读取固定提交完整文件并base64解码",
+      "date": "2026-10-26",
+      "blob_sha": "6a3cc5e7bbfc8363b93b7328c91a125d3927406b",
+      "note": "源码与README边界核查；未运行模型"
+    },
+    {
+      "url": "https://gitcode.com/AI4Science/esm3/blob/4de224584befa8e93fb2c7e5ebc8ce0187fb3bf4/README.md",
+      "method": "GitCode contents API读取固定提交完整文件并base64解码",
+      "date": "2026-10-26",
+      "blob_sha": "dc6446e99ba305cdc29704afdb8bbaf534e9028b",
+      "note": "源码与README边界核查；未运行模型"
+    },
+    {
+      "url": "https://gitcode.com/AI4Science/esm3/blob/4de224584befa8e93fb2c7e5ebc8ce0187fb3bf4/test-esm3.py",
+      "method": "GitCode contents API读取固定提交完整文件并base64解码",
+      "date": "2026-10-26",
+      "blob_sha": "83ab44b8a8e6dfc318a42f29f11e125524355f4d",
+      "note": "源码与README边界核查；未运行模型"
+    },
+    {
+      "url": "https://gitcode.com/AI4Science/LifeScience/blob/27065e4053aa860774b9a005e6a5307854d062a8/PyTorch/RFdiffusion2/README.md",
+      "method": "GitCode contents API读取固定提交完整文件并base64解码",
+      "date": "2026-10-26",
+      "blob_sha": "a5145147b08403df5d413cf97852780750449a9b",
+      "note": "区分算子、样例与蛋白任务基准"
+    },
+    {
+      "url": "https://gitcode.com/AI4Science/LifeScience/blob/27065e4053aa860774b9a005e6a5307854d062a8/PyTorch/RFdiffusion_pyg/README.md",
+      "method": "GitCode contents API读取固定提交完整文件并base64解码",
+      "date": "2026-10-26",
+      "blob_sha": "82be0a9a92a99ea114e31d0c441d58968760eccb",
+      "note": "区分算子、样例与蛋白任务基准"
+    },
+    {
+      "url": "https://gitcode.com/AI4Science/LifeScience/blob/27065e4053aa860774b9a005e6a5307854d062a8/PyTorch/RFdiffusion_pyg/docs/huawei_910b.md",
+      "method": "GitCode contents API读取固定提交完整文件并base64解码",
+      "date": "2026-10-26",
+      "blob_sha": "1848f170e085b698c69b59d2a871e3b5554e896c",
+      "note": "区分算子、样例与蛋白任务基准"
+    },
+    {
+      "url": "https://gitcode.com/AI4Science/LifeScience/blob/27065e4053aa860774b9a005e6a5307854d062a8/PyTorch/RFdiffusion_pyg/docs/perf_tuning.md",
+      "method": "GitCode contents API读取固定提交完整文件并base64解码",
+      "date": "2026-10-26",
+      "blob_sha": "a325ceab5d91eecb12534bcba2052f3b48a37ad6",
+      "note": "区分算子、样例与蛋白任务基准"
+    },
+    {
+      "url": "https://gitcode.com/AI4Science/LifeScience/blob/27065e4053aa860774b9a005e6a5307854d062a8/PyTorch/RFdiffusion_pyg/docs/pyg_migration_report.md",
+      "method": "GitCode contents API读取固定提交完整文件并base64解码",
+      "date": "2026-10-26",
+      "blob_sha": "a2f75ad0c4067eadad5c3f22e38520a5f8e4b1f9",
+      "note": "区分算子、样例与蛋白任务基准"
+    },
+    {
+      "url": "https://github.com/facebookresearch/dinov2/blob/7764ea0f912e53c92e82eb78a2a1631e92725fc8/README.md",
+      "blob_sha": "906cd08c55b33306da438df3da837c0f9bf94ff0",
+      "method": "GitHub连接器读取固定commit README",
+      "date": "2026-10-27"
+    },
+    {
+      "url": "https://github.com/facebookresearch/dinov2/blob/7764ea0f912e53c92e82eb78a2a1631e92725fc8/dinov2/layers/attention.py",
+      "blob_sha": "f1d3dabf14ffbd5eb68c3c16edc56d0da19b1265",
+      "method": "GitHub连接器读取固定commit完整源码",
+      "date": "2026-10-27"
+    },
+    {
+      "url": "https://github.com/facebookresearch/dinov2/blob/7764ea0f912e53c92e82eb78a2a1631e92725fc8/dinov2/models/vision_transformer.py",
+      "blob_sha": "34694244ae4e6467a4aa315180a89b323336bf0b",
+      "method": "GitHub连接器读取固定commit完整源码",
+      "date": "2026-10-27"
+    },
+    {
+      "url": "https://github.com/facebookresearch/dinov2/blob/7764ea0f912e53c92e82eb78a2a1631e92725fc8/dinov2/eval/linear.py",
+      "blob_sha": "1bd4c5de5a041be8a188f007257d1e91b6d6921e",
+      "method": "GitHub连接器读取固定commit原始文件；notebook只分析文字、源码与数值输出",
+      "date": "2026-10-27"
     }
   ],
   "target_master": "dd5924481f8f43e2c7d51f39eca8bf1a7e3d4202",
@@ -4678,6 +4765,53 @@
       }
     },
     {
+      "fields": {
+        "代码": {
+          "说明": "AI4Science专项源码已确认：test-esm3.py导入torch_npu及transfer_to_npu，ESM3.from_pretrained('esm3-open').to('npu')；进行序列、结构生成及inverse-folding round trip。README未固定pip esm版本；不等同全部ESM3规模支持。",
+          "链接": [
+            "https://gitcode.com/AI4Science/esm3/blob/4de224584befa8e93fb2c7e5ebc8ce0187fb3bf4/README.md",
+            "https://gitcode.com/AI4Science/esm3/blob/4de224584befa8e93fb2c7e5ebc8ce0187fb3bf4/test-esm3.py"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "权重": {
+          "说明": "复用EvolutionaryScale/esm3-sm-open-v1，README指定本地缓存目录；没有独立NPU checkpoint及SHA。仓库还声明镜像内置权重，未核验镜像内容/摘要和授权。",
+          "链接": [
+            "https://gitcode.com/AI4Science/esm3/blob/4de224584befa8e93fb2c7e5ebc8ce0187fb3bf4/README.md",
+            "https://huggingface.co/EvolutionaryScale/esm3-sm-open-v1/tree/main"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "数据集": {
+          "说明": "脚本使用Carbonic Anhydrase 2vvb部分序列作掩码补全，num_steps=8；输出generation.pdb、round_tripped.pdb。仅单例演示，没有独立测试集划分、参考结构比较或全量任务评测。",
+          "链接": [
+            "https://gitcode.com/AI4Science/esm3/blob/4de224584befa8e93fb2c7e5ebc8ce0187fb3bf4/test-esm3.py"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "性能基准": {
+          "说明": "README仅给流水环境变量与运行命令；脚本没有计时、NPU同步、预热、吞吐或重复统计。没有可引用的NPU延迟/吞吐值。",
+          "链接": [
+            "https://gitcode.com/AI4Science/esm3/blob/4de224584befa8e93fb2c7e5ebc8ce0187fb3bf4/README.md",
+            "https://gitcode.com/AI4Science/esm3/blob/4de224584befa8e93fb2c7e5ebc8ce0187fb3bf4/test-esm3.py"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "精度基准": {
+          "说明": "生成PDB及round trip不等于质量验收；脚本无参考结构RMSD/TM-score、序列恢复率或功能验证。未发布可核实的NPU任务精度及GPU/CPU对照表。",
+          "链接": [
+            "https://gitcode.com/AI4Science/esm3/blob/4de224584befa8e93fb2c7e5ebc8ce0187fb3bf4/test-esm3.py"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        }
+      },
+      "number": 57,
+      "device": "NPU",
+      "date": "2026-10-26",
+      "conclusion": "外部AI4Science已有ESM3-open专项NPU推理；无独立精度/性能表，非ModelZoo仓内交付",
+      "note": "已修正ESM3未找到NPU证据的旧结论；仅覆盖open 1.4B，不覆盖7B/98B或ESM C。"
+    },
+    {
       "number": 58,
       "date": "2026-10-25",
       "device": "GPU",
@@ -4877,6 +5011,50 @@
       }
     },
     {
+      "fields": {
+        "代码": {
+          "说明": "LifeScience RFdiffusion2明确早期建设中、仅推理；DGL改为PyG兼容层，transfer_to_npu与mx_driving图算子路线。README引用MIGRATION_DOC.md但该固定版本路径404，不能当作已交付迁移报告。",
+          "链接": [
+            "https://gitcode.com/AI4Science/LifeScience/blob/27065e4053aa860774b9a005e6a5307854d062a8/PyTorch/RFdiffusion2/README.md"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "权重": {
+          "说明": "README指向modelers.cn/panxiaomu/rfdiffusion2-weights并放入rf_diffusion/model_weights；声称保持上游权重格式。未公布独立NPU权重SHA或加载验收记录。",
+          "链接": [
+            "https://gitcode.com/AI4Science/LifeScience/blob/27065e4053aa860774b9a005e6a5307854d062a8/PyTorch/RFdiffusion2/README.md",
+            "https://modelers.cn/panxiaomu/rfdiffusion2-weights"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "数据集": {
+          "说明": "open_source_demo.json用于150残基设计演示；默认pipeline只跑结构设计。AME的41个M-CSA案例×100 designs×8 sequences是评测流程说明，不是已完成的NPU测试集结果；LigandMPNN与Chai1的NPU支持未在此证实。",
+          "链接": [
+            "https://gitcode.com/AI4Science/LifeScience/blob/27065e4053aa860774b9a005e6a5307854d062a8/PyTorch/RFdiffusion2/README.md"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "性能基准": {
+          "说明": "文中30min+及RTX2060单例10min为上游/GPU运行描述，不是NPU耗时。未给NPU卡型、同步计时、重复次数及全流程吞吐。",
+          "链接": [
+            "https://gitcode.com/AI4Science/LifeScience/blob/27065e4053aa860774b9a005e6a5307854d062a8/PyTorch/RFdiffusion2/README.md"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "精度基准": {
+          "说明": "文档介绍contig_rmsd_a_b_s等设计/回折/参考结构比较字段，但未给NPU设计成功率或RMSD统计。stop_step='end'才继续序列设计与Chai1回折，默认结构输出不能替代完整质量验收。",
+          "链接": [
+            "https://gitcode.com/AI4Science/LifeScience/blob/27065e4053aa860774b9a005e6a5307854d062a8/PyTorch/RFdiffusion2/README.md"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        }
+      },
+      "number": 62,
+      "device": "NPU",
+      "date": "2026-10-26",
+      "conclusion": "LifeScience提供RFdiffusion2早期NPU/PyG推理实现；完整设计质量及性能未验收"
+    },
+    {
       "date": "2026-10-25",
       "device": "GPU",
       "number": 63,
@@ -4910,6 +5088,52 @@
           "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
         }
       }
+    },
+    {
+      "fields": {
+        "代码": {
+          "说明": "RFdiffusion_pyg提供910B/PyG迁移、scripts/run_inference.py及无条件/PPI/对称设计脚本。README仍有git clone <your-repo-url>与旧工作目录good_back_RFDiffusion_923，交付说明需修正。",
+          "链接": [
+            "https://gitcode.com/AI4Science/LifeScience/blob/27065e4053aa860774b9a005e6a5307854d062a8/PyTorch/RFdiffusion_pyg/README.md"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "权重": {
+          "说明": "README给scripts/download_models.sh models下载上游权重，未公布独立NPU权重及SHA；算子替换不意味着发布过完整NPU checkpoint。",
+          "链接": [
+            "https://gitcode.com/AI4Science/LifeScience/blob/27065e4053aa860774b9a005e6a5307854d062a8/PyTorch/RFdiffusion_pyg/README.md"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "数据集": {
+          "说明": "公开文档以随机图、多尺寸/特征维进行算子测试，并给设计样例入口；未列冻结的蛋白设计任务测试集及全量NPU运行记录。随机图不能替代蛋白设计评估。",
+          "链接": [
+            "https://gitcode.com/AI4Science/LifeScience/blob/27065e4053aa860774b9a005e6a5307854d062a8/PyTorch/RFdiffusion_pyg/docs/pyg_migration_report.md"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "性能基准": {
+          "说明": "910B文档列样例吞吐≈0.49 samples/s、batch=240、homo任务、seed42，但没有蛋白长度、去噪步数、计时边界或原始日志，不能作为正式RFdiffusion端到端基准。perf_tuning的ops/performance_test.py属于算子基准。",
+          "链接": [
+            "https://gitcode.com/AI4Science/LifeScience/blob/27065e4053aa860774b9a005e6a5307854d062a8/PyTorch/RFdiffusion_pyg/docs/huawei_910b.md",
+            "https://gitcode.com/AI4Science/LifeScience/blob/27065e4053aa860774b9a005e6a5307854d062a8/PyTorch/RFdiffusion_pyg/docs/perf_tuning.md"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "精度基准": {
+          "说明": "README声称核心算子误差<1e-4；迁移报告的DGL CPU rtol/atol=1e-4是算子对齐条件。910B文档MAE≈0.4677未定义参考值/单位/任务数据，不能当作蛋白设计RMSD或成功率。未见完整NPU设计质量表。",
+          "链接": [
+            "https://gitcode.com/AI4Science/LifeScience/blob/27065e4053aa860774b9a005e6a5307854d062a8/PyTorch/RFdiffusion_pyg/README.md",
+            "https://gitcode.com/AI4Science/LifeScience/blob/27065e4053aa860774b9a005e6a5307854d062a8/PyTorch/RFdiffusion_pyg/docs/huawei_910b.md",
+            "https://gitcode.com/AI4Science/LifeScience/blob/27065e4053aa860774b9a005e6a5307854d062a8/PyTorch/RFdiffusion_pyg/docs/pyg_migration_report.md"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        }
+      },
+      "number": 63,
+      "device": "NPU",
+      "date": "2026-10-26",
+      "conclusion": "LifeScience提供RFdiffusion PyG/910B实现；算子对齐与示例数值不构成蛋白设计验收"
     },
     {
       "date": "2026-10-25",
@@ -4947,6 +5171,55 @@
           "证据类型": "2026-10-25已读原始资料；公开结果，未独立复测"
         }
       }
+    },
+    {
+      "fields": {
+        "代码": {
+          "说明": "AI4Science专项predict_e2e.py导入torch_npu/transfer_to_npu、强制self.device='npu'并使用torch.amp.autocast('npu')；strict=True加载模型。--cpu参数之后仍被强制npu覆盖，不能据此认定CPU对照入口有效。非ModelZoo仓内交付。",
+          "链接": [
+            "https://gitcode.com/AI4Science/RoseTTAFold/blob/310d4d0c77636a41ac5d7d518b5fdb40ccf2fdf3/README.md",
+            "https://gitcode.com/AI4Science/RoseTTAFold/blob/310d4d0c77636a41ac5d7d518b5fdb40ccf2fdf3/network/predict_e2e.py"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "权重": {
+          "说明": "README下载原始weights.tar.gz；代码加载RoseTTAFold_e2e.pt的model_state_dict，strict=True。无独立NPU权重、资产SHA或转换产物；下载可用性与许可须另核。",
+          "链接": [
+            "https://gitcode.com/AI4Science/RoseTTAFold/blob/310d4d0c77636a41ac5d7d518b5fdb40ccf2fdf3/README.md",
+            "https://gitcode.com/AI4Science/RoseTTAFold/blob/310d4d0c77636a41ac5d7d518b5fdb40ccf2fdf3/network/predict_e2e.py",
+            "https://files.ipd.uw.edu/pub/RoseTTAFold/weights.tar.gz"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "数据集": {
+          "说明": "专项命令输入example/end-to-end/t000_.msa0.a3m；模板可选，未提供hhr时使用零模板。单个MSA样例不是CASP14全量NPU验证；未见冻结评测清单和原始结构对照结果。",
+          "链接": [
+            "https://gitcode.com/AI4Science/RoseTTAFold/blob/310d4d0c77636a41ac5d7d518b5fdb40ccf2fdf3/README.md",
+            "https://gitcode.com/AI4Science/RoseTTAFold/blob/310d4d0c77636a41ac5d7d518b5fdb40ccf2fdf3/network/predict_e2e.py"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "性能基准": {
+          "说明": "README没有NPU耗时、硬件卡型或吞吐结果；源码虽然import time，但没有完整推理同步计时与重复统计。长序列L>300走裁剪合并，不能省略长度/MSA深度直接比较性能。",
+          "链接": [
+            "https://gitcode.com/AI4Science/RoseTTAFold/blob/310d4d0c77636a41ac5d7d518b5fdb40ccf2fdf3/README.md",
+            "https://gitcode.com/AI4Science/RoseTTAFold/blob/310d4d0c77636a41ac5d7d518b5fdb40ccf2fdf3/network/predict_e2e.py"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        },
+        "精度基准": {
+          "说明": "PDB的B-factor写入预测lddt置信度，不是与实验结构比较的实测lDDT。未见CASP14/TM-score/RMSD的NPU结果或同协议对照；模型能写PDB不能认定精度验收完成。",
+          "链接": [
+            "https://gitcode.com/AI4Science/RoseTTAFold/blob/310d4d0c77636a41ac5d7d518b5fdb40ccf2fdf3/network/predict_e2e.py"
+          ],
+          "证据类型": "2026-10-26已读原始资料；公开结果，未独立复测"
+        }
+      },
+      "number": 64,
+      "device": "NPU",
+      "date": "2026-10-26",
+      "conclusion": "外部AI4Science已有RoseTTAFold专项NPU源码；任务精度和性能未形成公开验收",
+      "note": "蛋白质RoseTTAFold与ModelZoo OCR Rosetta不是同一模型；已补入独立NPU源码证据。"
     },
     {
       "number": 65,
@@ -6128,6 +6401,52 @@
       },
       "note": "任务分配系统和LLM推理后端分开；论文指标可引用，公开本地GPU交付未确认。",
       "conclusion": "论文及系统仿真指标公开；本地GPU交付未确认"
+    },
+    {
+      "number": 84,
+      "device": "GPU",
+      "date": "2026-10-27",
+      "fields": {
+        "代码": {
+          "说明": "Meta官方backbone、kNN/linear评估及预训练heads；HF AutoModel是另一权重封装。官方attention支持SDPA回退，MemEffAttention在xFormers可用时调用CUDA扩展；NPU需要显式选择兼容路径。",
+          "链接": [
+            "https://github.com/facebookresearch/dinov2/blob/7764ea0f912e53c92e82eb78a2a1631e92725fc8/dinov2/layers/attention.py",
+            "https://github.com/facebookresearch/dinov2/blob/7764ea0f912e53c92e82eb78a2a1631e92725fc8/dinov2/eval/linear.py"
+          ],
+          "证据类型": "2026-10-27已读固定提交官方源码/结果；非本次GPU实测"
+        },
+        "权重": {
+          "说明": "已取得facebook/dinov2-large固定47b73eef...、1,217,522,888字节及LFS SHA。官方另有ViT-L/14 backbone、linear/linear4头；checkpoint和head/normalization必须同一protocol，reg4不能混用。",
+          "链接": [
+            "https://huggingface.co/facebook/dinov2-large/resolve/47b73eefe95e8d44ec3623f8890bd894b6ea2d6c/model.safetensors",
+            "https://github.com/facebookresearch/dinov2/blob/7764ea0f912e53c92e82eb78a2a1631e92725fc8/README.md"
+          ],
+          "证据类型": "2026-10-27已读固定提交官方源码/结果；非本次GPU实测"
+        },
+        "数据集": {
+          "说明": "ImageNet-1k TRAIN用于kNN特征库/linear训练、VAL用于评测，需授权本地数据；原始142M预训练图像不是推理验收下载条件。README示例ImageNet22k预训练recipe另算。",
+          "链接": [
+            "https://github.com/facebookresearch/dinov2/blob/7764ea0f912e53c92e82eb78a2a1631e92725fc8/README.md",
+            "https://github.com/facebookresearch/dinov2/blob/7764ea0f912e53c92e82eb78a2a1631e92725fc8/dinov2/eval/linear.py"
+          ],
+          "证据类型": "2026-10-27已读固定提交官方源码/结果；非本次GPU实测"
+        },
+        "性能基准": {
+          "说明": "README 32×A100-80GB约1天属于ViT-L/16训练recipe，不能当ViT-L/14推理速度；本轮未确认与社区224×224/B1严格同口径GPU推理值。",
+          "链接": [
+            "https://github.com/facebookresearch/dinov2/blob/7764ea0f912e53c92e82eb78a2a1631e92725fc8/README.md"
+          ],
+          "证据类型": "2026-10-27已读固定提交官方源码/结果；非本次GPU实测"
+        },
+        "精度基准": {
+          "说明": "官方ViT-L/14无register：ImageNet kNN83.5%、linear86.3%；reg4为83.8%/86.7%。旧表81.6/82.9属于另一个L/16训练recipe，应从L/14适配基线剔除。公开分数只有复用对应图像变换、特征层和classifier/head才能直接比较。",
+          "链接": [
+            "https://github.com/facebookresearch/dinov2/blob/7764ea0f912e53c92e82eb78a2a1631e92725fc8/README.md"
+          ],
+          "证据类型": "2026-10-27已读固定提交官方源码/结果；非本次GPU实测"
+        }
+      },
+      "conclusion": "官方GPU实现；ViT-L/14基准已纠正为83.5%/86.3%，不再混用L/16训练recipe"
     },
     {
       "number": 84,

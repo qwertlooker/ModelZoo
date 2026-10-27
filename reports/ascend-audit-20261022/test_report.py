@@ -471,4 +471,18 @@ class ReportTests(unittest.TestCase):
             for token in tokens:
                 with self.subTest(number=n,field=field,token=token):
                     self.assertIn(token,value)
+    def test_protein_npu_source_does_not_equal_task_acceptance(self):
+        for n, field, tokens in [
+            (57,'代码',[".to('npu')",'ESM3']),
+            (57,'数据集',['2vvb','单例演示']),
+            (64,'代码',['--cpu','强制npu覆盖']),
+            (64,'精度基准',['B-factor','不是','实测lDDT']),
+            (62,'性能基准',['RTX2060','不是NPU耗时']),
+            (62,'精度基准',["stop_step='end'",'默认结构输出']),
+            (63,'精度基准',['MAE≈0.4677','未定义','算子']),
+        ]:
+            value=self.rows[n-1]['设备维度']['NPU'][field]['说明']
+            for token in tokens:
+                with self.subTest(number=n,field=field,token=token):
+                    self.assertIn(token,value)
 if __name__=='__main__':unittest.main()
