@@ -11,6 +11,8 @@ import time
 from datetime import datetime, timedelta
 from pathlib import Path
 
+import performance
+
 DATA_SHA = "f18de3ad269cef59bb07b5438d79bb3042d3be49bdeecf01c1cd6d29695ee066"
 MODEL_SHA = "b53f6d52114e2ad786890f3c4637ce05f580b7800d6e24401f88b398b76035ef"
 CONFIG_SHA = "452ecae918f67b2e7d0f2892ab424d1876939e70d077db3708a4fe8ca03a7de5"
@@ -102,11 +104,19 @@ def batches(manifest, columns, batch_size):
         yield pending
 
 
+def require_transformers_version():
+    from importlib.metadata import version
+    if version("transformers") != "5.3.0":
+        raise RuntimeError("TimesFM entry requires transformers==5.3.0")
+
+
 def infer(args):
     if args.batch_size < 1 or args.warmup < 0:
         raise ValueError("batch-size must be positive and warmup cannot be negative")
     manifest = load_manifest(args.manifest)
     columns = read_series(manifest["dataset_path"])
+    if len(columns[CHANNELS[0]]) != manifest["dataset_rows"]:
+        raise ValueError("manifest dataset row count differs from actual data")
     model_dir = Path(args.model_dir)
     for filename, expected in (("model.safetensors", MODEL_SHA), ("config.json", CONFIG_SHA)):
         digest = sha256(model_dir / filename)
@@ -124,10 +134,13 @@ def infer(args):
             raise RuntimeError("CUDA requested but unavailable")
         sync = torch.cuda.synchronize
     else:
-        sync = lambda: None
+        def sync():
+            return None
+    require_transformers_version()
     from transformers import TimesFm2_5ModelForPrediction
     model, loading = TimesFm2_5ModelForPrediction.from_pretrained(
-        str(model_dir), local_files_only=True, attn_implementation="eager", output_loading_info=True
+        str(model_dir), local_files_only=True, attn_implementation=args.attention, dtype=torch.float32,
+        output_loading_info=True
     )
     for key in ("missing_keys", "unexpected_keys", "mismatched_keys", "error_msgs"):
         if loading.get(key):
@@ -140,7 +153,9 @@ def infer(args):
                 "model_sha256": MODEL_SHA, "config_sha256": CONFIG_SHA, "device": args.device,
                 "dtype": "float32", "batch_size": args.batch_size, "warmup": args.warmup,
                 "context": manifest["context"], "horizon": manifest["horizon"],
-                "torch_version": torch.__version__}
+                "torch_version": torch.__version__, "transformers_version": "5.3.0",
+                "attention": args.attention, "adapter_sha256": sha256(__file__),
+                "timing_sha256": sha256(performance.__file__)}
     latencies = []
     written = 0
     with Path(args.output).open("w", encoding="utf-8", newline="\n") as out, torch.inference_mode():
@@ -167,6 +182,7 @@ def infer(args):
                 written += 1
     if written != manifest["series_count"]:
         raise ValueError(f"incomplete output: {written} != {manifest['series_count']}")
+    performance.write_report(args.output, metadata, latencies, written)
     print(json.dumps({"series": written, "batches": len(latencies), "batch_latency_median_ms": statistics.median(latencies),
                       "scope": "model call with device synchronization; host preparation and output transfer excluded"}))
 
@@ -192,6 +208,11 @@ def evaluate(args):
     meta, rows = read_results(args.results)
     if meta["manifest_sha256"] != sha256(args.manifest) or len(rows) != manifest["series_count"]:
         raise ValueError("result manifest or count mismatch")
+    for key, expected_value in (("dataset_sha256", manifest["dataset_sha256"]),
+                                ("model_sha256", MODEL_SHA), ("config_sha256", CONFIG_SHA),
+                                ("context", manifest["context"]), ("horizon", manifest["horizon"])):
+        if meta[key] != expected_value:
+            raise ValueError(f"result metadata mismatch: {key}")
     expected = (sample for batch in batches(manifest, read_series(manifest["dataset_path"]), 64) for sample in batch)
     square, absolute, count = 0.0, 0.0, 0
     for row, (sample_id, _, truth) in zip(rows, expected):
@@ -252,6 +273,7 @@ def main():
     p.add_argument("--device", choices=("npu", "cpu", "cuda"), default="npu")
     p.add_argument("--batch-size", type=int, default=8)
     p.add_argument("--warmup", type=int, default=3)
+    p.add_argument("--attention", choices=("sdpa", "eager"), default="sdpa")
     p.set_defaults(run=infer)
     p = sub.add_parser("evaluate", help="compute ETTh1 MSE and MAE")
     p.add_argument("--manifest", required=True)

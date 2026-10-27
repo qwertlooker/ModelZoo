@@ -2,7 +2,9 @@
 
 ## 概述
 
-本工作区是离线适配准备，默认 NPU，不自动回退 CPU。**尚未运行真实模型或 NPU，未达到 S3。** 上游审计快照：https://github.com/ibm-granite/granite-tsfm/tree/9d0b839f997eb4918822a43036012ce8c277687c；实际入口固定 PyPI granite-tsfm 0.3.8 的模型源码 SHA `6c4cbcaa417ea09f643ee83918524e7bca6ac369b6b3500a5073c7ccc868dc14`，不假设该轮子等同审计快照。权重 ibm-granite/granite-timeseries-ttm-r2 revision `d6a79570cac0f33d526601cd3a0fc7c80a8f9a2f`，许可证 Apache-2.0。
+本工作区是离线适配准备，默认 NPU，不自动回退 CPU。**尚未运行真实模型或 NPU，未达到 S3。** 上游审计快照：<https://github.com/ibm-granite/granite-tsfm/tree/9d0b839f997eb4918822a43036012ce8c277687c>；实际入口固定 PyPI granite-tsfm 0.3.8 的模型源码 SHA `6c4cbcaa417ea09f643ee83918524e7bca6ac369b6b3500a5073c7ccc868dc14`，不假设该轮子等同审计快照。权重 ibm-granite/granite-timeseries-ttm-r2 revision `d6a79570cac0f33d526601cd3a0fc7c80a8f9a2f`，许可证 Apache-2.0。
+
+参考实现 `commit_id=9d0b839f997eb4918822a43036012ce8c277687c`（固定源码或资料审计快照；实际运行依赖版本仍以上述约束为准）。
 
 ## 输入输出数据
 
@@ -15,6 +17,7 @@ PyPI `granite-tsfm==0.3.8` 声明 Python ≥3.11、<3.14，PyTorch ≥2.10、<2.
 目标栈满足版本约束并已核对软件配套后，可安装业务依赖并检查依赖一致性：
 
 ```bash
+set -e
 python3 -c 'import torch, torch_npu; from packaging.version import Version; assert Version("2.10") <= Version(torch.__version__) < Version("2.11")'
 python3 -m pip install 'granite-tsfm==0.3.8' 'transformers==4.57.6'
 python3 -m pip check
@@ -24,7 +27,7 @@ python3 -m pip check
 
 ## 文件目录
 
-`model.py`、`common.py`、`prepare_series.py` 为工具入口，`test_model.py` 为离线回归；权重、数据、输出不入正式候选。
+`model.py`、`common.py`、`prepare_series.py` 为工具入口，`performance.py` 为独立性能汇总，`test_model.py`、`test_performance.py` 为离线回归；权重、数据、输出不入正式候选。
 
 ## 快速上手
 
@@ -56,6 +59,22 @@ python3 model.py compare --reference "$MODEL_WORK_DIR/cpu.npz" --candidate "$MOD
 
 ETTh1 context 512/horizon 96，官方 Granite R2 原始结果表 zero-shot MSE 0.363；需逐项核对外部标准化、测试切分、模型分支及 evaluator 后才可比较。 当前只提供本地协议，需要复核 0.3.8 与固定 checkpoint 的配置字段实际使用；不同 R2 分支或 research-r2 不可替代。输入七通道是独立预测接口，不等于已验证跨通道混合。 固定输入 SHA、模型 SHA、任务及 head 后才允许比较。同步计时覆盖模型调用，排除输入准备和结果传回；单次 batch 中位数不是三次独立运行中位数。完整 NPU 精度、三次独立性能、端到端时间和显存待上机测量。
 
+## NPU 独立性能报告
+
+每次 `infer` 成功后额外生成 `<输出文件>.performance.json`，保存逐批同步耗时、总模型调用时间、吞吐、结果 SHA、命令和运行 ID。元信息含 Python、PyTorch、torch_npu、设备名称、进程内逻辑卡号及 `ASCEND_RT_VISIBLE_DEVICES` 原值；物理卡映射仍须结合 `npu-smi info` 核对。`performance.py` 校验至少三次不同运行 ID、相同模型/数据/设备/参数，再汇总独立运行中位数；CPU 报告不能用于 NPU 性能结论。
+
+```bash
+set -e
+for RUN in 1 2 3; do
+  python3 model.py infer --model-dir "$MODEL_WORK_DIR/model" --input "$MODEL_WORK_DIR/test.npz" --output "$MODEL_WORK_DIR/npu-run-$RUN.npz" --device npu --task forecast
+done
+python3 performance.py --runs "$MODEL_WORK_DIR"/npu-run-*.npz.performance.json --output "$MODEL_WORK_DIR/performance-median.json"
+```
+
+统计包括末尾不足 batch 的批次；吞吐单位为输入样本/秒（TimesFM 为通道序列/秒）。这是纯模型调用口径，端到端时间、首次编译和峰值 HBM 仍需在目标 NPU 单独实测。报告校验不能认证人工编辑的文件或证明设备证据真实，发布前须核对原始日志。
+
+本目录 `LICENSE` 保留固定上游参考实现的许可原文；正式自测、完整依赖安装与 NPU 验收仍待完成。
+
 ## 公网地址
 
 | 内容 | 具体地址 |
@@ -64,3 +83,8 @@ ETTh1 context 512/horizon 96，官方 Granite R2 原始结果表 zero-shot MSE 0
 | 固定权重 | https://huggingface.co/ibm-granite/granite-timeseries-ttm-r2/tree/d6a79570cac0f33d526601cd3a0fc7c80a8f9a2f |
 | 公开参考 | https://github.com/ibm-granite/granite-tsfm/blob/9d0b839f997eb4918822a43036012ce8c277687c/notebooks/hfdemo/tinytimemixer/full_benchmarking/combined_results-granite-r2.csv |
 | ETTh1 数据 | https://github.com/zhouhaoyi/ETDataset/blob/1d16c8f4f943005d613b5bc962e9eeb06058cf07/ETT-small/ETTh1.csv |
+| 下载或依赖地址 | https://huggingface.co/ibm-granite/granite-timeseries-ttm-r2/resolve/d6a79570cac0f33d526601cd3a0fc7c80a8f9a2f/config.json |
+| 下载或依赖地址 | https://huggingface.co/ibm-granite/granite-timeseries-ttm-r2/resolve/d6a79570cac0f33d526601cd3a0fc7c80a8f9a2f/model.safetensors |
+| 下载或依赖地址 | https://raw.githubusercontent.com/zhouhaoyi/ETDataset/1d16c8f4f943005d613b5bc962e9eeb06058cf07/ETT-small/ETTh1.csv |
+| 参考许可证 | https://raw.githubusercontent.com/ibm-granite/granite-tsfm/9d0b839f997eb4918822a43036012ce8c277687c/LICENSE |
+| 官方软件配套表 | https://github.com/Ascend/pytorch/blob/94dd5bf251144e6227e2b5228ad9f878878c0bf4/COMPATIBILITY.en.md |

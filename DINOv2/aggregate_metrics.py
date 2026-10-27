@@ -51,7 +51,7 @@ def main():
         inputs = work / "inputs" / (stem + ".npz")
         result = work / "results" / (stem + ".npz")
         score = json.loads((work / "scores" / (stem + ".json")).read_text(encoding="utf-8"))
-        _, result_meta = common.read_prediction(result)
+        predictions, result_meta = common.read_prediction(result)
         identity = {k: result_meta[k] for k in ("model", "model_sha256", "config_sha256", "head_sha256", "dtype", "task", "device")}
         if baseline is None:
             baseline = identity
@@ -59,11 +59,25 @@ def main():
             raise ValueError("shards use different model, head, task or device")
         with np.load(inputs, allow_pickle=False) as data:
             prep = json.loads(str(data["preparation"].item()))
-            count = len(data["targets"])
+            targets = data["targets"]
+            count = len(targets)
         if (prep["manifest_sha256"] != shard["sha256"] or count != shard["count"]
                 or score["samples"] != count or score["input_sha256"] != common.digest(inputs)
+                or result_meta["input_sha256"] != common.digest(inputs)
                 or score["results_sha256"] != common.digest(result)):
             raise ValueError(f"shard provenance mismatch: {name}")
+        if (predictions.shape != (count, 1000) or targets.shape != (count,)
+                or targets.dtype.kind not in "iu" or np.any(targets < 0) or np.any(targets >= 1000)):
+            raise ValueError("invalid shard logits or labels")
+        if targets.tolist() != [int(row["label"]) for row in all_rows[-count:]]:
+            raise ValueError("shard target labels differ from manifest")
+        top = np.argsort(predictions, axis=1)[:, -5:]
+        measured = {"top1": float(np.mean(top[:, -1] == targets)),
+                    "top5": float(np.mean(np.any(top == targets[:, None], axis=1)))}
+        if any(score[key] != measured[key] for key in measured):
+            raise ValueError("shard scores differ from saved logits")
+        if any(score[key] != result_meta[key] for key in ("model", "model_sha256", "device")):
+            raise ValueError("score and result model/device differ")
         if any(not math.isfinite(score[k]) or not 0 <= score[k] <= 1 for k in ("top1", "top5")):
             raise ValueError("invalid classification score")
         total += count

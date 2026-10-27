@@ -94,12 +94,31 @@ class OfflineWorkflowTests(unittest.TestCase):
         def asset_sha(path):
             return adapter.MODEL_SHA if path.name == "model.safetensors" else adapter.CONFIG_SHA
 
-        with mock.patch.object(adapter, "load_manifest", return_value={"dataset_path": "data"}), \
-             mock.patch.object(adapter, "read_series", return_value={}), \
+        with mock.patch.object(adapter, "load_manifest", return_value={"dataset_path": "data", "dataset_rows": 1}), \
+             mock.patch.object(adapter, "read_series", return_value={"HUFL": [1]}), \
              mock.patch.object(adapter, "sha256", side_effect=asset_sha), \
              mock.patch.dict(sys.modules, {"torch": torch, "torch_npu": torch_npu}):
             with self.assertRaisesRegex(RuntimeError, "NPU requested"):
                 adapter.infer(args)
+
+    def test_evaluation_rejects_wrong_model_or_horizon_metadata(self):
+        predictions = self.root / "predictions.jsonl"
+        self.write_results(predictions)
+        original = predictions.read_text()
+        for key, value in (("model_sha256", "wrong"), ("context", 5), ("horizon", 3)):
+            lines = original.splitlines()
+            metadata = json.loads(lines[0])
+            metadata[key] = value
+            predictions.write_text("\n".join([json.dumps(metadata), *lines[1:]]) + "\n")
+            self.run_cli("evaluate", "--manifest", self.manifest, "--results", predictions,
+                         "--output", self.root / "report.json", success=False)
+
+    def test_transformers_version_is_enforced(self):
+        with mock.patch("importlib.metadata.version", return_value="5.3.0"):
+            adapter.require_transformers_version()
+        with mock.patch("importlib.metadata.version", return_value="5.2.0"):
+            with self.assertRaisesRegex(RuntimeError, "transformers==5.3.0"):
+                adapter.require_transformers_version()
 
 
 if __name__ == "__main__":

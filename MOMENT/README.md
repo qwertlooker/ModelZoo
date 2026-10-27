@@ -2,7 +2,9 @@
 
 ## 概述
 
-本工作区是离线适配准备，默认 NPU，不自动回退 CPU。**尚未运行真实模型或 NPU，未达到 S3。** 固定模型与源代码：https://github.com/moment-timeseries-foundation-model/moment/tree/38f7310ad594100747ca2a8357e9c7ca7d323e0e；权重 AutonLab/MOMENT-1-large revision `ca58581bc7bea2ebed4e80dc0a3e4b8b609c6ecc`，许可证 MIT。
+本工作区是离线适配准备，默认 NPU，不自动回退 CPU。**尚未运行真实模型或 NPU，未达到 S3。** 固定模型与源代码：<https://github.com/moment-timeseries-foundation-model/moment/tree/38f7310ad594100747ca2a8357e9c7ca7d323e0e>；权重 AutonLab/MOMENT-1-large revision `ca58581bc7bea2ebed4e80dc0a3e4b8b609c6ecc`，许可证 MIT。
+
+参考实现 `commit_id=38f7310ad594100747ca2a8357e9c7ca7d323e0e`（固定源码或资料审计快照；实际运行依赖版本仍以上述约束为准）。
 
 ## 输入输出数据
 
@@ -15,6 +17,7 @@
 确认配套栈后，从固定源码安装并检查依赖；安装前核对解析过程不能替换配套 torch：
 
 ```bash
+set -e
 python3 -c 'import torch, torch_npu'
 git clone https://github.com/moment-timeseries-foundation-model/moment.git moment-source
 git -C moment-source checkout 38f7310ad594100747ca2a8357e9c7ca7d323e0e
@@ -26,7 +29,7 @@ python3 -m pip check
 
 ## 文件目录
 
-`model.py`、`common.py`、`prepare_series.py`、`train_head.py` 为工具入口，`test_model.py` 为离线回归；权重、数据、输出不入正式候选。
+`model.py`、`common.py`、`prepare_series.py`、`train_head.py` 为工具入口，`performance.py` 为独立性能汇总，`test_model.py`、`test_performance.py` 为离线回归；权重、数据、输出不入正式候选。
 
 ## 快速上手
 
@@ -61,6 +64,22 @@ python3 model.py compare --reference "$MODEL_WORK_DIR/cpu.npz" --candidate "$MOD
 
 官方教程 large、ETTh1 horizon 192、训练 head 一轮后 MSE 0.422/MAE 0.432；当前 FP32 训练路径尚未证明与教程 AMP 配方及数据处理完全一致。 当前只提供本地协议，官方预训练仅重建头；预测头必须先训练并保存 `head.safetensors` 及同名 `.json` 元数据，入口检查 SHA、训练步数、预测长度和 backbone。该元数据只验证记录一致性，仍需检查训练日志与数据真实性。 固定输入 SHA、模型 SHA、任务及 head 后才允许比较。同步计时覆盖模型调用，排除输入准备和结果传回；单次 batch 中位数不是三次独立运行中位数。完整 NPU 精度、三次独立性能、端到端时间和显存待上机测量。
 
+## NPU 独立性能报告
+
+每次 `infer` 成功后额外生成 `<输出文件>.performance.json`，保存逐批同步耗时、总模型调用时间、吞吐、结果 SHA、命令和运行 ID。元信息含 Python、PyTorch、torch_npu、设备名称、进程内逻辑卡号及 `ASCEND_RT_VISIBLE_DEVICES` 原值；物理卡映射仍须结合 `npu-smi info` 核对。`performance.py` 校验至少三次不同运行 ID、相同模型/数据/设备/参数，再汇总独立运行中位数；CPU 报告不能用于 NPU 性能结论。
+
+```bash
+set -e
+for RUN in 1 2 3; do
+  python3 model.py infer --model-dir "$MODEL_WORK_DIR/model" --input "$MODEL_WORK_DIR/test.npz" --output "$MODEL_WORK_DIR/npu-run-$RUN.npz" --device npu --task forecast --head "$MODEL_WORK_DIR/head.safetensors" --head-sha256 "$HEAD_SHA256"
+done
+python3 performance.py --runs "$MODEL_WORK_DIR"/npu-run-*.npz.performance.json --output "$MODEL_WORK_DIR/performance-median.json"
+```
+
+统计包括末尾不足 batch 的批次；吞吐单位为输入样本/秒（TimesFM 为通道序列/秒）。这是纯模型调用口径，端到端时间、首次编译和峰值 HBM 仍需在目标 NPU 单独实测。报告校验不能认证人工编辑的文件或证明设备证据真实，发布前须核对原始日志。
+
+本目录 `LICENSE` 保留固定上游参考实现的许可原文；正式自测、完整依赖安装与 NPU 验收仍待完成。
+
 ## 公网地址
 
 | 内容 | 具体地址 |
@@ -69,3 +88,8 @@ python3 model.py compare --reference "$MODEL_WORK_DIR/cpu.npz" --candidate "$MOD
 | 固定权重 | https://huggingface.co/AutonLab/MOMENT-1-large/tree/ca58581bc7bea2ebed4e80dc0a3e4b8b609c6ecc |
 | 公开参考 | https://github.com/moment-timeseries-foundation-model/moment/blob/38f7310ad594100747ca2a8357e9c7ca7d323e0e/tutorials/forecasting.ipynb |
 | ETTh1 数据 | https://github.com/zhouhaoyi/ETDataset/blob/1d16c8f4f943005d613b5bc962e9eeb06058cf07/ETT-small/ETTh1.csv |
+| 下载或依赖地址 | https://github.com/moment-timeseries-foundation-model/moment.git |
+| 下载或依赖地址 | https://huggingface.co/AutonLab/MOMENT-1-large/resolve/ca58581bc7bea2ebed4e80dc0a3e4b8b609c6ecc/config.json |
+| 下载或依赖地址 | https://huggingface.co/AutonLab/MOMENT-1-large/resolve/ca58581bc7bea2ebed4e80dc0a3e4b8b609c6ecc/model.safetensors |
+| 下载或依赖地址 | https://raw.githubusercontent.com/zhouhaoyi/ETDataset/1d16c8f4f943005d613b5bc962e9eeb06058cf07/ETT-small/ETTh1.csv |
+| 参考许可证 | https://raw.githubusercontent.com/moment-timeseries-foundation-model/moment/38f7310ad594100747ca2a8357e9c7ca7d323e0e/LICENSE |

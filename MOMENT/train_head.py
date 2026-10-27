@@ -1,6 +1,7 @@
 """Train only the MOMENT forecast head on a prepared ETTh1 training split."""
 import argparse
 import json
+import math
 from pathlib import Path
 
 import common
@@ -18,7 +19,8 @@ def main():
     p.add_argument("--learning-rate", type=float, default=0.0001)
     p.add_argument("--seed", type=int, default=13)
     args = p.parse_args()
-    if Path(args.output).suffix != ".safetensors" or args.batch_size <= 0 or args.epochs <= 0 or args.learning_rate <= 0:
+    if (Path(args.output).suffix != ".safetensors" or args.batch_size <= 0 or args.epochs <= 0
+            or not math.isfinite(args.learning_rate) or args.learning_rate <= 0):
         raise ValueError("invalid output or training parameters")
     import numpy as np
     import torch

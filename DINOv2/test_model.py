@@ -82,6 +82,51 @@ class OfflineTests(unittest.TestCase):
         self.cli("compare", "--reference", ref, "--candidate", other, "--max-absolute", 1,
                  "--output", report, ok=False)
 
+    def test_truncated_predictions_and_scalar_inputs_fail(self):
+        result = self.root / "truncated.npz"
+        self.result(result)
+        with np.load(result, allow_pickle=False) as data:
+            fields = {k: data[k] for k in data.files}
+        fields["prediction"] = fields["prediction"][:1]
+        np.savez_compressed(result, **fields)
+        self.cli("evaluate", "--input", self.data, "--results", result,
+                 "--output", self.root / "score.json", "--metric",
+                 "classification" if KIND == "DINOv2" else "regression", ok=False)
+        np.savez_compressed(self.data, inputs=np.array(0, dtype=np.float32))
+        with self.assertRaisesRegex(ValueError, "nonempty"):
+            common.input_arrays(self.data)
+
+    def test_fixture_inference_persists_performance(self):
+        import torch
+
+        class FixtureModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.weight = torch.nn.Parameter(torch.zeros(1))
+
+        def predict(args, net, batch, target):
+            shape = (len(batch), 1000) if KIND == "DINOv2" else target.shape
+            prediction = torch.zeros(shape, dtype=torch.float32)
+            if KIND == "Toto-2.0":
+                return prediction, prediction.unsqueeze(0).expand(9, *shape)
+            return prediction
+
+        for filename in ("config.json", "model.safetensors"):
+            (self.root / filename).write_bytes(b"fixture, not model weights")
+        fixture = types.SimpleNamespace(
+            MODEL="fixture-only", __file__=__file__,
+            ASSETS={name: common.digest(self.root / name) for name in ("config.json", "model.safetensors")},
+            validate_input=lambda *args: None,
+            load_model=lambda *args: FixtureModel().eval(), predict=predict)
+        output = self.root / "output.npz"
+        args = Namespace(input=str(self.data), model_dir=str(self.root), output=str(output),
+                         batch_size=1, warmup=1, device="cpu", head=None, head_sha256=None, task="fixture")
+        common.infer(args, fixture)
+        report = json.loads(Path(str(output) + ".performance.json").read_text())
+        self.assertEqual(report["samples"], 2)
+        self.assertEqual(len(report["batch_durations_ms"]), 2)
+        self.assertEqual(report["result_sha256"], common.digest(output))
+
     def test_model_input_contract(self):
         task = "classification" if KIND == "DINOv2" else ("reconstruction" if KIND == "MOMENT" else "forecast")
         args = Namespace(input=str(self.data), head=None, head_sha256=None, task=task)
@@ -152,6 +197,26 @@ class OfflineTests(unittest.TestCase):
                      "--expected-count", "2", "--output", str(self.root / "aggregate.json")]
         self.assertEqual(subprocess.run(aggregate, capture_output=True).returncode, 0)
         self.assertEqual(json.loads((self.root / "aggregate.json").read_text())["top1"], 1.0)
+        score_path = work / "scores" / "shard-00001.json"
+        valid_score = score_path.read_text()
+        tampered = json.loads(valid_score)
+        tampered["top1"] = 0.0
+        score_path.write_text(json.dumps(tampered))
+        rejected = subprocess.run(aggregate, capture_output=True, text=True)
+        self.assertNotEqual(rejected.returncode, 0)
+        self.assertIn("scores differ from saved logits", rejected.stderr)
+        score_path.write_text(valid_score)
+        result_path = work / "results" / "shard-00001.npz"
+        with np.load(result_path, allow_pickle=False) as data:
+            fields = {k: data[k] for k in data.files}
+        meta = json.loads(str(fields["metadata"].item()))
+        meta["input_sha256"] = "other-input"
+        fields["metadata"] = json.dumps(meta)
+        np.savez_compressed(result_path, **fields)
+        tampered = json.loads(valid_score)
+        tampered["results_sha256"] = common.digest(result_path)
+        score_path.write_text(json.dumps(tampered))
+        self.assertNotEqual(subprocess.run(aggregate, capture_output=True).returncode, 0)
         (work / "scores" / "shard-00001.json").unlink()
         self.assertNotEqual(subprocess.run(aggregate, capture_output=True).returncode, 0)
         labels.write_text(json.dumps({"class_a": 3, "class_b": 3}))

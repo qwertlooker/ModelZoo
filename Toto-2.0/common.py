@@ -8,6 +8,8 @@ import statistics
 import time
 from pathlib import Path
 
+import performance
+
 
 def digest(path):
     h = hashlib.sha256()
@@ -51,9 +53,9 @@ def input_arrays(path):
     with np.load(path, allow_pickle=False) as data:
         x = data["inputs"]
         y = data["targets"] if "targets" in data else None
-    if x.dtype != np.float32 or not np.isfinite(x).all() or x.shape[0] == 0:
+    if x.ndim == 0 or x.dtype != np.float32 or not np.isfinite(x).all() or x.shape[0] == 0:
         raise ValueError("inputs must be nonempty, finite float32")
-    if y is not None and (not np.isfinite(y).all() or y.shape[0] != x.shape[0]):
+    if y is not None and (y.ndim == 0 or not np.isfinite(y).all() or y.shape[0] != x.shape[0]):
         raise ValueError("invalid target values or sample count")
     return x, y
 
@@ -121,6 +123,8 @@ def infer(args, implementation):
         raise ValueError("invalid batch-size or warmup")
     if Path(args.output).suffix != ".npz":
         raise ValueError("output must end in .npz")
+    if Path(args.output).resolve() == Path(args.input).resolve():
+        raise ValueError("output must not overwrite input")
     x, targets = input_arrays(args.input)
     implementation.validate_input(args, x, targets)
     model_dir = Path(args.model_dir)
@@ -158,12 +162,15 @@ def infer(args, implementation):
             "config_sha256": implementation.ASSETS["config.json"], "input_sha256": digest(args.input),
             "head_sha256": args.head_sha256, "device": args.device, "dtype": "float32",
             "task": args.task, "batch_size": args.batch_size, "warmup": args.warmup,
-            "torch_version": torch.__version__}
+            "torch_version": torch.__version__,
+            "adapter_sha256": digest(implementation.__file__), "runner_sha256": digest(__file__),
+            "timing_sha256": digest(performance.__file__)}
     distribution = np.concatenate(quantiles, axis=1)
     if distribution.shape != (9, *prediction.shape) or not np.isfinite(distribution).all():
         raise ValueError("invalid Toto quantile outputs")
     np.savez_compressed(args.output, prediction=prediction, quantiles=distribution,
                         metadata=json.dumps(meta, sort_keys=True))
+    performance.write_report(args.output, meta, durations, len(x))
     print(json.dumps({"samples": len(x), "batch_latency_median_ms": statistics.median(durations),
                       "scope": "synchronized model calls only; single run, not independent-run median"}))
 
@@ -174,6 +181,8 @@ def evaluate(args):
     pred, meta = read_prediction(args.results)
     if meta["input_sha256"] != digest(args.input) or targets is None:
         raise ValueError("missing targets or input digest mismatch")
+    if pred.ndim == 0 or len(pred) != len(targets):
+        raise ValueError("prediction and target sample counts differ")
     if args.metric == "regression":
         if pred.shape != targets.shape:
             raise ValueError(f"regression shape mismatch: {pred.shape} != {targets.shape}")
@@ -183,6 +192,10 @@ def evaluate(args):
             quantiles = data["quantiles"]
         if quantiles.shape != (9, *targets.shape) or not np.isfinite(quantiles).all():
             raise ValueError("invalid quantile array")
+        if not np.array_equal(pred, quantiles[4]):
+            raise ValueError("median prediction differs from the 0.5 quantile")
+        targets = targets.astype(np.float64)
+        quantiles = quantiles.astype(np.float64)
         denominator = float(np.abs(targets).sum())
         if denominator == 0:
             raise ValueError("weighted quantile loss undefined for all-zero targets")
@@ -221,6 +234,8 @@ def compare(args):
         q_ref, q_out = a_data["quantiles"], b_data["quantiles"]
     if q_ref.shape != (9, *ref.shape) or q_ref.shape != q_out.shape or not np.isfinite(q_ref).all() or not np.isfinite(q_out).all():
         raise ValueError("quantile shapes or values differ")
+    if not np.array_equal(ref, q_ref[4]) or not np.array_equal(out, q_out[4]):
+        raise ValueError("median prediction differs from the 0.5 quantile")
     error = float(max(np.max(np.abs(ref.astype(np.float64) - out.astype(np.float64))),
                       np.max(np.abs(q_ref.astype(np.float64) - q_out.astype(np.float64)))))
     report = {"max_absolute": error, "threshold": args.max_absolute, "passed": error <= args.max_absolute,

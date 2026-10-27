@@ -2,7 +2,9 @@
 
 ## 概述
 
-本工作区是离线适配准备，默认 NPU，不自动回退 CPU。**尚未运行真实模型或 NPU，未达到 S3。** 固定模型与源代码：https://github.com/facebookresearch/dinov2/tree/7764ea0f912e53c92e82eb78a2a1631e92725fc8；权重 facebook/dinov2-large revision `47b73eefe95e8d44ec3623f8890bd894b6ea2d6c`，许可证 Apache-2.0。
+本工作区是离线适配准备，默认 NPU，不自动回退 CPU。**尚未运行真实模型或 NPU，未达到 S3。** 固定模型与源代码：<https://github.com/facebookresearch/dinov2/tree/7764ea0f912e53c92e82eb78a2a1631e92725fc8>；权重 facebook/dinov2-large revision `47b73eefe95e8d44ec3623f8890bd894b6ea2d6c`，许可证 Apache-2.0。
+
+参考实现 `commit_id=7764ea0f912e53c92e82eb78a2a1631e92725fc8`（固定源码或资料审计快照；实际运行依赖版本仍以上述约束为准）。
 
 ## 输入输出数据
 
@@ -15,6 +17,7 @@
 确认配套栈后，可安装业务依赖；安装前核对解析过程不能替换配套 torch：
 
 ```bash
+set -e
 python3 -c 'import torch, torch_npu'
 python3 -m pip install 'transformers==4.57.6' Pillow safetensors
 python3 -m pip check
@@ -24,7 +27,7 @@ python3 -m pip check
 
 ## 文件目录
 
-`model.py`、`common.py`、`make_manifest.py`、`split_manifest.py`、`prepare_images.py`、`aggregate_metrics.py` 为工具入口，`test_model.py` 为离线回归；权重、数据、输出不入正式候选。
+`model.py`、`common.py`、`make_manifest.py`、`split_manifest.py`、`prepare_images.py`、`aggregate_metrics.py` 为工具入口，`performance.py` 为独立性能汇总，`test_model.py`、`test_performance.py` 为离线回归；权重、数据、输出不入正式候选。
 
 ## 快速上手
 
@@ -65,7 +68,7 @@ python3 aggregate_metrics.py --manifest "$IMAGE_MANIFEST" --shard-dir "$MODEL_WO
 ```bash
 export MODEL_WORK_DIR="$PWD/work"
 export HEAD_SHA256="$(sha256sum "$MODEL_WORK_DIR/linear4.pth" | cut -d ' ' -f 1)"
-python3 model.py infer --model-dir "$MODEL_WORK_DIR/model" --input "$MODEL_WORK_DIR/inputs/shard-00000.npz" --output "$MODEL_WORK_DIR/cpu.npz" --device cpu --head "$MODEL_WORK_DIR/linear4.pth" --head-sha256 "$HEAD_SHA256"
+python3 model.py infer --model-dir "$MODEL_WORK_DIR/model" --input "$MODEL_WORK_DIR/inputs/shard-00000.npz" --output "$MODEL_WORK_DIR/cpu.npz" --device cpu --task classification --head "$MODEL_WORK_DIR/linear4.pth" --head-sha256 "$HEAD_SHA256"
 export MAX_ABSOLUTE_ERROR=0.01
 python3 model.py compare --reference "$MODEL_WORK_DIR/cpu.npz" --candidate "$MODEL_WORK_DIR/results/shard-00000.npz" --max-absolute "$MAX_ABSOLUTE_ERROR" --output "$MODEL_WORK_DIR/compare.json"
 ```
@@ -73,6 +76,24 @@ python3 model.py compare --reference "$MODEL_WORK_DIR/cpu.npz" --candidate "$MOD
 ## 性能与精度
 
 官方 ViT-L/14 无 register 的 ImageNet kNN 83.5%、linear 86.3%；复用匹配 head、预处理、评估范围及标签映射后才能比较。当前 HF backbone + Meta head 组合还未验证等价。分类头尚未取得官方固定 SHA；运行前记录实际 SHA 只保证后续文件一致，不证明来源。HF backbone 的中间层归一化与 Meta 原始路径仍需逐层/数据集比较；分片工具校验原始清单、各分片、数据和结果 SHA 后按样本数汇总。固定输入 SHA、模型 SHA、任务及 head 后才允许比较。同步计时覆盖模型调用，排除输入准备和结果传回；单次 batch 中位数不是三次独立运行中位数。完整 NPU 精度、三次独立性能、端到端时间和显存待上机测量。
+
+## NPU 独立性能报告
+
+每次 `infer` 成功后额外生成 `<输出文件>.performance.json`，保存逐批同步耗时、总模型调用时间、吞吐、结果 SHA、命令和运行 ID。元信息含 Python、PyTorch、torch_npu、设备名称、进程内逻辑卡号及 `ASCEND_RT_VISIBLE_DEVICES` 原值；物理卡映射仍须结合 `npu-smi info` 核对。`performance.py` 校验至少三次不同运行 ID、相同模型/数据/设备/参数，再汇总独立运行中位数；CPU 报告不能用于 NPU 性能结论。
+
+以下性能命令只测固定首个分片，不能作为完整 ImageNet 精度验收；完整精度仍按前述所有分片执行。
+
+```bash
+set -e
+for RUN in 1 2 3; do
+  python3 model.py infer --model-dir "$MODEL_WORK_DIR/model" --input "$MODEL_WORK_DIR/inputs/shard-00000.npz" --output "$MODEL_WORK_DIR/npu-run-$RUN.npz" --device npu --task classification --head "$MODEL_WORK_DIR/linear4.pth" --head-sha256 "$HEAD_SHA256"
+done
+python3 performance.py --runs "$MODEL_WORK_DIR"/npu-run-*.npz.performance.json --output "$MODEL_WORK_DIR/performance-median.json"
+```
+
+统计包括末尾不足 batch 的批次；吞吐单位为输入样本/秒（TimesFM 为通道序列/秒）。这是纯模型调用口径，端到端时间、首次编译和峰值 HBM 仍需在目标 NPU 单独实测。报告校验不能认证人工编辑的文件或证明设备证据真实，发布前须核对原始日志。
+
+本目录 `LICENSE` 保留固定上游参考实现的许可原文；正式自测、完整依赖安装与 NPU 验收仍待完成。
 
 ## 公网地址
 
@@ -82,3 +103,7 @@ python3 model.py compare --reference "$MODEL_WORK_DIR/cpu.npz" --candidate "$MOD
 | 固定权重 | https://huggingface.co/facebook/dinov2-large/tree/47b73eefe95e8d44ec3623f8890bd894b6ea2d6c |
 | 公开参考 | https://github.com/facebookresearch/dinov2/blob/7764ea0f912e53c92e82eb78a2a1631e92725fc8/README.md |
 | 官方 linear4 头 | https://dl.fbaipublicfiles.com/dinov2/dinov2_vitl14/dinov2_vitl14_linear4_head.pth |
+| 下载或依赖地址 | https://huggingface.co/facebook/dinov2-large/resolve/47b73eefe95e8d44ec3623f8890bd894b6ea2d6c/config.json |
+| 下载或依赖地址 | https://huggingface.co/facebook/dinov2-large/resolve/47b73eefe95e8d44ec3623f8890bd894b6ea2d6c/model.safetensors |
+| 下载或依赖地址 | https://huggingface.co/facebook/dinov2-large/resolve/47b73eefe95e8d44ec3623f8890bd894b6ea2d6c/preprocessor_config.json |
+| 参考许可证 | https://raw.githubusercontent.com/facebookresearch/dinov2/7764ea0f912e53c92e82eb78a2a1631e92725fc8/LICENSE |
