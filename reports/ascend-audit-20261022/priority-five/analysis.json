@@ -148,10 +148,11 @@
       },
       "NPU": {
         "代码": {
-          "说明": "社区已有granite-tsfm0.3.8、torch2.9/torch_npu2.9.0.post1/CANN8.5.1的原生NPU入口，加载缺失/异常/新初始化检查和CPU对照；默认固定逻辑卡0，需改为显式设备参数并保持CPU行为。",
+          "说明": "社区已有granite-tsfm0.3.8、torch2.9/torch_npu2.9.0.post1/CANN8.5.1的原生NPU入口，加载缺失/异常/新初始化检查和CPU对照；默认固定逻辑卡0，需改为显式设备参数并保持CPU行为。 PyPI 0.3.8 正式声明 torch>=2.10,<2.11，社区案例的 torch2.9 与声明冲突，不可视为配套证明。",
           "链接": [
             "https://gitcode.com/m0_63918125/granite-timeseries-ttm-r2/blob/a5255ba55d8b3c172dd54cc734fe6f1c0a76f8a4/inference.py",
-            "https://gitcode.com/m0_63918125/granite-timeseries-ttm-r2/blob/a5255ba55d8b3c172dd54cc734fe6f1c0a76f8a4/README.md"
+            "https://gitcode.com/m0_63918125/granite-timeseries-ttm-r2/blob/a5255ba55d8b3c172dd54cc734fe6f1c0a76f8a4/README.md",
+            "https://pypi.org/pypi/granite-tsfm/0.3.8/json"
           ]
         },
         "权重": {
@@ -187,7 +188,8 @@
       "risks": [
         "模型小且同步时延接近B1/B32，可能受host调度影响；此为根据社区数据的推断，需profile证实。",
         "输入[B,L,C]、输出[B,H,C]，与MOMENT[B,C,L]不同；布局错误可能维度兼容但语义错误。",
-        "R2/R2.1/research与branch变化会改变频率前缀、长度和质量，模型名不够，必须固定revision。"
+        "R2/R2.1/research与branch变化会改变频率前缀、长度和质量，模型名不够，必须固定revision。",
+        "granite-tsfm 0.3.8 的 PyPI 元数据要求 Python 3.11–3.13 及 torch 2.10.x；社区 2.9 + --no-deps 不符合该要求，需查明可用昇腾配套栈。"
       ],
       "acceptance": [
         "以Granite R2 main 512→96为首个候选，记录55key等配置真实落地，不盲信零missing。",
@@ -296,10 +298,12 @@
       "status": "分析中；已找到1.0及2.0-4m社区NPU实现，但不能互相覆盖规模或指标。",
       "GPU": {
         "代码": {
-          "说明": "Toto2Model采用时间/变量交替注意力、u-μP与quantile头；1.0用Student-T mixture+采样，API/概率输出不同。2.0官方Python>=3.12，fine-tuning/EV尚未发布。",
+          "说明": "Toto2Model采用时间/变量交替注意力、u-μP与quantile头；1.0用Student-T mixture+采样，API/概率输出不同。2.0官方Python>=3.12，fine-tuning/EV尚未发布。 固定源码中的 toto-2 与 dd-unit-scaling 均声明 torch>=2.14.0，不能据较低版本社区案例推断兼容。",
           "链接": [
             "https://github.com/DataDog/toto/blob/1d3e1c97ccf615016d38fe910602c905ae31fbb7/README.md",
-            "https://github.com/DataDog/toto/blob/1d3e1c97ccf615016d38fe910602c905ae31fbb7/toto2/toto2/model.py"
+            "https://github.com/DataDog/toto/blob/1d3e1c97ccf615016d38fe910602c905ae31fbb7/toto2/toto2/model.py",
+            "https://github.com/DataDog/toto/blob/1d3e1c97ccf615016d38fe910602c905ae31fbb7/toto2/pyproject.toml",
+            "https://github.com/DataDog/toto/blob/1d3e1c97ccf615016d38fe910602c905ae31fbb7/dd_unit_scaling/pyproject.toml"
           ]
         },
         "权重": {
@@ -371,7 +375,8 @@
       "risks": [
         "Python>=3.12与BOOM README旧评测栈要求3.11存在依赖冲突，需分进程/离线评测交换结果或更新固定评测器，不绕过Requires-Python。",
         "部分社区强制CPU-only torch再加torch_npu、解包wheel绕版本、fake_gluonts等不符合本仓规范，不复制安装方案。",
-        "源码float64统计支持检查、GQA/SDPA与mask路径需要目标NPU实测；不能以eager标签当算子全支持。"
+        "源码float64统计支持检查、GQA/SDPA与mask路径需要目标NPU实测；不能以eager标签当算子全支持。",
+        "固定 Toto 源码两个包均要求 torch>=2.14.0；未确认该版本的 torch_npu/CANN 配套，不能绕过元数据强装。"
       ],
       "acceptance": [
         "22m固定revision与87.7MB资产；先1/3/7变量、缺失mask、NaN和不同horizon功能验证，未支持的输入直接报错。",
@@ -1345,6 +1350,23 @@
       "url": "https://github.com/DataDog/toto/blob/1d3e1c97ccf615016d38fe910602c905ae31fbb7/boom/notebooks/timesfm2_5.ipynb",
       "blob_sha": "217cc3d298087dbafa02b450511c99e6993b5b05",
       "method": "GitHub固定提交notebook源码读取；无执行",
+      "date": "2026-10-27"
+    },
+    {
+      "url": "https://pypi.org/pypi/granite-tsfm/0.3.8/json",
+      "method": "PyPI版本元数据读取",
+      "date": "2026-10-27"
+    },
+    {
+      "url": "https://github.com/DataDog/toto/blob/1d3e1c97ccf615016d38fe910602c905ae31fbb7/toto2/pyproject.toml",
+      "blob_sha": "c72c84420935fac80f56f0ea59e1d9a58f96c30d",
+      "method": "GitHub连接器读取固定提交依赖声明",
+      "date": "2026-10-27"
+    },
+    {
+      "url": "https://github.com/DataDog/toto/blob/1d3e1c97ccf615016d38fe910602c905ae31fbb7/dd_unit_scaling/pyproject.toml",
+      "blob_sha": "2ebeea7815c905c298cc4c3d663dd30462cbd1c4",
+      "method": "GitHub连接器读取固定提交依赖声明",
       "date": "2026-10-27"
     }
   ]

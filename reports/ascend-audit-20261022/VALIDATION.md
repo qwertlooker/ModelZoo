@@ -247,10 +247,12 @@ CSV删除每格重复免责声明、内部证据类型和长段对照原文；�
 
 - TimesFM、TTM-R2、DINOv2、Toto、MOMENT按用户顺序优先；priority-five/ANALYSIS.md逐个分析GPU/NPU的代码、权重、数据、性能与精度，并给出源码级风险和验收步骤。
 - priority-five.csv为5模型×2设备共10行、16列；assets.csv为8份候选权重。HF revision、文件字节与LFS SHA均由实时API元数据取得；未下载实体。
-- 取得40条原始资料记录，含重新读取DINOv2社区evaluate.py/report.json。50个唯一证据URL均HEAD可达；HEAD不是模型或资产内容验证。
+- 取得43条原始资料记录，含重新读取DINOv2社区evaluate.py/report.json。53个唯一证据URL均HEAD可达；HEAD不是模型或资产内容验证。
 - TimesFM 3.0权重许可与2.5分开；TTM-R2引用官方原始CSV ETTh1/512/96零样本MSE0.363；DINOv2修正L/14原始GPU基准83.5/86.3，替代错用L/16训练recipe81.6/82.9。
 - Toto分1.0与2.0，22m官方模型卡/5.0ms A100及各benchmark指标附协议；社区4m结果不覆盖22m。MOMENT原始源码与教程明确预测头须训练，社区随机head输出不认定预测质量。
 - 最新指定ModelZoo master仍为153c97646d940f0eefefe81cbc891693d7243eaa。当前是优先模型分析，不是五项模型迁移代码交付；未创建正式候选目录、安装环境或冒充S3。
-- 31项既有报告回归通过；五模型CSV/JSON逐字段一致性、8份资产SHA/revision格式、50个证据链接覆盖另做专项检查。执行机、CANN配套和任务容差/SLA尚未冻结；实际模型运行、全量精度/性能、clean-room及上库门禁仍未执行。
+- 31项既有报告回归通过；五模型CSV/JSON逐字段一致性、8份资产SHA/revision格式、53个证据链接覆盖另做专项检查。执行机、CANN配套和任务容差/SLA尚未冻结；实际模型运行、全量精度/性能、clean-room及上库门禁仍未执行。
 
 补核TimesFM2.5：已读取BOOM固定Space原始榜单（MASE0.632/CRPS0.382）及对应FP32/config和官方notebook的2048上下文、五个预测flags；另取得GIFT逐任务原始CSV。不能把Transformers短序列样例直接称复现原生协议。
+
+2026-10-27 再核对依赖元数据：granite-tsfm 0.3.8 要求 torch>=2.10,<2.11，社区案例 torch 2.9 与其不符；固定 Toto 2.0 源码和 dd-unit-scaling 均要求 torch>=2.14.0，目标昇腾配套待核实。已在优先分析表标明，并附 PyPI 及固定源码链接。
