@@ -1,0 +1,23 @@
+# TimesFM 2.5 验收计划
+
+## 原始测试集和官方/公开指标
+
+模型为 TimesFM 2.5 Transformers checkpoint。ETTh1 固定原始 CSV、测试区间 `[11520,14400)`、上下文 512、horizon 96、步长 1、七通道独立预测；MSE/MAE 在原始单位计算，不能和经过标准化的 TTM 指标直接比较。`prepare` 记录数据 SHA 和样本数，`evaluate` 复查每个样本 ID、顺序和数据真值。
+
+公开 BOOM 榜单 TimesFM 2.5：MASE 0.632、CRPS 0.382，详见 README 链接。其原生权重、2048 上下文、连续分位数、归一化、flip 和非负处理等协议与当前入口不同；须实现并核验同协议后才能作为质量对照。
+
+## 功能验证
+
+1. 对照固定 config 和模型 SHA 完成本地加载，缺失/多余/不匹配参数必须失败。
+2. 对 NPU、显式 CPU 路径分别验证长度、batch、短输入、常量序列、边界 horizon，以及缺失数据报错；128 以上 horizon 必须失败。
+3. 在同一 Python 环境、同一数据及权重上保存 CPU 和 NPU 输出；显式设置有依据的误差阈值，记录最大误差与失败样本。
+
+## L2 精度和性能
+
+使用完整 ETTh1 manifest 评测 MSE/MAE 与 CPU 参考。BOOM 等标准公开质量基准需先复现同版本、全量数据、evaluator 和预测参数，不从 ETTh1 结果推断。误差与任务指标门槛在正式运行前由需求方确定；禁止用演示阈值判定通过。
+
+NPU 独立运行至少三次，记录模型、输入、上下文、horizon、batch、dtype、预热及同步方式，分别报告纯模型与端到端延迟、吞吐和峰值显存；三次结果取中位数，不用 CPU 性能估算 GPU/NPU 加速比。
+
+## 最低正式验收和报告模板
+
+记录目标设备与驱动、CANN、PyTorch、torch_npu、Transformers、权重及数据 SHA；报告功能、NPU/CPU 数值比较、数据集指标、三次性能以及不可比和失败项。按 README 在干净目录重放，完成结构审计和目标仓贡献门禁。当前全部 NPU 实测和 clean-room 均未执行。
